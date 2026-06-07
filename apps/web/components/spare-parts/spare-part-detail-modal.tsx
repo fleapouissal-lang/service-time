@@ -1,10 +1,10 @@
 "use client";
 
-import Image from "next/image";
 import { X } from "lucide-react";
 import { useEffect } from "react";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
+import { SparePartImageSlider } from "@/components/spare-parts/spare-part-image-slider";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -14,6 +14,7 @@ import {
   getSparePartDetails,
   getSparePartName,
 } from "@/lib/localized-content";
+import { getSparePartImages } from "@/lib/spare-part-images";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { cn } from "@/lib/utils";
 
@@ -50,6 +51,7 @@ export function SparePartDetailModal({
   const description = getSparePartDescription(part, locale);
   const details = getSparePartDetails(part, locale);
   const category = getSparePartCategory(part, locale);
+  const images = getSparePartImages(part);
 
   return (
     <div
@@ -75,33 +77,30 @@ export function SparePartDetailModal({
           <X className="size-4" aria-hidden />
         </button>
 
-        {part.img ? (
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#060709]">
-            <Image
-              src={part.img}
-              alt={name}
-              fill
-              className={cn(
-                "object-cover",
-                !inStock && "grayscale saturate-50",
-              )}
-              sizes="512px"
-              unoptimized
-            />
-            {!inStock ? <SparePartOutOfStockOverlay /> : null}
-            {category ? (
-              <span
-                className={cn(
-                  "absolute top-4 right-4 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
-                  inStock
-                    ? "bg-[#94D4B9] text-[#050B10]"
-                    : "bg-[#050B10]/80 text-red-300",
-                )}
-              >
-                {category}
-              </span>
-            ) : null}
-          </div>
+        {images.length > 0 ? (
+          <SparePartImageSlider
+            images={images}
+            alt={name}
+            sizes="512px"
+            imageClassName={!inStock ? "grayscale saturate-50" : undefined}
+            overlay={
+              <>
+                {!inStock ? <SparePartOutOfStockOverlay /> : null}
+                {category ? (
+                  <span
+                    className={cn(
+                      "absolute top-4 right-4 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
+                      inStock
+                        ? "bg-[#94D4B9] text-[#050B10]"
+                        : "bg-[#050B10]/80 text-red-300",
+                    )}
+                  >
+                    {category}
+                  </span>
+                ) : null}
+              </>
+            }
+          />
         ) : null}
 
         <div className="space-y-4 p-6 pt-5">
@@ -119,7 +118,7 @@ export function SparePartDetailModal({
                 className={!inStock ? "text-muted line-through opacity-70" : undefined}
               />
             </div>
-            {category && !part.img ? (
+            {category && images.length === 0 ? (
               <span className="mt-2 inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
                 {category}
               </span>

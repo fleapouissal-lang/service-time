@@ -460,6 +460,11 @@ export const messages = {
     prevPage: "Previous page",
     nextPage: "Next page",
     detailClose: "Close",
+    photoPrev: "Previous photo",
+    photoNext: "Next photo",
+    photoCounter: "{current} / {total}",
+    photoGoTo: "Go to photo {n}",
+    photosLabel: "photos",
   },
 
   checkout: {
@@ -897,6 +902,9 @@ export const messages = {
         priceSar: "Price (SAR)",
         stockQuantity: "Stock quantity",
         partImage: "Part image",
+        partImages: "Part photos",
+        addMorePhotos: "Add more photos",
+        removePhoto: "Remove photo",
         imageHint: "Saved in public/spare-parts/",
         empty: "No parts.",
         emptyFiltered: "No results match your filters.",

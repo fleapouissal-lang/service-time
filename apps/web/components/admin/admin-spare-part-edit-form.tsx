@@ -10,9 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhotoUploadField } from "@/components/ui/photo-upload-field";
+import { MultiPhotoUploadField } from "@/components/ui/multi-photo-upload-field";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getSparePartImages } from "@/lib/spare-part-images";
 
 type AdminSparePartEditFormProps = {
   part: SparePart;
@@ -22,21 +23,12 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [state, action, pending] = useActionState(saveSparePartEditAction, {});
-
-  const photoFieldProps = {
-    accept: "image/jpeg,image/png,image/webp,image/gif",
-    title: t.request.form.photoTitle,
-    subtitle: t.request.form.photoSubtitle,
-    buttonLabel: t.request.form.photoButton,
-    changeLabel: t.request.form.photoChange,
-    hint: `${t.request.form.photoHint} — ${p.imageHint}`,
-  };
+  const existingImages = getSparePartImages(part);
 
   return (
     <div className="space-y-4">
       <form action={action} className="grid gap-4 md:grid-cols-2">
         <input type="hidden" name="id" value={part.id} />
-        <input type="hidden" name="existing_img" value={part.img ?? ""} />
 
         <div>
           <Label>{p.name}</Label>
@@ -81,13 +73,11 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
           />
         </div>
         <div className="md:col-span-2">
-          <Label className="mb-2 block">{p.partImage}</Label>
-          <PhotoUploadField
-            id={`spare-part-img-${part.id}`}
-            name="img"
-            defaultPreviewUrl={part.img}
-            defaultFileName={part.img ? (part.img.split("/").pop() ?? "") : ""}
-            {...photoFieldProps}
+          <Label className="mb-2 block">{p.partImages}</Label>
+          <MultiPhotoUploadField
+            id={`spare-part-images-${part.id}`}
+            defaultImages={existingImages}
+            accept="image/jpeg,image/png,image/webp,image/gif"
           />
         </div>
         <div className="md:col-span-2">

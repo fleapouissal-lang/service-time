@@ -86,6 +86,8 @@ export interface SparePart {
   details_en: string | null;
   image_url: string | null;
   img: string | null;
+  /** Ordered gallery paths; `img` is the cover (first image). */
+  images: string[] | null;
   price: number;
   stock_quantity: number;
   is_active: boolean;

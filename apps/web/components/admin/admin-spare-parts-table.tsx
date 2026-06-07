@@ -10,6 +10,7 @@ import { AdminTableActions } from "@/components/admin/admin-table-actions";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice } from "@/lib/format-price";
 import { getSparePartCategory, getSparePartName } from "@/lib/localized-content";
+import { getSparePartCoverImage } from "@/lib/spare-part-images";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type AdminSparePartsTableProps = {
@@ -55,13 +56,14 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           {parts.map((part) => {
             const name = getSparePartName(part, locale);
             const category = getSparePartCategory(part, locale);
+            const coverImage = getSparePartCoverImage(part);
 
             return (
               <tr key={part.id} className="border-b border-border">
                 <AdminTableCell align="center" className="w-20">
-                  {part.img ? (
+                  {coverImage ? (
                     <Image
-                      src={part.img}
+                      src={coverImage}
                       alt={name}
                       width={48}
                       height={48}

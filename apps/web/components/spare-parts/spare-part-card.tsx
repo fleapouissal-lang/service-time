@@ -14,6 +14,7 @@ import {
   getSparePartCategory,
   getSparePartName,
 } from "@/lib/localized-content";
+import { getSparePartCoverImage, getSparePartImages } from "@/lib/spare-part-images";
 import { cn } from "@/lib/utils";
 
 type SparePartCardProps = {
@@ -32,6 +33,8 @@ export function SparePartCard({
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
   const category = getSparePartCategory(part, locale);
+  const coverImage = getSparePartCoverImage(part);
+  const photoCount = getSparePartImages(part).length;
   const isGrid = variant === "grid";
 
   return (
@@ -59,9 +62,9 @@ export function SparePartCard({
       )}
     >
       <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#060709]">
-        {part.img ? (
+        {coverImage ? (
           <Image
-            src={part.img}
+            src={coverImage}
             alt={name}
             fill
             className={cn(
@@ -73,6 +76,11 @@ export function SparePartCard({
           />
         ) : null}
         {!inStock ? <SparePartOutOfStockOverlay /> : null}
+        {photoCount > 1 ? (
+          <span className="absolute bottom-3 left-3 z-20 rounded-full border border-[#94D4B9]/30 bg-[#050B10]/85 px-2.5 py-1 text-xs font-semibold text-[#94D4B9]">
+            {photoCount} {t.spareParts.photosLabel}
+          </span>
+        ) : null}
         {category ? (
           <span
             className={cn(

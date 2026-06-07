@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { PhotoUploadField } from "@/components/ui/photo-upload-field";
+import { MultiPhotoUploadField } from "@/components/ui/multi-photo-upload-field";
 import { Textarea } from "@/components/ui/textarea";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -15,15 +15,6 @@ export function AdminSparePartAddForm() {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [open, setOpen] = useState(false);
-
-  const photoFieldProps = {
-    accept: "image/jpeg,image/png,image/webp,image/gif",
-    title: t.request.form.photoTitle,
-    subtitle: t.request.form.photoSubtitle,
-    buttonLabel: t.request.form.photoButton,
-    changeLabel: t.request.form.photoChange,
-    hint: `${t.request.form.photoHint} — ${p.imageHint}`,
-  };
 
   return (
     <Card>
@@ -98,11 +89,10 @@ export function AdminSparePartAddForm() {
                 />
               </div>
               <div className="md:col-span-2">
-                <Label className="mb-2 block">{p.partImage}</Label>
-                <PhotoUploadField
-                  id="spare-part-img-add"
-                  name="img"
-                  {...photoFieldProps}
+                <Label className="mb-2 block">{p.partImages}</Label>
+                <MultiPhotoUploadField
+                  id="spare-part-images-add"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
                 />
               </div>
               <Textarea

@@ -460,6 +460,11 @@ export const messages = {
     prevPage: "الصفحة السابقة",
     nextPage: "الصفحة التالية",
     detailClose: "إغلاق",
+    photoPrev: "الصورة السابقة",
+    photoNext: "الصورة التالية",
+    photoCounter: "{current} / {total}",
+    photoGoTo: "الانتقال إلى الصورة {n}",
+    photosLabel: "صور",
   },
 
   checkout: {
@@ -897,6 +902,9 @@ export const messages = {
         priceSar: "السعر (ر.س)",
         stockQuantity: "الكمية في المخزون",
         partImage: "صورة القطعة",
+        partImages: "صور القطعة",
+        addMorePhotos: "إضافة المزيد من الصور",
+        removePhoto: "إزالة الصورة",
         imageHint: "تُحفظ في public/spare-parts/",
         empty: "لا توجد قطع.",
         emptyFiltered: "لا توجد نتائج مطابقة للتصفية.",

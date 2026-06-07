@@ -10,7 +10,7 @@ import type {
 } from "@service-time/types";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import { saveSparePartImage } from "@/lib/spare-part-image";
+import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import {
   getAvatarFromFormData,
   uploadProfileAvatar,
@@ -144,14 +144,8 @@ export async function deleteServiceAction(formData: FormData) {
 export async function saveSparePartAction(formData: FormData) {
   const supabase = await adminClient();
   const id = String(formData.get("id") ?? "");
-  const existingImg = String(formData.get("existing_img") ?? "").trim();
-  const imgFile = formData.get("img");
-
-  let img: string | null = existingImg || null;
-
-  if (imgFile instanceof File && imgFile.size > 0) {
-    img = await saveSparePartImage(imgFile);
-  }
+  const images = await resolveSparePartImagesFromForm(formData);
+  const img = images[0] ?? null;
 
   const priceRaw = String(formData.get("price") ?? "0").trim();
   const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
@@ -168,6 +162,7 @@ export async function saveSparePartAction(formData: FormData) {
     details: String(formData.get("details") ?? ""),
     details_en: String(formData.get("details_en") ?? "").trim() || null,
     img,
+    images,
     price,
     stock_quantity,
     is_active: formData.get("is_active") === "on",
@@ -206,14 +201,8 @@ export async function saveSparePartEditAction(
     const id = String(formData.get("id") ?? "");
     if (!id) return { error: "Missing part id" };
 
-    const existingImg = String(formData.get("existing_img") ?? "").trim();
-    const imgFile = formData.get("img");
-
-    let img: string | null = existingImg || null;
-
-    if (imgFile instanceof File && imgFile.size > 0) {
-      img = await saveSparePartImage(imgFile);
-    }
+    const images = await resolveSparePartImagesFromForm(formData);
+    const img = images[0] ?? null;
 
     const priceRaw = String(formData.get("price") ?? "0").trim();
     const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
@@ -230,6 +219,7 @@ export async function saveSparePartEditAction(
       details: String(formData.get("details") ?? ""),
       details_en: String(formData.get("details_en") ?? "").trim() || null,
       img,
+      images,
       price,
       stock_quantity,
       is_active: formData.get("is_active") === "on",
