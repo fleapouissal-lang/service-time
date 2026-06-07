@@ -14,7 +14,7 @@ export function SiteFooter() {
   return (
     <footer className="site-footer relative rounded-t-[20px] bg-[#050B10] text-white">
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
-        <div>
+        <div className="text-start">
           <Link href="/" className="inline-block">
             <Image
               src="/logos/banner.png"
@@ -30,7 +30,7 @@ export function SiteFooter() {
           </p>
         </div>
 
-        <div>
+        <div className="text-start">
           <p className="font-semibold text-[#94D4B9]">
             {messages.footer.quickLinks}
           </p>
@@ -48,24 +48,30 @@ export function SiteFooter() {
           </ul>
         </div>
 
-        <div>
+        <div className="text-start">
           <p className="font-semibold text-[#94D4B9]">
             {messages.footer.contact}
           </p>
-          <ul className="mt-3 space-y-2 text-sm text-white">
-            <li
-              dir="ltr"
-              className="text-end font-normal transition-all duration-200 hover:font-bold"
-            >
-              {phone}
+          <ul className="mt-3 space-y-2.5 text-sm">
+            <li>
+              <a
+                href={`tel:${phone.replace(/[^\d+]/g, "")}`}
+                dir="ltr"
+                className="inline-block font-normal text-white transition-all duration-200 hover:font-bold"
+              >
+                {phone}
+              </a>
             </li>
-            <li
-              dir="ltr"
-              className="font-normal transition-all duration-200 hover:font-bold"
-            >
-              {email}
+            <li>
+              <a
+                href={`mailto:${email}`}
+                dir="ltr"
+                className="inline-block font-normal text-white transition-all duration-200 hover:font-bold"
+              >
+                {email}
+              </a>
             </li>
-            <li className="text-white/85">{messages.footer.location}</li>
+            <li className="leading-7 text-white/85">{messages.footer.location}</li>
           </ul>
         </div>
       </div>

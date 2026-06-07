@@ -103,7 +103,7 @@ export function LoginForm() {
 
       <div className="relative flex items-center justify-center bg-[#060709] px-6 py-12 sm:px-10 lg:px-12">
         <div className="absolute end-6 top-6 z-20 sm:end-10 sm:top-8">
-          <LanguageSwitcher className="text-[#94D4B9] hover:bg-[#94D4B9]/10" />
+          <LanguageSwitcher tone="light" />
         </div>
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#94D4B9]/10 to-transparent opacity-60"

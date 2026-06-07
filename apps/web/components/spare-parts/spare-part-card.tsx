@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
@@ -17,88 +18,118 @@ import { cn } from "@/lib/utils";
 
 type SparePartCardProps = {
   part: SparePart;
-  onOpen: (part: SparePart) => void;
+  onOpen?: (part: SparePart) => void;
+  variant?: "grid" | "home";
 };
 
-export function SparePartCard({ part, onOpen }: SparePartCardProps) {
-  const { locale } = useLocale();
+export function SparePartCard({
+  part,
+  onOpen,
+  variant = "grid",
+}: SparePartCardProps) {
+  const { messages: t, locale } = useLocale();
   const inStock = isSparePartInStock(part);
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
   const category = getSparePartCategory(part, locale);
+  const isGrid = variant === "grid";
 
   return (
     <Card
-      role="button"
-      tabIndex={0}
-      onClick={() => onOpen(part)}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onOpen(part);
-        }
-      }}
+      role={isGrid ? "button" : undefined}
+      tabIndex={isGrid ? 0 : undefined}
+      onClick={isGrid ? () => onOpen?.(part) : undefined}
+      onKeyDown={
+        isGrid
+          ? (event) => {
+              if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                onOpen?.(part);
+              }
+            }
+          : undefined
+      }
       className={cn(
-        "group overflow-hidden rounded-[20px] border bg-[#091014] transition-all duration-300 ease-out",
+        "group flex h-full flex-col overflow-hidden rounded-[20px] border bg-[#091014] transition-all duration-300 ease-out",
         inStock
-          ? "cursor-pointer border-[#94D4B9]/10 shadow-[0_4px_24px_rgba(148,212,185,0.06)] hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]"
-          : "cursor-pointer border-red-500/20 opacity-90 shadow-none",
+          ? isGrid
+            ? "cursor-pointer border-[#94D4B9]/10 shadow-[0_4px_24px_rgba(148,212,185,0.06)] hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]"
+            : "border-[#94D4B9]/10 shadow-[0_4px_24px_rgba(148,212,185,0.06)] hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]"
+          : "cursor-default border-red-500/20 opacity-90 shadow-none",
       )}
     >
-      {part.img ? (
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#060709]">
+      <div className="relative aspect-[4/3] w-full shrink-0 overflow-hidden bg-[#060709]">
+        {part.img ? (
           <Image
             src={part.img}
             alt={name}
             fill
             className={cn(
               "object-cover transition-transform duration-300",
-              inStock
-                ? "group-hover:scale-105"
-                : "scale-100 grayscale saturate-50",
+              inStock ? "group-hover:scale-105" : "grayscale saturate-50",
             )}
             sizes="(max-width: 768px) 100vw, 33vw"
             unoptimized
           />
-          {!inStock ? <SparePartOutOfStockOverlay /> : null}
-          {category ? (
-            <span
-              className={cn(
-                "absolute top-3 right-3 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
-                inStock
-                  ? "bg-[#94D4B9] text-[#050B10]"
-                  : "bg-[#050B10]/80 text-red-300",
-              )}
-            >
-              {category}
-            </span>
-          ) : null}
-        </div>
-      ) : null}
-      <CardContent className={cn("p-6", !inStock && "opacity-80")}>
-        <h2
+        ) : null}
+        {!inStock ? <SparePartOutOfStockOverlay /> : null}
+        {category ? (
+          <span
+            className={cn(
+              "absolute top-3 end-3 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
+              inStock
+                ? "bg-[#94D4B9] text-[#050B10]"
+                : "bg-[#050B10]/80 text-red-300",
+            )}
+          >
+            {category}
+          </span>
+        ) : null}
+      </div>
+
+      <CardContent
+        className={cn(
+          "flex flex-1 flex-col p-6 text-start",
+          !inStock && "opacity-80",
+        )}
+      >
+        <h3
           className={cn(
-            "text-lg font-semibold transition-colors duration-300",
+            "line-clamp-2 min-h-14 text-lg font-semibold leading-7 transition-colors duration-300",
             inStock
               ? "group-hover:text-[#94D4B9]"
               : "text-muted line-through decoration-red-400/50",
           )}
         >
           {name}
-        </h2>
-        <div className="mt-2">
+        </h3>
+
+        <div className="mt-2 shrink-0">
           <SparePartPrice
             price={Number(part.price) || 0}
             className={!inStock ? "text-muted line-through opacity-70" : undefined}
           />
         </div>
-        {description ? (
-          <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted">
-            {description}
-          </p>
-        ) : null}
-        <div className="mt-4">
-          <AddToCartButton part={part} variant="card" />
+
+        <p className="mt-2 line-clamp-2 min-h-14 flex-1 text-sm leading-7 text-muted">
+          {description || "\u00A0"}
+        </p>
+
+        <div className="mt-4 shrink-0">
+          {isGrid ? (
+            <AddToCartButton part={part} variant="card" />
+          ) : inStock ? (
+            <Link
+              href="/spare-parts"
+              className="inline-flex h-11 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
+            >
+              {t.home.viewInStore}
+            </Link>
+          ) : (
+            <span className="inline-flex h-11 w-full cursor-not-allowed items-center justify-center rounded-[20px] border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-400">
+              {t.home.unavailable}
+            </span>
+          )}
         </div>
       </CardContent>
     </Card>

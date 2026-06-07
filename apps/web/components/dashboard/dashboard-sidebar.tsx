@@ -138,10 +138,10 @@ export function DashboardSidebar({
           {open ? profileBlock(false) : null}
           {open ? (
             <div className="flex justify-center">
-              <LanguageSwitcher className="text-[#050B10] hover:bg-[#050B10]/10" />
+              <LanguageSwitcher tone="light" />
             </div>
           ) : (
-            <LanguageSwitcher className="text-[#050B10] hover:bg-[#050B10]/10" />
+            <LanguageSwitcher tone="light" />
           )}
         </div>
 
