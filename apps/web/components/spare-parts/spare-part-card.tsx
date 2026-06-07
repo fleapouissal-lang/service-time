@@ -7,6 +7,11 @@ import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getSparePartDescription,
+  getSparePartName,
+} from "@/lib/localized-content";
 import { cn } from "@/lib/utils";
 
 type SparePartCardProps = {
@@ -15,7 +20,10 @@ type SparePartCardProps = {
 };
 
 export function SparePartCard({ part, onOpen }: SparePartCardProps) {
+  const { locale } = useLocale();
   const inStock = isSparePartInStock(part);
+  const name = getSparePartName(part, locale);
+  const description = getSparePartDescription(part, locale);
 
   return (
     <Card
@@ -39,7 +47,7 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
         <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#060709]">
           <Image
             src={part.img}
-            alt={part.name_ar}
+            alt={name}
             fill
             className={cn(
               "object-cover transition-transform duration-300",
@@ -74,7 +82,7 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
               : "text-muted line-through decoration-red-400/50",
           )}
         >
-          {part.name_ar}
+          {name}
         </h2>
         <div className="mt-2">
           <SparePartPrice
@@ -82,9 +90,9 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
             className={!inStock ? "text-muted line-through opacity-70" : undefined}
           />
         </div>
-        {part.description_ar ? (
+        {description ? (
           <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted">
-            {part.description_ar}
+            {description}
           </p>
         ) : null}
         <div className="mt-4">

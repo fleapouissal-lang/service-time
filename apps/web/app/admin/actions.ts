@@ -48,7 +48,9 @@ export async function saveServiceAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const payload = {
     name_ar: String(formData.get("name_ar")),
+    name_en: String(formData.get("name_en") ?? "").trim() || null,
     description_ar: String(formData.get("description_ar") ?? ""),
+    description_en: String(formData.get("description_en") ?? "").trim() || null,
     category: String(formData.get("category") ?? ""),
     service_type: String(formData.get("service_type")),
     sort_order: Number(formData.get("sort_order") ?? 0),
@@ -90,9 +92,12 @@ export async function saveSparePartAction(formData: FormData) {
 
   const payload = {
     name_ar: String(formData.get("name_ar")),
+    name_en: String(formData.get("name_en") ?? "").trim() || null,
     description_ar: String(formData.get("description_ar") ?? ""),
+    description_en: String(formData.get("description_en") ?? "").trim() || null,
     category: String(formData.get("category") ?? ""),
     details: String(formData.get("details") ?? ""),
+    details_en: String(formData.get("details_en") ?? "").trim() || null,
     img,
     price,
     stock_quantity,

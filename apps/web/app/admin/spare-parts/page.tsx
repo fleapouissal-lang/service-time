@@ -62,6 +62,10 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
               <Input name="name_ar" required className="mt-1" />
             </div>
             <div>
+              <Label>{p.nameEn}</Label>
+              <Input name="name_en" className="mt-1" />
+            </div>
+            <div>
               <Label>{t.common.category}</Label>
               <Input name="category" className="mt-1" />
             </div>
@@ -107,9 +111,19 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
               placeholder={p.descriptionPlaceholder}
             />
             <Textarea
+              name="description_en"
+              className="md:col-span-2"
+              placeholder={p.descriptionEn}
+            />
+            <Textarea
               name="details"
               className="md:col-span-2"
               placeholder={p.detailsPlaceholder}
+            />
+            <Textarea
+              name="details_en"
+              className="md:col-span-2"
+              placeholder={p.detailsEn}
             />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="is_active" defaultChecked />
@@ -131,6 +145,7 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
                 <input type="hidden" name="id" value={part.id} />
                 <input type="hidden" name="existing_img" value={part.img ?? ""} />
                 <Input name="name_ar" defaultValue={part.name_ar} />
+                <Input name="name_en" defaultValue={part.name_en ?? ""} />
                 <Input name="category" defaultValue={part.category ?? ""} />
                 <div>
                   <Label>{p.priceSar}</Label>
@@ -189,8 +204,18 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
                   className="md:col-span-2"
                 />
                 <Textarea
+                  name="description_en"
+                  defaultValue={part.description_en ?? ""}
+                  className="md:col-span-2"
+                />
+                <Textarea
                   name="details"
                   defaultValue={part.details ?? ""}
+                  className="md:col-span-2"
+                />
+                <Textarea
+                  name="details_en"
+                  defaultValue={part.details_en ?? ""}
                   className="md:col-span-2"
                 />
                 <label className="flex items-center gap-2 text-sm">

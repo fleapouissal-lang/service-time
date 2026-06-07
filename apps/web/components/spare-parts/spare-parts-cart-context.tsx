@@ -65,6 +65,8 @@ export function SparePartsCartProvider({
           item.id === part.id
             ? {
                 ...item,
+                name_ar: part.name_ar,
+                name_en: part.name_en,
                 price: Number(part.price) || 0,
                 stock_quantity: maxStock,
                 quantity: Math.min(

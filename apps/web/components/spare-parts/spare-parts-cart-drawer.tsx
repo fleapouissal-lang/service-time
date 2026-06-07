@@ -9,6 +9,7 @@ import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-con
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getCartItemName } from "@/lib/localized-content";
 
 type SparePartsCartDrawerProps = {
   open: boolean;
@@ -19,7 +20,7 @@ export function SparePartsCartDrawer({
   open,
   onClose,
 }: SparePartsCartDrawerProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const router = useRouter();
   const { items, totalCount, totalAmount, updateQuantity, removeItem, clearCart } =
     useSparePartsCart();
@@ -89,7 +90,9 @@ export function SparePartsCartDrawer({
             </div>
           ) : (
             <ul className="space-y-3">
-              {items.map((item) => (
+              {items.map((item) => {
+                const itemName = getCartItemName(item, locale);
+                return (
                 <li
                   key={item.id}
                   className="flex gap-3 rounded-[16px] border border-[#94D4B9]/15 bg-[#050B10]/60 p-3"
@@ -98,7 +101,7 @@ export function SparePartsCartDrawer({
                     {item.img ? (
                       <Image
                         src={item.img}
-                        alt={item.name_ar}
+                        alt={itemName}
                         fill
                         className="object-cover"
                         sizes="64px"
@@ -113,7 +116,7 @@ export function SparePartsCartDrawer({
 
                   <div className="min-w-0 flex-1">
                     <p className="truncate font-semibold text-white">
-                      {item.name_ar}
+                      {itemName}
                     </p>
                     {item.category ? (
                       <p className="mt-0.5 text-xs text-muted">{item.category}</p>
@@ -165,7 +168,8 @@ export function SparePartsCartDrawer({
                     </div>
                   </div>
                 </li>
-              ))}
+                );
+              })}
             </ul>
           )}
         </div>

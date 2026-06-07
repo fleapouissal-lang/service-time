@@ -62,7 +62,9 @@ export interface User {
 export interface Service {
   id: string;
   name_ar: string;
+  name_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
   category: string | null;
   service_type: ServiceType;
   image_url: string | null;
@@ -75,9 +77,12 @@ export interface Service {
 export interface SparePart {
   id: string;
   name_ar: string;
+  name_en: string | null;
   description_ar: string | null;
+  description_en: string | null;
   category: string | null;
   details: string | null;
+  details_en: string | null;
   image_url: string | null;
   img: string | null;
   price: number;

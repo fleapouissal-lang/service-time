@@ -16,10 +16,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getCartItemName } from "@/lib/localized-content";
 import { useRequireClientForCart } from "@/lib/use-require-client-for-cart";
 
 export function SparePartsCheckoutForm() {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const router = useRouter();
   const { requireClient } = useRequireClientForCart();
   const { items, totalCount, totalAmount } = useSparePartsCart();
@@ -75,7 +76,9 @@ export function SparePartsCheckoutForm() {
           ) : null}
 
           <ul className="space-y-3">
-            {items.map((item) => (
+            {items.map((item) => {
+              const itemName = getCartItemName(item, locale);
+              return (
               <li
                 key={item.id}
                 className="flex items-center gap-3 rounded-xl border border-border p-3"
@@ -84,7 +87,7 @@ export function SparePartsCheckoutForm() {
                   {item.img ? (
                     <Image
                       src={item.img}
-                      alt={item.name_ar}
+                      alt={itemName}
                       fill
                       className="object-cover"
                       unoptimized
@@ -92,7 +95,7 @@ export function SparePartsCheckoutForm() {
                   ) : null}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-semibold">{item.name_ar}</p>
+                  <p className="truncate font-semibold">{itemName}</p>
                   <div className="mt-1 flex items-center gap-2 text-sm text-muted">
                     <SparePartPrice price={item.price} size="sm" />
                     <span>× {item.quantity}</span>
@@ -102,7 +105,8 @@ export function SparePartsCheckoutForm() {
                   {formatSparePartPrice(getLineTotal(item.price, item.quantity))}
                 </span>
               </li>
-            ))}
+              );
+            })}
           </ul>
 
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/10 px-4 py-3">

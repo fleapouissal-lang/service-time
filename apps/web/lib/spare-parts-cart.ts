@@ -1,9 +1,12 @@
 import type { SparePart } from "@service-time/types";
+import type { Locale } from "@/lib/i18n/config";
 import { formatSparePartPrice, getCartTotalAmount } from "@/lib/format-price";
+import { getCartItemName } from "@/lib/localized-content";
 
 export type SparePartCartItem = {
   id: string;
   name_ar: string;
+  name_en: string | null;
   category: string | null;
   img: string | null;
   price: number;
@@ -28,6 +31,7 @@ export function sparePartToCartItem(part: SparePart): SparePartCartItem {
   return {
     id: part.id,
     name_ar: part.name_ar,
+    name_en: part.name_en,
     category: part.category,
     img: part.img,
     price: Number(part.price) || 0,
@@ -53,6 +57,7 @@ export function readCartFromStorage(): SparePartCartItem[] {
         item.quantity > 0,
     ).map((item) => ({
       ...item,
+      name_en: item.name_en ?? null,
       price: normalizeCartItemPrice(item),
       stock_quantity: normalizeCartItemStock(item),
     }));
@@ -69,25 +74,33 @@ export function writeCartToStorage(items: SparePartCartItem[]) {
   );
 }
 
-export function buildCartOrderDescription(items: SparePartCartItem[]): string {
+export function buildCartOrderDescription(
+  items: SparePartCartItem[],
+  locale: Locale,
+  heading: string,
+): string {
   if (items.length === 0) return "";
 
   const lines = items.map((item) => {
     const category = item.category ? ` — ${item.category}` : "";
-    const lineTotal = formatSparePartPrice(item.price * item.quantity);
-    return `• ${item.name_ar}${category} × ${item.quantity} — ${lineTotal}`;
+    const lineTotal = formatSparePartPrice(item.price * item.quantity, locale);
+    return `• ${getCartItemName(item, locale)}${category} × ${item.quantity} — ${lineTotal}`;
   });
 
-  return `قطع الغيار المطلوبة:\n${lines.join("\n")}`;
+  return `${heading}\n${lines.join("\n")}`;
 }
 
-export function saveCartForCheckout(items: SparePartCartItem[]) {
+export function saveCartForCheckout(
+  items: SparePartCartItem[],
+  locale: Locale,
+  heading: string,
+) {
   if (typeof window === "undefined") return;
   window.sessionStorage.setItem(
     SPARE_PARTS_CHECKOUT_STORAGE_KEY,
     JSON.stringify({
       items,
-      description: buildCartOrderDescription(items),
+      description: buildCartOrderDescription(items, locale, heading),
     }),
   );
 }

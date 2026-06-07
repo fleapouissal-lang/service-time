@@ -4,6 +4,10 @@ import Link from "next/link";
 import { Car, Truck, Wrench } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getServiceDescription,
+  getServiceName,
+} from "@/lib/localized-content";
 import type { Service } from "@service-time/types";
 
 function ServiceIcon({ type }: { type: Service["service_type"] }) {
@@ -23,8 +27,10 @@ export function ServiceCard({
   ctaHref = "/request",
   ctaLabel,
 }: ServiceCardProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const label = ctaLabel ?? t.services.startRequest;
+  const name = getServiceName(service, locale);
+  const description = getServiceDescription(service, locale);
 
   return (
     <Card className="group rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] shadow-[0_4px_24px_rgba(148,212,185,0.06)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]">
@@ -33,10 +39,10 @@ export function ServiceCard({
           <ServiceIcon type={service.service_type} />
         </div>
         <h3 className="text-lg font-semibold transition-colors duration-300 group-hover:text-[#94D4B9]">
-          {service.name_ar}
+          {name}
         </h3>
         <p className="mt-2 text-sm leading-7 text-muted">
-          {service.description_ar}
+          {description}
         </p>
         <Link
           href={ctaHref}

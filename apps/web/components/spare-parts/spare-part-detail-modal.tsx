@@ -8,6 +8,11 @@ import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getSparePartDescription,
+  getSparePartDetails,
+  getSparePartName,
+} from "@/lib/localized-content";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { cn } from "@/lib/utils";
 
@@ -20,7 +25,7 @@ export function SparePartDetailModal({
   part,
   onClose,
 }: SparePartDetailModalProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   useEffect(() => {
     if (!part) return;
 
@@ -40,6 +45,9 @@ export function SparePartDetailModal({
   if (!part) return null;
 
   const inStock = isSparePartInStock(part);
+  const name = getSparePartName(part, locale);
+  const description = getSparePartDescription(part, locale);
+  const details = getSparePartDetails(part, locale);
 
   return (
     <div
@@ -69,7 +77,7 @@ export function SparePartDetailModal({
           <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#060709]">
             <Image
               src={part.img}
-              alt={part.name_ar}
+              alt={name}
               fill
               className={cn(
                 "object-cover",
@@ -100,7 +108,7 @@ export function SparePartDetailModal({
               id="spare-part-modal-title"
               className="pe-10 text-xl font-bold text-white"
             >
-              {part.name_ar}
+              {name}
             </h2>
             <div className="mt-2">
               <SparePartPrice
@@ -116,20 +124,20 @@ export function SparePartDetailModal({
             ) : null}
           </div>
 
-          {part.description_ar ? (
+          {description ? (
             <div>
               <p className="text-sm font-semibold text-[#94D4B9]">{t.common.description}</p>
               <p className="mt-2 text-sm leading-7 text-muted">
-                {part.description_ar}
+                {description}
               </p>
             </div>
           ) : null}
 
-          {part.details ? (
+          {details ? (
             <div>
               <p className="text-sm font-semibold text-[#94D4B9]">{t.common.details}</p>
               <p className="mt-2 rounded-[14px] bg-[#050B10] px-4 py-3 text-sm leading-7 text-muted">
-                {part.details}
+                {details}
               </p>
             </div>
           ) : null}

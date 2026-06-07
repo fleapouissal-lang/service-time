@@ -87,7 +87,7 @@ export function PhotoUploadField({
             </div>
 
             <div className="space-y-1 text-center">
-              <p className="font-poppins text-lg font-semibold text-[#94D4B9]">
+              <p className="text-lg font-semibold text-[#94D4B9]">
                 {resolvedTitle}
               </p>
               <p className="text-sm text-[#94D4B9]/75">{resolvedSubtitle}</p>

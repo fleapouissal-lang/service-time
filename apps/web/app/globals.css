@@ -1,25 +1,37 @@
 @import "tailwindcss";
 
-/* Janna LT — utilise la police locale si installée ; ajoutez .woff2 dans public/fonts/ */
+/* Polices locales — apps/web/public/fonts/ */
+
 @font-face {
   font-family: "Janna LT";
   src:
     local("Janna LT Regular"),
     local("JannaLT-Regular"),
     local("Janna LT"),
-    url("/fonts/JannaLT-Regular.woff2") format("woff2");
+    url("/fonts/JannaLT-Regular.ttf") format("truetype");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: "Janna LT";
+  font-family: "Tajawal";
   src:
-    local("Janna LT Bold"),
-    local("JannaLT-Bold"),
-    url("/fonts/JannaLT-Bold.woff2") format("woff2");
-  font-weight: 700;
+    local("Tajawal Regular"),
+    local("Tajawal"),
+    url("/fonts/Tajawal-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "DIN Next LT Arabic";
+  src:
+    local("DIN Next LT Arabic"),
+    local("DINNextLTArabic-Regular"),
+    url("/fonts/DINNextLTArabic-Regular.ttf") format("truetype");
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
@@ -42,6 +54,20 @@
   --dashboard-content-bg: #060709;
   --dashboard-sidebar-bg: #060709;
   --dashboard-sidebar-active: #94d4b9;
+  --font-heading: var(--font-poppins), sans-serif;
+  --font-body: "Janna LT", sans-serif;
+}
+
+/* EN : titres Poppins, texte Janna LT */
+html[lang="en"] {
+  --font-heading: var(--font-poppins), sans-serif;
+  --font-body: "Janna LT", sans-serif;
+}
+
+/* AR : titres DIN Next, texte Tajawal (Janna LT exclu) */
+html[lang="ar"] {
+  --font-heading: "DIN Next LT Arabic", sans-serif;
+  --font-body: "Tajawal", sans-serif;
 }
 
 @theme inline {
@@ -56,17 +82,67 @@
   --color-card-elevated: var(--card-elevated);
   --color-border: var(--border);
   --color-ring: var(--ring);
-  --font-sans: "Janna LT", var(--font-janna-fallback), var(--font-poppins), sans-serif;
+  --font-sans: var(--font-body);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: "Janna LT", var(--font-janna-fallback), var(--font-poppins), sans-serif;
+@layer base {
+  html {
+    font-family: var(--font-body);
+  }
+
+  body {
+    background: var(--background);
+    color: var(--foreground);
+    font-family: inherit;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-heading);
+  }
+
+  p {
+    font-family: var(--font-body);
+  }
+
+  html[lang="ar"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: "DIN Next LT Arabic", sans-serif;
+  }
+
+  html[lang="ar"] p,
+  html[lang="ar"] li,
+  html[lang="ar"] label,
+  html[lang="ar"] input,
+  html[lang="ar"] textarea,
+  html[lang="ar"] select,
+  html[lang="ar"] button {
+    font-family: "Tajawal", sans-serif;
+  }
+
+  html[lang="en"] :is(h1, h2, h3, h4, h5, h6) {
+    font-family: var(--font-poppins), sans-serif;
+  }
+
+  html[lang="en"] :is(p, li, label, input, textarea, select, button) {
+    font-family: "Janna LT", sans-serif;
+  }
 }
 
-.font-poppins {
-  font-family: var(--font-poppins), sans-serif;
+@layer utilities {
+  .font-heading {
+    font-family: var(--font-heading);
+  }
+
+  .font-body {
+    font-family: var(--font-body);
+  }
+
+  .font-poppins {
+    font-family: var(--font-heading);
+  }
+
+  .font-din-ar {
+    font-family: var(--font-heading);
+  }
 }
 
 /* Glow mint — hero & accents */

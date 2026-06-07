@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Poppins, Tajawal } from "next/font/google";
+import { Poppins } from "next/font/google";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PublicShell } from "@/components/layout/public-shell";
@@ -13,12 +13,6 @@ const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
-});
-
-const jannaFallback = Tajawal({
-  variable: "--font-janna-fallback",
-  subsets: ["arabic"],
-  weight: ["400", "500", "700"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -49,7 +43,7 @@ export default async function RootLayout({
     <html
       lang={locale}
       dir={dir}
-      className={`${poppins.variable} ${jannaFallback.variable} h-full scroll-smooth`}
+      className={`${poppins.variable} h-full scroll-smooth`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <LocaleProvider locale={locale}>

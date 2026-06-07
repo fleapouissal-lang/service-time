@@ -134,7 +134,9 @@ export function filterServices(
       const q = params.q.toLowerCase();
       const hit =
         matchesQuery(item.name_ar, q) ||
+        matchesQuery(item.name_en, q) ||
         matchesQuery(item.description_ar, q) ||
+        matchesQuery(item.description_en, q) ||
         matchesQuery(item.category, q);
       if (!hit) return false;
     }
@@ -163,9 +165,12 @@ export function filterSpareParts(
       const q = params.q.toLowerCase();
       const hit =
         matchesQuery(item.name_ar, q) ||
+        matchesQuery(item.name_en, q) ||
         matchesQuery(item.description_ar, q) ||
+        matchesQuery(item.description_en, q) ||
         matchesQuery(item.category, q) ||
-        matchesQuery(item.details, q);
+        matchesQuery(item.details, q) ||
+        matchesQuery(item.details_en, q);
       if (!hit) return false;
     }
 

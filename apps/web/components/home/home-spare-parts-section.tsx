@@ -9,6 +9,10 @@ import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import type { SparePart } from "@service-time/types";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getSparePartDescription,
+  getSparePartName,
+} from "@/lib/localized-content";
 import { cn } from "@/lib/utils";
 
 type HomeSparePartsSectionProps = {
@@ -16,7 +20,7 @@ type HomeSparePartsSectionProps = {
 };
 
 export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
-  const { messages } = useLocale();
+  const { messages, locale } = useLocale();
 
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] py-16">
@@ -40,6 +44,8 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
         {parts.length > 0 ? (
           parts.map((part) => {
             const inStock = isSparePartInStock(part);
+            const name = getSparePartName(part, locale);
+            const description = getSparePartDescription(part, locale);
 
             return (
             <Card
@@ -55,7 +61,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                 <div className="relative aspect-[4/3] w-full overflow-hidden bg-[#060709]">
                   <Image
                     src={part.img}
-                    alt={part.name_ar}
+                    alt={name}
                     fill
                     className={cn(
                       "object-cover transition-transform duration-300",
@@ -90,7 +96,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                       : "text-muted line-through decoration-red-400/50",
                   )}
                 >
-                  {part.name_ar}
+                  {name}
                 </h3>
                 <div className="mt-2">
                   <SparePartPrice
@@ -101,7 +107,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                   />
                 </div>
                 <p className="mt-2 line-clamp-2 text-sm leading-7 text-muted">
-                  {part.description_ar}
+                  {description}
                 </p>
                 {inStock ? (
                   <Link
