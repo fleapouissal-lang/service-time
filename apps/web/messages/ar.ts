@@ -763,6 +763,7 @@ export const messages = {
         addPart: "إضافة قطعة",
         name: "الاسم (عربي)",
         nameEn: "الاسم (English)",
+        categoryEn: "الفئة (English)",
         descriptionEn: "الوصف (English)",
         detailsEn: "التفاصيل (English)",
         priceSar: "السعر (ر.س)",

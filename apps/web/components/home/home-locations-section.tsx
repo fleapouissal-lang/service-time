@@ -3,14 +3,18 @@
 import Link from "next/link";
 import { ArrowLeft, MapPin, Navigation } from "lucide-react";
 import { useLocale } from "@/lib/i18n/locale-context";
-import type { WorkshopBranch } from "@/lib/queries";
+import {
+  getWorkshopAddress,
+  getWorkshopName,
+  type WorkshopBranch,
+} from "@/lib/localized-content";
 
 type HomeLocationsSectionProps = {
   workshops: WorkshopBranch[];
 };
 
 export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const loc = t.home.locations;
   const defaultLat = 24.7136;
   const defaultLng = 46.6753;
@@ -62,10 +66,10 @@ export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
               </span>
               <div className="min-w-0 flex-1">
                 <h3 className="text-lg font-semibold text-white">
-                  {branch.name_ar}
+                  {getWorkshopName(branch, locale)}
                 </h3>
                 <p className="mt-2 text-sm leading-7 text-muted">
-                  {branch.address_ar}
+                  {getWorkshopAddress(branch, locale)}
                 </p>
                 <a
                   href={`https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}`}

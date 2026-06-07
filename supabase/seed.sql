@@ -29,14 +29,20 @@ INSERT INTO public.site_content (key, value) VALUES
       "title_before_ar": "سيارتك تستحق الأفضل،",
       "title_highlight_ar": "ونحن نقدّمه.",
       "subtitle_ar": "ودّع همّ الصيانة والانتظار — في Service Time نصل إليك في الرياض بفريق فني معتمد، سواء احتجت صيانة دورية، مساعدة طارئة، أو قطع غيار. اطلب الخدمة في دقائق، تابع طلبك لحظة بلحظة، واترك الباقي علينا — سرعة، شفافية، وخدمة تليق بسيارتك.",
-      "cta_ar": "ابدأ الآن"
+      "cta_ar": "ابدأ الآن",
+      "title_before_en": "Your car deserves the best,",
+      "title_highlight_en": "and we deliver it.",
+      "subtitle_en": "Forget the hassle of maintenance and waiting — at Service Time we come to you in Riyadh with a certified technical team, whether you need periodic maintenance, emergency help, or spare parts. Request service in minutes, track your order in real time, and leave the rest to us.",
+      "cta_en": "Get started"
     }'::jsonb
   ),
   (
     'about.summary',
     '{
       "title_ar": "من نحن",
-      "body_ar": "Service Time منصة سعودية لصيانة السيارات وطلب قطع الغيار مع تتبع مباشر للفني."
+      "body_ar": "Service Time منصة سعودية لصيانة السيارات وطلب قطع الغيار مع تتبع مباشر للفني.",
+      "title_en": "About us",
+      "body_en": "Service Time is a Saudi platform for car maintenance and spare parts orders with live technician tracking."
     }'::jsonb
   ),
   (
@@ -58,14 +64,18 @@ INSERT INTO public.site_content (key, value) VALUES
         {
           "id": "riyadh-north",
           "name_ar": "ورشة الشمال - الرياض",
+          "name_en": "North Workshop - Riyadh",
           "address_ar": "حي النرجس، الرياض",
+          "address_en": "Al Narjis District, Riyadh",
           "lat": 24.8167,
           "lng": 46.7219
         },
         {
           "id": "riyadh-south",
           "name_ar": "ورشة الجنوب - الرياض",
+          "name_en": "South Workshop - Riyadh",
           "address_ar": "حي العزيزية، الرياض",
+          "address_en": "Al Aziziyah District, Riyadh",
           "lat": 24.5720,
           "lng": 46.7890
         }
@@ -156,6 +166,7 @@ INSERT INTO public.spare_parts (
   description_ar,
   description_en,
   category,
+  category_en,
   details,
   details_en,
   img,
@@ -170,6 +181,7 @@ INSERT INTO public.spare_parts (
     'قرص فرامل عالي الأداء — جودة OEM وبدائل معتمدة',
     'High-performance brake disc — OEM quality and approved alternatives',
     'فرامل',
+    'Brakes',
     'متوفر بمقاسات متعددة — يرجى ذكر موديل السيارة',
     'Available in multiple sizes — please specify your car model',
     '/spare-parts/disque-frein.png',
@@ -184,6 +196,7 @@ INSERT INTO public.spare_parts (
     'محور عجلة مع رولمان بلي — تركيب دقيق',
     'Wheel hub with bearing — precision fit',
     'هيكل',
+    'Chassis',
     'متوفر لمعظم موديلات السيارات',
     'Available for most car models',
     '/spare-parts/moyeu-roue.png',
@@ -198,6 +211,7 @@ INSERT INTO public.spare_parts (
     'قرص كلتش بسطح احتكاك مقاوم للحرارة',
     'Clutch disc with heat-resistant friction surface',
     'نقل الحركة',
+    'Drivetrain',
     'يرجى ذكر نوع ناقل الحركة (يدوي / أوتوماتيك)',
     'Please specify transmission type (manual / automatic)',
     '/spare-parts/disque-embrayage.png',
@@ -212,6 +226,7 @@ INSERT INTO public.spare_parts (
     'Alternator — شحن البطارية وتشغيل الأنظمة الكهربائية',
     'Alternator — charges the battery and powers electrical systems',
     'كهرباء',
+    'Electrical',
     'فحص وتركيب متاح في الورشة أو المتنقلة',
     'Inspection and installation available at workshop or mobile service',
     '/spare-parts/alternateur.png',
@@ -226,6 +241,7 @@ INSERT INTO public.spare_parts (
     'مضخة تبريد المحرك — أداء موثوق',
     'Engine cooling water pump — reliable performance',
     'تبريد',
+    'Cooling',
     'متوافقة مع أنظمة التبريد الحديثة',
     'Compatible with modern cooling systems',
     '/spare-parts/pompe-eau.png',
@@ -240,6 +256,7 @@ INSERT INTO public.spare_parts (
     'فلتر هواء محرك — حماية فعالة من الغبار',
     'Engine air filter — effective dust protection',
     'فلاتر',
+    'Filters',
     'يرجى ذكر سنة الصنع وموديل السيارة',
     'Please specify year and car model',
     '/spare-parts/filtre-air.png',
@@ -254,6 +271,7 @@ INSERT INTO public.spare_parts (
     'حاقنات وقود — رش دقيق واستهلاك محسّن',
     'Fuel injectors — precise spray and improved consumption',
     'وقود',
+    'Fuel',
     'مجموعة أو قطعة فردية حسب الطلب',
     'Set or individual part on request',
     '/spare-parts/injecteurs.png',
@@ -268,6 +286,7 @@ INSERT INTO public.spare_parts (
     'ذراع تحكم أمامي — استقرار وقيادة آمنة',
     'Front control arm — stability and safe handling',
     'تعليق',
+    'Suspension',
     'يرجى ذكر رقم الشاسيه (VIN)',
     'Please provide VIN number',
     '/spare-parts/bras-suspension.png',
@@ -282,6 +301,7 @@ INSERT INTO public.spare_parts (
     'سير توقيت مع شداد — مجموعة كاملة',
     'Timing belt with tensioner — complete kit',
     'نقل الحركة',
+    'Drivetrain',
     'تركيب احترافي موصى به عند الاستبدال',
     'Professional installation recommended when replacing',
     '/spare-parts/courroie.png',

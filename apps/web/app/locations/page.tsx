@@ -3,6 +3,7 @@ import { MapPin, Navigation } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServerI18n } from "@/lib/i18n/server";
+import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
 import { getWorkshops } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -11,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function LocationsPage() {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const workshops = await getWorkshops();
   const defaultLat = 24.7136;
   const defaultLng = 46.6753;
@@ -51,8 +52,12 @@ export default async function LocationsPage() {
                 <div className="flex items-start gap-3">
                   <MapPin className="mt-1 size-5 shrink-0 text-primary" />
                   <div className="flex-1">
-                    <h2 className="text-lg font-semibold">{branch.name_ar}</h2>
-                    <p className="mt-2 text-sm text-muted">{branch.address_ar}</p>
+                    <h2 className="text-lg font-semibold">
+                      {getWorkshopName(branch, locale)}
+                    </h2>
+                    <p className="mt-2 text-sm text-muted">
+                      {getWorkshopAddress(branch, locale)}
+                    </p>
                     <a
                       href={`https://www.google.com/maps/dir/?api=1&destination=${branch.lat},${branch.lng}`}
                       target="_blank"

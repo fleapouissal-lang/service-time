@@ -10,6 +10,7 @@ import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getSparePartDescription,
+  getSparePartCategory,
   getSparePartName,
 } from "@/lib/localized-content";
 import { cn } from "@/lib/utils";
@@ -24,6 +25,7 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
   const inStock = isSparePartInStock(part);
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
+  const category = getSparePartCategory(part, locale);
 
   return (
     <Card
@@ -59,7 +61,7 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
             unoptimized
           />
           {!inStock ? <SparePartOutOfStockOverlay /> : null}
-          {part.category ? (
+          {category ? (
             <span
               className={cn(
                 "absolute top-3 right-3 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
@@ -68,7 +70,7 @@ export function SparePartCard({ part, onOpen }: SparePartCardProps) {
                   : "bg-[#050B10]/80 text-red-300",
               )}
             >
-              {part.category}
+              {category}
             </span>
           ) : null}
         </div>

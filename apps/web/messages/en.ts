@@ -763,6 +763,7 @@ export const messages = {
         addPart: "Add part",
         name: "Name (Arabic)",
         nameEn: "Name (English)",
+        categoryEn: "Category (English)",
         descriptionEn: "Description (English)",
         detailsEn: "Details (English)",
         priceSar: "Price (SAR)",

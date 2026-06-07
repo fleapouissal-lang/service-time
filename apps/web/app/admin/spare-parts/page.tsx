@@ -66,8 +66,12 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
               <Input name="name_en" className="mt-1" />
             </div>
             <div>
-              <Label>{t.common.category}</Label>
+              <Label>{t.common.category} (AR)</Label>
               <Input name="category" className="mt-1" />
+            </div>
+            <div>
+              <Label>{p.categoryEn}</Label>
+              <Input name="category_en" className="mt-1" />
             </div>
             <div>
               <Label>{p.priceSar}</Label>
@@ -147,6 +151,7 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
                 <Input name="name_ar" defaultValue={part.name_ar} />
                 <Input name="name_en" defaultValue={part.name_en ?? ""} />
                 <Input name="category" defaultValue={part.category ?? ""} />
+                <Input name="category_en" defaultValue={part.category_en ?? ""} />
                 <div>
                   <Label>{p.priceSar}</Label>
                   <Input

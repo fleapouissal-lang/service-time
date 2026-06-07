@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AboutImageTextSection } from "@/components/about/about-image-text-section";
 import { AboutValuesCarousel } from "@/components/about/about-values-carousel";
 import { AboutCtaSection } from "@/components/home/home-cta-section";
+import { pickLocalized } from "@/lib/localized-content";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getSiteContent } from "@/lib/queries";
 
@@ -15,13 +16,17 @@ export default async function AboutPage() {
   const about = await getSiteContent("about.summary");
 
   const title =
-    (locale === "ar"
-      ? (about?.title_ar as string)
-      : (about?.title_en as string)) ?? t.about.defaultTitle;
+    pickLocalized(
+      locale,
+      about?.title_ar as string | undefined,
+      about?.title_en as string | undefined,
+    ) || t.about.defaultTitle;
   const body =
-    (locale === "ar"
-      ? (about?.body_ar as string)
-      : (about?.body_en as string)) ?? t.about.defaultBody;
+    pickLocalized(
+      locale,
+      about?.body_ar as string | undefined,
+      about?.body_en as string | undefined,
+    ) || t.about.defaultBody;
 
   return (
     <>

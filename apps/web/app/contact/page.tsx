@@ -3,6 +3,7 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfoCard } from "@/components/contact/contact-info-card";
 import { getServerI18n } from "@/lib/i18n/server";
+import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
 import { getSiteContent, getWorkshops } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +16,7 @@ function phoneTelHref(phone: string) {
 }
 
 export default async function ContactPage() {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const [phone, email, workshops] = await Promise.all([
     getSiteContent("contact.phone"),
     getSiteContent("contact.email"),
@@ -27,9 +28,10 @@ export default async function ContactPage() {
 
   const mainBranch = workshops[0];
   const locationLabel =
-    mainBranch?.address_ar ??
-    mainBranch?.name_ar ??
-    t.footer.location;
+    (mainBranch
+      ? getWorkshopAddress(mainBranch, locale) ||
+        getWorkshopName(mainBranch, locale)
+      : null) ?? t.footer.location;
   const mapLat = mainBranch?.lat ?? 24.7136;
   const mapLng = mainBranch?.lng ?? 46.6753;
   const mapsHref = `https://www.google.com/maps/dir/?api=1&destination=${mapLat},${mapLng}`;

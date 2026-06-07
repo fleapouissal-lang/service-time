@@ -96,6 +96,7 @@ export async function saveSparePartAction(formData: FormData) {
     description_ar: String(formData.get("description_ar") ?? ""),
     description_en: String(formData.get("description_en") ?? "").trim() || null,
     category: String(formData.get("category") ?? ""),
+    category_en: String(formData.get("category_en") ?? "").trim() || null,
     details: String(formData.get("details") ?? ""),
     details_en: String(formData.get("details_en") ?? "").trim() || null,
     img,

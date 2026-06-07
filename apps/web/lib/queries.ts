@@ -5,15 +5,11 @@ import type {
   SiteContent,
   SparePart,
 } from "@service-time/types";
+import type { WorkshopBranch } from "@/lib/localized-content";
+import { enrichWorkshopBranches } from "@/lib/localized-content";
 import { createWebSupabaseClient } from "@/lib/supabase";
 
-export interface WorkshopBranch {
-  id: string;
-  name_ar: string;
-  address_ar: string;
-  lat: number;
-  lng: number;
-}
+export type { WorkshopBranch };
 
 export async function getServices(): Promise<Service[]> {
   const supabase = createWebSupabaseClient();
@@ -91,7 +87,7 @@ export async function getSiteContent(
 export async function getWorkshops(): Promise<WorkshopBranch[]> {
   const content = await getSiteContent("locations.workshops");
   if (!content || !Array.isArray(content.branches)) return [];
-  return content.branches as WorkshopBranch[];
+  return enrichWorkshopBranches(content.branches as WorkshopBranch[]);
 }
 
 export async function getTrackingRequest(

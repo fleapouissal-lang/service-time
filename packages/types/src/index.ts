@@ -81,6 +81,7 @@ export interface SparePart {
   description_ar: string | null;
   description_en: string | null;
   category: string | null;
+  category_en: string | null;
   details: string | null;
   details_en: string | null;
   image_url: string | null;

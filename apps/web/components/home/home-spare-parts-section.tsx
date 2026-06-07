@@ -11,6 +11,7 @@ import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getSparePartDescription,
+  getSparePartCategory,
   getSparePartName,
 } from "@/lib/localized-content";
 import { cn } from "@/lib/utils";
@@ -46,6 +47,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
             const inStock = isSparePartInStock(part);
             const name = getSparePartName(part, locale);
             const description = getSparePartDescription(part, locale);
+            const category = getSparePartCategory(part, locale);
 
             return (
             <Card
@@ -73,7 +75,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                     unoptimized
                   />
                   {!inStock ? <SparePartOutOfStockOverlay /> : null}
-                  {part.category ? (
+                  {category ? (
                     <span
                       className={cn(
                         "absolute top-3 right-3 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
@@ -82,7 +84,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                           : "bg-[#050B10]/80 text-red-300",
                       )}
                     >
-                      {part.category}
+                      {category}
                     </span>
                   ) : null}
                 </div>

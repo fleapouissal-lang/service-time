@@ -10,6 +10,7 @@ import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getSparePartDescription,
+  getSparePartCategory,
   getSparePartDetails,
   getSparePartName,
 } from "@/lib/localized-content";
@@ -48,6 +49,7 @@ export function SparePartDetailModal({
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
   const details = getSparePartDetails(part, locale);
+  const category = getSparePartCategory(part, locale);
 
   return (
     <div
@@ -87,7 +89,7 @@ export function SparePartDetailModal({
               unoptimized
             />
             {!inStock ? <SparePartOutOfStockOverlay /> : null}
-            {part.category ? (
+            {category ? (
               <span
                 className={cn(
                   "absolute top-4 right-4 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
@@ -96,7 +98,7 @@ export function SparePartDetailModal({
                     : "bg-[#050B10]/80 text-red-300",
                 )}
               >
-                {part.category}
+                {category}
               </span>
             ) : null}
           </div>
@@ -117,9 +119,9 @@ export function SparePartDetailModal({
                 className={!inStock ? "text-muted line-through opacity-70" : undefined}
               />
             </div>
-            {part.category && !part.img ? (
+            {category && !part.img ? (
               <span className="mt-2 inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
-                {part.category}
+                {category}
               </span>
             ) : null}
           </div>

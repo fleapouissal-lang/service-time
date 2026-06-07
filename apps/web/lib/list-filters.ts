@@ -169,6 +169,7 @@ export function filterSpareParts(
         matchesQuery(item.description_ar, q) ||
         matchesQuery(item.description_en, q) ||
         matchesQuery(item.category, q) ||
+        matchesQuery(item.category_en, q) ||
         matchesQuery(item.details, q) ||
         matchesQuery(item.details_en, q);
       if (!hit) return false;

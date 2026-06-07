@@ -1,13 +1,14 @@
 import type { SparePart } from "@service-time/types";
 import type { Locale } from "@/lib/i18n/config";
 import { formatSparePartPrice, getCartTotalAmount } from "@/lib/format-price";
-import { getCartItemName } from "@/lib/localized-content";
+import { getCartItemCategory, getCartItemName } from "@/lib/localized-content";
 
 export type SparePartCartItem = {
   id: string;
   name_ar: string;
   name_en: string | null;
   category: string | null;
+  category_en: string | null;
   img: string | null;
   price: number;
   stock_quantity: number;
@@ -33,6 +34,7 @@ export function sparePartToCartItem(part: SparePart): SparePartCartItem {
     name_ar: part.name_ar,
     name_en: part.name_en,
     category: part.category,
+    category_en: part.category_en,
     img: part.img,
     price: Number(part.price) || 0,
     stock_quantity: Number(part.stock_quantity) || 0,
@@ -58,6 +60,7 @@ export function readCartFromStorage(): SparePartCartItem[] {
     ).map((item) => ({
       ...item,
       name_en: item.name_en ?? null,
+      category_en: item.category_en ?? null,
       price: normalizeCartItemPrice(item),
       stock_quantity: normalizeCartItemStock(item),
     }));
@@ -82,7 +85,8 @@ export function buildCartOrderDescription(
   if (items.length === 0) return "";
 
   const lines = items.map((item) => {
-    const category = item.category ? ` — ${item.category}` : "";
+    const categoryLabel = getCartItemCategory(item, locale);
+    const category = categoryLabel ? ` — ${categoryLabel}` : "";
     const lineTotal = formatSparePartPrice(item.price * item.quantity, locale);
     return `• ${getCartItemName(item, locale)}${category} × ${item.quantity} — ${lineTotal}`;
   });

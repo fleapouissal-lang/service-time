@@ -9,7 +9,7 @@ import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-con
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { getCartItemName } from "@/lib/localized-content";
+import { getCartItemCategory, getCartItemName } from "@/lib/localized-content";
 
 type SparePartsCartDrawerProps = {
   open: boolean;
@@ -92,6 +92,7 @@ export function SparePartsCartDrawer({
             <ul className="space-y-3">
               {items.map((item) => {
                 const itemName = getCartItemName(item, locale);
+                const itemCategory = getCartItemCategory(item, locale);
                 return (
                 <li
                   key={item.id}
@@ -118,8 +119,8 @@ export function SparePartsCartDrawer({
                     <p className="truncate font-semibold text-white">
                       {itemName}
                     </p>
-                    {item.category ? (
-                      <p className="mt-0.5 text-xs text-muted">{item.category}</p>
+                    {itemCategory ? (
+                      <p className="mt-0.5 text-xs text-muted">{itemCategory}</p>
                     ) : null}
                     <div className="mt-1 flex items-center gap-2 text-xs">
                       <SparePartPrice price={item.price} size="sm" />
