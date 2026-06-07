@@ -80,6 +80,7 @@ LANGUAGE plpgsql
 SECURITY DEFINER
 SET search_path = public
 AS $$
+#variable_conflict use_column
 DECLARE
   v_client_id uuid;
   v_order_id uuid;
@@ -120,8 +121,8 @@ BEGIN
     END IF;
 
     SELECT * INTO v_part
-    FROM public.spare_parts
-    WHERE id = v_part_id AND is_active = true;
+    FROM public.spare_parts sp
+    WHERE sp.id = v_part_id AND sp.is_active = true;
 
     IF NOT FOUND THEN
       RAISE EXCEPTION 'part_unavailable'

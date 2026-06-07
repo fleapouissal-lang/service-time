@@ -112,7 +112,7 @@ export function DashboardSidebar({
           )}
         >
           <Link
-            href={user.homeHref}
+            href="/"
             className={cn(
               "flex items-center justify-center bg-transparent",
               open ? "w-full" : "",

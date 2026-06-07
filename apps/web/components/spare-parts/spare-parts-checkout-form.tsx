@@ -109,6 +109,41 @@ export function SparePartsCheckoutForm() {
           </div>
 
           <div>
+            <Label>طريقة الدفع</Label>
+            <div className="mt-3 space-y-2">
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="cash_on_delivery"
+                  defaultChecked
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium">الدفع عند الاستلام</span>
+                  <span className="text-sm text-muted">
+                    ادفع نقداً عند استلام القطع
+                  </span>
+                </span>
+              </label>
+              <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
+                <input
+                  type="radio"
+                  name="payment_method"
+                  value="online"
+                  className="mt-1"
+                />
+                <span>
+                  <span className="block font-medium">الدفع الإلكتروني</span>
+                  <span className="text-sm text-muted">
+                    Accept — مدى، Visa، Mastercard، Apple Pay
+                  </span>
+                </span>
+              </label>
+            </div>
+          </div>
+
+          <div>
             <Label htmlFor="notes">ملاحظات (اختياري)</Label>
             <Textarea
               id="notes"

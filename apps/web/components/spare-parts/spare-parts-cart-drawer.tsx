@@ -144,7 +144,8 @@ export function SparePartsCartDrawer({
                           onClick={() =>
                             updateQuantity(item.id, item.quantity + 1)
                           }
-                          className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10"
+                          disabled={item.quantity >= item.stock_quantity}
+                          className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10 disabled:cursor-not-allowed disabled:opacity-40"
                           aria-label="زيادة الكمية"
                         >
                           <Plus className="size-3.5" aria-hidden />

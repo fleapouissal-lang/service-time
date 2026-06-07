@@ -1,5 +1,26 @@
-import type { SparePartOrderStatus } from "@service-time/types";
+import type {
+  SparePartOrderStatus,
+  SparePartPaymentMethod,
+  SparePartPaymentStatus,
+} from "@service-time/types";
 import type { IconSelectOption } from "@/lib/icon-select-options";
+
+export const SPARE_PART_PAYMENT_METHOD_LABELS: Record<
+  SparePartPaymentMethod,
+  string
+> = {
+  cash_on_delivery: "الدفع عند الاستلام",
+  online: "الدفع الإلكتروني",
+};
+
+export const SPARE_PART_PAYMENT_STATUS_LABELS: Record<
+  SparePartPaymentStatus,
+  string
+> = {
+  pending: "قيد الانتظار",
+  paid: "مدفوع",
+  failed: "فشل الدفع",
+};
 
 export const SPARE_PART_ORDER_STATUS_LABELS: Record<
   SparePartOrderStatus,

@@ -3,8 +3,12 @@ import { IconSelect } from "@/components/ui/icon-select";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { SPARE_PART_ORDER_STATUS_LABELS } from "@/lib/spare-part-order-labels";
-import { buildSparePartOrderStatusOptions } from "@/lib/spare-part-order-labels";
+import {
+  SPARE_PART_ORDER_STATUS_LABELS,
+  SPARE_PART_PAYMENT_METHOD_LABELS,
+  SPARE_PART_PAYMENT_STATUS_LABELS,
+  buildSparePartOrderStatusOptions,
+} from "@/lib/spare-part-order-labels";
 import { getAdminSparePartOrders } from "@/lib/spare-part-orders-queries";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 
@@ -50,6 +54,10 @@ export default async function AdminSparePartOrdersPage() {
                     </Badge>
                     <p className="mt-2">
                       {new Date(order.created_at).toLocaleString("ar-SA")}
+                    </p>
+                    <p className="mt-1 text-xs">
+                      {SPARE_PART_PAYMENT_METHOD_LABELS[order.payment_method]} —{" "}
+                      {SPARE_PART_PAYMENT_STATUS_LABELS[order.payment_status]}
                     </p>
                   </div>
                 </div>

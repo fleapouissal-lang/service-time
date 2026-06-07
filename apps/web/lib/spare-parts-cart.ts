@@ -7,8 +7,15 @@ export type SparePartCartItem = {
   category: string | null;
   img: string | null;
   price: number;
+  stock_quantity: number;
   quantity: number;
 };
+
+export function normalizeCartItemStock(item: SparePartCartItem): number {
+  return typeof item.stock_quantity === "number" && item.stock_quantity >= 0
+    ? item.stock_quantity
+    : 0;
+}
 
 export function normalizeCartItemPrice(item: SparePartCartItem): number {
   return typeof item.price === "number" && item.price >= 0 ? item.price : 0;
@@ -24,6 +31,7 @@ export function sparePartToCartItem(part: SparePart): SparePartCartItem {
     category: part.category,
     img: part.img,
     price: Number(part.price) || 0,
+    stock_quantity: Number(part.stock_quantity) || 0,
     quantity: 1,
   };
 }
@@ -46,6 +54,7 @@ export function readCartFromStorage(): SparePartCartItem[] {
     ).map((item) => ({
       ...item,
       price: normalizeCartItemPrice(item),
+      stock_quantity: normalizeCartItemStock(item),
     }));
   } catch {
     return [];
@@ -101,6 +110,7 @@ export function readCheckoutFromStorage(): {
       items: parsed.items.map((item) => ({
         ...item,
         price: normalizeCartItemPrice(item),
+        stock_quantity: normalizeCartItemStock(item),
       })),
       description: parsed.description,
     };

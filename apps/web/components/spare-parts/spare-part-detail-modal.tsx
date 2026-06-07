@@ -5,7 +5,10 @@ import { X } from "lucide-react";
 import { useEffect } from "react";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
+import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { cn } from "@/lib/utils";
 
 type SparePartDetailModalProps = {
   part: SparePart | null;
@@ -33,6 +36,8 @@ export function SparePartDetailModal({
   }, [part, onClose]);
 
   if (!part) return null;
+
+  const inStock = isSparePartInStock(part);
 
   return (
     <div
@@ -64,12 +69,23 @@ export function SparePartDetailModal({
               src={part.img}
               alt={part.name_ar}
               fill
-              className="object-cover"
+              className={cn(
+                "object-cover",
+                !inStock && "grayscale saturate-50",
+              )}
               sizes="512px"
               unoptimized
             />
+            {!inStock ? <SparePartOutOfStockOverlay /> : null}
             {part.category ? (
-              <span className="absolute top-4 right-4 rounded-[20px] bg-[#94D4B9] px-3 py-1 text-xs font-semibold text-[#050B10]">
+              <span
+                className={cn(
+                  "absolute top-4 right-4 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
+                  inStock
+                    ? "bg-[#94D4B9] text-[#050B10]"
+                    : "bg-[#050B10]/80 text-red-300",
+                )}
+              >
                 {part.category}
               </span>
             ) : null}
@@ -85,7 +101,11 @@ export function SparePartDetailModal({
               {part.name_ar}
             </h2>
             <div className="mt-2">
-              <SparePartPrice price={Number(part.price) || 0} size="lg" />
+              <SparePartPrice
+                price={Number(part.price) || 0}
+                size="lg"
+                className={!inStock ? "text-muted line-through opacity-70" : undefined}
+              />
             </div>
             {part.category && !part.img ? (
               <span className="mt-2 inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">

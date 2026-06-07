@@ -81,10 +81,15 @@ export interface SparePart {
   image_url: string | null;
   img: string | null;
   price: number;
+  stock_quantity: number;
   is_active: boolean;
   created_at: string;
   updated_at: string;
 }
+
+export type SparePartPaymentMethod = "cash_on_delivery" | "online";
+
+export type SparePartPaymentStatus = "pending" | "paid" | "failed";
 
 export type SparePartOrderStatus =
   | "pending"
@@ -100,6 +105,10 @@ export interface SparePartOrder {
   status: SparePartOrderStatus;
   notes: string | null;
   order_token: string;
+  payment_method: SparePartPaymentMethod;
+  payment_status: SparePartPaymentStatus;
+  total_amount: number;
+  payment_reference: string | null;
   created_at: string;
   updated_at: string;
 }

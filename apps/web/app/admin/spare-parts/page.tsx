@@ -78,6 +78,19 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
                 dir="ltr"
               />
             </div>
+            <div>
+              <Label>الكمية في المخزون</Label>
+              <Input
+                name="stock_quantity"
+                type="number"
+                min={0}
+                step="1"
+                required
+                defaultValue="0"
+                className="mt-1"
+                dir="ltr"
+              />
+            </div>
             <div className="md:col-span-2">
               <Label>صورة القطعة</Label>
               <Input
@@ -130,6 +143,19 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
                     step="0.01"
                     required
                     defaultValue={p.price ?? 0}
+                    className="mt-1"
+                    dir="ltr"
+                  />
+                </div>
+                <div>
+                  <Label>الكمية في المخزون</Label>
+                  <Input
+                    name="stock_quantity"
+                    type="number"
+                    min={0}
+                    step="1"
+                    required
+                    defaultValue={p.stock_quantity ?? 0}
                     className="mt-1"
                     dir="ltr"
                   />

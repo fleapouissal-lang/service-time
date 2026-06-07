@@ -54,6 +54,9 @@ export function SparePartsCartProvider({
   }, [items, isReady]);
 
   const addItem = useCallback((part: SparePart, quantity = 1) => {
+    const maxStock = Math.max(0, Number(part.stock_quantity) || 0);
+    if (maxStock <= 0) return;
+
     const safeQty = Math.max(1, Math.min(99, quantity));
     setItems((current) => {
       const existing = current.find((item) => item.id === part.id);
@@ -62,13 +65,23 @@ export function SparePartsCartProvider({
           item.id === part.id
             ? {
                 ...item,
-                price: part.price ?? 0,
-                quantity: Math.min(99, item.quantity + safeQty),
+                price: Number(part.price) || 0,
+                stock_quantity: maxStock,
+                quantity: Math.min(
+                  maxStock,
+                  Math.min(99, item.quantity + safeQty),
+                ),
               }
             : item,
         );
       }
-      return [...current, { ...sparePartToCartItem(part), quantity: safeQty }];
+      return [
+        ...current,
+        {
+          ...sparePartToCartItem(part),
+          quantity: Math.min(maxStock, safeQty),
+        },
+      ];
     });
   }, []);
 
@@ -83,11 +96,14 @@ export function SparePartsCartProvider({
     }
 
     setItems((current) =>
-      current.map((item) =>
-        item.id === id
-          ? { ...item, quantity: Math.min(99, Math.max(1, quantity)) }
-          : item,
-      ),
+      current.map((item) => {
+        if (item.id !== id) return item;
+        const maxQty = Math.min(99, Math.max(1, item.stock_quantity));
+        return {
+          ...item,
+          quantity: Math.min(maxQty, Math.max(1, quantity)),
+        };
+      }),
     );
   }, []);
 

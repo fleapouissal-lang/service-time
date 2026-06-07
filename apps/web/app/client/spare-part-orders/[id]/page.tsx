@@ -4,7 +4,11 @@ import { ClearCartOnSuccess } from "@/components/spare-parts/clear-cart-on-succe
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireProfile } from "@/lib/auth";
-import { SPARE_PART_ORDER_STATUS_LABELS } from "@/lib/spare-part-order-labels";
+import {
+  SPARE_PART_ORDER_STATUS_LABELS,
+  SPARE_PART_PAYMENT_METHOD_LABELS,
+  SPARE_PART_PAYMENT_STATUS_LABELS,
+} from "@/lib/spare-part-order-labels";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
@@ -63,6 +67,18 @@ export default async function ClientSparePartOrderDetailPage({
             <Badge variant="secondary">
               {SPARE_PART_ORDER_STATUS_LABELS[order.status]}
             </Badge>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted">طريقة الدفع</span>
+            <span>{SPARE_PART_PAYMENT_METHOD_LABELS[order.payment_method]}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted">حالة الدفع</span>
+            <span>{SPARE_PART_PAYMENT_STATUS_LABELS[order.payment_status]}</span>
+          </div>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted">المجموع</span>
+            <SparePartPrice price={orderTotal} size="sm" className="text-primary" />
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted">التاريخ</span>

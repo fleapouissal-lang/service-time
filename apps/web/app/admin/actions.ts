@@ -85,6 +85,8 @@ export async function saveSparePartAction(formData: FormData) {
 
   const priceRaw = String(formData.get("price") ?? "0").trim();
   const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
+  const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
+  const stock_quantity = Math.max(0, Number.parseInt(stockRaw, 10) || 0);
 
   const payload = {
     name_ar: String(formData.get("name_ar")),
@@ -93,6 +95,7 @@ export async function saveSparePartAction(formData: FormData) {
     details: String(formData.get("details") ?? ""),
     img,
     price,
+    stock_quantity,
     is_active: formData.get("is_active") === "on",
   };
 

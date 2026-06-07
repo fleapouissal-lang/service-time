@@ -1,0 +1,102 @@
+import { headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
+import { PageHeader } from "@/components/layout/page-header";
+import { PaymobCheckoutButton } from "@/components/spare-parts/paymob-checkout-button";
+import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { requireProfile, createAuthServerClient } from "@/lib/auth";
+import { isPaymobConfigured, getPaymobConfigurationError } from "@/lib/paymob";
+import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
+
+type PageProps = {
+  params: Promise<{ orderId: string }>;
+  searchParams: Promise<{ success?: string; id?: string }>;
+};
+
+export default async function SparePartsPaymentPage({
+  params,
+  searchParams,
+}: PageProps) {
+  const profile = await requireProfile(["client"]);
+  if (!profile) redirect("/login?next=/spare-parts/checkout");
+
+  const { orderId } = await params;
+  const { success, id: transactionId } = await searchParams;
+  const order = await getClientSparePartOrder(profile.id, orderId);
+
+  if (!order) notFound();
+
+  if (order.payment_method !== "online") {
+    redirect(`/client/spare-part-orders/${orderId}`);
+  }
+
+  if (success === "true" && order.payment_status !== "paid") {
+    const supabase = await createAuthServerClient();
+    await supabase.rpc("mark_spare_part_order_paid", {
+      p_order_id: orderId,
+      p_payment_reference: transactionId ?? null,
+    });
+    redirect(`/client/spare-part-orders/${orderId}?success=1`);
+  }
+
+  if (order.payment_status === "paid") {
+    redirect(`/client/spare-part-orders/${orderId}?success=1`);
+  }
+
+  const paymobReady = isPaymobConfigured();
+  const paymobConfigError = getPaymobConfigurationError();
+  const paymentFailed = success === "false";
+
+  return (
+    <>
+      <PageHeader
+        plain
+        plainWidth="md"
+        eyebrow="قطع الغيار"
+        title="الدفع الإلكتروني"
+        description={`طلب ${order.order_token} — Accept (Paymob)`}
+      />
+
+      <section className="mx-auto max-w-lg px-4 pb-16 sm:px-6">
+        <div className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
+          <div className="flex items-center justify-between rounded-xl border border-border bg-muted/10 px-4 py-3">
+            <span className="font-medium">المبلغ المطلوب</span>
+            <SparePartPrice
+              price={Number(order.total_amount) || 0}
+              size="lg"
+              className="text-primary"
+            />
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/5 px-4 py-3 text-sm text-muted">
+            <p className="font-medium text-foreground">طرق الدفع المتاحة</p>
+            <ul className="mt-2 list-inside list-disc space-y-1">
+              <li>مدى (MADA)</li>
+              <li>Visa و Mastercard</li>
+              <li>Apple Pay</li>
+              <li>Tabby و Contact (تقسيط — حسب تفعيل حسابك)</li>
+            </ul>
+            <p className="mt-3 text-xs">
+              بوابة Accept — تسوية آمنة مع 3D Secure. رسوم البطاقات حسب العقد
+              (مدى ~1%، بطاقات دولية ~2.5%).
+            </p>
+          </div>
+
+          {paymentFailed ? (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              فشل الدفع. يمكنك المحاولة مرة أخرى.
+            </div>
+          ) : null}
+
+          {paymobReady ? (
+            <PaymobCheckoutButton orderId={orderId} />
+          ) : (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+              {paymobConfigError ??
+                "الدفع الإلكتروني غير مفعّل. أضف مفاتيح Accept (Paymob) في `.env` ثم نفّذ npm run sync:env."}
+            </div>
+          )}
+        </div>
+      </section>
+    </>
+  );
+}
