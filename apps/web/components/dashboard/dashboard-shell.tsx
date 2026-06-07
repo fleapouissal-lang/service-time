@@ -1,0 +1,157 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import type { Profile } from "@service-time/types";
+import {
+  ADMIN_NAV,
+  CLIENT_NAV,
+  DashboardSidebar,
+  TECHNICIAN_NAV,
+} from "@/components/dashboard/dashboard-sidebar";
+import {
+  getProfileHomePath,
+  getProfilePagePath,
+} from "@/lib/profile-home";
+import { createAuthBrowserClient } from "@/lib/supabase-browser";
+
+const STORAGE_KEY = "service-time-sidebar-open";
+
+function useSidebarOpen() {
+  const [open, setOpen] = useState(true);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored !== null) setOpen(stored === "true");
+  }, []);
+
+  function toggle() {
+    setOpen((prev) => {
+      const next = !prev;
+      localStorage.setItem(STORAGE_KEY, String(next));
+      return next;
+    });
+  }
+
+  return { open, toggle };
+}
+
+function toDashboardUser(profile: Profile) {
+  return {
+    fullName: profile.full_name,
+    role: profile.role,
+    avatarUrl: profile.avatar_url ?? null,
+    profileHref: getProfilePagePath(profile.role),
+    homeHref: getProfileHomePath(profile.role),
+  };
+}
+
+function DashboardLayout({
+  children,
+  profile,
+  items,
+  onSignOut,
+}: {
+  children: React.ReactNode;
+  profile: Profile;
+  items: typeof ADMIN_NAV;
+  onSignOut: () => void;
+}) {
+  const { open, toggle } = useSidebarOpen();
+
+  return (
+    <div className="flex h-dvh overflow-hidden bg-background">
+      <DashboardSidebar
+        user={toDashboardUser(profile)}
+        items={items}
+        open={open}
+        onToggle={toggle}
+        onSignOut={onSignOut}
+      />
+      <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-8">
+        <div className="mx-auto w-full max-w-[1200px]">{children}</div>
+      </main>
+    </div>
+  );
+}
+
+export function AdminDashboardShell({
+  children,
+  profile,
+}: {
+  children: React.ReactNode;
+  profile: Profile;
+}) {
+  const router = useRouter();
+
+  async function signOut() {
+    const supabase = createAuthBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
+
+  return (
+    <DashboardLayout
+      profile={profile}
+      items={ADMIN_NAV}
+      onSignOut={() => void signOut()}
+    >
+      {children}
+    </DashboardLayout>
+  );
+}
+
+export function TechnicianDashboardShell({
+  children,
+  profile,
+}: {
+  children: React.ReactNode;
+  profile: Profile;
+}) {
+  const router = useRouter();
+
+  async function signOut() {
+    const supabase = createAuthBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
+
+  return (
+    <DashboardLayout
+      profile={profile}
+      items={TECHNICIAN_NAV}
+      onSignOut={() => void signOut()}
+    >
+      {children}
+    </DashboardLayout>
+  );
+}
+
+export function ClientDashboardShell({
+  children,
+  profile,
+}: {
+  children: React.ReactNode;
+  profile: Profile;
+}) {
+  const router = useRouter();
+
+  async function signOut() {
+    const supabase = createAuthBrowserClient();
+    await supabase.auth.signOut();
+    router.push("/");
+    router.refresh();
+  }
+
+  return (
+    <DashboardLayout
+      profile={profile}
+      items={CLIENT_NAV}
+      onSignOut={() => void signOut()}
+    >
+      {children}
+    </DashboardLayout>
+  );
+}

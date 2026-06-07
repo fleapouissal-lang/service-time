@@ -1,0 +1,290 @@
+@import "tailwindcss";
+
+/* Janna LT — utilise la police locale si installée ; ajoutez .woff2 dans public/fonts/ */
+@font-face {
+  font-family: "Janna LT";
+  src:
+    local("Janna LT Regular"),
+    local("JannaLT-Regular"),
+    local("Janna LT"),
+    url("/fonts/JannaLT-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Janna LT";
+  src:
+    local("Janna LT Bold"),
+    local("JannaLT-Bold"),
+    url("/fonts/JannaLT-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --brand-dark: #060709;
+  --brand-mint: #94d4b9;
+  --brand-mint-dim: #6bb896;
+  --background: #060709;
+  --foreground: #e8ecef;
+  --primary: #94d4b9;
+  --primary-foreground: #060709;
+  --accent: #94d4b9;
+  --accent-foreground: #060709;
+  --muted: #8b949e;
+  --card: #0c0e12;
+  --card-elevated: #12151a;
+  --border: rgba(148, 212, 185, 0.14);
+  --ring: #94d4b9;
+  --dashboard-content-bg: #060709;
+  --dashboard-sidebar-bg: #060709;
+  --dashboard-sidebar-active: #94d4b9;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --color-card: var(--card);
+  --color-card-elevated: var(--card-elevated);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --font-sans: "Janna LT", var(--font-janna-fallback), var(--font-poppins), sans-serif;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Janna LT", var(--font-janna-fallback), var(--font-poppins), sans-serif;
+}
+
+.font-poppins {
+  font-family: var(--font-poppins), sans-serif;
+}
+
+/* Glow mint — hero & accents */
+.glow-mint {
+  box-shadow: 0 0 40px rgba(148, 212, 185, 0.15);
+}
+
+.hero-glow {
+  background:
+    radial-gradient(
+      ellipse 80% 60% at 70% 20%,
+      rgba(148, 212, 185, 0.12),
+      transparent 60%
+    ),
+    radial-gradient(
+      ellipse 50% 40% at 20% 80%,
+      rgba(148, 212, 185, 0.06),
+      transparent 50%
+    ),
+    var(--brand-dark);
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.5s ease-out both;
+}
+
+@keyframes sidebar-toggle-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes sidebar-toggle-glow {
+  0%,
+  100% {
+    opacity: 0.75;
+    filter: drop-shadow(0 0 4px rgba(148, 212, 185, 0.45));
+  }
+  50% {
+    opacity: 1;
+    filter: drop-shadow(0 0 10px rgba(148, 212, 185, 0.75));
+  }
+}
+
+.animate-sidebar-toggle-float {
+  animation: sidebar-toggle-float 3s ease-in-out infinite;
+}
+
+.animate-sidebar-toggle-glow {
+  animation: sidebar-toggle-glow 3s ease-in-out infinite;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-25%, 0, 0);
+  }
+}
+
+@keyframes marquee-word-pulse {
+  0%,
+  100% {
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow: none;
+  }
+  50% {
+    color: #94d4b9;
+    text-shadow: 0 0 12px rgba(148, 212, 185, 0.35);
+  }
+}
+
+@keyframes marquee-dot-pulse {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+}
+
+.trust-marquee__viewport {
+  overflow: hidden;
+  width: 100%;
+}
+
+.trust-marquee__track {
+  display: flex;
+  width: max-content;
+  flex-wrap: nowrap;
+  gap: 0;
+  animation: marquee-scroll var(--marquee-duration, 45s) linear infinite;
+  will-change: transform;
+}
+
+.trust-marquee__strip {
+  flex-shrink: 0;
+}
+
+.trust-marquee__word {
+  animation: marquee-word-pulse 2.8s ease-in-out infinite;
+}
+
+.trust-marquee__dot {
+  color: #94d4b9;
+  animation: marquee-dot-pulse 2.8s ease-in-out infinite;
+}
+
+.animate-marquee {
+  animation: marquee-scroll 40s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trust-marquee__track,
+  .trust-marquee__word,
+  .trust-marquee__dot,
+  .animate-marquee {
+    animation: none;
+  }
+}
+
+@keyframes footer-border-glow {
+  0%,
+  100% {
+    opacity: 0.25;
+    box-shadow: 0 -1px 0 rgba(148, 212, 185, 0.08);
+  }
+  50% {
+    opacity: 0.55;
+    box-shadow: 0 -2px 8px rgba(148, 212, 185, 0.12);
+  }
+}
+
+.site-footer {
+  position: relative;
+  border-top: 1px solid rgba(148, 212, 185, 0.08);
+  box-shadow: 0 -4px 16px rgba(148, 212, 185, 0.03);
+}
+
+.site-footer::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 10%;
+  right: 10%;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(148, 212, 185, 0.3),
+    transparent
+  );
+  animation: footer-border-glow 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.site-header-scrolled {
+  box-shadow: 0 4px 16px rgba(148, 212, 185, 0.04);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-footer::before {
+    animation: none;
+    opacity: 0.5;
+  }
+}
+
+.sidebar-toggle-neumorphic {
+  background: linear-gradient(145deg, #12151a, #060709);
+  box-shadow:
+    inset 3px 3px 7px rgba(0, 0, 0, 0.55),
+    inset -2px -2px 6px rgba(255, 255, 255, 0.04),
+    0 8px 20px rgba(0, 0, 0, 0.35),
+    0 0 18px rgba(148, 212, 185, 0.12);
+  transition:
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+}
+
+.sidebar-toggle-neumorphic:hover {
+  box-shadow:
+    inset 2px 2px 5px rgba(0, 0, 0, 0.45),
+    inset -1px -1px 4px rgba(255, 255, 255, 0.06),
+    0 10px 24px rgba(0, 0, 0, 0.4),
+    0 0 24px rgba(148, 212, 185, 0.22);
+}
+
+.sidebar-toggle-neumorphic:active {
+  box-shadow:
+    inset 4px 4px 10px rgba(0, 0, 0, 0.65),
+    inset -1px -1px 3px rgba(255, 255, 255, 0.03),
+    0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(0.96);
+}
+
+.sidebar-toggle-track {
+  background: #060709;
+  box-shadow:
+    inset 0 3px 10px rgba(0, 0, 0, 0.65),
+    inset 0 -1px 2px rgba(255, 255, 255, 0.03),
+    0 0 0 1px rgba(148, 212, 185, 0.1);
+}

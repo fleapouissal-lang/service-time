@@ -1,0 +1,38 @@
+import { createHash, randomInt } from "node:crypto";
+import { ensureServerEnv } from "@/lib/env-server";
+
+export const RESET_CODE_TTL_MS = 10 * 60 * 1000;
+export const RESET_CODE_MAX_ATTEMPTS = 5;
+export const RESET_REQUESTS_PER_HOUR = 3;
+export const RESET_VERIFY_WINDOW_MS = 15 * 60 * 1000;
+
+export function normalizeEmail(email: string): string {
+  return email.trim().toLowerCase();
+}
+
+export function generateResetCode(): string {
+  return String(randomInt(100_000, 1_000_000));
+}
+
+function getResetSecret(): string {
+  ensureServerEnv();
+  return (
+    process.env.PASSWORD_RESET_SECRET?.trim() ||
+    process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
+    "dev-password-reset-secret"
+  );
+}
+
+export function hashResetCode(email: string, code: string): string {
+  return createHash("sha256")
+    .update(`${normalizeEmail(email)}:${code}:${getResetSecret()}`)
+    .digest("hex");
+}
+
+export function isValidResetCodeFormat(code: string): boolean {
+  return /^\d{6}$/.test(code.trim());
+}
+
+export function isStrongEnoughPassword(password: string): boolean {
+  return password.length >= 8;
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@service-time/lib",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "lint": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@service-time/types": "*",
+    "@supabase/supabase-js": "^2.49.8"
+  },
+  "devDependencies": {
+    "typescript": "^5"
+  }
+}

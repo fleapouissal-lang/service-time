@@ -1,0 +1,35 @@
+{
+  "name": "service-time",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && turbo dev --filter=web --filter=mobile",
+    "build": "turbo build",
+    "lint": "turbo lint",
+    "db:migrate": "node scripts/migrate-database.mjs",
+    "db:seed": "node scripts/seed-database.mjs",
+    "db:seed-profiles": "node scripts/seed-profiles.mjs",
+    "db:create-admin": "node scripts/create-admin.mjs",
+    "db:password-reset-table": "node scripts/apply-password-reset-table.mjs",
+    "db:contact-table": "node scripts/apply-contact-table.mjs",
+    "db:client-registration": "node scripts/apply-client-registration.mjs",
+    "db:profile-avatars": "node scripts/apply-profile-avatars.mjs",
+    "db:delete-clients": "node scripts/delete-client-users.mjs --confirm",
+    "db:client-dashboard-rls": "node scripts/apply-client-dashboard-rls.mjs",
+    "db:create-service-request-rpc": "node scripts/apply-create-service-request-rpc.mjs",
+    "db:push": "supabase db push"
+  },
+  "devDependencies": {
+    "dotenv": "^16.5.0",
+    "pg": "^8.16.0",
+    "turbo": "^2.5.4"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "npm@10.9.2"
+}
