@@ -94,8 +94,11 @@ export async function getTrackingRequest(
   token: string,
 ): Promise<ServiceRequest | null> {
   const supabase = createWebSupabaseClient();
+  const normalized = token.trim();
+  if (!normalized) return null;
+
   const { data, error } = await supabase.rpc("get_request_by_tracking_token", {
-    p_token: token,
+    p_token: normalized,
   });
 
   if (error) return null;
@@ -107,9 +110,12 @@ export async function getTrackingHistory(
   token: string,
 ): Promise<RequestStatusHistory[]> {
   const supabase = createWebSupabaseClient();
+  const normalized = token.trim();
+  if (!normalized) return [];
+
   const { data, error } = await supabase.rpc(
     "get_request_status_history_by_token",
-    { p_token: token },
+    { p_token: normalized },
   );
 
   if (error) return [];

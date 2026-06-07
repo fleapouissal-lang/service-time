@@ -1,4 +1,4 @@
-import { createHash, randomInt } from "node:crypto";
+import { createHash, randomBytes, randomInt } from "node:crypto";
 import { ensureServerEnv } from "@/lib/env-server";
 
 export const RESET_CODE_TTL_MS = 10 * 60 * 1000;
@@ -35,4 +35,11 @@ export function isValidResetCodeFormat(code: string): boolean {
 
 export function isStrongEnoughPassword(password: string): boolean {
   return password.length >= 8;
+}
+
+/** Mot de passe aléatoire pour comptes créés automatiquement (طلب سريع). */
+export function generateSecurePassword(length = 12): string {
+  const chars =
+    "abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789!@#%";
+  return Array.from(randomBytes(length), (b) => chars[b % chars.length]).join("");
 }

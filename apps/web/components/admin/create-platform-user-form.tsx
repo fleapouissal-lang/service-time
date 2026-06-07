@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { ChevronDown, Plus } from "lucide-react";
 import type { ProfileRole } from "@service-time/types";
 import { createPlatformUserAction } from "@/app/admin/actions";
 import { ProfileAvatarPicker } from "@/components/auth/profile-avatar-picker";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -16,6 +18,8 @@ import {
 
 export function CreatePlatformUserForm() {
   const { messages: t } = useLocale();
+  const p = t.dashboard.admin.usersPage;
+  const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -39,6 +43,7 @@ export function CreatePlatformUserForm() {
       form.reset();
       setRole("technician");
       setTechnicianTypeKey((key) => key + 1);
+      setOpen(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : t.errors.admin.createFailed);
     } finally {
@@ -47,7 +52,32 @@ export function CreatePlatformUserForm() {
   }
 
   return (
-    <form onSubmit={(e) => void handleSubmit(e)} className="space-y-5">
+    <Card>
+      <CardContent className="p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h2 className="font-semibold">{t.dashboard.admin.users.createAccount}</h2>
+          <Button
+            type="button"
+            variant={open ? "outline" : "default"}
+            onClick={() => setOpen((value) => !value)}
+            aria-expanded={open}
+          >
+            {open ? (
+              <>
+                <ChevronDown className="size-4 rotate-180" aria-hidden />
+                {p.hideCreateForm}
+              </>
+            ) : (
+              <>
+                <Plus className="size-4" aria-hidden />
+                {p.showCreateForm}
+              </>
+            )}
+          </Button>
+        </div>
+
+        {open ? (
+          <form onSubmit={(e) => void handleSubmit(e)} className="mt-4 space-y-5">
       {error ? (
         <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
           {error}
@@ -148,9 +178,17 @@ export function CreatePlatformUserForm() {
         <input type="hidden" name="technician_type" value="" />
       )}
 
-      <Button type="submit" disabled={loading}>
-        {loading ? t.common.creating : t.dashboard.admin.users.createAccount}
-      </Button>
-    </form>
+      <div className="flex flex-wrap gap-2">
+        <Button type="submit" disabled={loading}>
+          {loading ? t.common.creating : t.dashboard.admin.users.createAccount}
+        </Button>
+        <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+          {t.common.cancel}
+        </Button>
+      </div>
+          </form>
+        ) : null}
+      </CardContent>
+    </Card>
   );
 }

@@ -10,6 +10,10 @@ export function mapAuthError(message: string, t: Messages): string {
     return t.errors.auth.rateLimit;
   }
 
+  if (normalized.includes("account inactive")) {
+    return t.errors.auth.accountInactive;
+  }
+
   if (normalized.includes("invalid login credentials")) {
     return t.errors.auth.invalidCredentials;
   }

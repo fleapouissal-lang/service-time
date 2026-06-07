@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && turbo dev --filter=web --filter=mobile",
+    "sync-env": "node scripts/sync-env.mjs",
     "build": "turbo build",
     "lint": "turbo lint",
     "db:migrate": "node scripts/migrate-database.mjs",

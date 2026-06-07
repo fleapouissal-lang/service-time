@@ -1,0 +1,144 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { ArrowRight } from "lucide-react";
+import { AdminOrderUpdateForm } from "@/components/admin/admin-order-update-form";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  getRequestById,
+  getTechnicians,
+} from "@/lib/dashboard-queries";
+import {
+  getServiceTypeLabels,
+  getStatusLabels,
+  getPriorityLabels,
+} from "@/lib/i18n/labels";
+import { getIntlLocale } from "@/lib/i18n/config";
+import { getServerI18n } from "@/lib/i18n/server";
+import {
+  buildPrioritySelectOptions,
+  buildStatusSelectOptions,
+  buildTechnicianAssignOptions,
+} from "@/lib/select-option-builders";
+
+type PageProps = {
+  params: Promise<{ id: string }>;
+};
+
+export default async function AdminOrderDetailPage({ params }: PageProps) {
+  const { t, locale } = await getServerI18n();
+  const p = t.dashboard.admin.ordersPage;
+  const { id } = await params;
+  const [order, technicians] = await Promise.all([
+    getRequestById(id),
+    getTechnicians(),
+  ]);
+
+  if (!order) notFound();
+
+  const statusLabels = getStatusLabels(t);
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const priorityLabels = getPriorityLabels(t);
+  const statusOptions = buildStatusSelectOptions(t);
+  const priorityOptions = buildPrioritySelectOptions(t);
+  const technicianOptions = buildTechnicianAssignOptions(t, technicians);
+  const intlLocale = getIntlLocale(locale);
+
+  const assignedTechnician = technicians.find(
+    (tech) => tech.id === order.assigned_technician_id,
+  );
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <Link
+          href="/admin/orders"
+          className="mb-3 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
+        >
+          <ArrowRight className="size-4 rotate-180" aria-hidden />
+          {p.backToList}
+        </Link>
+        <h1 className="text-2xl font-bold">{p.editOrder}</h1>
+        <p className="font-mono text-sm text-muted" dir="ltr">
+          {order.tracking_token}
+        </p>
+      </div>
+
+      <Card>
+        <CardContent className="space-y-6 p-6">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.customer}</p>
+              <p className="mt-1 font-semibold">{order.customer_name}</p>
+              <p className="mt-0.5 text-sm text-muted" dir="ltr">
+                {order.customer_phone}
+              </p>
+            </div>
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.date}</p>
+              <p className="mt-1 text-sm" dir="ltr">
+                {new Date(order.created_at).toLocaleString(intlLocale, {
+                  dateStyle: "medium",
+                  timeStyle: "short",
+                })}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.service}</p>
+              <p className="mt-1 text-sm">{serviceTypeLabels[order.service_type]}</p>
+            </div>
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.car}</p>
+              <p className="mt-1 text-sm">{order.car_type ?? t.common.dash}</p>
+            </div>
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.technician}</p>
+              <p className="mt-1 text-sm">
+                {assignedTechnician?.full_name ?? t.common.dash}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            <Badge variant="secondary">
+              {statusLabels[order.status as keyof typeof statusLabels]}
+            </Badge>
+            <Badge variant="outline">
+              {priorityLabels[order.priority as keyof typeof priorityLabels]}
+            </Badge>
+          </div>
+
+          {order.location_text ? (
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.location}</p>
+              <p className="mt-1 text-sm">{order.location_text}</p>
+            </div>
+          ) : null}
+
+          {order.description ? (
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{t.common.description}</p>
+              <p className="mt-1 text-sm">{order.description}</p>
+            </div>
+          ) : null}
+
+          <div>
+            <p className="mb-3 text-sm font-semibold">{p.detail.updateOrder}</p>
+            <AdminOrderUpdateForm
+              orderId={order.id}
+              status={order.status}
+              priority={order.priority}
+              assignedTechnicianId={order.assigned_technician_id ?? ""}
+              statusOptions={statusOptions}
+              priorityOptions={priorityOptions}
+              technicianOptions={technicianOptions}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}

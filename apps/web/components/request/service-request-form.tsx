@@ -6,6 +6,7 @@ import { useActionState, useMemo } from "react";
 import { FileText, Phone, User, Car } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
+import { RequestFormShell } from "@/components/request/request-form-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
@@ -18,7 +19,15 @@ import {
   buildServiceRequestTypeOptions,
 } from "@/lib/i18n/labels";
 
-export function ServiceRequestForm({ embedded = false }: { embedded?: boolean }) {
+export function ServiceRequestForm({
+  embedded = false,
+  defaultName = "",
+  defaultPhone = "",
+}: {
+  embedded?: boolean;
+  defaultName?: string;
+  defaultPhone?: string;
+}) {
   const { messages: t } = useLocale();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
@@ -52,13 +61,8 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
         />
       ) : null}
 
-      <section
-        className={embedded ? "" : "mx-auto max-w-2xl px-4 pb-12 sm:px-6"}
-      >
-        <form
-          action={action}
-          className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm sm:p-8"
-        >
+      <RequestFormShell>
+        <form action={action} className="space-y-6">
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />
           ) : null}
@@ -95,6 +99,7 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
                 name="customer_name"
                 icon={User}
                 required
+                defaultValue={defaultName}
                 placeholder={t.common.placeholderName}
               />
             </div>
@@ -106,6 +111,8 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
                 icon={Phone}
                 required
                 dir="ltr"
+                defaultValue={defaultPhone}
+                readOnly={embedded && Boolean(defaultPhone)}
                 placeholder={t.common.placeholderPhone}
               />
             </div>
@@ -170,13 +177,13 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
             type="submit"
             variant="accent"
             size="lg"
-            className="w-full"
+            className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
             disabled={pending}
           >
             {pending ? t.common.sending : t.request.form.submit}
           </Button>
         </form>
-      </section>
+      </RequestFormShell>
     </>
   );
 }

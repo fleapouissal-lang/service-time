@@ -439,16 +439,12 @@ INSERT INTO public.notifications_log (
   );
 
 -- ---------------------------------------------------------------------------
--- Note : profiles + auth.users
--- Les comptes admin/technicien se créent via Supabase Auth (Dashboard).
--- Après création d''un user, lier son profil :
+-- Comptes admin + techniciens (auth + profiles)
+-- Exécuter APRÈS seed.sql :
+--   npm run db:seed-profiles
+--   ou coller supabase/seed_profiles.sql dans SQL Editor
 --
--- INSERT INTO public.profiles (id, full_name, phone, role, technician_type)
--- VALUES (
---   '<auth-user-uuid>',
---   'فني متنقل',
---   '+966500000002',
---   'technician',
---   'mobile'
--- );
+-- Technicien mobile : tech@servicetime.sa      / Tech123!
+-- Technicien atelier: workshop@servicetime.sa / Tech123!
+-- Admin             : admin@servicetime.sa      / Admin123!
 -- ---------------------------------------------------------------------------

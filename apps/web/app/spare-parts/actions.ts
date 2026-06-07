@@ -105,6 +105,54 @@ export async function submitSparePartOrderAction(
   redirect(`/client/spare-part-orders/${row.id}?success=1`);
 }
 
+export type UpdateSparePartOrderStatusState = {
+  success?: boolean;
+  error?: string;
+};
+
+export async function updateSparePartOrderStatusFormAction(
+  _prev: UpdateSparePartOrderStatusState,
+  formData: FormData,
+): Promise<UpdateSparePartOrderStatusState> {
+  try {
+    const profile = await requireProfile(["admin"]);
+    if (!profile) return { error: "Unauthorized" };
+
+    const id = String(formData.get("id") ?? "");
+    const status = String(formData.get("status") ?? "") as SparePartOrderStatus;
+
+    const allowed: SparePartOrderStatus[] = [
+      "pending",
+      "confirmed",
+      "preparing",
+      "ready",
+      "delivered",
+      "cancelled",
+    ];
+
+    if (!id || !allowed.includes(status)) {
+      return { error: "Invalid data" };
+    }
+
+    const supabase = await createAuthServerClient();
+    const { error } = await supabase
+      .from("spare_part_orders")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/spare-part-orders");
+    revalidatePath(`/admin/spare-part-orders/${id}`);
+    revalidatePath(`/client/spare-part-orders/${id}`);
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
+}
+
 export async function updateSparePartOrderStatusAction(formData: FormData) {
   const profile = await requireProfile(["admin"]);
   if (!profile) return;

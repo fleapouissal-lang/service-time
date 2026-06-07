@@ -37,6 +37,16 @@ export async function getAllServicesAdmin(): Promise<Service[]> {
   return (data ?? []) as Service[];
 }
 
+export async function getServiceById(id: string): Promise<Service | null> {
+  const supabase = await createAuthServerClient();
+  const { data } = await supabase
+    .from("services")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  return (data as Service | null) ?? null;
+}
+
 export async function getAllSparePartsAdmin(): Promise<SparePart[]> {
   const supabase = await createAuthServerClient();
   const { data } = await supabase
@@ -88,6 +98,16 @@ export async function getRequestById(
     .eq("id", id)
     .maybeSingle();
   return (data as ServiceRequest | null) ?? null;
+}
+
+export async function getSparePartById(id: string): Promise<SparePart | null> {
+  const supabase = await createAuthServerClient();
+  const { data } = await supabase
+    .from("spare_parts")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+  return (data as SparePart | null) ?? null;
 }
 
 export async function getClientRequests(): Promise<ServiceRequest[]> {

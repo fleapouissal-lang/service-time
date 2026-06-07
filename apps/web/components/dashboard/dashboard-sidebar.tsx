@@ -47,7 +47,7 @@ export function DashboardSidebar({
   onSignOut?: () => void;
 }) {
   const pathname = usePathname();
-  const { messages } = useLocale();
+  const { messages, locale } = useLocale();
 
   const profileBlock = (compact: boolean) => (
     <div className={cn("space-y-2", compact ? "w-full" : "w-full")}>
@@ -90,8 +90,10 @@ export function DashboardSidebar({
       <aside
         className={cn(
           "flex h-full flex-col overflow-hidden transition-[width] duration-300 ease-in-out",
-          "rounded-tl-[20px] rounded-bl-[20px]",
-          "border-l border-[#050B10]/10 text-[#050B10]",
+          "border-[#050B10]/10 text-[#050B10]",
+          locale === "ar"
+            ? "rounded-tl-[20px] rounded-bl-[20px] border-l"
+            : "rounded-tr-[20px] rounded-br-[20px] border-r",
         )}
         style={{
           width: open ? SIDEBAR_EXPANDED : SIDEBAR_COLLAPSED,

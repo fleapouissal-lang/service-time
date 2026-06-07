@@ -6,39 +6,32 @@ import {
   MapPin,
   PlusCircle,
 } from "lucide-react";
+import { ClientLatestTrackingSection } from "@/components/client/client-latest-tracking-section";
 import { ChartPeriodTabs } from "@/components/dashboard/chart-period-tabs";
 import {
   KpiInsightsCard,
   StatusDonutChart,
   WeeklyTrendChart,
 } from "@/components/dashboard/dashboard-charts";
-import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   buildDashboardKpis,
   buildStatusChartData,
 } from "@/lib/dashboard-analytics";
-import {
-  getClientOrderSearchPlaceholder,
-  getServiceTypeFilterOptionsForDashboard,
-  getStatusFilterOptionsForDashboard,
-} from "@/lib/dashboard-filter-options";
-import { getClientRequests } from "@/lib/dashboard-queries";
+import { getClientRequests, getRequestStatusHistory } from "@/lib/dashboard-queries";
+import { pickLatestTrackableOrder } from "@/lib/client-latest-tracking";
 import { getIntlLocale } from "@/lib/i18n/config";
 import {
   getOverviewPeriodLabel,
-  getOverviewPeriodOptions,
   getOverviewTrendTitle,
   getStatusLabels,
 } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
-  ALL_CHART_PERIOD_PARAM_KEYS,
   buildOverviewTrend,
   filterByOverviewPeriod,
   filterOrdersWithPeriod,
-  filterOverviewOrders,
   getChartPeriod,
   getChartPeriodParamKey,
   parseOverviewFilters,
@@ -53,8 +46,12 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
   const rawParams = await searchParams;
   const params = parseOverviewFilters(rawParams);
   const allOrders = await getClientRequests();
+  const latestOrder = pickLatestTrackableOrder(allOrders);
+  const latestHistory = latestOrder
+    ? await getRequestStatusHistory(latestOrder.id)
+    : [];
   const periodOrders = filterByOverviewPeriod(allOrders, params.period);
-  const orders = filterOverviewOrders(allOrders, params);
+  const orders = periodOrders;
   const kpis = buildDashboardKpis(orders);
   const periodLabel = getOverviewPeriodLabel(t, params.period);
   const statusLabels = getStatusLabels(t);
@@ -95,37 +92,6 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
           {`${t.dashboard.client.subtitle} — ${periodLabel}`}
         </p>
       </div>
-
-      <DashboardFilterBar
-        pathname="/client"
-        values={params}
-        preserveParams={rawParams}
-        hiddenFields={ALL_CHART_PERIOD_PARAM_KEYS}
-        searchPlaceholder={getClientOrderSearchPlaceholder(t)}
-        selects={[
-          {
-            name: "period",
-            label: t.dashboard.common.statisticsPeriod,
-            options: getOverviewPeriodOptions(t).map((o) => ({
-              value: o.value,
-              label: o.label,
-            })),
-            hideAllOption: true,
-          },
-          {
-            name: "status",
-            label: t.common.status,
-            options: getStatusFilterOptionsForDashboard(t),
-          },
-          {
-            name: "service_type",
-            label: t.request.form.serviceType,
-            options: getServiceTypeFilterOptionsForDashboard(t),
-          },
-        ]}
-        resultCount={orders.length}
-        totalCount={periodOrders.length}
-      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
@@ -176,6 +142,8 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
           {t.dashboard.client.trackOrder}
         </Link>
       </div>
+
+      <ClientLatestTrackingSection order={latestOrder} history={latestHistory} />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <StatusDonutChart
@@ -228,37 +196,44 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
 
           {orders.length === 0 ? (
             <p className="text-sm text-muted">
-              {periodOrders.length === 0 ? (
-                <>
-                  {`${t.dashboard.client.noOrdersInPeriod} ${periodLabel}`}{" "}
-                  <Link href="/client/request" className="text-primary">
-                    {t.dashboard.client.requestFirst}
-                  </Link>
-                </>
-              ) : (
-                t.common.noResults
-              )}
+              {`${t.dashboard.client.noOrdersInPeriod} ${periodLabel}`}{" "}
+              <Link href="/client/request" className="text-primary">
+                {t.dashboard.client.requestFirst}
+              </Link>
             </p>
           ) : (
             <div className="space-y-3">
               {orders.slice(0, 10).map((order) => (
-                <Link
+                <div
                   key={order.id}
-                  href={`/client/orders/${order.id}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-primary/5"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4"
                 >
-                  <div>
+                  <Link
+                    href={`/client/orders/${order.id}`}
+                    className="min-w-0 flex-1 transition-colors hover:text-primary"
+                  >
                     <p className="font-semibold">
                       {order.car_type ?? t.dashboard.common.serviceRequest}
                     </p>
                     <p className="text-sm text-muted">
                       {new Date(order.created_at).toLocaleDateString(intlLocale)}
                     </p>
+                    <p className="mt-1 font-mono text-xs text-muted" dir="ltr">
+                      {order.tracking_token}
+                    </p>
+                  </Link>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-medium text-primary">
+                      {statusLabels[order.status as keyof typeof statusLabels]}
+                    </span>
+                    <Link
+                      href={`/client/track/${order.tracking_token}`}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-border px-3 text-xs font-semibold transition-colors hover:bg-primary/5"
+                    >
+                      {t.dashboard.client.track}
+                    </Link>
                   </div>
-                  <span className="text-sm font-medium text-primary">
-                    {statusLabels[order.status as keyof typeof statusLabels]}
-                  </span>
-                </Link>
+                </div>
               ))}
             </div>
           )}

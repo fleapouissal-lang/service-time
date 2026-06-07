@@ -18,6 +18,9 @@ const SERVER_KEYS = new Set([
   "PASSWORD_RESET_SECRET",
   "RESEND_API_KEY",
   "WHATSAPP_NUMBER",
+  "NEXT_PUBLIC_WHATSAPP_NUMBER",
+  "WHATSAPP_ACCESS_TOKEN",
+  "WHATSAPP_PHONE_NUMBER_ID",
   "NEXT_PUBLIC_APP_URL",
   "PAYMOB_BASE_URL",
   "PAYMOB_SECRET_KEY",
@@ -36,6 +39,7 @@ if (!existsSync(envPath)) {
 const content = readFileSync(envPath, "utf8");
 const lines = content.split("\n");
 const webVars = [];
+const parsed = {};
 
 for (const line of lines) {
   const trimmed = line.trim();
@@ -45,9 +49,16 @@ for (const line of lines) {
   if (eq === -1) continue;
 
   const key = trimmed.slice(0, eq).trim();
+  const value = trimmed.slice(eq + 1).trim();
+  parsed[key] = value;
+
   if (key.startsWith("NEXT_PUBLIC_") || SERVER_KEYS.has(key)) {
     webVars.push(trimmed);
   }
+}
+
+if (parsed.WHATSAPP_NUMBER && !parsed.NEXT_PUBLIC_WHATSAPP_NUMBER) {
+  webVars.push(`NEXT_PUBLIC_WHATSAPP_NUMBER=${parsed.WHATSAPP_NUMBER}`);
 }
 
 if (webVars.length === 0) {

@@ -14,7 +14,13 @@ export type PhotoUploadFieldProps = {
   buttonLabel?: string;
   changeLabel?: string;
   hint?: string;
+  defaultPreviewUrl?: string | null;
+  defaultFileName?: string;
 };
+
+function isBlobUrl(url: string) {
+  return url.startsWith("blob:");
+}
 
 export function PhotoUploadField({
   id,
@@ -25,6 +31,8 @@ export function PhotoUploadField({
   buttonLabel,
   changeLabel,
   hint,
+  defaultPreviewUrl = null,
+  defaultFileName = "",
 }: PhotoUploadFieldProps) {
   const { messages: t } = useLocale();
   const resolvedTitle = title ?? t.request.form.photoTitle;
@@ -32,12 +40,12 @@ export function PhotoUploadField({
   const resolvedButtonLabel = buttonLabel ?? t.request.form.photoButton;
   const resolvedChangeLabel = changeLabel ?? t.request.form.photoChange;
   const resolvedHint = hint ?? t.request.form.photoHint;
-  const [fileName, setFileName] = useState("");
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [fileName, setFileName] = useState(defaultFileName);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(defaultPreviewUrl);
 
   useEffect(() => {
     return () => {
-      if (previewUrl) {
+      if (previewUrl && isBlobUrl(previewUrl)) {
         URL.revokeObjectURL(previewUrl);
       }
     };
@@ -108,14 +116,19 @@ export function PhotoUploadField({
           onChange={(event) => {
             const file = event.target.files?.[0];
             if (!file) {
-              setFileName("");
-              setPreviewUrl(null);
+              setFileName(defaultFileName);
+              setPreviewUrl((current) => {
+                if (current && isBlobUrl(current)) {
+                  URL.revokeObjectURL(current);
+                }
+                return defaultPreviewUrl;
+              });
               return;
             }
 
             setFileName(file.name);
             setPreviewUrl((current) => {
-              if (current) {
+              if (current && isBlobUrl(current)) {
                 URL.revokeObjectURL(current);
               }
               return URL.createObjectURL(file);

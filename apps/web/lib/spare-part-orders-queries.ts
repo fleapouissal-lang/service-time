@@ -96,3 +96,39 @@ export async function getAdminSparePartOrders(): Promise<
     client: profileMap.get(order.client_id) ?? null,
   }));
 }
+
+export async function getAdminSparePartOrderById(
+  orderId: string,
+): Promise<SparePartOrderWithItems | null> {
+  const supabase = getAdminSupabaseClient();
+  if (!supabase) return null;
+
+  const { data: order } = await supabase
+    .from("spare_part_orders")
+    .select("*")
+    .eq("id", orderId)
+    .maybeSingle();
+
+  if (!order) return null;
+
+  const [{ data: items }, { data: profile }] = await Promise.all([
+    supabase
+      .from("spare_part_order_items")
+      .select("*")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: true }),
+    supabase
+      .from("profiles")
+      .select("id, full_name, phone")
+      .eq("id", order.client_id)
+      .maybeSingle(),
+  ]);
+
+  return {
+    ...(order as SparePartOrder),
+    items: (items as SparePartOrderItem[]) ?? [],
+    client: profile
+      ? { full_name: profile.full_name, phone: profile.phone }
+      : null,
+  };
+}

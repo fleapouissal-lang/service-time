@@ -6,6 +6,7 @@ import {
   getExecutionMethodFilterOptionsForDashboard,
   getServiceTypeFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
+import { requireProfile } from "@/lib/auth";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
 
@@ -20,6 +21,7 @@ type PageProps = {
 
 export default async function ClientRequestPage({ searchParams }: PageProps) {
   const { t } = await getServerI18n();
+  const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
 
   return (
@@ -51,7 +53,11 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
       />
 
       <Suspense>
-        <ServiceRequestForm embedded />
+        <ServiceRequestForm
+          embedded
+          defaultName={profile?.full_name ?? ""}
+          defaultPhone={profile?.phone ?? ""}
+        />
       </Suspense>
     </div>
   );

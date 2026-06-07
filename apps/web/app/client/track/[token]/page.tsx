@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import {
   RequestSummary,
   TrackingMapPlaceholder,
   TrackingTimeline,
 } from "@/components/tracking/tracking-timeline";
+import { TrackingSearch } from "@/components/tracking/tracking-search";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getTrackingHistory, getTrackingRequest } from "@/lib/queries";
 
@@ -16,7 +16,7 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const { t } = await getServerI18n();
   const { token } = await params;
-  return { title: `${t.meta.trackPrefix} ${token}` };
+  return { title: `${t.meta.trackPrefix} ${decodeURIComponent(token)}` };
 }
 
 export default async function ClientTrackDetailPage({
@@ -27,7 +27,8 @@ export default async function ClientTrackDetailPage({
   searchParams: Promise<{ success?: string }>;
 }) {
   const { t } = await getServerI18n();
-  const { token } = await params;
+  const { token: rawToken } = await params;
+  const token = decodeURIComponent(rawToken).trim();
   const { success } = await searchParams;
 
   const [request, history] = await Promise.all([
@@ -35,7 +36,32 @@ export default async function ClientTrackDetailPage({
     getTrackingHistory(token),
   ]);
 
-  if (!request) notFound();
+  if (!request) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <Link
+            href="/client/track"
+            className="text-sm text-primary hover:underline"
+          >
+            {t.tracking.searchOther}
+          </Link>
+          <h1 className="mt-3 text-2xl font-bold">{t.tracking.title}</h1>
+        </div>
+
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-4 text-sm text-red-700">
+          {t.tracking.notFound}
+          {token ? (
+            <p className="mt-2 font-mono text-xs" dir="ltr">
+              {token}
+            </p>
+          ) : null}
+        </div>
+
+        <TrackingSearch embedded />
+      </div>
+    );
+  }
 
   const showLiveMap =
     request.status === "on_the_way" || request.status === "arrived";

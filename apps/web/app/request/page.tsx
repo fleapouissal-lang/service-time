@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { RequestLoginGate } from "@/components/request/request-login-gate";
-import { ServiceRequestForm } from "@/components/request/service-request-form";
+import {
+  RequestPageContent,
+} from "@/components/request/request-page-content";
+import type { RequestMode } from "@/components/request/request-mode-hub";
 import { getCurrentProfile } from "@/lib/auth";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getProfileHomePath } from "@/lib/profile-home";
@@ -27,22 +29,36 @@ function buildNextPath(
   return qs ? `/request?${qs}` : "/request";
 }
 
+function parseMode(raw: string | undefined): RequestMode {
+  if (raw === "full" || raw === "quick" || raw === "whatsapp") return raw;
+  return "hub";
+}
+
 export default async function RequestPage({ searchParams }: PageProps) {
   const rawParams = await searchParams;
-  const nextPath = buildNextPath(rawParams);
+  const mode = parseMode(rawParams.mode);
+  const nextPath = buildNextPath({ ...rawParams, mode: "full" });
   const profile = await getCurrentProfile();
 
-  if (!profile || !profile.is_active) {
-    return <RequestLoginGate nextPath={nextPath} />;
-  }
-
-  if (profile.role !== "client") {
+  if (
+    profile?.is_active &&
+    profile.role !== "client" &&
+    mode === "full"
+  ) {
     redirect(getProfileHomePath(profile.role));
   }
 
+  const isClient = Boolean(profile?.is_active && profile.role === "client");
+
   return (
     <Suspense>
-      <ServiceRequestForm />
+      <RequestPageContent
+        mode={mode}
+        isClient={isClient}
+        defaultName={isClient ? profile!.full_name : ""}
+        defaultPhone={isClient ? profile!.phone ?? "" : ""}
+        loginNextPath={nextPath}
+      />
     </Suspense>
   );
 }

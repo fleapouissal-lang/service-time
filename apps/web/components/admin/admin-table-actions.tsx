@@ -1,0 +1,65 @@
+import Link from "next/link";
+import { Eye, Pencil, Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const actionBtnClass =
+  "inline-flex size-9 shrink-0 items-center justify-center rounded-lg border border-border text-muted transition-colors";
+
+type AdminTableActionsProps = {
+  viewHref?: string;
+  editHref?: string;
+  viewLabel: string;
+  editLabel: string;
+  deleteLabel?: string;
+  onDelete?: () => void;
+  className?: string;
+};
+
+export function AdminTableActions({
+  viewHref,
+  editHref,
+  viewLabel,
+  editLabel,
+  deleteLabel,
+  onDelete,
+  className,
+}: AdminTableActionsProps) {
+  return (
+    <div className={cn("flex items-center justify-center gap-1.5", className)}>
+      {viewHref ? (
+        <Link
+          href={viewHref}
+          className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}
+          title={viewLabel}
+          aria-label={viewLabel}
+        >
+          <Eye className="size-4" aria-hidden />
+        </Link>
+      ) : null}
+      {editHref ? (
+        <Link
+          href={editHref}
+          className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}
+          title={editLabel}
+          aria-label={editLabel}
+        >
+          <Pencil className="size-4" aria-hidden />
+        </Link>
+      ) : null}
+      {onDelete && deleteLabel ? (
+        <button
+          type="button"
+          onClick={onDelete}
+          className={cn(
+            actionBtnClass,
+            "hover:border-red-400/40 hover:bg-red-950/30 hover:text-red-400",
+          )}
+          title={deleteLabel}
+          aria-label={deleteLabel}
+        >
+          <Trash2 className="size-4" aria-hidden />
+        </button>
+      ) : null}
+    </div>
+  );
+}

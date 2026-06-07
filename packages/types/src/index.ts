@@ -133,6 +133,7 @@ export interface SparePartOrderItem {
 
 export interface ServiceRequest {
   id: string;
+  client_id: string | null;
   customer_name: string;
   customer_phone: string;
   car_type: string | null;

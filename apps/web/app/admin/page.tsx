@@ -18,7 +18,6 @@ import {
   StatusDonutChart,
   WeeklyTrendChart,
 } from "@/components/dashboard/dashboard-charts";
-import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -32,26 +31,17 @@ import {
   getAdminServiceRequests,
   getUserRoleStats,
 } from "@/lib/admin-dashboard-data";
-import {
-  getOrderSearchPlaceholder,
-  getPriorityFilterOptionsForDashboard,
-  getServiceTypeFilterOptionsForDashboard,
-  getStatusFilterOptionsForDashboard,
-} from "@/lib/dashboard-filter-options";
 import { getIntlLocale } from "@/lib/i18n/config";
 import {
   getOverviewPeriodLabel,
-  getOverviewPeriodOptions,
   getOverviewTrendTitle,
   getStatusLabels,
 } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
-  ALL_CHART_PERIOD_PARAM_KEYS,
   buildOverviewTrend,
   filterByOverviewPeriod,
   filterOrdersWithPeriod,
-  filterOverviewOrders,
   getChartPeriod,
   getChartPeriodParamKey,
   parseOverviewFilters,
@@ -73,7 +63,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
   ]);
 
   const periodOrders = filterByOverviewPeriod(allOrders, params.period);
-  const orders = filterOverviewOrders(allOrders, params);
+  const orders = periodOrders;
   const kpis = buildDashboardKpis(orders);
   const periodLabel = getOverviewPeriodLabel(t, params.period);
   const statusLabels = getStatusLabels(t);
@@ -122,42 +112,6 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
           {t.dashboard.admin.title} — {periodLabel}
         </p>
       </div>
-
-      <DashboardFilterBar
-        pathname="/admin"
-        values={params}
-        preserveParams={rawParams}
-        hiddenFields={ALL_CHART_PERIOD_PARAM_KEYS}
-        searchPlaceholder={getOrderSearchPlaceholder(t)}
-        selects={[
-          {
-            name: "period",
-            label: t.dashboard.common.statisticsPeriod,
-            options: getOverviewPeriodOptions(t).map((o) => ({
-              value: o.value,
-              label: o.label,
-            })),
-            hideAllOption: true,
-          },
-          {
-            name: "status",
-            label: t.common.status,
-            options: getStatusFilterOptionsForDashboard(t),
-          },
-          {
-            name: "priority",
-            label: t.common.priority,
-            options: getPriorityFilterOptionsForDashboard(t),
-          },
-          {
-            name: "service_type",
-            label: t.request.form.serviceType,
-            options: getServiceTypeFilterOptionsForDashboard(t),
-          },
-        ]}
-        resultCount={orders.length}
-        totalCount={periodOrders.length}
-      />
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-muted">
@@ -314,9 +268,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
           </div>
           {orders.length === 0 ? (
             <p className="text-sm text-muted">
-              {periodOrders.length === 0
-                ? `${t.dashboard.admin.noOrdersInPeriod} ${periodLabel}.`
-                : t.common.noResultsFiltered}
+              {`${t.dashboard.admin.noOrdersInPeriod} ${periodLabel}.`}
             </p>
           ) : (
             <div className="overflow-x-auto">

@@ -247,3 +247,177 @@ export async function sendContactNotification(payload: {
     buildContactEmailHtml(payload),
   );
 }
+
+function buildOrderClientEmailHtml(payload: {
+  customerName: string;
+  trackingToken: string;
+  trackUrl: string;
+  serviceTypeLabel: string;
+  whatsappClientUrl: string;
+}): string {
+  return `
+    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
+      <h2 style="color: #050B10;">تم استلام طلبك — Service Time</h2>
+      <p>مرحباً ${escapeHtml(payload.customerName)}،</p>
+      <p>تم تسجيل طلبك بنجاح. احفظ رمز التتبع للمتابعة:</p>
+      <p style="font-size: 24px; font-weight: bold; letter-spacing: 2px; color: #0f5132;" dir="ltr">${escapeHtml(payload.trackingToken)}</p>
+      <p><strong>نوع الخدمة:</strong> ${escapeHtml(payload.serviceTypeLabel)}</p>
+      <p><a href="${escapeHtml(payload.trackUrl)}" dir="ltr">تتبع حالة الطلب</a></p>
+      <p style="color: #666;">يمكنك أيضاً متابعة الطلب عبر واتساب:</p>
+      <p><a href="${escapeHtml(payload.whatsappClientUrl)}" dir="ltr">فتح واتساب</a></p>
+    </div>
+  `.trim();
+}
+
+function buildOrderAdminEmailHtml(payload: {
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  trackingToken: string;
+  trackUrl: string;
+  serviceTypeLabel: string;
+  executionMethodLabel: string;
+  carType: string | null;
+  locationText: string | null;
+  whatsappClientUrl: string;
+}): string {
+  return `
+    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
+      <h2 style="color: #050B10;">طلب خدمة جديد — Service Time</h2>
+      <p><strong>العميل:</strong> ${escapeHtml(payload.customerName)}</p>
+      <p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(payload.customerPhone)}</span></p>
+      <p><strong>البريد:</strong> ${
+        payload.customerEmail
+          ? `<span dir="ltr">${escapeHtml(payload.customerEmail)}</span>`
+          : "—"
+      }</p>
+      <p><strong>نوع الخدمة:</strong> ${escapeHtml(payload.serviceTypeLabel)}</p>
+      <p><strong>طريقة التنفيذ:</strong> ${escapeHtml(payload.executionMethodLabel)}</p>
+      <p><strong>السيارة:</strong> ${escapeHtml(payload.carType ?? "—")}</p>
+      <p><strong>الموقع:</strong> ${escapeHtml(payload.locationText ?? "—")}</p>
+      <p><strong>رمز التتبع:</strong> <span dir="ltr" style="font-size: 20px; letter-spacing: 2px;">${escapeHtml(payload.trackingToken)}</span></p>
+      <p><a href="${escapeHtml(payload.trackUrl)}" dir="ltr">صفحة التتبع</a></p>
+      <p style="color: #666;">إرسال رمز التتبع للعميل عبر واتساب:</p>
+      <p><a href="${escapeHtml(payload.whatsappClientUrl)}" dir="ltr">فتح واتساب مع العميل</a></p>
+    </div>
+  `.trim();
+}
+
+export async function sendOrderCreatedClientEmail(payload: {
+  customerName: string;
+  customerEmail: string;
+  trackingToken: string;
+  trackUrl: string;
+  serviceTypeLabel: string;
+  whatsappClientUrl: string;
+}): Promise<SendEmailResult> {
+  return sendEmail(
+    payload.customerEmail,
+    `رمز تتبع طلبك — Service Time`,
+    buildOrderClientEmailHtml(payload),
+  );
+}
+
+export async function sendOrderCreatedAdminEmail(payload: {
+  customerName: string;
+  customerPhone: string;
+  customerEmail: string | null;
+  trackingToken: string;
+  trackUrl: string;
+  serviceTypeLabel: string;
+  executionMethodLabel: string;
+  carType: string | null;
+  locationText: string | null;
+  whatsappClientUrl: string;
+}): Promise<SendEmailResult> {
+  const notifyTo = getContactNotifyEmail();
+  if (!notifyTo) {
+    console.warn("[order] CONTACT_NOTIFY_EMAIL / SMTP_USER manquant");
+    return { ok: true, dev: true };
+  }
+
+  return sendEmail(
+    notifyTo,
+    `طلب جديد — ${payload.customerName} — ${payload.trackingToken}`,
+    buildOrderAdminEmailHtml(payload),
+  );
+}
+
+function buildQuickRequestAdminEmailHtml(payload: {
+  name: string;
+  phone: string;
+  email: string | null;
+  message: string;
+  hasPhoto: boolean;
+}): string {
+  return `
+    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
+      <h2 style="color: #050B10;">طلب سريع — Service Time</h2>
+      <p><strong>الاسم:</strong> ${escapeHtml(payload.name)}</p>
+      <p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(payload.phone)}</span></p>
+      <p><strong>البريد:</strong> ${
+        payload.email
+          ? `<span dir="ltr">${escapeHtml(payload.email)}</span>`
+          : "—"
+      }</p>
+      <p><strong>الرسالة:</strong></p>
+      <p style="white-space: pre-wrap; background: #f4f4f4; padding: 12px; border-radius: 8px;">${escapeHtml(payload.message)}</p>
+      <p><strong>صورة مرفقة:</strong> ${payload.hasPhoto ? "نعم" : "لا"}</p>
+    </div>
+  `.trim();
+}
+
+export async function sendQuickRequestAdminNotification(payload: {
+  name: string;
+  phone: string;
+  email: string | null;
+  message: string;
+  hasPhoto: boolean;
+}): Promise<SendEmailResult> {
+  const notifyTo = getContactNotifyEmail();
+  if (!notifyTo) {
+    console.warn("[quick-request] CONTACT_NOTIFY_EMAIL manquant");
+    return { ok: true, dev: true };
+  }
+
+  return sendEmail(
+    notifyTo,
+    `طلب سريع — ${payload.name}`,
+    buildQuickRequestAdminEmailHtml(payload),
+  );
+}
+
+function buildQuickRequestWelcomeEmailHtml(payload: {
+  fullName: string;
+  loginEmail: string;
+  password: string;
+  loginUrl: string;
+  phone: string;
+}): string {
+  return `
+    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
+      <h2 style="color: #050B10;">مرحباً بك في Service Time</h2>
+      <p>مرحباً ${escapeHtml(payload.fullName)}،</p>
+      <p>تم إنشاء حسابك تلقائياً بعد إرسال طلبك السريع. يمكنك تسجيل الدخول لمتابعة طلباتك:</p>
+      <p><strong>البريد:</strong> <span dir="ltr">${escapeHtml(payload.loginEmail)}</span></p>
+      <p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(payload.phone)}</span></p>
+      <p><strong>كلمة المرور:</strong> <span dir="ltr" style="font-family: monospace;">${escapeHtml(payload.password)}</span></p>
+      <p><a href="${escapeHtml(payload.loginUrl)}" dir="ltr">تسجيل الدخول</a></p>
+      <p style="color: #666;">ننصحك بتغيير كلمة المرور بعد أول تسجيل دخول.</p>
+    </div>
+  `.trim();
+}
+
+export async function sendQuickRequestWelcomeEmail(payload: {
+  fullName: string;
+  loginEmail: string;
+  password: string;
+  loginUrl: string;
+  phone: string;
+}): Promise<SendEmailResult> {
+  return sendEmail(
+    payload.loginEmail,
+    "حسابك في Service Time — بيانات الدخول",
+    buildQuickRequestWelcomeEmailHtml(payload),
+  );
+}

@@ -13,7 +13,6 @@ import { mapAuthError } from "@/lib/auth-errors";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import type { ProfileRole } from "@service-time/types";
-import { createAuthBrowserClient } from "@/lib/supabase-browser";
 
 export function LoginForm() {
   const { messages: t } = useLocale();
@@ -22,7 +21,7 @@ export function LoginForm() {
   const next = searchParams.get("next") ?? "";
   const registered = searchParams.get("registered") === "1";
 
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotFlow, setShowForgotFlow] = useState(false);
@@ -36,34 +35,33 @@ export function LoginForm() {
     setError("");
     setInfoMessage("");
 
-    const supabase = createAuthBrowserClient();
-    const { data, error: authError } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier, password }),
+      });
+      const data = (await res.json()) as {
+        error?: string;
+        role?: ProfileRole;
+      };
 
-    if (authError || !data.user) {
-      setError(mapAuthError(authError?.message ?? t.errors.auth.loginFailed, t));
+      if (!res.ok) {
+        if (data.error === "account inactive") {
+          setError(t.errors.auth.accountInactive);
+        } else {
+          setError(mapAuthError(data.error ?? t.errors.auth.loginFailed, t));
+        }
+        setLoading(false);
+        return;
+      }
+
+      router.push(resolvePostLoginPath(data.role ?? "client", next));
+      router.refresh();
+    } catch {
+      setError(t.errors.auth.serverConnection);
       setLoading(false);
-      return;
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", data.user.id)
-      .maybeSingle();
-
-    if (!profile?.is_active) {
-      setError(t.errors.auth.accountInactive);
-      await supabase.auth.signOut();
-      setLoading(false);
-      return;
-    }
-
-    const role = profile.role as ProfileRole;
-    router.push(resolvePostLoginPath(role, next));
-    router.refresh();
   }
 
   return (
@@ -126,7 +124,7 @@ export function LoginForm() {
           <div className="rounded-[20px] border border-white/10 bg-[#091014] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-10">
             {showForgotFlow ? (
               <ForgotPasswordFlow
-                initialEmail={email}
+                initialEmail={identifier.includes("@") ? identifier : ""}
                 onBack={() => {
                   setShowForgotFlow(false);
                   setError("");
@@ -176,17 +174,18 @@ export function LoginForm() {
                   className="space-y-5"
                 >
                   <div>
-                    <Label htmlFor="email" className="text-white">
-                      {t.login.form.email}
+                    <Label htmlFor="identifier" className="text-white">
+                      {t.login.form.emailOrPhone}
                     </Label>
                     <Input
-                      id="email"
-                      type="email"
+                      id="identifier"
+                      type="text"
                       dir="ltr"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
+                      autoComplete="username"
+                      value={identifier}
+                      onChange={(e) => setIdentifier(e.target.value)}
                       required
-                      placeholder="name@example.com"
+                      placeholder={t.login.form.emailOrPhonePlaceholder}
                       className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
                     />
                   </div>

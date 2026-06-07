@@ -99,6 +99,21 @@ export async function getPlatformUsers(
   return (data ?? []) as Profile[];
 }
 
+export async function getPlatformUserById(id: string): Promise<Profile | null> {
+  const admin = await requireAdminDb();
+  const { data, error } = await admin
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return (data as Profile | null) ?? null;
+}
+
 export async function buildUserRoleChartData(): Promise<
   { key: string; name: string; value: number }[]
 > {

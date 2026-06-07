@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import type {
   ProfileRole,
   RequestPriority,
@@ -14,7 +15,7 @@ import {
   getAvatarFromFormData,
   uploadProfileAvatar,
 } from "@/lib/upload-profile-avatar";
-import { normalizePhone } from "@/lib/whatsapp";
+import { normalizePhone } from "@/lib/whatsapp-utils";
 
 async function adminClient() {
   const profile = await requireProfile(["admin"]);
@@ -22,25 +23,42 @@ async function adminClient() {
   return createAuthServerClient();
 }
 
-export async function updateOrderAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id"));
-  const status = String(formData.get("status")) as ServiceRequestStatus;
-  const priority = String(formData.get("priority")) as RequestPriority;
-  const assigned = String(formData.get("assigned_technician_id") ?? "");
+export type UpdateOrderFormState = {
+  success?: boolean;
+  error?: string;
+};
 
-  const { error } = await supabase
-    .from("service_requests")
-    .update({
-      status,
-      priority,
-      assigned_technician_id: assigned || null,
-    })
-    .eq("id", id);
+export async function updateOrderAction(
+  _prev: UpdateOrderFormState,
+  formData: FormData,
+): Promise<UpdateOrderFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id"));
+    const status = String(formData.get("status")) as ServiceRequestStatus;
+    const priority = String(formData.get("priority")) as RequestPriority;
+    const assigned = String(formData.get("assigned_technician_id") ?? "");
 
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin");
+    const { error } = await supabase
+      .from("service_requests")
+      .update({
+        status,
+        priority,
+        assigned_technician_id: assigned || null,
+      })
+      .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/orders");
+    revalidatePath(`/admin/orders/${id}`);
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
 }
 
 export async function saveServiceAction(formData: FormData) {
@@ -57,12 +75,61 @@ export async function saveServiceAction(formData: FormData) {
     is_active: formData.get("is_active") === "on",
   };
 
-  const { error } = id
-    ? await supabase.from("services").update(payload).eq("id", id)
-    : await supabase.from("services").insert(payload);
+  const { data, error } = id
+    ? await supabase.from("services").update(payload).eq("id", id).select("id").single()
+    : await supabase.from("services").insert(payload).select("id").single();
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/services");
+  if (id) {
+    revalidatePath(`/admin/services/${id}`);
+  } else if (data?.id) {
+    redirect(`/admin/services/${data.id}`);
+  }
+}
+
+export type SaveServiceFormState = {
+  success?: boolean;
+  error?: string;
+};
+
+function buildServicePayload(formData: FormData) {
+  return {
+    name_ar: String(formData.get("name_ar")),
+    name_en: String(formData.get("name_en") ?? "").trim() || null,
+    description_ar: String(formData.get("description_ar") ?? ""),
+    description_en: String(formData.get("description_en") ?? "").trim() || null,
+    category: String(formData.get("category") ?? ""),
+    service_type: String(formData.get("service_type")),
+    sort_order: Number(formData.get("sort_order") ?? 0),
+    is_active: formData.get("is_active") === "on",
+  };
+}
+
+export async function saveServiceEditAction(
+  _prev: SaveServiceFormState,
+  formData: FormData,
+): Promise<SaveServiceFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id") ?? "");
+    if (!id) return { error: "Missing service id" };
+
+    const { error } = await supabase
+      .from("services")
+      .update(buildServicePayload(formData))
+      .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/services");
+    revalidatePath(`/admin/services/${id}`);
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
 }
 
 export async function deleteServiceAction(formData: FormData) {
@@ -71,6 +138,7 @@ export async function deleteServiceAction(formData: FormData) {
   const { error } = await supabase.from("services").delete().eq("id", id);
   if (error) throw new Error(error.message);
   revalidatePath("/admin/services");
+  redirect("/admin/services");
 }
 
 export async function saveSparePartAction(formData: FormData) {
@@ -105,13 +173,84 @@ export async function saveSparePartAction(formData: FormData) {
     is_active: formData.get("is_active") === "on",
   };
 
-  const { error } = id
-    ? await supabase.from("spare_parts").update(payload).eq("id", id)
-    : await supabase.from("spare_parts").insert(payload);
+  const { data, error } = id
+    ? await supabase
+        .from("spare_parts")
+        .update(payload)
+        .eq("id", id)
+        .select("id")
+        .single()
+    : await supabase.from("spare_parts").insert(payload).select("id").single();
 
   if (error) throw new Error(error.message);
   revalidatePath("/admin/spare-parts");
   revalidatePath("/spare-parts");
+  if (id) {
+    revalidatePath(`/admin/spare-parts/${id}`);
+  } else if (data?.id) {
+    redirect(`/admin/spare-parts/${data.id}`);
+  }
+}
+
+export type SaveSparePartFormState = {
+  success?: boolean;
+  error?: string;
+};
+
+export async function saveSparePartEditAction(
+  _prev: SaveSparePartFormState,
+  formData: FormData,
+): Promise<SaveSparePartFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id") ?? "");
+    if (!id) return { error: "Missing part id" };
+
+    const existingImg = String(formData.get("existing_img") ?? "").trim();
+    const imgFile = formData.get("img");
+
+    let img: string | null = existingImg || null;
+
+    if (imgFile instanceof File && imgFile.size > 0) {
+      img = await saveSparePartImage(imgFile);
+    }
+
+    const priceRaw = String(formData.get("price") ?? "0").trim();
+    const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
+    const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
+    const stock_quantity = Math.max(0, Number.parseInt(stockRaw, 10) || 0);
+
+    const payload = {
+      name_ar: String(formData.get("name_ar")),
+      name_en: String(formData.get("name_en") ?? "").trim() || null,
+      description_ar: String(formData.get("description_ar") ?? ""),
+      description_en: String(formData.get("description_en") ?? "").trim() || null,
+      category: String(formData.get("category") ?? ""),
+      category_en: String(formData.get("category_en") ?? "").trim() || null,
+      details: String(formData.get("details") ?? ""),
+      details_en: String(formData.get("details_en") ?? "").trim() || null,
+      img,
+      price,
+      stock_quantity,
+      is_active: formData.get("is_active") === "on",
+    };
+
+    const { error } = await supabase
+      .from("spare_parts")
+      .update(payload)
+      .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/spare-parts");
+    revalidatePath(`/admin/spare-parts/${id}`);
+    revalidatePath("/spare-parts");
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
 }
 
 export async function deleteSparePartAction(formData: FormData) {
@@ -121,6 +260,7 @@ export async function deleteSparePartAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/spare-parts");
   revalidatePath("/spare-parts");
+  redirect("/admin/spare-parts");
 }
 
 export async function saveContentAction(formData: FormData) {
@@ -156,6 +296,7 @@ export async function togglePlatformUserAction(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
+  revalidatePath(`/admin/users/${id}`);
 }
 
 /** @deprecated Utiliser togglePlatformUserAction */

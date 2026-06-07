@@ -3,11 +3,12 @@
 import type { ExecutionMethod, ServiceType } from "@service-time/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getDictionary } from "@/lib/i18n/get-dictionary";
-import { getLocale } from "@/lib/i18n/get-locale";
-import { createWebSupabaseClient } from "@/lib/supabase";
-import { requireProfile } from "@/lib/auth";
+import { createAuthServerClient, requireProfile } from "@/lib/auth";
 import { ensureServerEnv } from "@/lib/env-server";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getExecutionMethodLabels, getServiceTypeLabels } from "@/lib/i18n/labels";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { notifyOrderCreated } from "@/lib/order-notifications";
 import {
   formHasPhotoField,
   getPhotoFromFormData,
@@ -70,11 +71,12 @@ export async function submitServiceRequest(
 
   ensureServerEnv();
 
-  const supabase = createWebSupabaseClient();
+  const supabase = await createAuthServerClient();
+  const phone = profile.phone?.trim() || customer_phone;
 
   const { data, error } = await supabase.rpc("create_service_request", {
     p_customer_name: customer_name,
-    p_customer_phone: customer_phone,
+    p_customer_phone: phone,
     p_car_type: car_type,
     p_location_text: location_text,
     p_description: description,
@@ -122,6 +124,26 @@ export async function submitServiceRequest(
       return { error: upload.error };
     }
   }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const executionMethodLabels = getExecutionMethodLabels(t);
+
+  void notifyOrderCreated({
+    requestId: row.id,
+    customerName: customer_name,
+    customerPhone: phone,
+    customerEmail: user?.email ?? null,
+    trackingToken: row.tracking_token,
+    serviceType: service_type,
+    executionMethod: execution_method,
+    serviceTypeLabel: serviceTypeLabels[service_type],
+    executionMethodLabel: executionMethodLabels[execution_method],
+    carType: car_type || null,
+    locationText: location_text || null,
+  }).catch((err) => console.error("[request] order notify:", err));
 
   revalidatePath("/client/track");
   revalidatePath("/client/orders");
