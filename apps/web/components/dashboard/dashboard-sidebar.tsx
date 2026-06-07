@@ -4,21 +4,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  BarChart3,
-  ClipboardList,
-  LayoutDashboard,
   LogOut,
-  MapPin,
-  Package,
-  ShoppingCart,
-  Users,
-  Wrench,
 } from "lucide-react";
 import type { ProfileRole } from "@service-time/types";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
-import { getProfileRoleLabel } from "@/lib/profile-home";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { SidebarDateTime } from "@/components/dashboard/sidebar-datetime";
 import { SidebarEdgeToggle } from "@/components/dashboard/sidebar-edge-toggle";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 export type DashboardNavItem = {
@@ -54,6 +47,7 @@ export function DashboardSidebar({
   onSignOut?: () => void;
 }) {
   const pathname = usePathname();
+  const { messages } = useLocale();
 
   const profileBlock = (compact: boolean) => (
     <div className={cn("space-y-2", compact ? "w-full" : "w-full")}>
@@ -79,7 +73,7 @@ export function DashboardSidebar({
               {user.fullName}
             </span>
             <span className="mt-0.5 block text-sm text-[#050B10]/70">
-              {getProfileRoleLabel(user.role)}
+              {messages.roles[user.role]}
             </span>
           </span>
         ) : null}
@@ -142,6 +136,13 @@ export function DashboardSidebar({
           </Link>
 
           {open ? profileBlock(false) : null}
+          {open ? (
+            <div className="flex justify-center">
+              <LanguageSwitcher className="text-[#050B10] hover:bg-[#050B10]/10" />
+            </div>
+          ) : (
+            <LanguageSwitcher className="text-[#050B10] hover:bg-[#050B10]/10" />
+          )}
         </div>
 
         <nav
@@ -194,8 +195,8 @@ export function DashboardSidebar({
             <button
               type="button"
               onClick={onSignOut}
-              title="تسجيل الخروج"
-              aria-label="تسجيل الخروج"
+              title={messages.auth.logout}
+              aria-label={messages.auth.logout}
               className={cn(
                 "font-medium text-red-800 transition-colors hover:bg-red-900/10 hover:text-red-900",
                 open
@@ -205,7 +206,7 @@ export function DashboardSidebar({
             >
               <LogOut className={cn("shrink-0", open ? "size-4" : "size-5")} />
               {open && (
-                <span className="flex-1 text-start">تسجيل الخروج</span>
+                <span className="flex-1 text-start">{messages.auth.logout}</span>
               )}
             </button>
           ) : null}
@@ -217,25 +218,6 @@ export function DashboardSidebar({
   );
 }
 
-export const ADMIN_NAV: DashboardNavItem[] = [
-  { href: "/admin", label: "نظرة عامة", icon: LayoutDashboard },
-  { href: "/admin/orders", label: "الطلبات", icon: ClipboardList },
-  { href: "/admin/services", label: "الخدمات", icon: Wrench },
-  { href: "/admin/spare-parts", label: "قطع الغيار", icon: Package },
-  { href: "/admin/spare-part-orders", label: "طلبات القطع", icon: ShoppingCart },
-  { href: "/admin/users", label: "المستخدمون", icon: Users },
-  { href: "/admin/reports", label: "التقارير", icon: BarChart3 },
-];
-
-export const TECHNICIAN_NAV: DashboardNavItem[] = [
-  { href: "/technician", label: "طلباتي", icon: ClipboardList },
-  { href: "/technician/location", label: "موقعي", icon: MapPin },
-];
-
-export const CLIENT_NAV: DashboardNavItem[] = [
-  { href: "/client", label: "نظرة عامة", icon: LayoutDashboard },
-  { href: "/client/orders", label: "طلباتي", icon: ClipboardList },
-  { href: "/client/spare-part-orders", label: "طلبات القطع", icon: ShoppingCart },
-  { href: "/client/request", label: "طلب جديد", icon: Wrench },
-  { href: "/client/track", label: "تتبع الطلب", icon: MapPin },
-];
+export const ADMIN_NAV: DashboardNavItem[] = [];
+export const TECHNICIAN_NAV: DashboardNavItem[] = [];
+export const CLIENT_NAV: DashboardNavItem[] = [];

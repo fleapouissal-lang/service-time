@@ -6,6 +6,7 @@ import {
   TrackingMapPlaceholder,
   TrackingTimeline,
 } from "@/components/tracking/tracking-timeline";
+import { getServerI18n } from "@/lib/i18n/server";
 import { getTrackingHistory, getTrackingRequest } from "@/lib/queries";
 
 export async function generateMetadata({
@@ -13,8 +14,9 @@ export async function generateMetadata({
 }: {
   params: Promise<{ token: string }>;
 }): Promise<Metadata> {
+  const { t } = await getServerI18n();
   const { token } = await params;
-  return { title: `تتبع ${token}` };
+  return { title: `${t.meta.trackPrefix} ${token}` };
 }
 
 export default async function ClientTrackDetailPage({
@@ -24,6 +26,7 @@ export default async function ClientTrackDetailPage({
   params: Promise<{ token: string }>;
   searchParams: Promise<{ success?: string }>;
 }) {
+  const { t } = await getServerI18n();
   const { token } = await params;
   const { success } = await searchParams;
 
@@ -44,22 +47,24 @@ export default async function ClientTrackDetailPage({
           href="/client/track"
           className="text-sm text-primary hover:underline"
         >
-          ← البحث برمز آخر
+          {t.tracking.searchOther}
         </Link>
-        <h1 className="mt-3 text-2xl font-bold">مرحباً {request.customer_name}</h1>
-        <p className="text-muted">تابع حالة طلبك وموقع الفني</p>
+        <h1 className="mt-3 text-2xl font-bold">
+          {t.tracking.welcome} {request.customer_name}
+        </h1>
+        <p className="text-muted">{t.tracking.subtitle}</p>
       </div>
 
       {success === "1" && (
         <div className="rounded-2xl border border-primary/30 bg-primary/10 px-5 py-4 text-sm text-primary">
-          ✓ تم إرسال طلبك بنجاح. يمكنك متابعته من هذه الصفحة.
+          {t.tracking.successBanner}
         </div>
       )}
 
       <RequestSummary request={request} />
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
-        <h2 className="mb-6 text-lg font-bold">خط سير الطلب</h2>
+        <h2 className="mb-6 text-lg font-bold">{t.tracking.timelineTitle}</h2>
         <TrackingTimeline currentStatus={request.status} history={history} />
       </div>
 
@@ -73,7 +78,7 @@ export default async function ClientTrackDetailPage({
         href="/client/orders"
         className="inline-flex text-sm font-semibold text-primary hover:underline"
       >
-        عرض كل طلباتي
+        {t.tracking.viewAllOrders}
       </Link>
     </div>
   );

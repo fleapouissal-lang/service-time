@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type CtaSectionProps = {
   title?: string;
@@ -50,31 +53,37 @@ export function CtaSection({
 }
 
 export function HomeCtaSection() {
+  const { messages: t } = useLocale();
+
   return (
     <CtaSection
-      title="جاهز لطلب الخدمة؟"
-      description="املأ النموذج وسنتواصل معك عبر واتساب أو SMS مع رابط تتبع مباشر لحالة طلبك."
-      ctaLabel="ابدأ طلب الخدمة"
+      title={t.home.cta.title}
+      description={t.home.cta.description}
+      ctaLabel={t.home.cta.ctaLabel}
     />
   );
 }
 
 export function ServicesCtaSection() {
+  const { messages: t } = useLocale();
+
   return (
     <CtaSection
-      title="تحتاج خدمة مخصصة؟"
-      description="لم تجد الخدمة المناسبة؟ أرسل طلبك وسيتواصل فريق Service Time معك لتحديد الحل الأنسب لسيارتك — صيانة، طوارئ، أو قطع غيار."
-      ctaLabel="طلب خدمة الآن"
+      title={t.services.cta.title}
+      description={t.services.cta.description}
+      ctaLabel={t.services.cta.ctaLabel}
     />
   );
 }
 
 export function AboutCtaSection() {
+  const { messages: t } = useLocale();
+
   return (
     <CtaSection
-      title="جاهز لتجربة Service Time؟"
-      description="اطلب خدمتك الآن وتابع حالة طلبك خطوة بخطوة — صيانة، طوارئ، أو قطع غيار مع فريق يهتم بسيارتك."
-      ctaLabel="ابدأ طلب الخدمة"
+      title={t.about.cta.title}
+      description={t.about.cta.description}
+      ctaLabel={t.about.cta.ctaLabel}
     />
   );
 }

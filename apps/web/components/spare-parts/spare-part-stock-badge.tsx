@@ -1,4 +1,7 @@
+"use client";
+
 import { cn } from "@/lib/utils";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function SparePartStockBadge({
   stock,
@@ -7,6 +10,7 @@ export function SparePartStockBadge({
   stock: number;
   className?: string;
 }) {
+  const { messages: t } = useLocale();
   const qty = Math.max(0, stock);
   const outOfStock = qty <= 0;
 
@@ -20,7 +24,7 @@ export function SparePartStockBadge({
         className,
       )}
     >
-      {outOfStock ? "نفذت الكمية" : `متوفر: ${qty}`}
+      {outOfStock ? t.spareParts.outOfStock : `${t.spareParts.stockAvailable} ${qty}`}
     </span>
   );
 }

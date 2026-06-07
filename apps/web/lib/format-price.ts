@@ -1,5 +1,11 @@
-export function formatSparePartPrice(price: number): string {
-  return new Intl.NumberFormat("ar-SA", {
+import type { Locale } from "@/lib/i18n/config";
+import { getIntlLocale } from "@/lib/i18n/config";
+
+export function formatSparePartPrice(
+  price: number,
+  locale: Locale = "ar",
+): string {
+  return new Intl.NumberFormat(getIntlLocale(locale), {
     style: "currency",
     currency: "SAR",
     minimumFractionDigits: 0,

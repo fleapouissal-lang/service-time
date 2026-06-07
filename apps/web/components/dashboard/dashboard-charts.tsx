@@ -1,5 +1,6 @@
 "use client";
 
+import { useLocale } from "@/lib/i18n/locale-context";
 import {
   Bar,
   BarChart,
@@ -70,23 +71,26 @@ function ChartCard({ title, children, className, headerAction }: ChartCardProps)
 
 export function StatusDonutChart({
   data,
-  title = "توزيع الحالات",
+  title,
   headerAction,
 }: {
   data: ChartDatum[];
   title?: string;
   headerAction?: React.ReactNode;
 }) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.dashboard.charts.statusDistribution;
+
   if (data.length === 0) {
     return (
-      <ChartCard title={title} headerAction={headerAction}>
-        <p className="py-12 text-center text-sm text-muted">لا توجد بيانات</p>
+      <ChartCard title={resolvedTitle} headerAction={headerAction}>
+        <p className="py-12 text-center text-sm text-muted">{t.dashboard.charts.noData}</p>
       </ChartCard>
     );
   }
 
   return (
-    <ChartCard title={title} headerAction={headerAction}>
+    <ChartCard title={resolvedTitle} headerAction={headerAction}>
       <div className="h-[260px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
@@ -133,15 +137,18 @@ export function StatusDonutChart({
 
 export function WeeklyTrendChart({
   data,
-  title = "الطلبات — آخر 7 أيام",
+  title,
   headerAction,
 }: {
   data: TrendDatum[];
   title?: string;
   headerAction?: React.ReactNode;
 }) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.dashboard.charts.trendWeek;
+
   return (
-    <ChartCard title={title} headerAction={headerAction}>
+    <ChartCard title={resolvedTitle} headerAction={headerAction}>
       <div className="h-[260px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -163,7 +170,7 @@ export function WeeklyTrendChart({
             <Line
               type="monotone"
               dataKey="count"
-              name="طلبات"
+              name={t.dashboard.charts.orders}
               stroke="#94D4B9"
               strokeWidth={2.5}
               dot={{ fill: "#94D4B9", r: 4 }}
@@ -178,23 +185,26 @@ export function WeeklyTrendChart({
 
 export function ServiceTypeBarChart({
   data,
-  title = "حسب نوع الخدمة",
+  title,
   headerAction,
 }: {
   data: ChartDatum[];
   title?: string;
   headerAction?: React.ReactNode;
 }) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.dashboard.charts.byServiceType;
+
   if (data.length === 0) {
     return (
-      <ChartCard title={title} headerAction={headerAction}>
-        <p className="py-12 text-center text-sm text-muted">لا توجد بيانات</p>
+      <ChartCard title={resolvedTitle} headerAction={headerAction}>
+        <p className="py-12 text-center text-sm text-muted">{t.dashboard.charts.noData}</p>
       </ChartCard>
     );
   }
 
   return (
-    <ChartCard title={title} headerAction={headerAction}>
+    <ChartCard title={resolvedTitle} headerAction={headerAction}>
       <div className="h-[240px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} margin={{ top: 8, right: 8, left: 0, bottom: 0 }}>
@@ -213,7 +223,7 @@ export function ServiceTypeBarChart({
               width={28}
             />
             <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="value" name="عدد" radius={[6, 6, 0, 0]}>
+            <Bar dataKey="value" name={t.dashboard.charts.count} radius={[6, 6, 0, 0]}>
               {data.map((entry, i) => (
                 <Cell
                   key={entry.key}
@@ -230,15 +240,18 @@ export function ServiceTypeBarChart({
 
 export function PriorityBarChart({
   data,
-  title = "توزيع الأولويات",
+  title,
   headerAction,
 }: {
   data: ChartDatum[];
   title?: string;
   headerAction?: React.ReactNode;
 }) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.dashboard.charts.priorityDistribution;
+
   return (
-    <ChartCard title={title} headerAction={headerAction}>
+    <ChartCard title={resolvedTitle} headerAction={headerAction}>
       <div className="h-[240px] w-full" dir="ltr">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart data={data} layout="vertical" margin={{ top: 4, right: 8, left: 4, bottom: 4 }}>
@@ -253,7 +266,7 @@ export function PriorityBarChart({
               width={72}
             />
             <Tooltip content={<ChartTooltip />} />
-            <Bar dataKey="value" name="عدد" radius={[0, 6, 6, 0]} fill="#94D4B9" />
+            <Bar dataKey="value" name={t.dashboard.charts.count} radius={[0, 6, 6, 0]} fill="#94D4B9" />
           </BarChart>
         </ResponsiveContainer>
       </div>
@@ -263,15 +276,18 @@ export function PriorityBarChart({
 
 export function KpiInsightsCard({
   items,
-  title = "تحليل سريع",
+  title,
   headerAction,
 }: {
   title?: string;
   items: { label: string; value: string | number }[];
   headerAction?: React.ReactNode;
 }) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.dashboard.charts.quickInsights;
+
   return (
-    <ChartCard title={title} headerAction={headerAction}>
+    <ChartCard title={resolvedTitle} headerAction={headerAction}>
       <dl className="space-y-4">
         {items.map((item) => (
           <div

@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState, useMemo } from "react";
 import { FileText, Phone, User, Car } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
@@ -12,15 +12,14 @@ import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { IconSelect } from "@/components/ui/icon-select";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { Label } from "@/components/ui/label";
+import { useLocale } from "@/lib/i18n/locale-context";
 import {
   buildExecutionMethodSelectOptions,
   buildServiceRequestTypeOptions,
-} from "@/lib/select-option-builders";
-
-const SERVICE_TYPE_OPTIONS = buildServiceRequestTypeOptions();
-const EXECUTION_METHOD_OPTIONS = buildExecutionMethodSelectOptions();
+} from "@/lib/i18n/labels";
 
 export function ServiceRequestForm({ embedded = false }: { embedded?: boolean }) {
+  const { messages: t } = useLocale();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
   const defaultType =
@@ -30,6 +29,15 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
   const defaultExecution =
     searchParams.get("execution_method") ?? "mobile_workshop";
 
+  const serviceTypeOptions = useMemo(
+    () => buildServiceRequestTypeOptions(t),
+    [t],
+  );
+  const executionMethodOptions = useMemo(
+    () => buildExecutionMethodSelectOptions(t),
+    [t],
+  );
+
   const [state, action, pending] = useActionState(submitServiceRequest, {});
 
   return (
@@ -38,9 +46,9 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
         <PageHeader
           plain
           plainWidth="md"
-          eyebrow="طلب خدمة"
-          title="أرسل طلب الصيانة"
-          description="املأ البيانات وسنتواصل معك قريباً عبر واتساب أو SMS."
+          eyebrow={t.request.eyebrow}
+          title={t.request.title}
+          description={t.request.description}
         />
       ) : null}
 
@@ -57,18 +65,18 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
 
           {state.success && state.trackingToken ? (
             <div className="space-y-4 rounded-xl border border-primary/30 bg-primary/10 px-4 py-4 text-sm text-primary">
-              <p className="font-semibold">✓ تم إرسال طلبك بنجاح.</p>
+              <p className="font-semibold">{t.request.form.successTitle}</p>
               <p>
-                رمز التتبع:{" "}
+                {t.request.form.trackingToken}{" "}
                 <code dir="ltr" className="rounded bg-white/50 px-2 py-0.5">
                   {state.trackingToken}
                 </code>
               </p>
               <p>
                 <Link href="/login?next=/client/track" className="font-semibold underline">
-                  سجّل الدخول
+                  {t.request.form.loginLink}
                 </Link>{" "}
-                لمتابعة طلبك من لوحة العميل.
+                {t.request.form.loginToTrack}
               </p>
             </div>
           ) : null}
@@ -81,72 +89,72 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
 
           <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <Label htmlFor="customer_name">الاسم *</Label>
+              <Label htmlFor="customer_name">{t.request.form.name}</Label>
               <IconInput
                 id="customer_name"
                 name="customer_name"
                 icon={User}
                 required
-                placeholder="محمد العتيبي"
+                placeholder={t.common.placeholderName}
               />
             </div>
             <div>
-              <Label htmlFor="customer_phone">رقم الجوال *</Label>
+              <Label htmlFor="customer_phone">{t.request.form.phone}</Label>
               <IconInput
                 id="customer_phone"
                 name="customer_phone"
                 icon={Phone}
                 required
                 dir="ltr"
-                placeholder="+9665XXXXXXXX"
+                placeholder={t.common.placeholderPhone}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="car_type">نوع السيارة</Label>
+            <Label htmlFor="car_type">{t.request.form.car}</Label>
             <IconInput
               id="car_type"
               name="car_type"
               icon={Car}
-              placeholder="تويota كامري 2020"
+              placeholder={t.common.placeholderCar}
             />
           </div>
 
           <div>
-            <Label htmlFor="location_text">الموقع</Label>
+            <Label htmlFor="location_text">{t.request.form.location}</Label>
             <LocationField />
           </div>
 
           <div>
-            <Label htmlFor="service_type">نوع الخدمة *</Label>
+            <Label htmlFor="service_type">{t.request.form.serviceType}</Label>
             <IconSelect
               id="service_type"
               name="service_type"
-              options={SERVICE_TYPE_OPTIONS}
+              options={serviceTypeOptions}
               defaultValue={defaultType}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="execution_method">طريقة التنفيذ *</Label>
+            <Label htmlFor="execution_method">{t.request.form.executionMethod}</Label>
             <IconSelect
               id="execution_method"
               name="execution_method"
-              options={EXECUTION_METHOD_OPTIONS}
+              options={executionMethodOptions}
               defaultValue={defaultExecution}
               required
             />
           </div>
 
           <div>
-            <Label htmlFor="description">وصف المشكلة / الطلب</Label>
+            <Label htmlFor="description">{t.request.form.problemDescription}</Label>
             <IconTextarea
               id="description"
               name="description"
               icon={FileText}
-              placeholder="صف المشكلة أو الطلب..."
+              placeholder={t.common.placeholderNotes}
             />
           </div>
 
@@ -165,7 +173,7 @@ export function ServiceRequestForm({ embedded = false }: { embedded?: boolean })
             className="w-full"
             disabled={pending}
           >
-            {pending ? "جاري الإرسال..." : "إرسال الطلب"}
+            {pending ? t.common.sending : t.request.form.submit}
           </Button>
         </form>
       </section>

@@ -6,6 +6,7 @@ import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { requireProfile, createAuthServerClient } from "@/lib/auth";
 import { isPaymobConfigured, getPaymobConfigurationError } from "@/lib/paymob";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
+import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
   params: Promise<{ orderId: string }>;
@@ -16,6 +17,7 @@ export default async function SparePartsPaymentPage({
   params,
   searchParams,
 }: PageProps) {
+  const { t } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   if (!profile) redirect("/login?next=/spare-parts/checkout");
 
@@ -51,15 +53,15 @@ export default async function SparePartsPaymentPage({
       <PageHeader
         plain
         plainWidth="md"
-        eyebrow="قطع الغيار"
-        title="الدفع الإلكتروني"
-        description={`طلب ${order.order_token} — Accept (Paymob)`}
+        eyebrow={t.spareParts.eyebrow}
+        title={t.spareParts.payTitle}
+        description={`${t.spareParts.payDescription} ${order.order_token} — Accept (Paymob)`}
       />
 
       <section className="mx-auto max-w-lg px-4 pb-16 sm:px-6">
         <div className="space-y-6 rounded-2xl border border-border bg-card p-6 shadow-sm">
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/10 px-4 py-3">
-            <span className="font-medium">المبلغ المطلوب</span>
+            <span className="font-medium">{t.common.total}</span>
             <SparePartPrice
               price={Number(order.total_amount) || 0}
               size="lg"
@@ -68,22 +70,18 @@ export default async function SparePartsPaymentPage({
           </div>
 
           <div className="rounded-xl border border-border bg-muted/5 px-4 py-3 text-sm text-muted">
-            <p className="font-medium text-foreground">طرق الدفع المتاحة</p>
+            <p className="font-medium text-foreground">{t.spareParts.payMethodsTitle}</p>
             <ul className="mt-2 list-inside list-disc space-y-1">
-              <li>مدى (MADA)</li>
-              <li>Visa و Mastercard</li>
-              <li>Apple Pay</li>
-              <li>Tabby و Contact (تقسيط — حسب تفعيل حسابك)</li>
+              {t.spareParts.payMethods.map((method) => (
+                <li key={method}>{method}</li>
+              ))}
             </ul>
-            <p className="mt-3 text-xs">
-              بوابة Accept — تسوية آمنة مع 3D Secure. رسوم البطاقات حسب العقد
-              (مدى ~1%، بطاقات دولية ~2.5%).
-            </p>
+            <p className="mt-3 text-xs">{t.spareParts.payMethodsDisclaimer}</p>
           </div>
 
           {paymentFailed ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              فشل الدفع. يمكنك المحاولة مرة أخرى.
+              {t.labels.sparePartPaymentStatus.failed}
             </div>
           ) : null}
 
@@ -92,7 +90,7 @@ export default async function SparePartsPaymentPage({
           ) : (
             <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
               {paymobConfigError ??
-                "الدفع الإلكتروني غير مفعّل. أضف مفاتيح Accept (Paymob) في `.env` ثم نفّذ npm run sync:env."}
+                t.spareParts.payNotConfigured}
             </div>
           )}
         </div>

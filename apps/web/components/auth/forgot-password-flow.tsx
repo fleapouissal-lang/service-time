@@ -4,6 +4,7 @@ import { FormEvent, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Step = "request" | "verify" | "reset";
 
@@ -18,6 +19,7 @@ export function ForgotPasswordFlow({
   onBack,
   onSuccess,
 }: ForgotPasswordFlowProps) {
+  const { messages: t } = useLocale();
   const [step, setStep] = useState<Step>("request");
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState("");
@@ -48,18 +50,18 @@ export function ForgotPasswordFlow({
       };
 
       if (!res.ok) {
-        setError(data.error ?? "تعذّر إرسال الرمز.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
       setInfo(
         data.devMode
-          ? "لم يُرسل بريد فعلي (وضع التطوير). راجع terminal الخادم — سطر [password-reset] Code for ..."
-          : (data.message ?? "تم إرسال الرمز إلى بريدك."),
+          ? t.forgotPassword.devModeHint
+          : (data.message ?? t.forgotPassword.sendCode),
       );
       setStep("verify");
     } catch {
-      setError("تعذّر الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
@@ -80,14 +82,14 @@ export function ForgotPasswordFlow({
       const data = (await res.json()) as { error?: string; message?: string };
 
       if (!res.ok) {
-        setError(data.error ?? "الرمز غير صحيح.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
-      setInfo(data.message ?? "تم التحقق من الرمز.");
+      setInfo(data.message ?? t.errors.forgotPassword.codeVerified);
       setStep("reset");
     } catch {
-      setError("تعذّر الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
@@ -108,17 +110,31 @@ export function ForgotPasswordFlow({
       const data = (await res.json()) as { error?: string; message?: string };
 
       if (!res.ok) {
-        setError(data.error ?? "تعذّر تحديث كلمة المرور.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
-      onSuccess(data.message ?? "تم تحديث كلمة المرور بنجاح.");
+      onSuccess(data.message ?? t.errors.forgotPassword.passwordUpdated);
     } catch {
-      setError("تعذّر الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
   }
+
+  const stepTitle =
+    step === "request"
+      ? t.forgotPassword.requestTitle
+      : step === "verify"
+        ? t.forgotPassword.verifyTitle
+        : t.forgotPassword.resetTitle;
+
+  const stepHint =
+    step === "request"
+      ? t.forgotPassword.requestDescription
+      : step === "verify"
+        ? t.forgotPassword.verifyDescription
+        : t.forgotPassword.resetDescription;
 
   return (
     <div className="space-y-6">
@@ -129,21 +145,13 @@ export function ForgotPasswordFlow({
           className="mb-4 inline-flex items-center gap-1 text-sm text-white/60 transition-colors hover:text-[#94D4B9]"
         >
           <ArrowLeft className="size-4" aria-hidden />
-          العودة لتسجيل الدخول
+          {t.forgotPassword.backToLogin}
         </button>
-        <p className="text-sm font-semibold text-[#94D4B9]">استعادة كلمة المرور</p>
+        <p className="text-sm font-semibold text-[#94D4B9]">{t.forgotPassword.eyebrow}</p>
         <h2 className="mt-2 font-poppins text-2xl font-bold text-white sm:text-3xl">
-          {step === "request" && "تحقق من بريدك"}
-          {step === "verify" && "أدخل رمز التحقق"}
-          {step === "reset" && "كلمة مرور جديدة"}
+          {stepTitle}
         </h2>
-        <p className="mt-2 text-sm leading-7 text-white/70">
-          {step === "request" &&
-            "سنتحقق من وجود حسابك ثم نرسل رمزاً من 6 أرقام إلى بريدك."}
-          {step === "verify" &&
-            "أدخل الرمز المرسل إلى بريدك الإلكتروني (صلاحيته 10 دقائق)."}
-          {step === "reset" && "اختر كلمة مرور جديدة ثم أكّدها."}
-        </p>
+        <p className="mt-2 text-sm leading-7 text-white/70">{stepHint}</p>
       </div>
 
       {error ? (
@@ -162,7 +170,7 @@ export function ForgotPasswordFlow({
         <form onSubmit={(e) => void handleRequest(e)} className="space-y-5">
           <div>
             <Label htmlFor="forgot-email" className="text-white">
-              البريد الإلكتروني
+              {t.forgotPassword.email}
             </Label>
             <Input
               id="forgot-email"
@@ -180,7 +188,7 @@ export function ForgotPasswordFlow({
             disabled={loading}
             className="inline-flex h-12 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
+            {loading ? t.common.sending : t.forgotPassword.sendCode}
           </button>
         </form>
       ) : null}
@@ -189,7 +197,7 @@ export function ForgotPasswordFlow({
         <form onSubmit={(e) => void handleVerify(e)} className="space-y-5">
           <div>
             <Label htmlFor="forgot-code" className="text-white">
-              رمز التحقق (6 أرقام)
+              {t.forgotPassword.verificationCode}
             </Label>
             <Input
               id="forgot-code"
@@ -210,7 +218,7 @@ export function ForgotPasswordFlow({
             disabled={loading || code.length !== 6}
             className="inline-flex h-12 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "جاري التحقق..." : "تأكيد الرمز"}
+            {loading ? t.common.verifying : t.forgotPassword.confirmCode}
           </button>
           <button
             type="button"
@@ -222,7 +230,7 @@ export function ForgotPasswordFlow({
             }}
             className="w-full text-center text-sm text-[#94D4B9] hover:underline"
           >
-            إرسال رمز جديد
+            {t.forgotPassword.resendCode}
           </button>
         </form>
       ) : null}
@@ -231,7 +239,7 @@ export function ForgotPasswordFlow({
         <form onSubmit={(e) => void handleReset(e)} className="space-y-5">
           <div>
             <Label htmlFor="new-password" className="text-white">
-              كلمة المرور الجديدة
+              {t.forgotPassword.newPassword}
             </Label>
             <div className="relative mt-2">
               <Input
@@ -250,7 +258,9 @@ export function ForgotPasswordFlow({
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 hover:text-[#050B10]"
                 aria-label={
-                  showPassword ? "إخفاء كلمة المرور" : "إظهار كلمة المرور"
+                  showPassword
+                    ? t.forgotPassword.hidePassword
+                    : t.forgotPassword.showPassword
                 }
               >
                 {showPassword ? (
@@ -264,7 +274,7 @@ export function ForgotPasswordFlow({
 
           <div>
             <Label htmlFor="confirm-password" className="text-white">
-              تأكيد كلمة المرور
+              {t.forgotPassword.confirmPassword}
             </Label>
             <div className="relative mt-2">
               <Input
@@ -284,8 +294,8 @@ export function ForgotPasswordFlow({
                 className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 hover:text-[#050B10]"
                 aria-label={
                   showConfirmPassword
-                    ? "إخفاء تأكيد كلمة المرور"
-                    : "إظهار تأكيد كلمة المرور"
+                    ? t.forgotPassword.hideConfirmPassword
+                    : t.forgotPassword.showConfirmPassword
                 }
               >
                 {showConfirmPassword ? (
@@ -302,7 +312,7 @@ export function ForgotPasswordFlow({
             disabled={loading}
             className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {loading ? "جاري الحفظ..." : "حفظ كلمة المرور"}
+            {loading ? t.common.saving : t.forgotPassword.savePassword}
             <ArrowLeft className="size-4" aria-hidden />
           </button>
         </form>

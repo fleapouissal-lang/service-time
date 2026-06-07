@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { ClientRegisterForm } from "@/components/auth/client-register-form";
+import { getServerI18n } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "إنشاء حساب",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return { title: t.meta.register };
+}
 
 export default function RegisterPage() {
   return (

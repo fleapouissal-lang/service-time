@@ -6,7 +6,8 @@ import { LogOut } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ProfileRole } from "@service-time/types";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
-import { getProfileHomePath, getProfileRoleLabel } from "@/lib/profile-home";
+import { getProfileHomePath } from "@/lib/profile-home";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 import { cn } from "@/lib/utils";
 
@@ -35,10 +36,12 @@ function GuestButtons({
   isTransparent,
   fullWidth,
   onNavigate,
+  labels,
 }: {
   isTransparent: boolean;
   fullWidth?: boolean;
   onNavigate?: () => void;
+  labels: { register: string; login: string };
 }) {
   return (
     <>
@@ -50,7 +53,7 @@ function GuestButtons({
           fullWidth && "mt-3 h-11 w-full",
         )}
       >
-        إنشاء حساب
+        {labels.register}
       </Link>
       <Link
         href="/login"
@@ -65,7 +68,7 @@ function GuestButtons({
           color: HEADER_DARK,
         }}
       >
-        دخول الفريق
+        {labels.login}
       </Link>
     </>
   );
@@ -77,12 +80,16 @@ function UserProfileButton({
   fullWidth,
   onNavigate,
   onSignOut,
+  roleLabel,
+  logoutLabel,
 }: {
   profile: HeaderProfile;
   isTransparent: boolean;
   fullWidth?: boolean;
   onNavigate?: () => void;
   onSignOut: () => void;
+  roleLabel: string;
+  logoutLabel: string;
 }) {
   const href = getProfileHomePath(profile.role);
 
@@ -131,7 +138,7 @@ function UserProfileButton({
               isTransparent ? "text-white/60" : "text-[#94D4B9]/70",
             )}
           >
-            {getProfileRoleLabel(profile.role)}
+            {roleLabel}
           </span>
         </span>
       </Link>
@@ -148,11 +155,11 @@ function UserProfileButton({
             ? "h-11 w-full rounded-[20px] border border-red-500/20 bg-red-500/10"
             : "rounded-full p-2 hover:bg-red-500/10",
         )}
-        aria-label="تسجيل الخروج"
-        title="تسجيل الخروج"
+        aria-label={logoutLabel}
+        title={logoutLabel}
       >
         <LogOut className="size-4" aria-hidden />
-        {fullWidth ? "تسجيل الخروج" : null}
+        {fullWidth ? logoutLabel : null}
       </button>
     </div>
   );
@@ -168,6 +175,7 @@ export function HeaderAuthSection({
   onNavigate?: () => void;
 }) {
   const router = useRouter();
+  const { messages } = useLocale();
   const [profile, setProfile] = useState<HeaderProfile | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -237,6 +245,8 @@ export function HeaderAuthSection({
         fullWidth={variant === "mobile"}
         onNavigate={onNavigate}
         onSignOut={() => void handleSignOut()}
+        roleLabel={messages.roles[profile.role]}
+        logoutLabel={messages.auth.logout}
       />
     );
   }
@@ -246,6 +256,7 @@ export function HeaderAuthSection({
       isTransparent={isTransparent}
       fullWidth={variant === "mobile"}
       onNavigate={onNavigate}
+      labels={messages.auth}
     />
   );
 }

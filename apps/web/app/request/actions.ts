@@ -3,6 +3,8 @@
 import type { ExecutionMethod, ServiceType } from "@service-time/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getLocale } from "@/lib/i18n/get-locale";
 import { createWebSupabaseClient } from "@/lib/supabase";
 import { requireProfile } from "@/lib/auth";
 import { ensureServerEnv } from "@/lib/env-server";
@@ -22,9 +24,10 @@ export async function submitServiceRequest(
   _prev: RequestFormState,
   formData: FormData,
 ): Promise<RequestFormState> {
+  const t = getDictionary(await getLocale());
   const profile = await requireProfile(["client"]);
   if (!profile) {
-    return { error: "يجب تسجيل الدخول كعميل لإرسال طلب." };
+    return { error: t.errors.request.loginRequired };
   }
 
   const customer_name = String(formData.get("customer_name") ?? "").trim();
@@ -46,23 +49,22 @@ export async function submitServiceRequest(
   const hadPhotoField = formHasPhotoField(formData);
 
   if (!customer_name || !customer_phone) {
-    return { error: "الاسم ورقم الجوال مطلوبان" };
+    return { error: t.errors.request.namePhoneRequired };
   }
 
   if (
     !["periodic_maintenance", "emergency"].includes(service_type)
   ) {
-    return { error: "نوع الخدمة غير صالح" };
+    return { error: t.errors.request.invalidServiceType };
   }
 
   if (!["workshop_visit", "mobile_workshop"].includes(execution_method)) {
-    return { error: "طريقة التنفيذ غير صالحة" };
+    return { error: t.errors.request.invalidExecutionMethod };
   }
 
   if (hadPhotoField && !photo) {
     return {
-      error:
-        "تعذر قراءة الصورة. جرب صورة أصغر (≤5 MB) أو صيغة JPG/PNG.",
+      error: t.errors.request.photoReadFailed,
     };
   }
 
@@ -91,8 +93,7 @@ export async function submitServiceRequest(
   if (error) {
     if (error.message.includes("duplicate") || error.code === "P0001") {
       return {
-        error:
-          "تم إرسال طلب مشابه مؤخراً. يرجى الانتظار قبل إرسال طلب جديد.",
+        error: t.errors.request.duplicateRequest,
       };
     }
     if (
@@ -100,8 +101,7 @@ export async function submitServiceRequest(
       error.message.includes("schema cache")
     ) {
       return {
-        error:
-          "إعدادات قاعدة البيانات غير مكتملة. تواصل مع الدعم أو نفّذ migration create_service_request_rpc.",
+        error: t.errors.request.dbIncomplete,
       };
     }
     return { error: error.message };
@@ -109,7 +109,7 @@ export async function submitServiceRequest(
 
   const row = (data as { id: string; tracking_token: string }[] | null)?.[0];
   if (!row) {
-    return { error: "فشل إنشاء الطلب" };
+    return { error: t.errors.request.createFailed };
   }
 
   if (photo) {

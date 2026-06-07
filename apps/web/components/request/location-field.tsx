@@ -2,12 +2,15 @@
 
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 const fieldShellClass =
   "flex w-full items-center gap-3 rounded-xl border border-[#94D4B9]/15 bg-[#091014] px-3 transition-all duration-200 hover:border-[#94D4B9]/30 focus-within:border-[#94D4B9]/40 focus-within:ring-2 focus-within:ring-[#94D4B9]/25";
 
 export function LocationField() {
+  const { messages: t } = useLocale();
+  const loc = t.request.location;
   const [text, setText] = useState("");
   const [lat, setLat] = useState<number | null>(null);
   const [lng, setLng] = useState<number | null>(null);
@@ -19,7 +22,7 @@ export function LocationField() {
     setError(null);
 
     if (!navigator.geolocation) {
-      setError("المتصفح لا يدعم تحديد الموقع");
+      setError(loc.browserUnsupported);
       return;
     }
 
@@ -57,9 +60,7 @@ export function LocationField() {
         setLoading(false);
         setGpsActive(false);
         setError(
-          geoError.code === 1
-            ? "تم رفض إذن الموقع — فعّل الموقع في المتصفح أو اكتب العنوان يدوياً"
-            : "تعذر تحديد موقعك — حاول مرة أخرى أو اكتب العنوان يدوياً",
+          geoError.code === 1 ? loc.permissionDenied : loc.positionError,
         );
       },
       { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 },
@@ -84,7 +85,7 @@ export function LocationField() {
             setGpsActive(false);
             setError(null);
           }}
-          placeholder="حي النرجس، الرياض"
+          placeholder={t.common.placeholderLocation}
           className="min-w-0 flex-1 bg-transparent text-sm text-foreground placeholder:text-muted focus-visible:outline-none"
         />
 
@@ -92,8 +93,8 @@ export function LocationField() {
           type="button"
           onClick={useCurrentLocation}
           disabled={loading}
-          title="استخدم موقعي الحالي"
-          aria-label="استخدم موقعي الحالي"
+          title={loc.useMyLocation}
+          aria-label={loc.useMyLocation}
           className={cn(
             "flex size-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
             gpsActive
@@ -118,7 +119,7 @@ export function LocationField() {
       {lat !== null && lng !== null ? (
         <div className="overflow-hidden rounded-[20px] border border-[#94D4B9]/20 shadow-[0_4px_24px_rgba(148,212,185,0.08)]">
           <iframe
-            title="موقعك على الخريطة"
+            title={loc.mapTitle}
             src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
             className="h-48 w-full border-0 sm:h-56"
             loading="lazy"

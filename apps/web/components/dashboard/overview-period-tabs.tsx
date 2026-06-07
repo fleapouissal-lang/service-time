@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
 import {
   buildOverviewHref,
   type OverviewPeriod,
-  OVERVIEW_PERIOD_OPTIONS,
 } from "@/lib/overview-period";
+import { getOverviewPeriodOptions } from "@/lib/i18n/labels";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 type OverviewPeriodTabsProps = {
@@ -17,9 +20,12 @@ export function OverviewPeriodTabs({
   active,
   preserveParams,
 }: OverviewPeriodTabsProps) {
+  const { messages: t } = useLocale();
+  const tabs = getOverviewPeriodOptions(t);
+
   return (
     <div className="flex flex-wrap gap-2">
-      {OVERVIEW_PERIOD_OPTIONS.map((tab) => (
+      {tabs.map((tab) => (
         <Link
           key={tab.value}
           href={buildOverviewHref(pathname, { period: tab.value }, preserveParams)}

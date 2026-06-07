@@ -8,6 +8,7 @@ import { useEffect } from "react";
 import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type SparePartsCartDrawerProps = {
   open: boolean;
@@ -18,6 +19,7 @@ export function SparePartsCartDrawer({
   open,
   onClose,
 }: SparePartsCartDrawerProps) {
+  const { messages: t } = useLocale();
   const router = useRouter();
   const { items, totalCount, totalAmount, updateQuantity, removeItem, clearCart } =
     useSparePartsCart();
@@ -51,7 +53,7 @@ export function SparePartsCartDrawer({
       <button
         type="button"
         className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-        aria-label="إغلاق السلة"
+        aria-label={t.spareParts.cartClose}
         onClick={onClose}
       />
 
@@ -62,15 +64,15 @@ export function SparePartsCartDrawer({
               <ShoppingCart className="size-5 text-[#94D4B9]" aria-hidden />
             </span>
             <div>
-              <h2 className="text-lg font-bold text-white">سلة القطع</h2>
-              <p className="text-xs text-muted">{totalCount} منتج</p>
+              <h2 className="text-lg font-bold text-white">{t.spareParts.cartTitle}</h2>
+              <p className="text-xs text-muted">{totalCount} {t.common.product}</p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             className="flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/25 text-[#94D4B9] hover:bg-[#94D4B9]/10"
-            aria-label="إغلاق"
+            aria-label={t.common.close}
           >
             <X className="size-4" aria-hidden />
           </button>
@@ -80,9 +82,9 @@ export function SparePartsCartDrawer({
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
               <ShoppingCart className="size-12 text-muted/40" aria-hidden />
-              <p className="text-sm text-muted">السلة فارغة</p>
+              <p className="text-sm text-muted">{t.spareParts.cartEmpty}</p>
               <p className="text-xs text-muted">
-                أضف قطع الغيار من القائمة ثم أكمل الطلب.
+                {t.spareParts.cartEmptyHint}
               </p>
             </div>
           ) : (
@@ -132,7 +134,7 @@ export function SparePartsCartDrawer({
                             updateQuantity(item.id, item.quantity - 1)
                           }
                           className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10"
-                          aria-label="تقليل الكمية"
+                          aria-label={t.spareParts.decreaseQty}
                         >
                           <Minus className="size-3.5" aria-hidden />
                         </button>
@@ -146,7 +148,7 @@ export function SparePartsCartDrawer({
                           }
                           disabled={item.quantity >= item.stock_quantity}
                           className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10 disabled:cursor-not-allowed disabled:opacity-40"
-                          aria-label="زيادة الكمية"
+                          aria-label={t.spareParts.increaseQty}
                         >
                           <Plus className="size-3.5" aria-hidden />
                         </button>
@@ -156,7 +158,7 @@ export function SparePartsCartDrawer({
                         type="button"
                         onClick={() => removeItem(item.id)}
                         className="flex size-8 items-center justify-center rounded-lg text-red-400 hover:bg-red-500/10"
-                        aria-label="حذف"
+                        aria-label={t.spareParts.removeItem}
                       >
                         <Trash2 className="size-4" aria-hidden />
                       </button>
@@ -172,7 +174,7 @@ export function SparePartsCartDrawer({
           {items.length > 0 ? (
             <>
               <div className="flex items-center justify-between rounded-xl border border-[#94D4B9]/15 bg-[#050B10]/60 px-4 py-3">
-                <span className="text-sm font-medium text-muted">المجموع</span>
+                <span className="text-sm font-medium text-muted">{t.common.total}</span>
                 <SparePartPrice price={totalAmount} size="lg" />
               </div>
               <button
@@ -180,14 +182,14 @@ export function SparePartsCartDrawer({
                 onClick={handleCheckout}
                 className="inline-flex h-11 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
               >
-                طلب القطع المختارة ({totalCount})
+                {t.spareParts.orderSelected} ({totalCount})
               </button>
               <button
                 type="button"
                 onClick={clearCart}
                 className="inline-flex h-10 w-full items-center justify-center rounded-[20px] border border-[#94D4B9]/20 text-sm font-medium text-muted hover:bg-[#94D4B9]/5 hover:text-foreground"
               >
-                إفراغ السلة
+                {t.spareParts.clearCart}
               </button>
             </>
           ) : (
@@ -196,7 +198,7 @@ export function SparePartsCartDrawer({
               onClick={onClose}
               className="inline-flex h-11 w-full items-center justify-center rounded-[20px] border border-[#94D4B9]/30 text-sm font-semibold text-[#94D4B9]"
             >
-              تصفح القطع
+              {t.spareParts.browseParts}
             </Link>
           )}
         </div>

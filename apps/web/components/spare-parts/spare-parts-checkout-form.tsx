@@ -15,9 +15,11 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { useRequireClientForCart } from "@/lib/use-require-client-for-cart";
 
 export function SparePartsCheckoutForm() {
+  const { messages: t } = useLocale();
   const router = useRouter();
   const { requireClient } = useRequireClientForCart();
   const { items, totalCount, totalAmount } = useSparePartsCart();
@@ -44,7 +46,7 @@ export function SparePartsCheckoutForm() {
   if (!ready) {
     return (
       <div className="mx-auto max-w-lg px-4 py-24 text-center text-muted">
-        جاري التحقق...
+        {t.spareParts.verifying}
       </div>
     );
   }
@@ -54,9 +56,9 @@ export function SparePartsCheckoutForm() {
       <PageHeader
         plain
         plainWidth="md"
-        eyebrow="قطع الغيار"
-        title="إتمام الطلب"
-        description={`${totalCount} منتج — ${formatSparePartPrice(totalAmount)}`}
+        eyebrow={t.checkout.eyebrow}
+        title={t.checkout.title}
+        description={`${totalCount} ${t.common.product} — ${formatSparePartPrice(totalAmount)}`}
       />
 
       <section className="mx-auto max-w-lg px-4 pb-16 sm:px-6">
@@ -104,12 +106,12 @@ export function SparePartsCheckoutForm() {
           </ul>
 
           <div className="flex items-center justify-between rounded-xl border border-border bg-muted/10 px-4 py-3">
-            <span className="font-medium">المجموع</span>
+            <span className="font-medium">{t.common.total}</span>
             <SparePartPrice price={totalAmount} size="lg" className="text-primary" />
           </div>
 
           <div>
-            <Label>طريقة الدفع</Label>
+            <Label>{t.spareParts.paymentMethod}</Label>
             <div className="mt-3 space-y-2">
               <label className="flex cursor-pointer items-start gap-3 rounded-xl border border-border p-3 has-[:checked]:border-primary has-[:checked]:bg-primary/5">
                 <input
@@ -120,9 +122,9 @@ export function SparePartsCheckoutForm() {
                   className="mt-1"
                 />
                 <span>
-                  <span className="block font-medium">الدفع عند الاستلام</span>
+                  <span className="block font-medium">{t.spareParts.cashOnDelivery}</span>
                   <span className="text-sm text-muted">
-                    ادفع نقداً عند استلام القطع
+                    {t.spareParts.cashOnDeliveryHint}
                   </span>
                 </span>
               </label>
@@ -134,9 +136,9 @@ export function SparePartsCheckoutForm() {
                   className="mt-1"
                 />
                 <span>
-                  <span className="block font-medium">الدفع الإلكتروني</span>
+                  <span className="block font-medium">{t.spareParts.onlinePayment}</span>
                   <span className="text-sm text-muted">
-                    Accept — مدى، Visa، Mastercard، Apple Pay
+                    {t.spareParts.onlinePaymentHint}
                   </span>
                 </span>
               </label>
@@ -144,24 +146,24 @@ export function SparePartsCheckoutForm() {
           </div>
 
           <div>
-            <Label htmlFor="notes">ملاحظات (اختياري)</Label>
+            <Label htmlFor="notes">{t.spareParts.notesOptional}</Label>
             <Textarea
               id="notes"
               name="notes"
               className="mt-2"
-              placeholder="تفاصيل إضافية للطلب..."
+              placeholder={t.common.placeholderNotes}
             />
           </div>
 
           <Button type="submit" className="h-11 w-full" disabled={pending}>
-            {pending ? "جاري الإرسال..." : "تأكيد الطلب"}
+            {pending ? t.common.sending : t.spareParts.confirmOrder}
           </Button>
 
           <Link
             href="/spare-parts"
             className="block text-center text-sm text-primary hover:underline"
           >
-            ← العودة للقطع
+            {t.spareParts.backToParts}
           </Link>
         </form>
       </section>

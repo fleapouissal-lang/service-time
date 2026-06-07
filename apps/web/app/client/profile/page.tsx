@@ -2,14 +2,15 @@ import Link from "next/link";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { Card, CardContent } from "@/components/ui/card";
-import { STATUS_LABELS } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
-import { getProfileRoleLabel } from "@/lib/profile-home";
 import { getClientRequests } from "@/lib/dashboard-queries";
 import {
-  CLIENT_ORDER_SEARCH_PLACEHOLDER,
-  STATUS_FILTER_OPTIONS,
+  getClientOrderSearchPlaceholder,
+  getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
+import { getIntlLocale } from "@/lib/i18n/config";
+import { getProfileRoleLabel, getStatusLabels } from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
 
 type PageProps = {
@@ -17,16 +18,19 @@ type PageProps = {
 };
 
 export default async function ClientProfilePage({ searchParams }: PageProps) {
+  const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   if (!profile) return null;
 
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
   const orders = filterServiceRequests(allOrders, params);
+  const statusLabels = getStatusLabels(t);
+  const intlLocale = getIntlLocale(locale);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">الملف الشخصي</h1>
+      <h1 className="text-2xl font-bold">{t.meta.clientProfile}</h1>
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-6">
@@ -39,7 +43,7 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
           <div className="space-y-2">
             <p className="text-xl font-bold">{profile.full_name}</p>
             <p className="text-sm text-muted">
-              {getProfileRoleLabel(profile.role)}
+              {getProfileRoleLabel(t, profile.role)}
             </p>
             {profile.phone ? (
               <p className="text-sm" dir="ltr">
@@ -51,14 +55,18 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
       </Card>
 
       <div className="space-y-4">
-        <h2 className="text-lg font-semibold">سجل الطلبات</h2>
+        <h2 className="text-lg font-semibold">{t.dashboard.client.orders}</h2>
 
         <DashboardFilterBar
           pathname="/client/profile"
           values={params}
-          searchPlaceholder={CLIENT_ORDER_SEARCH_PLACEHOLDER}
+          searchPlaceholder={getClientOrderSearchPlaceholder(t)}
           selects={[
-            { name: "status", label: "الحالة", options: STATUS_FILTER_OPTIONS },
+            {
+              name: "status",
+              label: t.common.status,
+              options: getStatusFilterOptionsForDashboard(t),
+            },
           ]}
           resultCount={orders.length}
           totalCount={allOrders.length}
@@ -67,8 +75,8 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
         {orders.length === 0 ? (
           <p className="text-sm text-muted">
             {allOrders.length === 0
-              ? "لا توجد طلبات مرتبطة بحسابك."
-              : "لا توجد نتائج مطابقة للتصفية."}
+              ? t.common.noData
+              : t.common.noResultsFiltered}
           </p>
         ) : (
           <div className="space-y-3">
@@ -80,14 +88,14 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
               >
                 <div>
                   <p className="font-semibold">
-                    {order.car_type ?? "طلب خدمة"}
+                    {order.car_type ?? t.dashboard.common.serviceRequest}
                   </p>
                   <p className="text-sm text-muted">
-                    {new Date(order.created_at).toLocaleDateString("ar-SA")}
+                    {new Date(order.created_at).toLocaleDateString(intlLocale)}
                   </p>
                 </div>
                 <span className="text-sm font-medium text-primary">
-                  {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                  {statusLabels[order.status as keyof typeof statusLabels]}
                 </span>
               </Link>
             ))}

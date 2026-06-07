@@ -1,32 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
-
-const SLIDES = [
-  {
-    title: "صيانة دورية",
-    highlight: "موثوقة",
-    description:
-      "فحص شامل وصيانة دورية لسيارتك — اختر الورشة المتنقلة أو زيارة مركزنا.",
-  },
-  {
-    title: "طوارئ",
-    highlight: "على الطريق",
-    description:
-      "تعطلت سيارتك؟ فريق Service Time يصل إليك بسرعة أينما كنت في الرياض.",
-  },
-  {
-    title: "قطع غيار",
-    highlight: "بسرعة",
-    description:
-      "اطلب القطعة المناسبة لسيارتك وتابع حالة طلبك عبر واتساب أو SMS.",
-  },
-] as const;
 
 const INTERVAL_MS = 5000;
 
 export function ServicesHeroSection() {
+  const { messages: t } = useLocale();
+  const slides = t.services.hero.slides;
   const [activeIndex, setActiveIndex] = useState(0);
   const [visible, setVisible] = useState(true);
 
@@ -41,20 +23,20 @@ export function ServicesHeroSection() {
       setVisible(false);
 
       window.setTimeout(() => {
-        setActiveIndex((current) => (current + 1) % SLIDES.length);
+        setActiveIndex((current) => (current + 1) % slides.length);
         setVisible(true);
       }, 280);
     }, INTERVAL_MS);
 
     return () => window.clearInterval(timer);
-  }, []);
+  }, [slides.length]);
 
-  const slide = SLIDES[activeIndex];
+  const slide = slides[activeIndex];
 
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] py-16 pt-28 sm:pt-32">
       <div className="max-w-2xl space-y-5 text-start">
-        <p className="text-sm font-semibold text-[#94D4B9]">خدماتنا</p>
+        <p className="text-sm font-semibold text-[#94D4B9]">{t.services.hero.eyebrow}</p>
 
         <div
           className={cn(
@@ -76,15 +58,15 @@ export function ServicesHeroSection() {
         <div
           className="flex items-center gap-2"
           role="tablist"
-          aria-label="شرائح الخدمات"
+          aria-label={t.services.hero.slidesAriaLabel}
         >
-          {SLIDES.map((item, index) => (
+          {slides.map((item, index) => (
             <button
               key={item.title}
               type="button"
               role="tab"
               aria-selected={index === activeIndex}
-              aria-label={`الشريحة ${index + 1}`}
+              aria-label={`${t.services.hero.slideAriaLabel} ${index + 1}`}
               onClick={() => {
                 setVisible(false);
                 window.setTimeout(() => {

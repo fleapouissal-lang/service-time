@@ -12,6 +12,8 @@ import {
   normalizePaymobPhone,
   splitFullName,
 } from "@/lib/paymob";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getLocale } from "@/lib/i18n/get-locale";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import type {
   SparePartOrderStatus,
@@ -22,13 +24,14 @@ export type SparePartOrderFormState = {
   error?: string;
 };
 
-function mapOrderError(message: string): string {
+async function mapOrderError(message: string): Promise<string> {
+  const t = getDictionary(await getLocale());
   if (message.includes("الكمية غير كافية")) return message;
   if (message.includes("insufficient_stock")) {
-    return "الكمية المطلوبة غير متوفرة في المخزون";
+    return t.errors.spareParts.insufficientStock;
   }
   if (message.includes("part_unavailable") || message.includes("قطعة غير متاحة")) {
-    return "إحدى القطع غير متاحة حالياً";
+    return t.errors.spareParts.partUnavailable;
   }
   return message;
 }
@@ -56,11 +59,13 @@ export async function submitSparePartOrderAction(
     const parsed = JSON.parse(itemsRaw) as { id: string; quantity: number }[];
     items = parsed;
   } catch {
-    return { error: "سلة غير صالحة" };
+    const t = getDictionary(await getLocale());
+    return { error: t.errors.spareParts.invalidCart };
   }
 
   if (!Array.isArray(items) || items.length === 0) {
-    return { error: "السلة فارغة" };
+    const t = getDictionary(await getLocale());
+    return { error: t.errors.spareParts.emptyCart };
   }
 
   const payload = items.map((item) => ({
@@ -79,12 +84,13 @@ export async function submitSparePartOrderAction(
     if (error.message.includes("client_required")) {
       redirect("/login?next=/spare-parts/checkout");
     }
-    return { error: mapOrderError(error.message) };
+    return { error: await mapOrderError(error.message) };
   }
 
   const row = (data as { id: string; order_token: string }[] | null)?.[0];
   if (!row) {
-    return { error: "فشل إنشاء الطلب" };
+    const t = getDictionary(await getLocale());
+    return { error: t.errors.spareParts.createFailed };
   }
 
   revalidatePath("/admin/spare-parts");
@@ -197,7 +203,7 @@ export async function startPaymobCheckoutAction(
       error:
         error instanceof Error
           ? error.message
-          : "تعذر بدء الدفع. حاول مرة أخرى.",
+          : getDictionary(await getLocale()).errors.spareParts.paymentStartFailed,
     };
   }
 }

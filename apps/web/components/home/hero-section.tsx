@@ -1,20 +1,19 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { HERO_CONTENT } from "@/lib/hero-content";
 
 type HeroSectionProps = {
-  titleBefore?: string;
-  titleHighlight?: string;
-  subtitle?: string;
-  cta?: string;
+  titleBefore: string;
+  titleHighlight: string;
+  subtitle: string;
+  cta: string;
   ctaHref?: string;
 };
 
 export function HeroSection({
-  titleBefore = HERO_CONTENT.titleBefore,
-  titleHighlight = HERO_CONTENT.titleHighlight,
-  subtitle = HERO_CONTENT.subtitle,
-  cta = HERO_CONTENT.cta,
+  titleBefore,
+  titleHighlight,
+  subtitle,
+  cta,
   ctaHref = "/request",
 }: HeroSectionProps) {
   return (

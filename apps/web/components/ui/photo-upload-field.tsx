@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 export type PhotoUploadFieldProps = {
@@ -19,12 +20,18 @@ export function PhotoUploadField({
   id,
   name,
   accept = "image/jpeg,image/png,image/webp",
-  title = "إرفاق صورة",
-  subtitle = "اختياري — JPG أو PNG أو WebP",
-  buttonLabel = "اختر الصورة",
-  changeLabel = "تغيير الصورة",
-  hint = "حد أقصى 5 MB",
+  title,
+  subtitle,
+  buttonLabel,
+  changeLabel,
+  hint,
 }: PhotoUploadFieldProps) {
+  const { messages: t } = useLocale();
+  const resolvedTitle = title ?? t.request.form.photoTitle;
+  const resolvedSubtitle = subtitle ?? t.request.form.photoSubtitle;
+  const resolvedButtonLabel = buttonLabel ?? t.request.form.photoButton;
+  const resolvedChangeLabel = changeLabel ?? t.request.form.photoChange;
+  const resolvedHint = hint ?? t.request.form.photoHint;
   const [fileName, setFileName] = useState("");
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
@@ -52,7 +59,7 @@ export function PhotoUploadField({
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
-                alt={fileName || title}
+                alt={fileName || resolvedTitle}
                 className="mx-auto max-h-44 w-full object-contain"
               />
             </div>
@@ -60,7 +67,7 @@ export function PhotoUploadField({
               {fileName}
             </p>
             <span className="rounded-full border border-[#94D4B9] px-8 py-2.5 text-xs font-semibold tracking-wide text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10">
-              {changeLabel}
+              {resolvedChangeLabel}
             </span>
           </>
         ) : (
@@ -81,13 +88,13 @@ export function PhotoUploadField({
 
             <div className="space-y-1 text-center">
               <p className="font-poppins text-lg font-semibold text-[#94D4B9]">
-                {title}
+                {resolvedTitle}
               </p>
-              <p className="text-sm text-[#94D4B9]/75">{subtitle}</p>
+              <p className="text-sm text-[#94D4B9]/75">{resolvedSubtitle}</p>
             </div>
 
             <span className="rounded-full border border-[#94D4B9] px-8 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10">
-              {buttonLabel}
+              {resolvedButtonLabel}
             </span>
           </>
         )}
@@ -117,8 +124,8 @@ export function PhotoUploadField({
         />
       </label>
 
-      {hint ? (
-        <p className="text-center text-xs text-muted">{hint}</p>
+      {resolvedHint ? (
+        <p className="text-center text-xs text-muted">{resolvedHint}</p>
       ) : null}
     </div>
   );

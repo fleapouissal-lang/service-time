@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getIntlLocale } from "@/lib/i18n/config";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 export function SidebarDateTime({ compact = false }: { compact?: boolean }) {
+  const { locale } = useLocale();
+  const intlLocale = getIntlLocale(locale);
   const [now, setNow] = useState<Date | null>(null);
 
   useEffect(() => {
@@ -26,14 +30,14 @@ export function SidebarDateTime({ compact = false }: { compact?: boolean }) {
     );
   }
 
-  const date = now.toLocaleDateString("ar-SA", {
+  const date = now.toLocaleDateString(intlLocale, {
     weekday: compact ? undefined : "long",
     day: "numeric",
     month: compact ? "short" : "long",
     year: "numeric",
   });
 
-  const time = now.toLocaleTimeString("ar-SA", {
+  const time = now.toLocaleTimeString(intlLocale, {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",

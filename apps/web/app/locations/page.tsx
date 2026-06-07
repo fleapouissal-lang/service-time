@@ -2,13 +2,16 @@ import type { Metadata } from "next";
 import { MapPin, Navigation } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { getServerI18n } from "@/lib/i18n/server";
 import { getWorkshops } from "@/lib/queries";
 
-export const metadata: Metadata = {
-  title: "مواقعنا",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return { title: t.meta.locations };
+}
 
 export default async function LocationsPage() {
+  const { t } = await getServerI18n();
   const workshops = await getWorkshops();
   const defaultLat = 24.7136;
   const defaultLng = 46.6753;
@@ -19,15 +22,15 @@ export default async function LocationsPage() {
     <>
       <PageHeader
         plain
-        eyebrow="المواقع"
-        title="ورش Service Time في الرياض"
-        description="اعثر على أقرب ورشة أو اطلب ورشة متنقلة تصل إليك."
+        eyebrow={t.locations.eyebrow}
+        title={t.locations.title}
+        description={t.locations.description}
       />
 
       <section className="mx-auto w-[90%] max-w-[1200px] pb-12">
         <div className="relative overflow-hidden rounded-2xl border border-border shadow-sm">
           <iframe
-            title="خريطة مواقع Service Time"
+            title={t.locations.mapTitle}
             src={`https://maps.google.com/maps?q=${mapLat},${mapLng}&z=11&output=embed`}
             className="h-[360px] w-full border-0 sm:h-[420px]"
             loading="lazy"
@@ -39,10 +42,7 @@ export default async function LocationsPage() {
           />
         </div>
 
-        <p className="mt-3 text-xs text-muted">
-          * موقع الفني على الخريطة تقريبي ويعتمد على اتصال الإنترنت — ليس
-          التزاماً بوقت وصول دقيق.
-        </p>
+        <p className="mt-3 text-xs text-muted">{t.locations.mapDisclaimer}</p>
 
         <div className="mt-8 grid gap-5 md:grid-cols-2">
           {workshops.map((branch) => (
@@ -60,7 +60,7 @@ export default async function LocationsPage() {
                       className="mt-4 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline"
                     >
                       <Navigation className="size-4" />
-                      الاتجاهات
+                      {t.common.directions}
                     </a>
                   </div>
                 </div>
@@ -70,9 +70,7 @@ export default async function LocationsPage() {
         </div>
 
         {workshops.length === 0 && (
-          <p className="mt-6 text-center text-muted">
-            لا توجد مواقع مسجلة — أضفها في site_content
-          </p>
+          <p className="mt-6 text-center text-muted">{t.locations.empty}</p>
         )}
       </section>
     </>

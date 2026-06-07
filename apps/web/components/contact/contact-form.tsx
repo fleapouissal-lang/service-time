@@ -6,8 +6,11 @@ import { submitContactMessage } from "@/app/contact/actions";
 import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function ContactForm() {
+  const { messages: t } = useLocale();
+  const form = t.contact.form;
   const [state, action, pending] = useActionState(submitContactMessage, {});
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -26,11 +29,9 @@ export function ContactForm() {
       {state.success ? (
         <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-center">
           <p className="text-base font-semibold text-[#94D4B9]">
-            ✓ تم إرسال رسالتك بنجاح
+            {form.successTitle}
           </p>
-          <p className="mt-1 text-sm text-muted">
-            سيتواصل فريق Service Time معك في أقرب وقت.
-          </p>
+          <p className="mt-1 text-sm text-muted">{form.successHint}</p>
         </div>
       ) : null}
 
@@ -41,48 +42,48 @@ export function ContactForm() {
       ) : null}
 
       <div>
-        <Label htmlFor="contact_name">الاسم *</Label>
+        <Label htmlFor="contact_name">{form.name}</Label>
         <IconInput
           id="contact_name"
           name="name"
           icon={User}
           required
-          placeholder="محمد العتيبي"
+          placeholder={t.common.placeholderName}
         />
       </div>
 
       <div>
-        <Label htmlFor="contact_phone">رقم الجوال *</Label>
+        <Label htmlFor="contact_phone">{form.phone}</Label>
         <IconInput
           id="contact_phone"
           name="phone"
           icon={Phone}
           required
           dir="ltr"
-          placeholder="+9665XXXXXXXX"
+          placeholder={t.common.placeholderPhone}
         />
       </div>
 
       <div>
-        <Label htmlFor="contact_email">البريد الإلكتروني</Label>
+        <Label htmlFor="contact_email">{form.email}</Label>
         <IconInput
           id="contact_email"
           name="email"
           icon={Mail}
           type="email"
           dir="ltr"
-          placeholder="name@example.com"
+          placeholder={t.common.placeholderEmail}
         />
       </div>
 
       <div>
-        <Label htmlFor="contact_message">الرسالة *</Label>
+        <Label htmlFor="contact_message">{form.message}</Label>
         <IconTextarea
           id="contact_message"
           name="message"
           icon={MessageSquare}
           required
-          placeholder="اكتب استفسارك أو رسالتك هنا..."
+          placeholder={t.common.placeholderMessage}
         />
       </div>
 
@@ -93,7 +94,7 @@ export function ContactForm() {
         className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:brightness-100 hover:opacity-90"
         disabled={pending}
       >
-        {pending ? "جاري الإرسال..." : "إرسال الرسالة"}
+        {pending ? t.common.sending : form.submit}
       </Button>
     </form>
   );

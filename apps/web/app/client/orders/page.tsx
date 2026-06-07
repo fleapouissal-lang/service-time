@@ -3,44 +3,56 @@ import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar"
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  EXECUTION_METHOD_LABELS,
-  SERVICE_TYPE_LABELS,
-  STATUS_LABELS,
-} from "@/lib/constants";
+  getClientOrderSearchPlaceholder,
+  getStatusFilterOptionsForDashboard,
+} from "@/lib/dashboard-filter-options";
 import { getClientRequests } from "@/lib/dashboard-queries";
+import { getIntlLocale } from "@/lib/i18n/config";
+import {
+  getExecutionMethodLabels,
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
-
-const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
 
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
 };
 
 export default async function ClientOrdersPage({ searchParams }: PageProps) {
+  const { t, locale } = await getServerI18n();
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
   const orders = filterServiceRequests(allOrders, params);
+  const statusLabels = getStatusLabels(t);
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const executionMethodLabels = getExecutionMethodLabels(t);
+  const intlLocale = getIntlLocale(locale);
 
   return (
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <h1 className="text-2xl font-bold">طلباتي</h1>
+        <h1 className="text-2xl font-bold">{t.dashboard.client.orders}</h1>
         <Link
           href="/client/request"
           className="text-sm font-semibold text-primary hover:underline"
         >
-          + طلب جديد
+          + {t.dashboard.client.newRequest}
         </Link>
       </div>
 
       <DashboardFilterBar
         pathname="/client/orders"
         values={params}
-        searchPlaceholder="نوع السيارة، الموقع، رمز التتبع..."
-        selects={[{ name: "status", label: "الحالة", options: STATUS_OPTIONS }]}
+        searchPlaceholder={getClientOrderSearchPlaceholder(t)}
+        selects={[
+          {
+            name: "status",
+            label: t.common.status,
+            options: getStatusFilterOptionsForDashboard(t),
+          },
+        ]}
         resultCount={orders.length}
         totalCount={allOrders.length}
       />
@@ -51,25 +63,25 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
             <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
               <div>
                 <p className="font-semibold">
-                  {SERVICE_TYPE_LABELS[order.service_type]}
+                  {serviceTypeLabels[order.service_type]}
                 </p>
                 <p className="text-sm text-muted">
-                  {EXECUTION_METHOD_LABELS[order.execution_method]} ·{" "}
-                  {order.location_text ?? "—"}
+                  {executionMethodLabels[order.execution_method]} ·{" "}
+                  {order.location_text ?? t.common.dash}
                 </p>
                 <p className="mt-1 text-xs text-muted">
-                  {new Date(order.created_at).toLocaleString("ar-SA")}
+                  {new Date(order.created_at).toLocaleString(intlLocale)}
                 </p>
               </div>
               <div className="flex items-center gap-3">
                 <Badge variant="secondary">
-                  {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                  {statusLabels[order.status as keyof typeof statusLabels]}
                 </Badge>
                 <Link
                   href={`/client/orders/${order.id}`}
                   className="text-sm font-semibold text-primary hover:underline"
                 >
-                  التفاصيل
+                  {t.common.details}
                 </Link>
               </div>
             </CardContent>
@@ -80,13 +92,13 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
           <p className="text-muted">
             {allOrders.length === 0 ? (
               <>
-                لا توجد طلبات.{" "}
+                {t.common.noData}.{" "}
                 <Link href="/client/request" className="text-primary">
-                  أنشئ طلباً الآن
+                  {t.dashboard.client.newRequest}
                 </Link>
               </>
             ) : (
-              "لا توجد نتائج مطابقة للتصفية."
+              t.common.noResultsFiltered
             )}
           </p>
         )}

@@ -5,13 +5,20 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconSelect } from "@/components/ui/icon-select";
 import {
-  SERVICE_TYPE_LABELS,
-  STATUS_LABELS,
-} from "@/lib/constants";
-import {
   getAllServiceRequests,
   getTechnicians,
 } from "@/lib/dashboard-queries";
+import {
+  getOrderSearchPlaceholder,
+  getPriorityFilterOptionsForDashboard,
+  getServiceTypeFilterOptionsForDashboard,
+  getStatusFilterOptionsForDashboard,
+} from "@/lib/dashboard-filter-options";
+import {
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import {
   filterServiceRequests,
   parseListFilters,
@@ -22,51 +29,47 @@ import {
   buildTechnicianAssignOptions,
 } from "@/lib/select-option-builders";
 
-const STATUS_OPTIONS = Object.entries(STATUS_LABELS).map(([value, label]) => ({
-  value,
-  label,
-}));
-
-const PRIORITY_OPTIONS = [
-  { value: "low", label: "منخفض" },
-  { value: "normal", label: "عادي" },
-  { value: "high", label: "عالي" },
-];
-
-const SERVICE_TYPE_OPTIONS = Object.entries(SERVICE_TYPE_LABELS).map(
-  ([value, label]) => ({ value, label }),
-);
-
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
 };
 
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
+  const { t } = await getServerI18n();
   const params = parseListFilters(await searchParams);
   const [allOrders, technicians] = await Promise.all([
     getAllServiceRequests(),
     getTechnicians(),
   ]);
   const orders = filterServiceRequests(allOrders, params);
-  const statusOptions = buildStatusSelectOptions();
-  const priorityOptions = buildPrioritySelectOptions();
-  const technicianOptions = buildTechnicianAssignOptions(technicians);
+  const statusLabels = getStatusLabels(t);
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const statusOptions = buildStatusSelectOptions(t);
+  const priorityOptions = buildPrioritySelectOptions(t);
+  const technicianOptions = buildTechnicianAssignOptions(t, technicians);
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">إدارة الطلبات</h1>
+      <h1 className="text-2xl font-bold">{t.dashboard.admin.orders}</h1>
 
       <DashboardFilterBar
         pathname="/admin/orders"
         values={params}
-        searchPlaceholder="اسم العميل، الهاتف، السيارة، رمز التتبع..."
+        searchPlaceholder={getOrderSearchPlaceholder(t)}
         selects={[
-          { name: "status", label: "الحالة", options: STATUS_OPTIONS },
-          { name: "priority", label: "الأولوية", options: PRIORITY_OPTIONS },
+          {
+            name: "status",
+            label: t.common.status,
+            options: getStatusFilterOptionsForDashboard(t),
+          },
+          {
+            name: "priority",
+            label: t.common.priority,
+            options: getPriorityFilterOptionsForDashboard(t),
+          },
           {
             name: "service_type",
-            label: "نوع الخدمة",
-            options: SERVICE_TYPE_OPTIONS,
+            label: t.request.form.serviceType,
+            options: getServiceTypeFilterOptionsForDashboard(t),
           },
         ]}
         resultCount={orders.length}
@@ -84,13 +87,13 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                     {order.customer_phone}
                   </p>
                   <p className="mt-1 text-sm">
-                    {SERVICE_TYPE_LABELS[order.service_type]} ·{" "}
-                    {order.car_type ?? "—"}
+                    {serviceTypeLabels[order.service_type]} ·{" "}
+                    {order.car_type ?? t.common.dash}
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <Badge variant="secondary">
-                    {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                    {statusLabels[order.status as keyof typeof statusLabels]}
                   </Badge>
                   <Badge variant="outline">{order.priority}</Badge>
                   <span className="text-xs text-muted" dir="ltr">
@@ -117,7 +120,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
                   defaultValue={order.assigned_technician_id ?? ""}
                 />
                 <Button type="submit" variant="default" className="h-11">
-                  حفظ
+                  {t.common.save}
                 </Button>
               </form>
             </CardContent>
@@ -127,8 +130,8 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
         {orders.length === 0 && (
           <p className="text-center text-muted">
             {allOrders.length === 0
-              ? "لا توجد طلبات بعد."
-              : "لا توجد نتائج مطابقة للتصفية."}
+              ? t.common.noData
+              : t.common.noResultsFiltered}
           </p>
         )}
       </div>

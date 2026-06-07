@@ -1,47 +1,23 @@
-import type {
-  SparePartOrderStatus,
-  SparePartPaymentMethod,
-  SparePartPaymentStatus,
-} from "@service-time/types";
-import type { IconSelectOption } from "@/lib/icon-select-options";
+import type { Messages } from "@/messages/types";
+import {
+  buildSparePartOrderStatusOptions,
+  getSparePartOrderStatusLabels,
+  getSparePartPaymentMethodLabels,
+  getSparePartPaymentStatusLabels,
+} from "@/lib/i18n/labels";
 
-export const SPARE_PART_PAYMENT_METHOD_LABELS: Record<
-  SparePartPaymentMethod,
-  string
-> = {
-  cash_on_delivery: "الدفع عند الاستلام",
-  online: "الدفع الإلكتروني",
-};
+export function getSparePartOrderStatusLabelsForDashboard(t: Messages) {
+  return getSparePartOrderStatusLabels(t);
+}
 
-export const SPARE_PART_PAYMENT_STATUS_LABELS: Record<
-  SparePartPaymentStatus,
-  string
-> = {
-  pending: "قيد الانتظار",
-  paid: "مدفوع",
-  failed: "فشل الدفع",
-};
+export function getSparePartPaymentStatusLabelsForDashboard(t: Messages) {
+  return getSparePartPaymentStatusLabels(t);
+}
 
-export const SPARE_PART_ORDER_STATUS_LABELS: Record<
-  SparePartOrderStatus,
-  string
-> = {
-  pending: "قيد المراجعة",
-  confirmed: "مؤكد",
-  preparing: "قيد التجهيز",
-  ready: "جاهز",
-  delivered: "تم التسليم",
-  cancelled: "ملغى",
-};
+export function getSparePartPaymentMethodLabelsForDashboard(t: Messages) {
+  return getSparePartPaymentMethodLabels(t);
+}
 
-export const SPARE_PART_ORDER_STATUS_OPTIONS = Object.entries(
-  SPARE_PART_ORDER_STATUS_LABELS,
-).map(([value, label]) => ({ value, label }));
-
-export function buildSparePartOrderStatusOptions(): IconSelectOption[] {
-  return SPARE_PART_ORDER_STATUS_OPTIONS.map((option) => ({
-    value: option.value,
-    label: option.label,
-    icon: "layers",
-  }));
+export function buildSparePartOrderStatusOptionsForDashboard(t: Messages) {
+  return buildSparePartOrderStatusOptions(t);
 }

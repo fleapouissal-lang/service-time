@@ -1,15 +1,17 @@
 import Link from "next/link";
 import type { ProfileRole } from "@service-time/types";
+import { getServerI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
-const TABS: { role: ProfileRole | "all"; label: string }[] = [
-  { role: "all", label: "الكل" },
-  { role: "client", label: "عملاء" },
-  { role: "technician", label: "فنيون" },
-  { role: "admin", label: "مديرون" },
+const TABS: { role: ProfileRole | "all"; labelKey: "all" | ProfileRole }[] = [
+  { role: "all", labelKey: "all" },
+  { role: "client", labelKey: "client" },
+  { role: "technician", labelKey: "technician" },
+  { role: "admin", labelKey: "admin" },
 ];
 
-export function UserRoleTabs({ active }: { active: ProfileRole | "all" }) {
+export async function UserRoleTabs({ active }: { active: ProfileRole | "all" }) {
+  const { t } = await getServerI18n();
   return (
     <div className="flex flex-wrap gap-2">
       {TABS.map((tab) => (
@@ -25,15 +27,9 @@ export function UserRoleTabs({ active }: { active: ProfileRole | "all" }) {
               : "border border-border hover:bg-primary/5",
           )}
         >
-          {tab.label}
+          {t.labels.rolePlural[tab.labelKey]}
         </Link>
       ))}
     </div>
   );
 }
-
-export const PLATFORM_ROLE_LABELS: Record<ProfileRole, string> = {
-  client: "عميل",
-  technician: "فني",
-  admin: "مدير",
-};

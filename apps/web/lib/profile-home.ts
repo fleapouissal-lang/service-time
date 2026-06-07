@@ -1,4 +1,6 @@
 import type { ProfileRole } from "@service-time/types";
+import type { Messages } from "@/messages/types";
+import { getProfileRoleLabel as getProfileRoleLabelFromLabels } from "@/lib/i18n/labels";
 
 const ROLE_PREFIX: Record<ProfileRole, string> = {
   admin: "/admin",
@@ -31,17 +33,9 @@ export function resolvePostLoginPath(role: ProfileRole, next: string): string {
   return getProfileHomePath(role);
 }
 
-export function getProfileRoleLabel(role: ProfileRole): string {
-  switch (role) {
-    case "admin":
-      return "مدير";
-    case "technician":
-      return "فني";
-    case "client":
-      return "عميل";
-    default:
-      return "";
-  }
+/** @deprecated Use getProfileRoleLabel from @/lib/i18n/labels */
+export function getProfileRoleLabel(t: Messages, role: ProfileRole): string {
+  return getProfileRoleLabelFromLabels(t, role);
 }
 
 export function getProfilePagePath(role: ProfileRole): string {

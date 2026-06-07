@@ -1,5 +1,8 @@
+"use client";
+
 import { cn } from "@/lib/utils";
 import { formatSparePartPrice } from "@/lib/format-price";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function SparePartPrice({
   price,
@@ -10,6 +13,8 @@ export function SparePartPrice({
   className?: string;
   size?: "sm" | "md" | "lg";
 }) {
+  const { locale } = useLocale();
+
   return (
     <span
       className={cn(
@@ -21,7 +26,7 @@ export function SparePartPrice({
       )}
       dir="ltr"
     >
-      {formatSparePartPrice(price)}
+      {formatSparePartPrice(price, locale)}
     </span>
   );
 }

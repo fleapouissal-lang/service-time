@@ -5,13 +5,15 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireProfile } from "@/lib/auth";
 import {
-  SPARE_PART_ORDER_STATUS_LABELS,
-  SPARE_PART_PAYMENT_METHOD_LABELS,
-  SPARE_PART_PAYMENT_STATUS_LABELS,
+  getSparePartOrderStatusLabelsForDashboard,
+  getSparePartPaymentMethodLabelsForDashboard,
+  getSparePartPaymentStatusLabelsForDashboard,
 } from "@/lib/spare-part-order-labels";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { getIntlLocale } from "@/lib/i18n/config";
+import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -22,6 +24,7 @@ export default async function ClientSparePartOrderDetailPage({
   params,
   searchParams,
 }: PageProps) {
+  const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   if (!profile) return null;
 
@@ -36,6 +39,10 @@ export default async function ClientSparePartOrderDetailPage({
       sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
     0,
   );
+  const statusLabels = getSparePartOrderStatusLabelsForDashboard(t);
+  const paymentMethodLabels = getSparePartPaymentMethodLabelsForDashboard(t);
+  const paymentStatusLabels = getSparePartPaymentStatusLabelsForDashboard(t);
+  const intlLocale = getIntlLocale(locale);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -45,17 +52,17 @@ export default async function ClientSparePartOrderDetailPage({
         href="/client/spare-part-orders"
         className="text-sm text-primary hover:underline"
       >
-        ← طلبات قطع الغيار
+        ← {t.dashboard.client.sparePartOrders}
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold">طلب قطع غيار</h1>
+        <h1 className="text-2xl font-bold">{t.common.product}</h1>
         <p className="mt-1 text-sm text-muted" dir="ltr">
           {order.order_token}
         </p>
         {success === "1" ? (
           <p className="mt-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
-            ✓ تم إرسال طلبك بنجاح. سنتواصل معك قريباً.
+            {t.tracking.successBanner}
           </p>
         ) : null}
       </div>
@@ -63,32 +70,32 @@ export default async function ClientSparePartOrderDetailPage({
       <Card>
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">
-            <span className="text-sm text-muted">الحالة</span>
+            <span className="text-sm text-muted">{t.common.status}</span>
             <Badge variant="secondary">
-              {SPARE_PART_ORDER_STATUS_LABELS[order.status]}
+              {statusLabels[order.status]}
             </Badge>
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">طريقة الدفع</span>
-            <span>{SPARE_PART_PAYMENT_METHOD_LABELS[order.payment_method]}</span>
+            <span className="text-muted">{t.spareParts.paymentMethod}</span>
+            <span>{paymentMethodLabels[order.payment_method]}</span>
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">حالة الدفع</span>
-            <span>{SPARE_PART_PAYMENT_STATUS_LABELS[order.payment_status]}</span>
+            <span className="text-muted">{t.common.status}</span>
+            <span>{paymentStatusLabels[order.payment_status]}</span>
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">المجموع</span>
+            <span className="text-muted">{t.common.total}</span>
             <SparePartPrice price={orderTotal} size="sm" className="text-primary" />
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">التاريخ</span>
+            <span className="text-muted">{t.common.date}</span>
             <span>
-              {new Date(order.created_at).toLocaleString("ar-SA")}
+              {new Date(order.created_at).toLocaleString(intlLocale)}
             </span>
           </div>
           {order.notes ? (
             <div>
-              <p className="text-sm font-medium text-muted">ملاحظات</p>
+              <p className="text-sm font-medium text-muted">{t.common.notes}</p>
               <p className="mt-1 text-sm">{order.notes}</p>
             </div>
           ) : null}
@@ -97,7 +104,7 @@ export default async function ClientSparePartOrderDetailPage({
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="mb-4 font-semibold">المنتجات</h2>
+          <h2 className="mb-4 font-semibold">{t.common.products}</h2>
           <ul className="space-y-3">
             {order.items.map((item) => (
               <li
@@ -123,7 +130,7 @@ export default async function ClientSparePartOrderDetailPage({
             ))}
           </ul>
           <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-            <span className="font-medium">المجموع</span>
+            <span className="font-medium">{t.common.total}</span>
             <SparePartPrice price={orderTotal} size="lg" className="text-primary" />
           </div>
         </CardContent>

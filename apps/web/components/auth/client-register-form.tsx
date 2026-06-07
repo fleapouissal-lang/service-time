@@ -7,10 +7,12 @@ import { ArrowLeft, Eye, EyeOff, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProfileAvatarPicker } from "@/components/auth/profile-avatar-picker";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 type Step = "register" | "verify";
 
 export function ClientRegisterForm() {
+  const { messages: t } = useLocale();
   const router = useRouter();
   const [step, setStep] = useState<Step>("register");
   const [fullName, setFullName] = useState("");
@@ -58,7 +60,7 @@ export function ClientRegisterForm() {
     setInfo("");
 
     if (password !== confirmPassword) {
-      setError("كلمتا المرور غير متطابقتين.");
+      setError(t.errors.auth.passwordMismatch);
       return;
     }
 
@@ -68,19 +70,19 @@ export function ClientRegisterForm() {
       const { ok, data } = await submitRegisterRequest();
 
       if (!ok) {
-        setError(data.error ?? "تعذّr إنشاء الحساب.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
       setWhatsappUrl(data.whatsappUrl ?? "");
       setInfo(
         data.devMode
-          ? `${data.message ?? ""} (وضع التطوير: راجع terminal الخادم للرمز)`
-          : (data.message ?? "تم إرسال رمز التحقق."),
+          ? `${data.message ?? ""} (${t.register.devModeHint})`
+          : (data.message ?? t.register.sendCode),
       );
       setStep("verify");
     } catch {
-      setError("تعذّr الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
@@ -103,14 +105,14 @@ export function ClientRegisterForm() {
       };
 
       if (!res.ok) {
-        setError(data.error ?? "تعذّر إعادة الإرسال.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
       setWhatsappUrl(data.whatsappUrl ?? "");
-      setInfo(data.message ?? "تم إعادة إرسال رمز التحقق إلى بريدك.");
+      setInfo(data.message ?? t.register.resendHint);
     } catch {
-      setError("تعذّر الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
@@ -131,13 +133,13 @@ export function ClientRegisterForm() {
       const data = (await res.json()) as { error?: string; message?: string };
 
       if (!res.ok) {
-        setError(data.error ?? "الرمز غير صحيح.");
+        setError(data.error ?? t.errors.auth.serverConnection);
         return;
       }
 
       router.push("/login?registered=1&next=/client");
     } catch {
-      setError("تعذّr الاتصال بالخادم.");
+      setError(t.errors.auth.serverConnection);
     } finally {
       setLoading(false);
     }
@@ -148,12 +150,10 @@ export function ClientRegisterForm() {
       <div className="mb-8 text-start">
         <p className="text-sm font-semibold text-[#94D4B9]">Service Time</p>
         <h1 className="mt-2 font-poppins text-2xl font-bold text-white sm:text-3xl">
-          {step === "register" ? "إنشاء حساب عميل" : "تفعيل الحساب"}
+          {step === "register" ? t.register.titleRegister : t.register.titleVerify}
         </h1>
         <p className="mt-2 text-sm leading-7 text-white/70">
-          {step === "register"
-            ? "سجّل حسابك لتتبع طلباتك وطلب الخدمات بسهولة."
-            : "أدخل رمز التحقق المرسل إلى بريدك (تحقق من الرسائل غير المرغوبة). يمكنك أيضاً إرسال الرمز لنا عبر واتساب بالضغط على الزر أدناه."}
+          {step === "register" ? t.register.descriptionRegister : t.register.descriptionVerify}
         </p>
       </div>
 
@@ -178,21 +178,21 @@ export function ClientRegisterForm() {
 
           <div>
             <Label htmlFor="full_name" className="text-white">
-              الاسم الكامل *
+              {t.register.fullName}
             </Label>
             <Input
               id="full_name"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
               required
-              placeholder="محمد العتيبي"
+              placeholder={t.common.placeholderName}
               className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
             />
           </div>
 
           <div>
             <Label htmlFor="phone" className="text-white">
-              رقم الجوال *
+              {t.register.phone}
             </Label>
             <Input
               id="phone"
@@ -200,14 +200,14 @@ export function ClientRegisterForm() {
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
               required
-              placeholder="06XXXXXXXX أو +9665XXXXXXXX"
+              placeholder={t.common.placeholderPhone}
               className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
             />
           </div>
 
           <div>
             <Label htmlFor="email" className="text-white">
-              البريد الإلكتروني *
+              {t.register.email}
             </Label>
             <Input
               id="email"
@@ -223,7 +223,7 @@ export function ClientRegisterForm() {
 
           <div>
             <Label htmlFor="password" className="text-white">
-              كلمة المرور *
+              {t.register.password}
             </Label>
             <div className="relative mt-2">
               <Input
@@ -240,7 +240,7 @@ export function ClientRegisterForm() {
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
                 className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55"
-                aria-label="إظهار كلمة المرور"
+                aria-label={t.register.showPassword}
               >
                 {showPassword ? (
                   <EyeOff className="size-5" />
@@ -253,7 +253,7 @@ export function ClientRegisterForm() {
 
           <div>
             <Label htmlFor="confirm_password" className="text-white">
-              تأكيد كلمة المرور *
+              {t.register.confirmPassword}
             </Label>
             <Input
               id="confirm_password"
@@ -272,14 +272,14 @@ export function ClientRegisterForm() {
             disabled={loading}
             className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? "جاري الإرسال..." : "إرسال رمز التحقق"}
+            {loading ? t.common.sending : t.register.sendCode}
             <ArrowLeft className="size-4" aria-hidden />
           </button>
 
           <p className="text-center text-sm text-white/50">
-            لديك حساب؟{" "}
+            {t.register.hasAccount}{" "}
             <Link href="/login" className="text-[#94D4B9] hover:underline">
-              تسجيل الدخول
+              {t.register.loginLink}
             </Link>
           </p>
         </form>
@@ -290,7 +290,7 @@ export function ClientRegisterForm() {
         >
           <div>
             <Label htmlFor="code" className="text-white">
-              رمز التحقق (6 أرقام)
+              {t.register.verificationCode}
             </Label>
             <Input
               id="code"
@@ -314,7 +314,7 @@ export function ClientRegisterForm() {
               className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9] bg-transparent text-sm font-semibold text-[#94D4B9] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#94D4B9]/10"
             >
               <MessageCircle className="size-5" aria-hidden />
-              إرسال الرمز عبر واتساب
+              {t.register.whatsappCode}
             </a>
           ) : null}
 
@@ -324,7 +324,7 @@ export function ClientRegisterForm() {
             onClick={() => void handleResendCode()}
             className="w-full text-center text-sm text-white/60 hover:text-[#94D4B9] disabled:opacity-50"
           >
-            لم يصلك البريد؟ إعادة إرسال الرمز
+            {t.register.resendCode}
           </button>
 
           <button
@@ -332,7 +332,7 @@ export function ClientRegisterForm() {
             disabled={loading || code.length !== 6}
             className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:opacity-60"
           >
-            {loading ? "جاري التفعيل..." : "تفعيل الحساب"}
+            {loading ? t.common.verifying : t.register.activate}
             <ArrowLeft className="size-4" aria-hidden />
           </button>
 
@@ -346,7 +346,7 @@ export function ClientRegisterForm() {
             }}
             className="w-full text-center text-sm text-[#94D4B9] hover:underline"
           >
-            العودة للتسجيل
+            {t.register.backToRegister}
           </button>
         </form>
       )}

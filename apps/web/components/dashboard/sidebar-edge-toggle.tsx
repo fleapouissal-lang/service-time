@@ -1,6 +1,7 @@
 "use client";
 
 import { ChevronsRight } from "lucide-react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 const NOTCH_HALF = 48;
@@ -13,6 +14,11 @@ export function SidebarEdgeToggle({
   open: boolean;
   onToggle: () => void;
 }) {
+  const { messages: t } = useLocale();
+  const toggleLabel = open
+    ? t.dashboard.common.collapseSidebar
+    : t.dashboard.common.expandSidebar;
+
   return (
     <div
       className="pointer-events-none absolute inset-y-0 left-0 z-40"
@@ -47,8 +53,8 @@ export function SidebarEdgeToggle({
           <button
             type="button"
             onClick={onToggle}
-            aria-label={open ? "تصغير القائمة" : "توسيع القائمة"}
-            title={open ? "تصغير القائمة" : "توسيع القائمة"}
+            aria-label={toggleLabel}
+            title={toggleLabel}
             className={cn(
               "flex size-11 items-center justify-center rounded-full",
               "border-2 border-[#94D4B9]/40 bg-[#050B10]",

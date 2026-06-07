@@ -6,8 +6,10 @@ import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { HeaderAuthSection } from "@/components/layout/header-auth-section";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { HeaderCartButton } from "@/components/spare-parts/header-cart-button";
-import { NAV_LINKS } from "@/lib/constants";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { getNavLinks } from "@/lib/i18n/nav";
 import { cn } from "@/lib/utils";
 
 const HEADER_BG = "bg-[#050B10]";
@@ -36,6 +38,8 @@ function navLinkClass(active: boolean, transparent: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname();
+  const { messages } = useLocale();
+  const navLinks = getNavLinks(messages);
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -76,7 +80,7 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-2 lg:flex">
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
@@ -87,7 +91,8 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-3 lg:flex">
+        <div className="hidden items-center gap-2 lg:flex">
+          <LanguageSwitcher isTransparent={isTransparent} />
           <HeaderCartButton isTransparent={isTransparent} />
           <HeaderAuthSection isTransparent={isTransparent} variant="desktop" />
         </div>
@@ -99,7 +104,7 @@ export function SiteHeader() {
             isTransparent ? "text-white" : HEADER_FG,
           )}
           onClick={() => setOpen(!open)}
-          aria-label="القائمة"
+          aria-label={messages.common.menu}
         >
           {open ? <X className="size-6" /> : <Menu className="size-6" />}
         </button>
@@ -115,7 +120,7 @@ export function SiteHeader() {
           )}
         >
           <nav className="flex flex-col gap-1">
-            {NAV_LINKS.map((link) => {
+            {navLinks.map((link) => {
               const active = pathname === link.href;
               return (
                 <Link
@@ -140,6 +145,7 @@ export function SiteHeader() {
                 </Link>
               );
             })}
+            <LanguageSwitcher isTransparent={isTransparent} className="mt-2 w-full" />
             <HeaderCartButton isTransparent={isTransparent} />
             <HeaderAuthSection
               isTransparent={isTransparent}

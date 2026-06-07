@@ -2,12 +2,16 @@ import Link from "next/link";
 import { LogIn, UserPlus } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
+import { getServerI18n } from "@/lib/i18n/server";
 
 type RequestLoginGateProps = {
   nextPath?: string;
 };
 
-export function RequestLoginGate({ nextPath = "/request" }: RequestLoginGateProps) {
+export async function RequestLoginGate({
+  nextPath = "/request",
+}: RequestLoginGateProps) {
+  const { t } = await getServerI18n();
   const loginHref = `/login?next=${encodeURIComponent(nextPath)}`;
   const registerHref = "/register";
 
@@ -16,9 +20,9 @@ export function RequestLoginGate({ nextPath = "/request" }: RequestLoginGateProp
       <PageHeader
         plain
         plainWidth="md"
-        eyebrow="طلب خدمة"
-        title="أرسل طلب الصيانة"
-        description="يجب تسجيل الدخول بحساب عميل لإرسال طلب خدمة."
+        eyebrow={t.request.eyebrow}
+        title={t.request.title}
+        description={t.request.loginRequired}
       />
 
       <section className="mx-auto max-w-lg px-4 pb-16 sm:px-6">
@@ -29,11 +33,8 @@ export function RequestLoginGate({ nextPath = "/request" }: RequestLoginGateProp
             </div>
 
             <div className="space-y-2">
-              <h2 className="text-xl font-bold">سجّل الدخول أولاً</h2>
-              <p className="text-sm text-muted">
-                هذه الصفحة مخصّصة للعملاء المسجّلين. سجّل الدخول أو أنشئ حساب
-                عميل جديد للمتابعة.
-              </p>
+              <h2 className="text-xl font-bold">{t.request.loginGate.title}</h2>
+              <p className="text-sm text-muted">{t.request.loginGate.description}</p>
             </div>
 
             <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
@@ -41,20 +42,18 @@ export function RequestLoginGate({ nextPath = "/request" }: RequestLoginGateProp
                 href={loginHref}
                 className="inline-flex h-11 items-center justify-center rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
-                تسجيل الدخول
+                {t.request.loginGate.login}
               </Link>
               <Link
                 href={registerHref}
                 className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border px-5 text-sm font-semibold hover:bg-primary/5"
               >
                 <UserPlus className="size-4" aria-hidden />
-                إنشاء حساب عميل
+                {t.request.loginGate.register}
               </Link>
             </div>
 
-            <p className="text-xs text-muted">
-              حسابات الفنيين والمديرين لا تستخدم هذه الصفحة.
-            </p>
+            <p className="text-xs text-muted">{t.request.loginGate.note}</p>
           </CardContent>
         </Card>
       </section>

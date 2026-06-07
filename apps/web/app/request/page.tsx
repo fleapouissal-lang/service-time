@@ -4,11 +4,13 @@ import { Suspense } from "react";
 import { RequestLoginGate } from "@/components/request/request-login-gate";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { getCurrentProfile } from "@/lib/auth";
+import { getServerI18n } from "@/lib/i18n/server";
 import { getProfileHomePath } from "@/lib/profile-home";
 
-export const metadata: Metadata = {
-  title: "طلب خدمة",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return { title: t.meta.request };
+}
 
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;

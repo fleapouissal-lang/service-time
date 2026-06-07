@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Profile } from "@service-time/types";
 import {
-  ADMIN_NAV,
-  CLIENT_NAV,
   DashboardSidebar,
-  TECHNICIAN_NAV,
+  type DashboardNavItem,
 } from "@/components/dashboard/dashboard-sidebar";
 import {
   getProfileHomePath,
   getProfilePagePath,
 } from "@/lib/profile-home";
+import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getAdminNav,
+  getClientNav,
+  getTechnicianNav,
+} from "@/lib/i18n/dashboard-nav";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 
 const STORAGE_KEY = "service-time-sidebar-open";
@@ -54,7 +58,7 @@ function DashboardLayout({
 }: {
   children: React.ReactNode;
   profile: Profile;
-  items: typeof ADMIN_NAV;
+  items: DashboardNavItem[];
   onSignOut: () => void;
 }) {
   const { open, toggle } = useSidebarOpen();
@@ -83,6 +87,7 @@ export function AdminDashboardShell({
   profile: Profile;
 }) {
   const router = useRouter();
+  const { messages } = useLocale();
 
   async function signOut() {
     const supabase = createAuthBrowserClient();
@@ -94,7 +99,7 @@ export function AdminDashboardShell({
   return (
     <DashboardLayout
       profile={profile}
-      items={ADMIN_NAV}
+      items={getAdminNav(messages)}
       onSignOut={() => void signOut()}
     >
       {children}
@@ -110,6 +115,7 @@ export function TechnicianDashboardShell({
   profile: Profile;
 }) {
   const router = useRouter();
+  const { messages } = useLocale();
 
   async function signOut() {
     const supabase = createAuthBrowserClient();
@@ -121,7 +127,7 @@ export function TechnicianDashboardShell({
   return (
     <DashboardLayout
       profile={profile}
-      items={TECHNICIAN_NAV}
+      items={getTechnicianNav(messages)}
       onSignOut={() => void signOut()}
     >
       {children}
@@ -137,6 +143,7 @@ export function ClientDashboardShell({
   profile: Profile;
 }) {
   const router = useRouter();
+  const { messages } = useLocale();
 
   async function signOut() {
     const supabase = createAuthBrowserClient();
@@ -148,7 +155,7 @@ export function ClientDashboardShell({
   return (
     <DashboardLayout
       profile={profile}
-      items={CLIENT_NAV}
+      items={getClientNav(messages)}
       onSignOut={() => void signOut()}
     >
       {children}

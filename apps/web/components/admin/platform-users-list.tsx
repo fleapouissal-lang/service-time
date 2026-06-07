@@ -1,13 +1,18 @@
 import { togglePlatformUserAction } from "@/app/admin/actions";
-import { PLATFORM_ROLE_LABELS } from "@/components/admin/user-role-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getRoleLabels, getTechnicianTypeLabels } from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import type { Profile } from "@service-time/types";
 
-export function PlatformUsersList({ users }: { users: Profile[] }) {
+export async function PlatformUsersList({ users }: { users: Profile[] }) {
+  const { t } = await getServerI18n();
+  const roleLabels = getRoleLabels(t);
+  const technicianTypeLabels = getTechnicianTypeLabels(t);
+
   if (users.length === 0) {
-    return <p className="text-muted">لا يوجد مستخدمون في هذا القسم.</p>;
+    return <p className="text-muted">{t.dashboard.admin.users.noUsers}</p>;
   }
 
   return (
@@ -31,19 +36,19 @@ export function PlatformUsersList({ users }: { users: Profile[] }) {
               <div>
                 <p className="font-semibold">{user.full_name}</p>
                 <p className="text-sm text-muted" dir="ltr">
-                  {user.phone ?? "—"}
+                  {user.phone ?? t.common.dash}
                 </p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   <Badge variant="secondary">
-                    {PLATFORM_ROLE_LABELS[user.role]}
+                    {roleLabels[user.role]}
                   </Badge>
-                  {user.role === "technician" ? (
+                  {user.role === "technician" && user.technician_type ? (
                     <Badge variant="outline">
-                      {user.technician_type === "mobile" ? "متنقل" : "ورشة"}
+                      {technicianTypeLabels[user.technician_type]}
                     </Badge>
                   ) : null}
                   <Badge variant={user.is_active ? "success" : "outline"}>
-                    {user.is_active ? "نشط" : "معطّل"}
+                    {user.is_active ? t.common.active : t.common.disabled}
                   </Badge>
                 </div>
               </div>
@@ -56,7 +61,7 @@ export function PlatformUsersList({ users }: { users: Profile[] }) {
                 value={String(user.is_active)}
               />
               <Button type="submit" variant="outline">
-                {user.is_active ? "تعطيل" : "تفعيل"}
+                {user.is_active ? t.common.disable : t.common.enable}
               </Button>
             </form>
           </CardContent>

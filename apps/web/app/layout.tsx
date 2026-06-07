@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Poppins, Tajawal } from "next/font/google";
-import { Suspense } from "react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PublicShell } from "@/components/layout/public-shell";
 import { SparePartsCartRoot } from "@/components/spare-parts/spare-parts-cart-root";
+import { getDir } from "@/lib/i18n/config";
+import { getServerI18n } from "@/lib/i18n/server";
+import { LocaleProvider } from "@/lib/i18n/locale-context";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -13,44 +15,50 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
-/** Fallback web jusqu'à ajout des fichiers Janna LT dans public/fonts/ */
 const jannaFallback = Tajawal({
   variable: "--font-janna-fallback",
   subsets: ["arabic"],
   weight: ["400", "500", "700"],
 });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Service Time | صيانة السيارات في الرياض",
-    template: "%s | Service Time",
-  },
-  description:
-    "منصة Service Time لصيانة السيارات وقطع الغيار في الرياض — طلب خدمة، تتبع مباشر، ورشة ثابتة أو متنقلة.",
-  icons: {
-    icon: "/logos/icon.png",
-    shortcut: "/logos/icon.png",
-    apple: "/logos/icon.png",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return {
+    title: {
+      default: t.meta.siteTitle,
+      template: "%s | Service Time",
+    },
+    description: t.meta.siteDescription,
+    icons: {
+      icon: "/logos/icon.png",
+      shortcut: "/logos/icon.png",
+      apple: "/logos/icon.png",
+    },
+  };
+}
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { locale } = await getServerI18n();
+  const dir = getDir(locale);
+
   return (
     <html
-      lang="ar"
-      dir="rtl"
+      lang={locale}
+      dir={dir}
       className={`${poppins.variable} ${jannaFallback.variable} h-full scroll-smooth`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
-        <SparePartsCartRoot>
-          <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
-            {children}
-          </PublicShell>
-        </SparePartsCartRoot>
+        <LocaleProvider locale={locale}>
+          <SparePartsCartRoot>
+            <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
+              {children}
+            </PublicShell>
+          </SparePartsCartRoot>
+        </LocaleProvider>
       </body>
     </html>
   );

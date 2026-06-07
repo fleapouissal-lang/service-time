@@ -5,11 +5,13 @@ import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Label } from "@/components/ui/label";
 
 const TRACK_BASE = "/client/track";
 
 export function TrackingSearch({ embedded = false }: { embedded?: boolean }) {
+  const { messages: t } = useLocale();
   const router = useRouter();
   const [token, setToken] = useState("");
 
@@ -23,9 +25,9 @@ export function TrackingSearch({ embedded = false }: { embedded?: boolean }) {
     <div className={embedded ? "space-y-4" : ""}>
       {!embedded ? (
         <div className="mb-6">
-          <h2 className="text-xl font-bold">تابع حالة طلبك</h2>
+          <h2 className="text-xl font-bold">{t.tracking.title}</h2>
           <p className="mt-1 text-sm text-muted">
-            أدخل رمز التتبع المرسل إليك عبر SMS أو واتساب
+            {t.tracking.description}
           </p>
         </div>
       ) : null}
@@ -34,24 +36,24 @@ export function TrackingSearch({ embedded = false }: { embedded?: boolean }) {
         onSubmit={onSubmit}
         className="rounded-2xl border border-border bg-card p-6 shadow-sm"
       >
-        <Label htmlFor="token">رمز التتبع</Label>
+        <Label htmlFor="token">{t.tracking.tokenLabel}</Label>
         <Input
           id="token"
           value={token}
           onChange={(e) => setToken(e.target.value)}
-          placeholder="أدخل رمز التتبع"
+          placeholder={t.tracking.tokenPlaceholder}
           className="mt-2"
           dir="ltr"
         />
         <Button type="submit" variant="default" className="mt-4 w-full">
-          عرض الحالة
+          {t.tracking.submit}
         </Button>
       </form>
 
       <p className="text-center text-xs text-muted">
-        يمكنك أيضاً متابعة طلباتك من{" "}
+        {t.tracking.ordersLink}{" "}
         <Link href="/client/orders" className="text-primary hover:underline">
-          قائمة الطلبات
+          {t.tracking.ordersLinkText}
         </Link>
       </p>
     </div>

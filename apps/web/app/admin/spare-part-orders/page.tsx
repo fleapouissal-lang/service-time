@@ -4,26 +4,33 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  SPARE_PART_ORDER_STATUS_LABELS,
-  SPARE_PART_PAYMENT_METHOD_LABELS,
-  SPARE_PART_PAYMENT_STATUS_LABELS,
-  buildSparePartOrderStatusOptions,
+  buildSparePartOrderStatusOptionsForDashboard,
+  getSparePartOrderStatusLabelsForDashboard,
+  getSparePartPaymentMethodLabelsForDashboard,
+  getSparePartPaymentStatusLabelsForDashboard,
 } from "@/lib/spare-part-order-labels";
 import { getAdminSparePartOrders } from "@/lib/spare-part-orders-queries";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
+import { getIntlLocale } from "@/lib/i18n/config";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export default async function AdminSparePartOrdersPage() {
+  const { t, locale } = await getServerI18n();
   const orders = await getAdminSparePartOrders();
+  const statusLabels = getSparePartOrderStatusLabelsForDashboard(t);
+  const paymentMethodLabels = getSparePartPaymentMethodLabelsForDashboard(t);
+  const paymentStatusLabels = getSparePartPaymentStatusLabelsForDashboard(t);
+  const intlLocale = getIntlLocale(locale);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">طلبات قطع الغيار</h1>
-        <p className="text-muted">إدارة الطلبات من متجر /spare-parts</p>
+        <h1 className="text-2xl font-bold">{t.dashboard.admin.sparePartOrders}</h1>
+        <p className="text-muted">{t.spareParts.description}</p>
       </div>
 
       {orders.length === 0 ? (
-        <p className="text-sm text-muted">لا توجد طلبات بعد.</p>
+        <p className="text-sm text-muted">{t.common.noData}</p>
       ) : (
         <div className="space-y-4">
           {orders.map((order) => {
@@ -50,14 +57,14 @@ export default async function AdminSparePartOrdersPage() {
                   </div>
                   <div className="text-end text-sm text-muted">
                     <Badge variant="secondary">
-                      {SPARE_PART_ORDER_STATUS_LABELS[order.status]}
+                      {statusLabels[order.status]}
                     </Badge>
                     <p className="mt-2">
-                      {new Date(order.created_at).toLocaleString("ar-SA")}
+                      {new Date(order.created_at).toLocaleString(intlLocale)}
                     </p>
                     <p className="mt-1 text-xs">
-                      {SPARE_PART_PAYMENT_METHOD_LABELS[order.payment_method]} —{" "}
-                      {SPARE_PART_PAYMENT_STATUS_LABELS[order.payment_status]}
+                      {paymentMethodLabels[order.payment_method]} —{" "}
+                      {paymentStatusLabels[order.payment_status]}
                     </p>
                   </div>
                 </div>
@@ -84,12 +91,12 @@ export default async function AdminSparePartOrdersPage() {
                   ))}
                 </ul>
                 <p className="text-sm font-semibold" dir="ltr">
-                  المجموع: {formatSparePartPrice(orderTotal)}
+                  {t.common.total}: {formatSparePartPrice(orderTotal)}
                 </p>
 
                 {order.notes ? (
                   <p className="text-sm text-muted">
-                    <span className="font-medium text-foreground">ملاحظات: </span>
+                    <span className="font-medium text-foreground">{t.common.notes}: </span>
                     {order.notes}
                   </p>
                 ) : null}
@@ -102,12 +109,12 @@ export default async function AdminSparePartOrdersPage() {
                   <div className="min-w-[200px] flex-1">
                     <IconSelect
                       name="status"
-                      options={buildSparePartOrderStatusOptions()}
+                      options={buildSparePartOrderStatusOptionsForDashboard(t)}
                       defaultValue={order.status}
                     />
                   </div>
                   <Button type="submit" className="h-11">
-                    تحديث الحالة
+                    {t.common.save}
                   </Button>
                 </form>
               </CardContent>

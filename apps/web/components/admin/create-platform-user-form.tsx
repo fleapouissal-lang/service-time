@@ -7,6 +7,7 @@ import { ProfileAvatarPicker } from "@/components/auth/profile-avatar-picker";
 import { Button } from "@/components/ui/button";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { Label } from "@/components/ui/label";
 import {
   buildRoleSelectOptions,
@@ -14,13 +15,14 @@ import {
 } from "@/lib/select-option-builders";
 
 export function CreatePlatformUserForm() {
+  const { messages: t } = useLocale();
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [role, setRole] = useState<ProfileRole>("technician");
   const [technicianTypeKey, setTechnicianTypeKey] = useState(0);
-  const roleOptions = buildRoleSelectOptions();
-  const technicianTypeOptions = buildTechnicianTypeSelectOptions();
+  const roleOptions = buildRoleSelectOptions(t);
+  const technicianTypeOptions = buildTechnicianTypeSelectOptions(t);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -33,12 +35,12 @@ export function CreatePlatformUserForm() {
 
     try {
       await createPlatformUserAction(formData);
-      setSuccess("تم إنشاء الحساب بنجاح.");
+      setSuccess(t.dashboard.admin.users.createSuccess);
       form.reset();
       setRole("technician");
       setTechnicianTypeKey((key) => key + 1);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "تعذّر إنشاء الحساب.");
+      setError(err instanceof Error ? err.message : t.errors.admin.createFailed);
     } finally {
       setLoading(false);
     }
@@ -59,24 +61,24 @@ export function CreatePlatformUserForm() {
       ) : null}
 
       <ProfileAvatarPicker
-        label="صورة الملف الشخصي"
-        hint="اختياري — تُحفظ في Supabase Storage"
+        label={t.register.avatarLabel}
+        hint={t.register.avatarHint}
         className="[&_p]:text-foreground [&_button]:border-primary/40 [&_button]:text-primary"
       />
 
       <div>
-        <Label htmlFor="full_name">الاسم الكامل *</Label>
+        <Label htmlFor="full_name">{t.dashboard.admin.users.fullName}</Label>
         <Input
           id="full_name"
           name="full_name"
           required
           className="mt-2"
-          placeholder="محمد العتيبي"
+          placeholder={t.common.placeholderName}
         />
       </div>
 
       <div>
-        <Label htmlFor="email">البريد الإلكتروني *</Label>
+        <Label htmlFor="email">{t.common.email} *</Label>
         <Input
           id="email"
           name="email"
@@ -89,18 +91,18 @@ export function CreatePlatformUserForm() {
       </div>
 
       <div>
-        <Label htmlFor="phone">رقم الجوال</Label>
+        <Label htmlFor="phone">{t.common.phone}</Label>
         <Input
           id="phone"
           name="phone"
           dir="ltr"
           className="mt-2"
-          placeholder="06XXXXXXXX"
+          placeholder={t.common.placeholderPhoneLocal}
         />
       </div>
 
       <div>
-        <Label htmlFor="password">كلمة المرور *</Label>
+        <Label htmlFor="password">{t.common.password} *</Label>
         <Input
           id="password"
           name="password"
@@ -113,7 +115,7 @@ export function CreatePlatformUserForm() {
       </div>
 
       <div>
-        <Label htmlFor="role">نوع الحساب *</Label>
+        <Label htmlFor="role">{t.dashboard.admin.users.accountType}</Label>
         <div className="mt-2">
           <IconSelect
             id="role"
@@ -128,7 +130,9 @@ export function CreatePlatformUserForm() {
 
       {role === "technician" ? (
         <div>
-          <Label htmlFor="technician_type">نوع الفني *</Label>
+          <Label htmlFor="technician_type">
+            {t.dashboard.admin.users.technicianType}
+          </Label>
           <div className="mt-2">
             <IconSelect
               key={technicianTypeKey}
@@ -145,7 +149,7 @@ export function CreatePlatformUserForm() {
       )}
 
       <Button type="submit" disabled={loading}>
-        {loading ? "جاري الإنشاء..." : "إنشاء الحساب"}
+        {loading ? t.common.creating : t.dashboard.admin.users.createAccount}
       </Button>
     </form>
   );

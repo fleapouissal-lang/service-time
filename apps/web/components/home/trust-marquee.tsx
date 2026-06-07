@@ -1,24 +1,19 @@
-const KEYWORDS = [
-  "صيانة دورية",
-  "خدمة طوارئ 24/7",
-  "فنيون معتمدون",
-  "وصول سريع",
-  "ورشة متنقلة",
-  "تتبع مباشر",
-  "أسعار شفافة",
-  "خدمة في موقعك",
-  "قطع غيار أصلية",
-  "دعم فني محترف",
-  "خدمة موثوقة",
-  "تغطية واسعة",
-] as const;
+"use client";
+
+import { useLocale } from "@/lib/i18n/locale-context";
 
 const MARQUEE_COPIES = 4;
 
-function MarqueeStrip({ copyIndex }: { copyIndex: number }) {
+function MarqueeStrip({
+  copyIndex,
+  items,
+}: {
+  copyIndex: number;
+  items: readonly string[];
+}) {
   return (
     <div className="trust-marquee__strip flex shrink-0 items-center">
-      {KEYWORDS.map((keyword, index) => (
+      {items.map((keyword, index) => (
         <span
           key={`${copyIndex}-${keyword}`}
           className="flex shrink-0 items-center"
@@ -39,15 +34,18 @@ function MarqueeStrip({ copyIndex }: { copyIndex: number }) {
 }
 
 export function TrustMarquee() {
+  const { messages: t } = useLocale();
+  const items = t.home.trustMarquee.items;
+
   return (
     <section
       className="trust-marquee w-full border-y border-[#94D4B9] bg-[#060709] py-3.5"
-      aria-label="مزايا Service Time"
+      aria-label={t.home.trustMarquee.ariaLabel}
     >
       <div className="trust-marquee__viewport" dir="ltr">
         <div className="trust-marquee__track flex">
           {Array.from({ length: MARQUEE_COPIES }, (_, i) => (
-            <MarqueeStrip key={i} copyIndex={i} />
+            <MarqueeStrip key={i} copyIndex={i} items={items} />
           ))}
         </div>
       </div>

@@ -1,19 +1,21 @@
-export function mapAuthError(message: string): string {
+import type { Messages } from "@/messages/types";
+
+export function mapAuthError(message: string, t: Messages): string {
   const normalized = message.toLowerCase();
 
   if (
     normalized.includes("rate limit") ||
     normalized.includes("email rate limit")
   ) {
-    return "تم تجاوز حد إرسال البريد. انتظر ساعة ثم حاول مجدداً، أو غيّر كلمة المرور من Supabase Dashboard.";
+    return t.errors.auth.rateLimit;
   }
 
   if (normalized.includes("invalid login credentials")) {
-    return "البريد الإلكتروني أو كلمة المرور غير صحيحة.";
+    return t.errors.auth.invalidCredentials;
   }
 
   if (normalized.includes("user not found")) {
-    return "لا يوجد حساب مرتبط بهذا البريد الإلكتروني.";
+    return t.errors.auth.userNotFound;
   }
 
   return message;

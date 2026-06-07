@@ -6,6 +6,7 @@ import type { SparePart } from "@service-time/types";
 import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { useRequireClientForCart } from "@/lib/use-require-client-for-cart";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 type AddToCartButtonProps = {
@@ -21,6 +22,7 @@ export function AddToCartButton({
   variant = "card",
   onAdded,
 }: AddToCartButtonProps) {
+  const { messages: t } = useLocale();
   const { addItem, isInCart, getQuantity } = useSparePartsCart();
   const { requireClient } = useRequireClientForCart();
   const [loading, setLoading] = useState(false);
@@ -59,16 +61,16 @@ export function AddToCartButton({
       )}
     >
       {outOfStock ? (
-        <>نفذت الكمية</>
+        <>{t.spareParts.outOfStock}</>
       ) : inCart ? (
         <>
           <Check className="size-4" aria-hidden />
-          في السلة ({quantity})
+          {t.spareParts.inCart} ({quantity})
         </>
       ) : (
         <>
           <ShoppingCart className="size-4" aria-hidden />
-          إضافة للسلة
+          {t.spareParts.addToCart}
         </>
       )}
     </button>

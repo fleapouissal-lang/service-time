@@ -6,9 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconSelect } from "@/components/ui/icon-select";
-import { STATUS_LABELS, STATUS_ORDER } from "@/lib/constants";
+import { STATUS_ORDER } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
 import { getRequestById } from "@/lib/dashboard-queries";
+import { getStatusLabels } from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import { buildStatusSubsetOptions } from "@/lib/select-option-builders";
 
 export default async function TechnicianOrderPage({
@@ -16,6 +18,7 @@ export default async function TechnicianOrderPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t } = await getServerI18n();
   const profile = await requireProfile(["technician"]);
   if (!profile) return null;
 
@@ -28,28 +31,29 @@ export default async function TechnicianOrderPage({
 
   const showLocation =
     order.status === "on_the_way" || order.status === "arrived";
-  const statusOptions = buildStatusSubsetOptions([
+  const statusOptions = buildStatusSubsetOptions(t, [
     ...STATUS_ORDER,
     "cancelled",
   ]);
+  const statusLabels = getStatusLabels(t);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <Link href="/technician" className="text-sm text-primary hover:underline">
-        ← العودة
+        ← {t.common.back}
       </Link>
 
       <div>
         <h1 className="text-2xl font-bold">{order.customer_name}</h1>
         <p className="text-muted">{order.location_text}</p>
         <Badge className="mt-2" variant="secondary">
-          {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+          {statusLabels[order.status as keyof typeof statusLabels]}
         </Badge>
       </div>
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="mb-4 font-semibold">تحديث الحالة</h2>
+          <h2 className="mb-4 font-semibold">{t.common.status}</h2>
           <form action={updateTechnicianOrderStatus} className="flex flex-wrap gap-3">
             <input type="hidden" name="id" value={order.id} />
             <div className="min-w-[220px] flex-1">
@@ -60,7 +64,7 @@ export default async function TechnicianOrderPage({
               />
             </div>
             <Button type="submit" className="h-11">
-              حفظ الحالة
+              {t.common.save}
             </Button>
           </form>
         </CardContent>
@@ -69,10 +73,9 @@ export default async function TechnicianOrderPage({
       {showLocation && (
         <Card>
           <CardContent className="p-6">
-            <h2 className="mb-2 font-semibold">مشاركة الموقع</h2>
+            <h2 className="mb-2 font-semibold">{t.dashboard.technician.location}</h2>
             <p className="mb-4 text-xs text-muted">
-              * الموقع تقريبي ويعتمد على اتصال الإنترنت — أبقِ هذه الصفحة
-              مفتوحة أثناء التنقل.
+              {t.tracking.mapDisclaimer}
             </p>
             <LocationTracker active={showLocation} />
           </CardContent>

@@ -4,16 +4,17 @@ import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar"
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  EXECUTION_METHOD_LABELS,
-  SERVICE_TYPE_LABELS,
-  STATUS_LABELS,
-} from "@/lib/constants";
+  getOrderSearchPlaceholder,
+  getStatusFilterOptionsForDashboard,
+} from "@/lib/dashboard-filter-options";
 import { requireProfile } from "@/lib/auth";
 import { getTechnicianRequests } from "@/lib/dashboard-queries";
 import {
-  ORDER_SEARCH_PLACEHOLDER,
-  STATUS_FILTER_OPTIONS,
-} from "@/lib/dashboard-filter-options";
+  getExecutionMethodLabels,
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
 
 type PageProps = {
@@ -23,6 +24,7 @@ type PageProps = {
 export default async function TechnicianLocationPage({
   searchParams,
 }: PageProps) {
+  const { t } = await getServerI18n();
   const profile = await requireProfile(["technician"]);
   if (!profile) return null;
 
@@ -31,17 +33,24 @@ export default async function TechnicianLocationPage({
   const orders = filterServiceRequests(allOrders, params).filter(
     (o) => o.status !== "completed" && o.status !== "cancelled",
   );
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const executionMethodLabels = getExecutionMethodLabels(t);
+  const statusLabels = getStatusLabels(t);
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">موقعي الحالي</h1>
+      <h1 className="text-2xl font-bold">{t.dashboard.technician.locationPage.title}</h1>
 
       <DashboardFilterBar
         pathname="/technician/location"
         values={params}
-        searchPlaceholder={ORDER_SEARCH_PLACEHOLDER}
+        searchPlaceholder={getOrderSearchPlaceholder(t)}
         selects={[
-          { name: "status", label: "الحالة", options: STATUS_FILTER_OPTIONS },
+          {
+            name: "status",
+            label: t.common.status,
+            options: getStatusFilterOptionsForDashboard(t),
+          },
         ]}
         resultCount={orders.length}
         totalCount={allOrders.length}
@@ -50,7 +59,7 @@ export default async function TechnicianLocationPage({
       <Card>
         <CardContent className="p-6">
           <p className="mb-4 text-sm text-muted">
-            شارك موقعك عندما تكون في الطريق إلى العميل.
+            {t.dashboard.technician.locationPage.shareHint}
           </p>
           <LocationTracker active />
         </CardContent>
@@ -58,9 +67,9 @@ export default async function TechnicianLocationPage({
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="mb-4 text-lg font-semibold">طلبات نشطة</h2>
+          <h2 className="mb-4 text-lg font-semibold">{t.dashboard.technician.locationPage.activeOrders}</h2>
           {orders.length === 0 ? (
-            <p className="text-sm text-muted">لا توجد طلبات نشطة حالياً.</p>
+            <p className="text-sm text-muted">{t.dashboard.technician.locationPage.noActiveOrders}</p>
           ) : (
             <div className="space-y-3">
               {orders.map((order) => (
@@ -72,13 +81,13 @@ export default async function TechnicianLocationPage({
                   <div>
                     <p className="font-semibold">{order.customer_name}</p>
                     <p className="text-sm text-muted">
-                      {SERVICE_TYPE_LABELS[order.service_type]} ·{" "}
-                      {EXECUTION_METHOD_LABELS[order.execution_method]}
+                      {serviceTypeLabels[order.service_type]} ·{" "}
+                      {executionMethodLabels[order.execution_method]}
                     </p>
-                    <p className="mt-1 text-sm">{order.location_text ?? "—"}</p>
+                    <p className="mt-1 text-sm">{order.location_text ?? t.common.dash}</p>
                   </div>
                   <Badge variant="secondary">
-                    {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+                    {statusLabels[order.status as keyof typeof statusLabels]}
                   </Badge>
                 </Link>
               ))}

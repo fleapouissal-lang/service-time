@@ -1,8 +1,13 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { NAV_LINKS } from "@/lib/constants";
+import { useLocale } from "@/lib/i18n/locale-context";
+import { getNavLinks } from "@/lib/i18n/nav";
 
 export function SiteFooter() {
+  const { messages } = useLocale();
+  const navLinks = getNavLinks(messages);
   const phone = "+966500000001";
   const email = "info@servicetime.sa";
 
@@ -13,7 +18,7 @@ export function SiteFooter() {
           <Link href="/" className="inline-block">
             <Image
               src="/logos/banner.png"
-              alt="Service Time — سيرفيس تايم"
+              alt="Service Time"
               width={280}
               height={72}
               className="h-14 w-auto max-w-full object-contain brightness-[1.12] contrast-[1.05]"
@@ -21,15 +26,16 @@ export function SiteFooter() {
             />
           </Link>
           <p className="mt-4 text-sm leading-7 text-white/85">
-            منصة سعودية لصيانة السيارات وطلب قطع الغيار في الرياض — ورشة
-            ثابتة أو فني متنقل مع تتبع مباشر.
+            {messages.footer.tagline}
           </p>
         </div>
 
         <div>
-          <p className="font-semibold text-[#94D4B9]">روابط سريعة</p>
+          <p className="font-semibold text-[#94D4B9]">
+            {messages.footer.quickLinks}
+          </p>
           <ul className="mt-3 space-y-2 text-sm">
-            {NAV_LINKS.map((link) => (
+            {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
                   href={link.href}
@@ -43,24 +49,29 @@ export function SiteFooter() {
         </div>
 
         <div>
-          <p className="font-semibold text-[#94D4B9]">تواصل</p>
+          <p className="font-semibold text-[#94D4B9]">
+            {messages.footer.contact}
+          </p>
           <ul className="mt-3 space-y-2 text-sm text-white">
             <li
               dir="ltr"
-              className="text-right font-normal transition-all duration-200 hover:font-bold"
+              className="text-end font-normal transition-all duration-200 hover:font-bold"
             >
               {phone}
             </li>
-            <li className="font-normal transition-all duration-200 hover:font-bold">
+            <li
+              dir="ltr"
+              className="font-normal transition-all duration-200 hover:font-bold"
+            >
               {email}
             </li>
-            <li className="text-white/85">الرياض، المملكة العربية السعودية</li>
+            <li className="text-white/85">{messages.footer.location}</li>
           </ul>
         </div>
       </div>
 
       <div className="relative border-t border-[#94D4B9]/10 py-4 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} Service Time. جميع الحقوق محفوظة.
+        © {new Date().getFullYear()} Service Time. {messages.footer.rights}
       </div>
     </footer>
   );

@@ -1,49 +1,50 @@
+import type { Messages } from "@/messages/types";
 import {
-  EXECUTION_METHOD_LABELS,
-  SERVICE_TYPE_LABELS,
-  STATUS_LABELS,
-} from "@/lib/constants";
+  getActiveFilterOptions,
+  getExecutionMethodFilterOptions,
+  getPeriodFilterOptions,
+  getPriorityFilterOptions,
+  getRoleFilterOptions,
+  getServiceTypeFilterOptions,
+  getStatusFilterOptions,
+} from "@/lib/i18n/labels";
 
-export const STATUS_FILTER_OPTIONS = Object.entries(STATUS_LABELS).map(
-  ([value, label]) => ({ value, label }),
-);
+export function getStatusFilterOptionsForDashboard(t: Messages) {
+  return getStatusFilterOptions(t);
+}
 
-export const PRIORITY_FILTER_OPTIONS = [
-  { value: "low", label: "منخفض" },
-  { value: "normal", label: "عادي" },
-  { value: "high", label: "عالي" },
-];
+export function getPriorityFilterOptionsForDashboard(t: Messages) {
+  return getPriorityFilterOptions(t);
+}
 
-export const SERVICE_TYPE_FILTER_OPTIONS = Object.entries(
-  SERVICE_TYPE_LABELS,
-).map(([value, label]) => ({ value, label }));
+export function getServiceTypeFilterOptionsForDashboard(t: Messages) {
+  return getServiceTypeFilterOptions(t);
+}
 
-export const EXECUTION_METHOD_FILTER_OPTIONS = Object.entries(
-  EXECUTION_METHOD_LABELS,
-).map(([value, label]) => ({ value, label }));
+export function getExecutionMethodFilterOptionsForDashboard(t: Messages) {
+  return getExecutionMethodFilterOptions(t);
+}
 
-export const PERIOD_FILTER_OPTIONS = [
-  { value: "today", label: "اليوم" },
-  { value: "month", label: "هذا الشهر" },
-  { value: "year", label: "هذه السنة" },
-  { value: "7d", label: "آخر 7 أيام" },
-  { value: "30d", label: "آخر 30 يوم" },
-  { value: "90d", label: "آخر 90 يوم" },
-];
+export function getPeriodFilterOptionsForDashboard(t: Messages) {
+  return getPeriodFilterOptions(t);
+}
 
-export const ACTIVE_FILTER_OPTIONS = [
-  { value: "active", label: "نشط" },
-  { value: "inactive", label: "غير نشط" },
-];
+export function getActiveFilterOptionsForDashboard(t: Messages) {
+  return getActiveFilterOptions(t);
+}
 
-export const ROLE_FILTER_OPTIONS = [
-  { value: "client", label: "عميل" },
-  { value: "technician", label: "فني" },
-  { value: "admin", label: "مدير" },
-];
+export function getRoleFilterOptionsForDashboard(t: Messages) {
+  return getRoleFilterOptions(t);
+}
 
-export const ORDER_SEARCH_PLACEHOLDER =
-  "اسم العميل، الهاتف، السيارة، الموقع، رمز التتبع...";
+export function getOrderSearchPlaceholder(t: Messages) {
+  return t.dashboard.filters.orderSearch;
+}
 
-export const CLIENT_ORDER_SEARCH_PLACEHOLDER =
-  "نوع السيارة، الموقع، رمز التتبع...";
+export function getClientOrderSearchPlaceholder(t: Messages) {
+  return t.dashboard.filters.clientOrderSearch;
+}
+
+export function getUserSearchPlaceholderForDashboard(t: Messages) {
+  return t.dashboard.filters.userSearch;
+}

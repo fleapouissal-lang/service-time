@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react";
 import Link from "next/link";
 import { useOptionalSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { useIsClientForCart } from "@/lib/use-is-client-for-cart";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 export function HeaderCartButton({
@@ -11,6 +12,7 @@ export function HeaderCartButton({
 }: {
   isTransparent: boolean;
 }) {
+  const { messages: t } = useLocale();
   const cart = useOptionalSparePartsCart();
   const { isClient, checked } = useIsClientForCart();
 
@@ -27,8 +29,8 @@ export function HeaderCartButton({
           ? "text-white hover:bg-white/10"
           : "text-[#94D4B9] hover:bg-[#94D4B9]/10",
       )}
-      aria-label={`السلة (${cart.totalCount})`}
-      title="سلة قطع الغيار"
+      aria-label={`${t.spareParts.cart} (${cart.totalCount})`}
+      title={t.spareParts.headerCart}
     >
       <ShoppingCart className="size-5" aria-hidden />
       <span className="absolute -top-1 -start-1 inline-flex min-w-5 items-center justify-center rounded-full bg-[#94D4B9] px-1.5 py-0.5 text-[10px] font-bold text-[#050B10]">

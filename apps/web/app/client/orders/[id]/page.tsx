@@ -3,10 +3,14 @@ import { notFound } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
-  EXECUTION_METHOD_LABELS,
-  SERVICE_TYPE_LABELS,
-  STATUS_LABELS,
-} from "@/lib/constants";
+  getIntlLocale,
+} from "@/lib/i18n/config";
+import {
+  getExecutionMethodLabels,
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
+import { getServerI18n } from "@/lib/i18n/server";
 import {
   getRequestById,
   getRequestStatusHistory,
@@ -17,12 +21,17 @@ export default async function ClientOrderDetailPage({
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const { t, locale } = await getServerI18n();
   const { id } = await params;
   const order = await getRequestById(id);
 
   if (!order) notFound();
 
   const history = await getRequestStatusHistory(id);
+  const statusLabels = getStatusLabels(t);
+  const serviceTypeLabels = getServiceTypeLabels(t);
+  const executionMethodLabels = getExecutionMethodLabels(t);
+  const intlLocale = getIntlLocale(locale);
 
   return (
     <div className="space-y-6">
@@ -31,48 +40,48 @@ export default async function ClientOrderDetailPage({
           href="/client/orders"
           className="text-sm text-primary hover:underline"
         >
-          ← العودة للطلبات
+          ← {t.dashboard.client.orders}
         </Link>
-        <h1 className="mt-3 text-2xl font-bold">تفاصيل الطلب</h1>
+        <h1 className="mt-3 text-2xl font-bold">{t.common.details}</h1>
       </div>
 
       <Card>
         <CardContent className="space-y-4 p-6">
           <div className="flex flex-wrap items-center gap-3">
             <Badge variant="secondary">
-              {STATUS_LABELS[order.status as keyof typeof STATUS_LABELS]}
+              {statusLabels[order.status as keyof typeof statusLabels]}
             </Badge>
             <span className="text-sm text-muted">
-              {new Date(order.created_at).toLocaleString("ar-SA")}
+              {new Date(order.created_at).toLocaleString(intlLocale)}
             </span>
           </div>
 
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
-              <p className="text-sm text-muted">نوع الخدمة</p>
+              <p className="text-sm text-muted">{t.request.form.serviceType}</p>
               <p className="font-medium">
-                {SERVICE_TYPE_LABELS[order.service_type]}
+                {serviceTypeLabels[order.service_type]}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted">طريقة التنفيذ</p>
+              <p className="text-sm text-muted">{t.request.form.executionMethod}</p>
               <p className="font-medium">
-                {EXECUTION_METHOD_LABELS[order.execution_method]}
+                {executionMethodLabels[order.execution_method]}
               </p>
             </div>
             <div>
-              <p className="text-sm text-muted">الموقع</p>
-              <p className="font-medium">{order.location_text ?? "—"}</p>
+              <p className="text-sm text-muted">{t.request.form.location}</p>
+              <p className="font-medium">{order.location_text ?? t.common.dash}</p>
             </div>
             <div>
-              <p className="text-sm text-muted">نوع السيارة</p>
-              <p className="font-medium">{order.car_type ?? "—"}</p>
+              <p className="text-sm text-muted">{t.request.form.car}</p>
+              <p className="font-medium">{order.car_type ?? t.common.dash}</p>
             </div>
           </div>
 
           {order.description ? (
             <div>
-              <p className="text-sm text-muted">الوصف</p>
+              <p className="text-sm text-muted">{t.common.description}</p>
               <p className="mt-1 whitespace-pre-wrap">{order.description}</p>
             </div>
           ) : null}
@@ -81,16 +90,16 @@ export default async function ClientOrderDetailPage({
             href={`/client/track/${order.tracking_token}`}
             className="inline-flex h-10 items-center justify-center rounded-xl bg-primary px-4 text-sm font-semibold text-primary-foreground hover:opacity-90"
           >
-            تتبع الطلب مباشرة
+            {t.dashboard.client.track}
           </Link>
         </CardContent>
       </Card>
 
       <Card>
         <CardContent className="p-6">
-          <h2 className="mb-4 text-lg font-semibold">سجل الحالة</h2>
+          <h2 className="mb-4 text-lg font-semibold">{t.common.status}</h2>
           {history.length === 0 ? (
-            <p className="text-sm text-muted">لا يوجد سجل بعد.</p>
+            <p className="text-sm text-muted">{t.common.noData}</p>
           ) : (
             <ol className="space-y-3">
               {history.map((entry) => (
@@ -100,13 +109,13 @@ export default async function ClientOrderDetailPage({
                 >
                   <span className="font-medium">
                     {
-                      STATUS_LABELS[
-                        entry.status as keyof typeof STATUS_LABELS
+                      statusLabels[
+                        entry.status as keyof typeof statusLabels
                       ]
                     }
                   </span>
                   <span className="text-muted">
-                    {new Date(entry.created_at).toLocaleString("ar-SA")}
+                    {new Date(entry.created_at).toLocaleString(intlLocale)}
                   </span>
                 </li>
               ))}

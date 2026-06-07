@@ -1,5 +1,12 @@
 import type { ServiceRequest, ServiceType } from "@service-time/types";
-import { SERVICE_TYPE_LABELS, STATUS_LABELS } from "@/lib/constants";
+import type { Messages } from "@/messages/types";
+import type { Locale } from "@/lib/i18n/config";
+import { getIntlLocale } from "@/lib/i18n/config";
+import {
+  getPriorityLabels,
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
 
 export type ChartDatum = {
   key: string;
@@ -50,9 +57,12 @@ export function countByStatus(requests: ServiceRequest[]): Record<string, number
   return byStatus;
 }
 
-export function buildStatusChartData(requests: ServiceRequest[]): ChartDatum[] {
+export function buildStatusChartData(
+  t: Messages,
+  requests: ServiceRequest[],
+): ChartDatum[] {
   const byStatus = countByStatus(requests);
-  return Object.entries(STATUS_LABELS)
+  return Object.entries(getStatusLabels(t))
     .map(([key, name]) => ({
       key,
       name,
@@ -62,13 +72,14 @@ export function buildStatusChartData(requests: ServiceRequest[]): ChartDatum[] {
 }
 
 export function buildServiceTypeChartData(
+  t: Messages,
   requests: ServiceRequest[],
 ): ChartDatum[] {
   const counts: Partial<Record<ServiceType, number>> = {};
   for (const r of requests) {
     counts[r.service_type] = (counts[r.service_type] ?? 0) + 1;
   }
-  return Object.entries(SERVICE_TYPE_LABELS)
+  return Object.entries(getServiceTypeLabels(t))
     .map(([key, name]) => ({
       key,
       name,
@@ -77,8 +88,11 @@ export function buildServiceTypeChartData(
     .filter((d) => d.value > 0);
 }
 
-export function buildPriorityChartData(requests: ServiceRequest[]): ChartDatum[] {
-  const labels = { low: "منخفضة", normal: "عادية", high: "عالية" } as const;
+export function buildPriorityChartData(
+  t: Messages,
+  requests: ServiceRequest[],
+): ChartDatum[] {
+  const labels = t.labels.priorityChart;
   const counts = { low: 0, normal: 0, high: 0 };
   for (const r of requests) {
     counts[r.priority] += 1;
@@ -92,8 +106,10 @@ export function buildPriorityChartData(requests: ServiceRequest[]): ChartDatum[]
 
 export function buildWeeklyTrend(
   requests: ServiceRequest[],
+  locale: Locale,
   days = 7,
 ): TrendDatum[] {
+  const intlLocale = getIntlLocale(locale);
   const result: TrendDatum[] = [];
   const today = startOfDay(new Date());
 
@@ -109,7 +125,7 @@ export function buildWeeklyTrend(
     }).length;
 
     result.push({
-      date: day.toLocaleDateString("ar-SA", {
+      date: day.toLocaleDateString(intlLocale, {
         weekday: "short",
         day: "numeric",
         month: "short",

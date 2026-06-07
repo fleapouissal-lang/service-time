@@ -3,8 +3,10 @@
 import { useState, useTransition } from "react";
 import { startPaymobCheckoutAction } from "@/app/spare-parts/actions";
 import { Button } from "@/components/ui/button";
+import { useLocale } from "@/lib/i18n/locale-context";
 
 export function PaymobCheckoutButton({ orderId }: { orderId: string }) {
+  const { messages: t } = useLocale();
   const [pending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
@@ -30,7 +32,7 @@ export function PaymobCheckoutButton({ orderId }: { orderId: string }) {
           });
         }}
       >
-        {pending ? "جاري التحويل..." : "الدفع الآن — Accept"}
+        {pending ? t.spareParts.payRedirecting : t.spareParts.payNow}
       </Button>
     </div>
   );

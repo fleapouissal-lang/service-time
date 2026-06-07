@@ -8,6 +8,7 @@ import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-con
 import { useIsClientForCart } from "@/lib/use-is-client-for-cart";
 import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 type SparePartsPageClientProps = {
@@ -17,6 +18,7 @@ type SparePartsPageClientProps = {
 };
 
 function SparePartsCartFab() {
+  const { messages: t } = useLocale();
   const { totalCount, isReady } = useSparePartsCart();
   const { isClient, checked } = useIsClientForCart();
   const [open, setOpen] = useState(false);
@@ -34,10 +36,10 @@ function SparePartsCartFab() {
           "fixed bottom-6 z-40 inline-flex items-center gap-2 rounded-[20px] px-5 py-3 text-sm font-semibold shadow-[0_12px_40px_rgba(148,212,185,0.35)] transition-transform hover:scale-[1.02]",
           "start-6 bg-[#94D4B9] text-[#050B10]",
         )}
-        aria-label="فتح سلة القطع"
+        aria-label={t.spareParts.openCart}
       >
         <ShoppingCart className="size-5" aria-hidden />
-        السلة
+        {t.spareParts.cart}
         <span className="inline-flex min-w-6 items-center justify-center rounded-full bg-[#050B10] px-2 py-0.5 text-xs font-bold text-[#94D4B9]">
           {totalCount}
         </span>
@@ -53,6 +55,7 @@ export function SparePartsPageClient({
   currentPage,
   totalPages,
 }: SparePartsPageClientProps) {
+  const { messages: t } = useLocale();
   return (
     <>
       {parts.length > 0 ? (
@@ -64,7 +67,7 @@ export function SparePartsPageClient({
           />
         </>
       ) : (
-        <p className="text-center text-muted">لا توجد قطع متاحة حالياً.</p>
+        <p className="text-center text-muted">{t.common.noData}</p>
       )}
 
       <SparePartsCartFab />

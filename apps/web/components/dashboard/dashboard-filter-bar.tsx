@@ -8,7 +8,8 @@ import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { hasActiveListFilters, type ListFilterParams } from "@/lib/list-filters";
-import { buildFilterSelectOptions } from "@/lib/select-option-builders";
+import { buildFilterSelectOptions } from "@/lib/i18n/labels";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 export type DashboardFilterSelect = {
@@ -36,7 +37,7 @@ export function DashboardFilterBar({
   pathname,
   values,
   selects = [],
-  searchPlaceholder = "بحث...",
+  searchPlaceholder,
   showSearch = true,
   resultCount,
   totalCount,
@@ -44,7 +45,9 @@ export function DashboardFilterBar({
   preserveParams,
   hiddenFields = [],
 }: DashboardFilterBarProps) {
+  const { messages: t } = useLocale();
   const active = hasActiveListFilters(values);
+  const resolvedPlaceholder = searchPlaceholder ?? t.common.search;
 
   return (
     <Card className={cn(className)}>
@@ -57,7 +60,7 @@ export function DashboardFilterBar({
           {showSearch ? (
             <div className="min-w-[220px] flex-1">
               <Label htmlFor="dashboard-filter-q" className="text-xs text-muted">
-                بحث
+                {t.common.search}
               </Label>
               <div className="relative mt-1">
                 <Search
@@ -68,7 +71,7 @@ export function DashboardFilterBar({
                   id="dashboard-filter-q"
                   name="q"
                   defaultValue={values.q ?? ""}
-                  placeholder={searchPlaceholder}
+                  placeholder={resolvedPlaceholder}
                   className="ps-9"
                 />
               </div>
@@ -93,14 +96,10 @@ export function DashboardFilterBar({
                 <IconSelect
                   id={`dashboard-filter-${field.name}`}
                   name={field.name}
-                  options={buildFilterSelectOptions(
-                    field.name,
-                    field.options,
-                    {
-                      allLabel: field.allLabel,
-                      hideAllOption: field.hideAllOption,
-                    },
-                  )}
+                  options={buildFilterSelectOptions(t, field.name, field.options, {
+                    allLabel: field.allLabel,
+                    hideAllOption: field.hideAllOption,
+                  })}
                   defaultValue={
                     (values[field.name as keyof ListFilterParams] as string) ??
                     (field.hideAllOption
@@ -113,7 +112,7 @@ export function DashboardFilterBar({
           ))}
 
           <Button type="submit" className="h-11">
-            تصفية
+            {t.common.filter}
           </Button>
 
           {active ? (
@@ -122,7 +121,7 @@ export function DashboardFilterBar({
               className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-border px-4 text-sm font-medium text-muted transition-colors hover:bg-primary/5 hover:text-foreground"
             >
               <X className="size-4" aria-hidden />
-              مسح
+              {t.common.clear}
             </Link>
           ) : null}
         </form>
@@ -130,8 +129,10 @@ export function DashboardFilterBar({
         {resultCount !== undefined && totalCount !== undefined ? (
           <p className="mt-3 text-xs text-muted">
             {active
-              ? `عرض ${resultCount} من ${totalCount} نتيجة`
-              : `${totalCount} عنصر`}
+              ? t.common.resultCount
+                  .replace("{count}", String(resultCount))
+                  .replace("{total}", String(totalCount))
+              : t.common.itemCount.replace("{count}", String(totalCount))}
           </p>
         ) : null}
       </CardContent>

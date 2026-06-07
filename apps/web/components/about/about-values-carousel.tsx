@@ -12,52 +12,26 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AboutSectionHeader } from "@/components/about/about-section-header";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
-const VALUES: {
-  title: string;
-  text: string;
-  icon: LucideIcon;
-}[] = [
-  {
-    title: "الجودة",
-    icon: Award,
-    text: "نلتزم بأعلى معايير الصيانة عبر فنيين معتمدين وقطع غيار أصلية وموثوقة لضمان أفضل نتيجة لسيارتك في كل زيارة.",
-  },
-  {
-    title: "السرعة",
-    icon: Zap,
-    text: "استجابة فورية لطلبات الطوارئ على الطريق مع مواعيد مرنة للصيانة الدورية حتى تبقى سيارتك جاهزة دون أي تأخير.",
-  },
-  {
-    title: "الشفافية",
-    icon: Eye,
-    text: "تتبع مباشر لحالة طلبك في كل مرحلة مع تواصل واضح وصريح حول السعر والوقت المتوقع من أول رسالة حتى الإنجاز.",
-  },
-  {
-    title: "الثقة",
-    icon: ShieldCheck,
-    text: "ورش معتمدة وفنيون ذوو خبرة طويلة يقدّمون خدمة آمنة وموثوقة لسيارتك مع ضمان رضاك الكامل عن كل عمل.",
-  },
-  {
-    title: "الراحة",
-    icon: Smartphone,
-    text: "اطلب الخدمة بسهولة من هاتفك وتابع كل خطوة عن بُعد دون الحاجة للانتظار أو زيارة الورشة في كل مرة.",
-  },
-];
+const VALUE_ICONS: LucideIcon[] = [Award, Zap, Eye, ShieldCheck, Smartphone];
 
 const AUTO_INTERVAL_MS = 4500;
 const VISIBLE_MD = 3;
 const VISIBLE_SM = 1;
 
 export function AboutValuesCarousel() {
+  const { messages: t } = useLocale();
+  const values = t.about.values;
+  const items = values.items;
   const trackRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [step, setStep] = useState(0);
   const [visibleCount, setVisibleCount] = useState(VISIBLE_MD);
   const [paused, setPaused] = useState(false);
 
-  const maxIndex = Math.max(0, VALUES.length - visibleCount);
+  const maxIndex = Math.max(0, items.length - visibleCount);
 
   const clampIndex = useCallback(
     (index: number) => {
@@ -133,9 +107,9 @@ export function AboutValuesCarousel() {
   return (
     <section className="space-y-8">
       <AboutSectionHeader
-        eyebrow="قيمنا"
-        title="ما يميزنا"
-        description="خمسة مبادئ توجّه كل تفاعل بين فريقنا وبين عملائنا."
+        eyebrow={values.eyebrow}
+        title={values.title}
+        description={values.description}
       />
 
       <div
@@ -157,7 +131,7 @@ export function AboutValuesCarousel() {
             "inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10",
             maxIndex === 0 && "pointer-events-none opacity-40",
           )}
-          aria-label="القيم السابقة"
+          aria-label={values.prevAria}
         >
           <ChevronRight className="size-5" aria-hidden />
         </button>
@@ -170,8 +144,8 @@ export function AboutValuesCarousel() {
               transform: step ? `translate3d(${activeIndex * step}px, 0, 0)` : undefined,
             }}
           >
-            {VALUES.map((item) => {
-              const Icon = item.icon;
+            {items.map((item, index) => {
+              const Icon = VALUE_ICONS[index] ?? Award;
 
               return (
                 <div
@@ -202,7 +176,7 @@ export function AboutValuesCarousel() {
             "inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10",
             maxIndex === 0 && "pointer-events-none opacity-40",
           )}
-          aria-label="القيم التالية"
+          aria-label={values.nextAria}
         >
           <ChevronLeft className="size-5" aria-hidden />
         </button>
@@ -211,7 +185,7 @@ export function AboutValuesCarousel() {
       <div
         className="flex items-center justify-center gap-2"
         role="tablist"
-        aria-label="مؤشرات القيم"
+        aria-label={values.indicatorsAria}
       >
         {Array.from({ length: maxIndex + 1 }, (_, index) => (
           <button
@@ -219,7 +193,7 @@ export function AboutValuesCarousel() {
             type="button"
             role="tab"
             aria-selected={index === activeIndex}
-            aria-label={`الشريحة ${index + 1}`}
+            aria-label={values.slideAria.replace("{n}", String(index + 1))}
             onClick={() => goTo(index)}
             className={cn(
               "h-2 rounded-full transition-all duration-300",

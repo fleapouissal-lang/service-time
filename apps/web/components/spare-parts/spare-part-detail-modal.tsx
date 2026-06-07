@@ -7,6 +7,7 @@ import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,7 @@ export function SparePartDetailModal({
   part,
   onClose,
 }: SparePartDetailModalProps) {
+  const { messages: t } = useLocale();
   useEffect(() => {
     if (!part) return;
 
@@ -49,7 +51,7 @@ export function SparePartDetailModal({
       <button
         type="button"
         className="absolute inset-0 bg-black/75 backdrop-blur-sm"
-        aria-label="إغلاق"
+        aria-label={t.spareParts.detailClose}
         onClick={onClose}
       />
 
@@ -58,7 +60,7 @@ export function SparePartDetailModal({
           type="button"
           onClick={onClose}
           className="absolute top-4 left-4 z-10 flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/25 bg-[#050B10]/90 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
-          aria-label="إغلاق"
+          aria-label={t.spareParts.detailClose}
         >
           <X className="size-4" aria-hidden />
         </button>
@@ -116,7 +118,7 @@ export function SparePartDetailModal({
 
           {part.description_ar ? (
             <div>
-              <p className="text-sm font-semibold text-[#94D4B9]">الوصف</p>
+              <p className="text-sm font-semibold text-[#94D4B9]">{t.common.description}</p>
               <p className="mt-2 text-sm leading-7 text-muted">
                 {part.description_ar}
               </p>
@@ -125,7 +127,7 @@ export function SparePartDetailModal({
 
           {part.details ? (
             <div>
-              <p className="text-sm font-semibold text-[#94D4B9]">التفاصيل</p>
+              <p className="text-sm font-semibold text-[#94D4B9]">{t.common.details}</p>
               <p className="mt-2 rounded-[14px] bg-[#050B10] px-4 py-3 text-sm leading-7 text-muted">
                 {part.details}
               </p>

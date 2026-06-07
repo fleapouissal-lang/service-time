@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -6,6 +8,7 @@ import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import type { SparePart } from "@service-time/types";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 type HomeSparePartsSectionProps = {
@@ -13,18 +16,22 @@ type HomeSparePartsSectionProps = {
 };
 
 export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
+  const { messages } = useLocale();
+
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] py-16">
       <div className="mb-10 flex items-end justify-between gap-4">
         <div>
-          <p className="text-sm font-semibold text-[#94D4B9]">قطع الغيار</p>
-          <h2 className="mt-2 text-3xl font-bold">أحدث المنتجات</h2>
+          <p className="text-sm font-semibold text-[#94D4B9]">
+            {messages.home.sparePartsEyebrow}
+          </p>
+          <h2 className="mt-2 text-3xl font-bold">{messages.home.latestParts}</h2>
         </div>
         <Link
           href="/spare-parts"
           className="hidden items-center gap-1 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold sm:flex"
         >
-          عرض الكل
+          {messages.common.viewAll}
           <ArrowLeft className="size-4" />
         </Link>
       </div>
@@ -101,11 +108,11 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
                     href="/spare-parts"
                     className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
                   >
-                    عرض في المتجر
+                    {messages.home.viewInStore}
                   </Link>
                 ) : (
                   <span className="mt-4 inline-flex h-11 w-full cursor-not-allowed items-center justify-center rounded-[20px] border border-red-500/30 bg-red-500/10 text-sm font-semibold text-red-400">
-                    غير متوفر
+                    {messages.home.unavailable}
                   </span>
                 )}
               </CardContent>
@@ -114,7 +121,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
           })
         ) : (
           <p className="col-span-full text-muted">
-            لا توجد قطع غيار بعد — قم بتشغيل seed_spare_parts.sql
+            {messages.home.noParts}
           </p>
         )}
       </div>
@@ -124,7 +131,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
           href="/spare-parts"
           className="inline-flex h-11 items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9]/30 px-6 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold"
         >
-          عرض الكل
+          {messages.common.viewAll}
           <ArrowLeft className="size-4" />
         </Link>
       </div>

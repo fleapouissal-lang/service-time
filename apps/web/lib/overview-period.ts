@@ -1,16 +1,9 @@
 import type { ServiceRequest } from "@service-time/types";
 import type { TrendDatum } from "@/lib/dashboard-analytics";
+import type { Locale } from "@/lib/i18n/config";
+import { getIntlLocale } from "@/lib/i18n/config";
 
 export type OverviewPeriod = "today" | "month" | "year";
-
-export const OVERVIEW_PERIOD_OPTIONS: {
-  value: OverviewPeriod;
-  label: string;
-}[] = [
-  { value: "today", label: "اليوم" },
-  { value: "month", label: "هذا الشهر" },
-  { value: "year", label: "هذه السنة" },
-];
 
 function startOfDay(date: Date) {
   const d = new Date(date);
@@ -23,23 +16,6 @@ export function normalizeOverviewPeriod(period?: string): OverviewPeriod {
     return period;
   }
   return "month";
-}
-
-export function getOverviewPeriodLabel(period: OverviewPeriod): string {
-  return (
-    OVERVIEW_PERIOD_OPTIONS.find((o) => o.value === period)?.label ?? "هذا الشهر"
-  );
-}
-
-export function getOverviewTrendTitle(period: OverviewPeriod): string {
-  switch (period) {
-    case "today":
-      return "الطلبات — اليوم (حسب الساعة)";
-    case "month":
-      return "الطلبات — هذا الشهر (يومياً)";
-    case "year":
-      return "الطلبات — هذه السنة (شهرياً)";
-  }
 }
 
 export function isInOverviewPeriod(
@@ -73,7 +49,9 @@ export function filterByOverviewPeriod(
 export function buildOverviewTrend(
   requests: ServiceRequest[],
   period: OverviewPeriod,
+  locale: Locale,
 ): TrendDatum[] {
+  const intlLocale = getIntlLocale(locale);
   const now = new Date();
 
   if (period === "today") {
@@ -111,7 +89,7 @@ export function buildOverviewTrend(
       }).length;
 
       result.push({
-        date: start.toLocaleDateString("ar-SA", {
+        date: start.toLocaleDateString(intlLocale, {
           day: "numeric",
           month: "short",
         }),
@@ -132,7 +110,7 @@ export function buildOverviewTrend(
     }).length;
 
     return {
-      date: start.toLocaleDateString("ar-SA", { month: "short" }),
+      date: start.toLocaleDateString(intlLocale, { month: "short" }),
       count,
     };
   });

@@ -6,14 +6,17 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
+import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth-errors";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import type { ProfileRole } from "@service-time/types";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 
 export function LoginForm() {
+  const { messages: t } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
@@ -40,7 +43,7 @@ export function LoginForm() {
     });
 
     if (authError || !data.user) {
-      setError(mapAuthError(authError?.message ?? "فشل تسجيل الدخول"));
+      setError(mapAuthError(authError?.message ?? t.errors.auth.loginFailed, t));
       setLoading(false);
       return;
     }
@@ -52,7 +55,7 @@ export function LoginForm() {
       .maybeSingle();
 
     if (!profile?.is_active) {
-      setError("الحساب غير مفعّل. تواصل مع المسؤول.");
+      setError(t.errors.auth.accountInactive);
       await supabase.auth.signOut();
       setLoading(false);
       return;
@@ -77,7 +80,7 @@ export function LoginForm() {
         <Link href="/" className="absolute right-8 top-8 z-20">
           <Image
             src="/logos/banner.png"
-            alt="Service Time — سيرفيس تايم"
+            alt={t.common.brandNameAr}
             width={280}
             height={72}
             className="h-14 w-auto max-w-[240px] object-contain brightness-[1.12] contrast-[1.05] xl:h-16"
@@ -87,19 +90,21 @@ export function LoginForm() {
         </Link>
 
         <div className="relative z-10 flex flex-1 flex-col justify-center px-12 text-start xl:px-16">
-          <p className="text-sm font-semibold text-[#94D4B9]">لوحة التحكم</p>
+          <p className="text-sm font-semibold text-[#94D4B9]">{t.login.panel.eyebrow}</p>
           <h1 className="mt-3 max-w-lg font-poppins text-4xl font-bold leading-tight text-white xl:text-[2.75rem]">
-            أدِر خدماتك{" "}
-            <span className="text-[#94D4B9]">بكفاءة وشفافية</span>
+            {t.login.panel.title}{" "}
+            <span className="text-[#94D4B9]">{t.login.panel.titleHighlight}</span>
           </h1>
           <p className="mt-5 max-w-md text-base leading-8 text-white/85">
-            تابع الطلبات، حدّث حالات الخدمة، وتواصل مع العملاء — كل ذلك من
-            منصة Service Time الموحّدة للمسؤولين والفنيين.
+            {t.login.panel.description}
           </p>
         </div>
       </div>
 
       <div className="relative flex items-center justify-center bg-[#060709] px-6 py-12 sm:px-10 lg:px-12">
+        <div className="absolute end-6 top-6 z-20 sm:end-10 sm:top-8">
+          <LanguageSwitcher className="text-[#94D4B9] hover:bg-[#94D4B9]/10" />
+        </div>
         <div
           className="pointer-events-none absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#94D4B9]/10 to-transparent opacity-60"
           aria-hidden
@@ -109,7 +114,7 @@ export function LoginForm() {
           <Link href="/" className="mb-8 inline-flex lg:hidden">
             <Image
               src="/logos/logo-ar.png"
-              alt="Service Time — سيرفيس تايم"
+              alt={t.common.brandNameAr}
               width={180}
               height={64}
               className="h-12 w-auto object-contain brightness-[1.15]"
@@ -141,16 +146,16 @@ export function LoginForm() {
                     Service Time
                   </p>
                   <h2 className="mt-2 font-poppins text-2xl font-bold text-white sm:text-3xl">
-                    أهلاً بعودتك
+                    {t.login.form.title}
                   </h2>
                   <p className="mt-2 text-sm leading-7 text-white/70">
-                    سجّل دخولك للوصول إلى لوحتك (عميل، فني أو مدير).
+                    {t.login.form.description}
                   </p>
                 </div>
 
                 {registered ? (
                   <div className="mb-5 rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-3 text-sm text-[#94D4B9]">
-                    تم تفعيل حسابك. سجّل الدخول للوصول إلى لوحة العميل.
+                    {t.login.form.activatedBanner}
                   </div>
                 ) : null}
 
@@ -172,7 +177,7 @@ export function LoginForm() {
                 >
                   <div>
                     <Label htmlFor="email" className="text-white">
-                      البريد الإلكتروني
+                      {t.login.form.email}
                     </Label>
                     <Input
                       id="email"
@@ -188,7 +193,7 @@ export function LoginForm() {
 
                   <div>
                     <Label htmlFor="password" className="text-white">
-                      كلمة المرور
+                      {t.login.form.password}
                     </Label>
                     <div className="relative mt-2">
                       <Input
@@ -207,8 +212,8 @@ export function LoginForm() {
                         className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 transition-colors hover:text-[#050B10]"
                         aria-label={
                           showPassword
-                            ? "إخفاء كلمة المرور"
-                            : "إظهار كلمة المرور"
+                            ? t.login.form.hidePassword
+                            : t.login.form.showPassword
                         }
                       >
                         {showPassword ? (
@@ -228,7 +233,7 @@ export function LoginForm() {
                         }}
                         className="text-sm font-medium text-[#94D4B9] transition-opacity hover:opacity-80"
                       >
-                        نسيت كلمة المرور؟
+                        {t.login.form.forgotPassword}
                       </button>
                     </div>
                   </div>
@@ -238,7 +243,7 @@ export function LoginForm() {
                     disabled={loading}
                     className="mt-3 inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                   >
-                    {loading ? "جاري الدخول..." : "تسجيل الدخول"}
+                    {loading ? t.common.signingIn : t.login.form.submit}
                     <ArrowLeft className="size-4" aria-hidden />
                   </button>
                 </form>
@@ -258,10 +263,10 @@ export function LoginForm() {
                 unoptimized
               />
               <p>
-                © {new Date().getFullYear()} Service Time · جميع الحقوق محفوظة
+                © {new Date().getFullYear()} Service Time · {t.login.footer.copyright}
               </p>
             </div>
-            <p>الرياض، المملكة العربية السعودية</p>
+            <p>{t.footer.location}</p>
           </div>
         </div>
       </div>
