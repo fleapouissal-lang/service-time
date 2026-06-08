@@ -1,10 +1,11 @@
-import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { clearSupabaseAuthCookies } from "@/lib/auth-cookies";
 import { isActivePlatformUser } from "@/lib/auth-users";
 import { ensureServerEnv } from "@/lib/env-server";
 import { resolveLoginEmail } from "@/lib/resolve-login-email";
 import { checkLoginRateLimit } from "@/lib/form-security";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import type { ProfileRole } from "@service-time/types";
 
@@ -52,22 +53,21 @@ export async function POST(request: Request) {
   }
 
   const cookieStore = await cookies();
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return cookieStore.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            cookieStore.set(name, value, options),
-          );
-        },
-      },
-    },
+
+  clearSupabaseAuthCookies(cookieStore.getAll(), (name, value, options) =>
+    cookieStore.set(name, value, options),
   );
+
+  const supabase = createSupabaseServerClient({
+    getAll() {
+      return cookieStore.getAll();
+    },
+    setAll(cookiesToSet) {
+      cookiesToSet.forEach(({ name, value, options }) =>
+        cookieStore.set(name, value, options),
+      );
+    },
+  });
 
   const { data, error: authError } = await supabase.auth.signInWithPassword({
     email,
@@ -96,7 +96,16 @@ export async function POST(request: Request) {
     .eq("id", data.user.id)
     .maybeSingle();
 
-  return NextResponse.json({
-    role: (profile?.role as ProfileRole | undefined) ?? "client",
-  });
+  await supabase.auth.getUser();
+
+  return NextResponse.json(
+    {
+      role: (profile?.role as ProfileRole | undefined) ?? "client",
+    },
+    {
+      headers: {
+        "Cache-Control": "private, no-store, must-revalidate",
+      },
+    },
+  );
 }

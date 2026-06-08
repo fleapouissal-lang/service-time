@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import { AuthSessionGuard } from "@/components/auth/auth-session-guard";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PublicShell } from "@/components/layout/public-shell";
@@ -47,6 +48,7 @@ export default async function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <LocaleProvider locale={locale}>
+          <AuthSessionGuard />
           <SparePartsCartRoot>
             <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
               {children}

@@ -1,29 +1,48 @@
-import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
+import type { ProfileRole } from "@service-time/types";
+import { createSupabaseServerClient } from "@/lib/supabase-server";
+
+type ProfileGate = {
+  role: ProfileRole;
+  redirectIfWrongRole: (role: ProfileRole | undefined) => string;
+};
+
+async function getActiveProfileRole(
+  supabase: ReturnType<typeof createSupabaseServerClient>,
+  userId: string,
+): Promise<ProfileRole | null> {
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role, is_active")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (!profile?.is_active || !profile.role) return null;
+  return profile.role as ProfileRole;
+}
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            request.cookies.set(name, value),
-          );
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
-        },
-      },
+  const supabase = createSupabaseServerClient({
+    getAll() {
+      return request.cookies.getAll();
     },
-  );
+    setAll(cookiesToSet, headers) {
+      cookiesToSet.forEach(({ name, value, options }) =>
+        request.cookies.set(name, value, options),
+      );
+      response = NextResponse.next({ request });
+      cookiesToSet.forEach(({ name, value, options }) =>
+        response.cookies.set(name, value, options),
+      );
+      if (headers) {
+        Object.entries(headers).forEach(([key, value]) => {
+          response.headers.set(key, value);
+        });
+      }
+    },
+  });
 
   const {
     data: { user },
@@ -31,84 +50,115 @@ export async function middleware(request: NextRequest) {
 
   const path = request.nextUrl.pathname;
 
-  if ((path.startsWith("/admin") || path.startsWith("/technician")) && !user) {
+  const loginRedirect = (nextPath: string) => {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    url.searchParams.set("next", nextPath);
     return NextResponse.redirect(url);
-  }
+  };
 
-  if (path.startsWith("/admin") && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", user.id)
-      .maybeSingle();
+  const signOutAndLogin = async (nextPath = path) => {
+    await supabase.auth.signOut();
+    return loginRedirect(nextPath);
+  };
 
-    if (!profile?.is_active || profile.role !== "admin") {
+  if ((path === "/login" || path === "/register") && user) {
+    const role = await getActiveProfileRole(supabase, user.id);
+    if (role) {
       const url = request.nextUrl.clone();
-      url.pathname = profile?.role === "technician" ? "/technician" : "/login";
+      url.pathname =
+        role === "admin"
+          ? "/admin"
+          : role === "technician"
+            ? "/technician"
+            : "/client";
+      url.search = "";
       return NextResponse.redirect(url);
     }
+    return signOutAndLogin("/login");
   }
 
-  if (path.startsWith("/technician") && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", user.id)
-      .maybeSingle();
+  const roleGates: Array<{ prefix: string; gate: ProfileGate }> = [
+    {
+      prefix: "/admin",
+      gate: {
+        role: "admin",
+        redirectIfWrongRole: (role) =>
+          role === "technician" ? "/technician" : "/login",
+      },
+    },
+    {
+      prefix: "/technician",
+      gate: {
+        role: "technician",
+        redirectIfWrongRole: (role) =>
+          role === "admin" ? "/admin" : "/login",
+      },
+    },
+    {
+      prefix: "/client",
+      gate: {
+        role: "client",
+        redirectIfWrongRole: (role) =>
+          role === "admin"
+            ? "/admin"
+            : role === "technician"
+              ? "/technician"
+              : "/login",
+      },
+    },
+  ];
 
-    if (!profile?.is_active || profile.role !== "technician") {
+  for (const { prefix, gate } of roleGates) {
+    if (!path.startsWith(prefix)) continue;
+
+    if (!user) {
+      return loginRedirect(path);
+    }
+
+    const role = await getActiveProfileRole(supabase, user.id);
+    if (!role) {
+      return signOutAndLogin(path);
+    }
+
+    if (role !== gate.role) {
       const url = request.nextUrl.clone();
-      url.pathname = profile?.role === "admin" ? "/admin" : "/login";
+      url.pathname = gate.redirectIfWrongRole(role);
       return NextResponse.redirect(url);
     }
+
+    break;
   }
 
   if (path === "/request" && user) {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (profile?.is_active && profile.role !== "client") {
+    const role = await getActiveProfileRole(supabase, user.id);
+    if (role && role !== "client") {
       const url = request.nextUrl.clone();
-      url.pathname =
-        profile.role === "admin"
-          ? "/admin"
-          : profile.role === "technician"
-            ? "/technician"
-            : "/login";
+      url.pathname = role === "admin" ? "/admin" : "/technician";
       return NextResponse.redirect(url);
     }
   }
 
   if (path === "/spare-parts/checkout") {
     if (!user) {
-      const url = request.nextUrl.clone();
-      url.pathname = "/login";
-      url.searchParams.set("next", path);
-      return NextResponse.redirect(url);
+      return loginRedirect(path);
     }
 
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role, is_active")
-      .eq("id", user.id)
-      .maybeSingle();
-
-    if (!profile?.is_active || profile.role !== "client") {
+    const role = await getActiveProfileRole(supabase, user.id);
+    if (!role || role !== "client") {
       const url = request.nextUrl.clone();
       url.pathname =
-        profile?.role === "admin"
+        role === "admin"
           ? "/admin"
-          : profile?.role === "technician"
+          : role === "technician"
             ? "/technician"
             : "/login";
       return NextResponse.redirect(url);
     }
+  }
+
+  if (user) {
+    response.headers.set("Cache-Control", "private, no-store, must-revalidate");
   }
 
   return response;
@@ -118,7 +168,10 @@ export const config = {
   matcher: [
     "/admin/:path*",
     "/technician/:path*",
+    "/client/:path*",
     "/request",
     "/spare-parts/checkout",
+    "/login",
+    "/register",
   ],
 };

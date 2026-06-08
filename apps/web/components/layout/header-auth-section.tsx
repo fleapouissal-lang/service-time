@@ -9,6 +9,7 @@ import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { getProfileHomePath } from "@/lib/profile-home";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
+import { signOutAndRedirect } from "@/lib/sign-out-client";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 import { cn } from "@/lib/utils";
 
@@ -249,11 +250,8 @@ export function HeaderAuthSection({
   }, [locale]);
 
   async function handleSignOut() {
-    const supabase = createAuthBrowserClient();
-    await supabase.auth.signOut();
+    await signOutAndRedirect(router);
     setProfile(null);
-    router.refresh();
-    router.push("/");
   }
 
   if (!ready) {

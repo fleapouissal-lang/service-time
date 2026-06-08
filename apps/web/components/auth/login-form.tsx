@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth-errors";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { resolvePostLoginPath } from "@/lib/profile-home";
+import { markAuthSessionActive } from "@/lib/sign-out-client";
 import type { ProfileRole } from "@service-time/types";
 
 export function LoginForm() {
@@ -38,6 +39,7 @@ export function LoginForm() {
     try {
       const res = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
       });
@@ -56,6 +58,7 @@ export function LoginForm() {
         return;
       }
 
+      markAuthSessionActive();
       router.push(resolvePostLoginPath(data.role ?? "client", next));
       router.refresh();
     } catch {

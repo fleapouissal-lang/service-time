@@ -19,7 +19,7 @@ import {
   getTechnicianNav,
 } from "@/lib/i18n/dashboard-nav";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
-import { createAuthBrowserClient } from "@/lib/supabase-browser";
+import { signOutAndRedirect } from "@/lib/sign-out-client";
 
 const STORAGE_KEY = "service-time-sidebar-open";
 
@@ -146,10 +146,7 @@ export function AdminDashboardShell({
   const { messages } = useLocale();
 
   async function signOut() {
-    const supabase = createAuthBrowserClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    await signOutAndRedirect(router);
   }
 
   return (
@@ -174,10 +171,7 @@ export function TechnicianDashboardShell({
   const { messages } = useLocale();
 
   async function signOut() {
-    const supabase = createAuthBrowserClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    await signOutAndRedirect(router);
   }
 
   return (
@@ -202,10 +196,7 @@ export function ClientDashboardShell({
   const { messages } = useLocale();
 
   async function signOut() {
-    const supabase = createAuthBrowserClient();
-    await supabase.auth.signOut();
-    router.push("/");
-    router.refresh();
+    await signOutAndRedirect(router);
   }
 
   return (
