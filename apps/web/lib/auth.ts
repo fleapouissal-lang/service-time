@@ -2,6 +2,7 @@ import { cookies } from "next/headers";
 import type { Profile } from "@service-time/types";
 import { ensureServerEnv } from "@/lib/env-server";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
+import "server-only";
 
 export async function createAuthServerClient() {
   ensureServerEnv();

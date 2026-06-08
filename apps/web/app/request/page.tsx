@@ -6,6 +6,7 @@ import {
 } from "@/components/request/request-page-content";
 import type { RequestMode } from "@/components/request/request-mode-hub";
 import { getCurrentProfile } from "@/lib/auth";
+import { getClientVehicles } from "@/lib/client-vehicles";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getProfileHomePath } from "@/lib/profile-home";
@@ -51,6 +52,10 @@ export default async function RequestPage({ searchParams }: PageProps) {
   }
 
   const isClient = Boolean(profile?.is_active && profile.role === "client");
+  const savedVehicles =
+    isClient && profile
+      ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
+      : [];
 
   return (
     <Suspense>
@@ -62,6 +67,7 @@ export default async function RequestPage({ searchParams }: PageProps) {
         }
         defaultPhone={isClient ? profile!.phone ?? "" : ""}
         loginNextPath={nextPath}
+        savedVehicles={savedVehicles}
       />
     </Suspense>
   );

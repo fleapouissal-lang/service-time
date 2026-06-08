@@ -8,6 +8,7 @@ import type {
 import type { WorkshopBranch } from "@/lib/localized-content";
 import { createAuthServerClient } from "@/lib/auth";
 import { enrichWorkshopBranches } from "@/lib/localized-content";
+import { SPARE_PARTS_PAGE_SIZE } from "@/lib/spare-parts-pagination";
 import { createWebSupabaseClient } from "@/lib/supabase";
 
 export type { WorkshopBranch };
@@ -22,15 +23,6 @@ export async function getServices(): Promise<Service[]> {
 
   if (error) return [];
   return (data ?? []) as Service[];
-}
-
-export const SPARE_PARTS_PAGE_SIZE = 12;
-export const SPARE_PARTS_MOBILE_PAGE_SIZE = 6;
-
-export function resolveSparePartsPageSize(sizeParam?: string): number {
-  const parsed = Number(sizeParam);
-  if (parsed === SPARE_PARTS_MOBILE_PAGE_SIZE) return SPARE_PARTS_MOBILE_PAGE_SIZE;
-  return SPARE_PARTS_PAGE_SIZE;
 }
 
 export async function getSpareParts(): Promise<SparePart[]> {

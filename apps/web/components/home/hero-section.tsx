@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 
@@ -17,11 +18,19 @@ export function HeroSection({
   ctaHref = "/request",
 }: HeroSectionProps) {
   return (
-    <section
-      className="relative -mt-20 min-h-screen w-full overflow-hidden bg-[#050B10] bg-cover bg-center bg-no-repeat pt-20"
-      style={{ backgroundImage: "url('/hero-bg.png')" }}
-    >
-      <div className="relative mx-auto flex min-h-screen w-[90%] max-w-[1200px] items-center py-28 lg:py-24">
+    <section className="relative -mt-20 min-h-[100svh] w-full overflow-hidden bg-[#050B10] pt-20">
+      <div className="pointer-events-none absolute inset-0">
+        <Image
+          src="/hero-bg.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
+      </div>
+
+      <div className="relative z-10 mx-auto flex min-h-[calc(100svh-5rem)] w-[90%] max-w-[1200px] items-center py-20 sm:py-28 lg:py-24">
         <div className="animate-fade-up max-w-xl space-y-4 text-start">
           <h1 className="font-poppins text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl lg:text-[3.25rem]">
             {titleBefore}{" "}

@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { PaymobCheckoutButton } from "@/components/spare-parts/paymob-checkout-button";
+import { PaymobPaymentMethodsInfo } from "@/components/spare-parts/paymob-payment-methods-info";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { requireProfile } from "@/lib/auth";
 import { isPaymobConfigured, getPaymobConfigurationError } from "@/lib/paymob";
@@ -60,15 +61,7 @@ export default async function SparePartsPaymentPage({
             />
           </div>
 
-          <div className="rounded-xl border border-border bg-muted/5 px-4 py-3 text-sm text-muted">
-            <p className="font-medium text-foreground">{t.spareParts.payMethodsTitle}</p>
-            <ul className="mt-2 list-inside list-disc space-y-1">
-              {t.spareParts.payMethods.map((method) => (
-                <li key={method}>{method}</li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs">{t.spareParts.payMethodsDisclaimer}</p>
-          </div>
+          <PaymobPaymentMethodsInfo />
 
           {paymentReturnPending ? (
             <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">

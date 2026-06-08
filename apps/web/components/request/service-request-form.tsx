@@ -93,7 +93,7 @@ export function ServiceRequestForm({
 
     const nameEl = form.querySelector<HTMLInputElement>("#customer_name");
     const phoneEl = form.querySelector<HTMLInputElement>("#customer_phone");
-    const carEl = form.querySelector<HTMLInputElement>('input[name="car_type"]');
+    const carEl = form.querySelector<HTMLInputElement>('[name="car_type"]');
     const priceEl = form.querySelector<HTMLInputElement>("#client_proposed_price");
 
     if (!nameEl?.value.trim() || !phoneEl?.value.trim()) {

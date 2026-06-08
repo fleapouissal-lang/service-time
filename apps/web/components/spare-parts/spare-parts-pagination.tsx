@@ -6,7 +6,7 @@ import {
   LocalePaginationPrev,
 } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { sparePartsPageHref } from "@/lib/use-spare-parts-page-size-sync";
+import { sparePartsPageHref } from "@/lib/spare-parts-pagination";
 import { cn } from "@/lib/utils";
 
 type SparePartsPaginationProps = {

@@ -20,6 +20,7 @@ type RequestPageContentProps = {
   defaultName: string;
   defaultPhone: string;
   loginNextPath: string;
+  savedVehicles?: string[];
 };
 
 function FullRequestPanel({
@@ -27,11 +28,13 @@ function FullRequestPanel({
   defaultName,
   defaultPhone,
   loginNextPath,
+  savedVehicles = [],
 }: {
   isClient: boolean;
   defaultName: string;
   defaultPhone: string;
   loginNextPath: string;
+  savedVehicles?: string[];
 }) {
   const { messages: t } = useLocale();
   const loginHref = `/login?next=${encodeURIComponent(loginNextPath)}`;
@@ -70,8 +73,10 @@ function FullRequestPanel({
   return (
     <ServiceRequestForm
       embedded
+      fullWidth
       defaultName={defaultName}
       defaultPhone={defaultPhone}
+      savedVehicles={savedVehicles}
     />
   );
 }
@@ -82,6 +87,7 @@ function RequestBody({
   defaultName,
   defaultPhone,
   loginNextPath,
+  savedVehicles = [],
 }: RequestPageContentProps) {
   if (mode === "hub") {
     return <RequestModeHub />;
@@ -94,6 +100,7 @@ function RequestBody({
         defaultName={defaultName}
         defaultPhone={defaultPhone}
         loginNextPath={loginNextPath}
+        savedVehicles={savedVehicles}
       />
     );
   }

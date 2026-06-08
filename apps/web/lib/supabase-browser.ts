@@ -16,7 +16,12 @@ export function createAuthBrowserClient() {
       cookies: {
         getAll() {
           if (typeof document === "undefined") return [];
-          return parseCookieHeader(document.cookie) ?? [];
+          return (parseCookieHeader(document.cookie) ?? []).map(
+            ({ name, value }) => ({
+              name,
+              value: value ?? "",
+            }),
+          );
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) => {

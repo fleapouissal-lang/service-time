@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   SPARE_PARTS_MOBILE_PAGE_SIZE,
   SPARE_PARTS_PAGE_SIZE,
-} from "@/lib/queries";
+} from "@/lib/spare-parts-pagination";
 
 export function useSparePartsPageSizeSync() {
   const router = useRouter();
@@ -40,13 +40,4 @@ export function useSparePartsPageSizeSync() {
     media.addEventListener("change", sync);
     return () => media.removeEventListener("change", sync);
   }, [pathname, router, searchParams]);
-}
-
-export function sparePartsPageHref(page: number, pageSize: number): string {
-  const params = new URLSearchParams();
-  params.set("page", String(page));
-  if (pageSize === SPARE_PARTS_MOBILE_PAGE_SIZE) {
-    params.set("size", String(SPARE_PARTS_MOBILE_PAGE_SIZE));
-  }
-  return `/spare-parts?${params.toString()}`;
 }

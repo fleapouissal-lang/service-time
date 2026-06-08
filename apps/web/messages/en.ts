@@ -470,14 +470,17 @@ export const messages = {
     payProcessing:
       "Payment received. Your order will be confirmed shortly once verification completes.",
     payMethodsTitle: "Available payment methods",
-    payMethods: [
-      "Mada (MADA)",
-      "Visa and Mastercard",
-      "Apple Pay",
-      "Tabby and Contact (installments — if enabled on your account)",
-    ],
+    payMethodLabels: {
+      mada: "Mada (MADA) — online",
+      visa_mastercard_mada: "Visa, Mastercard & Mada — worldwide",
+      international_cards: "International cards (Visa & Mastercard)",
+      apple_pay: "Apple Pay",
+      tabby: "Tabby — installments",
+      tamara: "Tamara — installments",
+    },
+    payMethodCardDependent: "Per card type",
     payMethodsDisclaimer:
-      "Accept gateway — secure settlement with 3D Secure. Card fees per contract (Mada ~1%, international cards ~2.5%).",
+      "Accept (Paymob) — 3D Secure. Merchant fees per commercial proposal: Mada 1%, domestic/international cards 2.5–3.5%, Tabby 6.99% + 1.5 SAR, Tamara 7% + 1 SAR. Shopify +0.35% if applicable.",
     verifying: "Verifying...",
     paymentMethod: "Payment method",
     cashOnDelivery: "Cash on delivery",

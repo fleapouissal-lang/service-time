@@ -470,14 +470,17 @@ export const messages = {
     payProcessing:
       "تم استلام الدفع. سيتم تأكيد طلبك قريباً بعد التحقق.",
     payMethodsTitle: "طرق الدفع المتاحة",
-    payMethods: [
-      "مدى (MADA)",
-      "Visa و Mastercard",
-      "Apple Pay",
-      "Tabby و Contact (تقسيط — حسب تفعيل حسابك)",
-    ],
+    payMethodLabels: {
+      mada: "مدى (MADA) — عبر الإنترنت",
+      visa_mastercard_mada: "Visa و Mastercard ومدى — عالمياً",
+      international_cards: "البطاقات الدولية (Visa و Mastercard)",
+      apple_pay: "Apple Pay",
+      tabby: "Tabby — تقسيط",
+      tamara: "Tamara — تقسيط",
+    },
+    payMethodCardDependent: "حسب نوع البطاقة",
     payMethodsDisclaimer:
-      "بوابة Accept — تسوية آمنة مع 3D Secure. رسوم البطاقات حسب العقد (مدى ~1%، بطاقات دولية ~2.5%).",
+      "Accept (Paymob) — 3D Secure. رسوم التاجر حسب العرض التجاري: مدى 1%، بطاقات محلية/دولية 2.5–3.5%، Tabby 6.99% + 1.5 ر.س، Tamara 7% + 1 ر.س. Shopify +0.35% إن وُجد.",
     verifying: "جاري التحقق...",
     paymentMethod: "طريقة الدفع",
     cashOnDelivery: "الدفع عند الاستلام",
