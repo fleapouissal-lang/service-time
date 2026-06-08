@@ -31,17 +31,37 @@ const SERVER_KEYS = new Set([
   "PAYMOB_HMAC_SECRET",
 ]);
 
+function parseEnvValue(raw) {
+  let value = raw.trim();
+  if (
+    (value.startsWith('"') && value.endsWith('"')) ||
+    (value.startsWith("'") && value.endsWith("'"))
+  ) {
+    return value.slice(1, -1);
+  }
+  const inlineComment = value.indexOf(" #");
+  if (inlineComment !== -1) {
+    value = value.slice(0, inlineComment).trim();
+  }
+  return value;
+}
+
+function formatEnvLine(key, value) {
+  if (/[\s#"]/.test(value)) {
+    return `${key}="${value.replace(/"/g, '\\"')}"`;
+  }
+  return `${key}=${value}`;
+}
+
 if (!existsSync(envPath)) {
   console.warn("⚠️  .env introuvable à la racine — Supabase non configuré.");
   process.exit(0);
 }
 
 const content = readFileSync(envPath, "utf8");
-const lines = content.split("\n");
-const webVars = [];
-const parsed = {};
+const parsed = new Map();
 
-for (const line of lines) {
+for (const line of content.split("\n")) {
   const trimmed = line.trim();
   if (!trimmed || trimmed.startsWith("#")) continue;
 
@@ -49,19 +69,19 @@ for (const line of lines) {
   if (eq === -1) continue;
 
   const key = trimmed.slice(0, eq).trim();
-  const value = trimmed.slice(eq + 1).trim();
-  parsed[key] = value;
-
-  if (key.startsWith("NEXT_PUBLIC_") || SERVER_KEYS.has(key)) {
-    webVars.push(trimmed);
-  }
+  const value = parseEnvValue(trimmed.slice(eq + 1));
+  parsed.set(key, value);
 }
 
-if (parsed.WHATSAPP_NUMBER && !parsed.NEXT_PUBLIC_WHATSAPP_NUMBER) {
-  webVars.push(`NEXT_PUBLIC_WHATSAPP_NUMBER=${parsed.WHATSAPP_NUMBER}`);
+if (parsed.get("WHATSAPP_NUMBER") && !parsed.get("NEXT_PUBLIC_WHATSAPP_NUMBER")) {
+  parsed.set("NEXT_PUBLIC_WHATSAPP_NUMBER", parsed.get("WHATSAPP_NUMBER"));
 }
 
-if (webVars.length === 0) {
+const webEntries = [...parsed.entries()].filter(
+  ([key]) => key.startsWith("NEXT_PUBLIC_") || SERVER_KEYS.has(key),
+);
+
+if (webEntries.length === 0) {
   console.warn("⚠️  Variables web manquantes dans .env");
   process.exit(0);
 }
@@ -69,9 +89,9 @@ if (webVars.length === 0) {
 const output = [
   "# Généré par scripts/sync-env.mjs — ne pas éditer à la main",
   "# Source : .env à la racine du monorepo",
-  "# SUPABASE_SERVICE_ROLE_KEY, SMTP_* = serveur uniquement",
+  "# Éditer .env puis : npm run sync-env",
   "",
-  ...webVars,
+  ...webEntries.map(([key, value]) => formatEnvLine(key, value)),
   "",
 ].join("\n");
 

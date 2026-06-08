@@ -6,6 +6,7 @@ import type {
   SparePart,
 } from "@service-time/types";
 import type { WorkshopBranch } from "@/lib/localized-content";
+import { createAuthServerClient } from "@/lib/auth";
 import { enrichWorkshopBranches } from "@/lib/localized-content";
 import { createWebSupabaseClient } from "@/lib/supabase";
 
@@ -103,7 +104,7 @@ export async function getWorkshops(): Promise<WorkshopBranch[]> {
 export async function getTrackingRequest(
   token: string,
 ): Promise<ServiceRequest | null> {
-  const supabase = createWebSupabaseClient();
+  const supabase = await createAuthServerClient();
   const normalized = token.trim();
   if (!normalized) return null;
 
@@ -119,7 +120,7 @@ export async function getTrackingRequest(
 export async function getTrackingHistory(
   token: string,
 ): Promise<RequestStatusHistory[]> {
-  const supabase = createWebSupabaseClient();
+  const supabase = await createAuthServerClient();
   const normalized = token.trim();
   if (!normalized) return [];
 
@@ -141,7 +142,7 @@ export type TechnicianLiveLocation = {
 export async function getTechnicianLocationForTracking(
   token: string,
 ): Promise<TechnicianLiveLocation | null> {
-  const supabase = createWebSupabaseClient();
+  const supabase = await createAuthServerClient();
   const normalized = token.trim();
   if (!normalized) return null;
 

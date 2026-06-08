@@ -16,8 +16,14 @@ export function generateResetCode(): string {
 
 function getResetSecret(): string {
   ensureServerEnv();
+  const secret = process.env.PASSWORD_RESET_SECRET?.trim();
+  if (secret) return secret;
+
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("PASSWORD_RESET_SECRET is required in production");
+  }
+
   return (
-    process.env.PASSWORD_RESET_SECRET?.trim() ||
     process.env.SUPABASE_SERVICE_ROLE_KEY?.trim() ||
     "dev-password-reset-secret"
   );

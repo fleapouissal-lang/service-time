@@ -9,6 +9,10 @@ import {
 import { findAuthUserByEmail, isActivePlatformUser } from "@/lib/auth-users";
 import { sendPasswordResetCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
+import { checkForgotPasswordRateLimit } from "@/lib/form-security";
+
+const GENERIC_OK_MESSAGE =
+  "إذا كان البريد مسجّلاً لدينا، تم إرسال رمز التحقق إليه.";
 
 export async function POST(request: Request) {
   const admin = getAdminSupabaseClient();
@@ -34,20 +38,28 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!(await checkForgotPasswordRateLimit(email))) {
+    return NextResponse.json(
+      { error: "تم تجاوز حد الطلبات. انتظر ساعة ثم حاول مجدداً." },
+      { status: 429 },
+    );
+  }
+
+  const genericOk = () =>
+    NextResponse.json({
+      ok: true,
+      message: GENERIC_OK_MESSAGE,
+      expiresInSeconds: RESET_CODE_TTL_MS / 1000,
+    });
+
   const user = await findAuthUserByEmail(email);
   if (!user) {
-    return NextResponse.json(
-      { error: "لا يوجد حساب مرتبط بهذا البريد الإلكتروني." },
-      { status: 404 },
-    );
+    return genericOk();
   }
 
   const active = await isActivePlatformUser(user.id);
   if (!active) {
-    return NextResponse.json(
-      { error: "الحساب غير مفعّل. تواصل مع المسؤول." },
-      { status: 403 },
-    );
+    return genericOk();
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();

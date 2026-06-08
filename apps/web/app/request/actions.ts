@@ -15,6 +15,12 @@ import {
   getPhotoFromFormData,
   uploadRequestPhoto,
 } from "@/lib/upload-request-photo";
+import {
+  FIELD_LIMITS,
+  checkAuthenticatedFormGuard,
+  clampField,
+  resolveFormGuardError,
+} from "@/lib/form-security";
 
 export interface RequestFormState {
   error?: string;
@@ -32,15 +38,38 @@ export async function submitServiceRequest(
     return { error: t.errors.request.loginRequired };
   }
 
-  const customer_name = String(formData.get("customer_name") ?? "").trim();
-  const customer_phone = String(formData.get("customer_phone") ?? "").trim();
-  const car_type = String(formData.get("car_type") ?? "").trim();
-  const location_text = String(formData.get("location_text") ?? "").trim();
+  const guard = await checkAuthenticatedFormGuard(
+    formData,
+    "serviceRequest",
+    profile.id,
+  );
+  if (!guard.allowed) {
+    if (guard.honeypot) return { success: true };
+    const message = resolveFormGuardError(guard, t.errors.forms);
+    return { error: message ?? t.errors.forms.invalidSubmission };
+  }
+
+  const customer_name = clampField(
+    String(formData.get("customer_name") ?? ""),
+    FIELD_LIMITS.name,
+  );
+  const customer_phone = clampField(
+    String(formData.get("customer_phone") ?? ""),
+    FIELD_LIMITS.phone,
+  );
+  const car_type = clampField(String(formData.get("car_type") ?? ""), FIELD_LIMITS.car);
+  const location_text = clampField(
+    String(formData.get("location_text") ?? ""),
+    FIELD_LIMITS.location,
+  );
   const location_lat_raw = String(formData.get("location_lat") ?? "").trim();
   const location_lng_raw = String(formData.get("location_lng") ?? "").trim();
   const location_lat = location_lat_raw ? Number(location_lat_raw) : null;
   const location_lng = location_lng_raw ? Number(location_lng_raw) : null;
-  const description = String(formData.get("description") ?? "").trim();
+  const description = clampField(
+    String(formData.get("description") ?? ""),
+    FIELD_LIMITS.description,
+  );
   const service_type = String(
     formData.get("service_type") ?? "",
   ) as ServiceType;

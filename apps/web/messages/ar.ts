@@ -467,6 +467,8 @@ export const messages = {
     payRedirecting: "جاري التحويل...",
     payNotConfigured:
       "الدفع الإلكتروني غير مفعّل. أضف مفاتيح Accept (Paymob) في `.env` ثم شغّل npm run sync:env.",
+    payProcessing:
+      "تم استلام الدفع. سيتم تأكيد طلبك قريباً بعد التحقق.",
     payMethodsTitle: "طرق الدفع المتاحة",
     payMethods: [
       "مدى (MADA)",
@@ -1357,6 +1359,10 @@ export const messages = {
       invalidPrice: "أدخل سعراً صالحاً.",
       actionFailed: "تعذّر تحديث العرض. حاول مجدداً.",
       notAccepted: "يجب الاتفاق على السعر قبل تعيين فني أو تغيير الحالة.",
+    },
+    forms: {
+      rateLimit: "عدد كبير من المحاولات. انتظر قليلاً ثم حاول مجدداً.",
+      invalidSubmission: "تعذّر إرسال النموذج. حاول مرة أخرى.",
     },
     contact: {
       requiredFields: "الاسم ورقم الجوال والرسالة مطلوبة",

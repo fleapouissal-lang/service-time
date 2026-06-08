@@ -1,11 +1,17 @@
 -- Price negotiation for service requests (client proposal → admin accept/counter → client accept)
 
-CREATE TYPE public.quote_status AS ENUM (
-  'pending_admin',
-  'admin_countered',
-  'accepted',
-  'declined'
-);
+DO $$
+BEGIN
+  CREATE TYPE public.quote_status AS ENUM (
+    'pending_admin',
+    'admin_countered',
+    'accepted',
+    'declined'
+  );
+EXCEPTION
+  WHEN duplicate_object THEN NULL;
+END
+$$;
 
 ALTER TABLE public.service_requests
   ADD COLUMN IF NOT EXISTS client_proposed_price numeric(10, 2),

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireProfile } from "@/lib/auth";
 import { getTrackingRequest } from "@/lib/queries";
 
 type RouteContext = {
@@ -6,6 +7,11 @@ type RouteContext = {
 };
 
 export async function GET(_request: Request, context: RouteContext) {
+  const profile = await requireProfile(["client", "admin", "technician"]);
+  if (!profile) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   const { token } = await context.params;
   const request = await getTrackingRequest(decodeURIComponent(token));
 

@@ -60,3 +60,14 @@ export async function requireProfile(roles?: Profile["role"][]) {
   if (roles && !roles.includes(profile.role)) return null;
   return profile;
 }
+
+/** Fail closed for mutations — throws when unauthenticated or wrong role. */
+export async function requireProfileOrThrow(
+  roles?: Profile["role"][],
+): Promise<Profile> {
+  const profile = await requireProfile(roles);
+  if (!profile) {
+    throw new Error("Unauthorized");
+  }
+  return profile;
+}

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { Mail, MessageSquare, Phone, User } from "lucide-react";
 import { submitContactMessage } from "@/app/contact/actions";
+import { FormSecurityFields } from "@/components/forms/form-security-fields";
 import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
@@ -24,8 +25,9 @@ export function ContactForm() {
     <form
       ref={formRef}
       action={action}
-      className="space-y-5 rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:p-8"
+      className="relative space-y-5 rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:p-8"
     >
+      <FormSecurityFields />
       {state.success ? (
         <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-center">
           <p className="text-base font-semibold text-[#94D4B9]">

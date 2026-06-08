@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { isActivePlatformUser } from "@/lib/auth-users";
 import { ensureServerEnv } from "@/lib/env-server";
 import { resolveLoginEmail } from "@/lib/resolve-login-email";
+import { checkLoginRateLimit } from "@/lib/form-security";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import type { ProfileRole } from "@service-time/types";
 
@@ -35,11 +36,18 @@ export async function POST(request: Request) {
     );
   }
 
+  if (!(await checkLoginRateLimit(identifier))) {
+    return NextResponse.json(
+      { error: "Too many login attempts. Please wait and try again." },
+      { status: 429 },
+    );
+  }
+
   const email = await resolveLoginEmail(identifier);
   if (!email) {
     return NextResponse.json(
-      { error: "user not found" },
-      { status: 404 },
+      { error: "Invalid login credentials" },
+      { status: 401 },
     );
   }
 

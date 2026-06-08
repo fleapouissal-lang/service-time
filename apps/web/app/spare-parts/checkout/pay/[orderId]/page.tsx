@@ -1,9 +1,8 @@
-import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { PaymobCheckoutButton } from "@/components/spare-parts/paymob-checkout-button";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
-import { requireProfile, createAuthServerClient } from "@/lib/auth";
+import { requireProfile } from "@/lib/auth";
 import { isPaymobConfigured, getPaymobConfigurationError } from "@/lib/paymob";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -22,22 +21,13 @@ export default async function SparePartsPaymentPage({
   if (!profile) redirect("/login?next=/spare-parts/checkout");
 
   const { orderId } = await params;
-  const { success, id: transactionId } = await searchParams;
+  const { success } = await searchParams;
   const order = await getClientSparePartOrder(profile.id, orderId);
 
   if (!order) notFound();
 
   if (order.payment_method !== "online") {
     redirect(`/client/spare-part-orders/${orderId}`);
-  }
-
-  if (success === "true" && order.payment_status !== "paid") {
-    const supabase = await createAuthServerClient();
-    await supabase.rpc("mark_spare_part_order_paid", {
-      p_order_id: orderId,
-      p_payment_reference: transactionId ?? null,
-    });
-    redirect(`/client/spare-part-orders/${orderId}?success=1`);
   }
 
   if (order.payment_status === "paid") {
@@ -47,6 +37,7 @@ export default async function SparePartsPaymentPage({
   const paymobReady = isPaymobConfigured();
   const paymobConfigError = getPaymobConfigurationError();
   const paymentFailed = success === "false";
+  const paymentReturnPending = success === "true";
 
   return (
     <>
@@ -78,6 +69,12 @@ export default async function SparePartsPaymentPage({
             </ul>
             <p className="mt-3 text-xs">{t.spareParts.payMethodsDisclaimer}</p>
           </div>
+
+          {paymentReturnPending ? (
+            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-sm text-primary">
+              {t.spareParts.payProcessing}
+            </div>
+          ) : null}
 
           {paymentFailed ? (
             <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">

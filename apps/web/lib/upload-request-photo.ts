@@ -1,7 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ensureServerEnv } from "@/lib/env-server";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import { createWebSupabaseClient } from "@/lib/supabase";
 
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_BYTES = 5 * 1024 * 1024;
@@ -79,8 +78,12 @@ export async function uploadRequestPhoto(
   }
 
   const admin = getAdminSupabaseClient();
-  const supabase = admin ?? createWebSupabaseClient();
-  const useAdmin = admin !== null;
+  if (!admin) {
+    return { error: "إعدادات التخزين غير مكتملة." };
+  }
+
+  const supabase = admin;
+  const useAdmin = true;
 
   const storagePath = `${requestId}/${crypto.randomUUID()}.${extensionForMime(mime)}`;
   const buffer = Buffer.from(await file.arrayBuffer());

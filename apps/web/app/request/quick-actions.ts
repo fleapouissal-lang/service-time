@@ -20,6 +20,12 @@ import {
 } from "@/lib/upload-request-photo";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
+import {
+  FIELD_LIMITS,
+  checkPublicFormGuard,
+  clampField,
+  resolveFormGuardError,
+} from "@/lib/form-security";
 
 export interface QuickRequestFormState {
   error?: string;
@@ -32,10 +38,21 @@ export async function submitQuickServiceRequest(
   formData: FormData,
 ): Promise<QuickRequestFormState> {
   const t = getDictionary(await getLocale());
-  const name = String(formData.get("name") ?? "").trim();
-  const phone = String(formData.get("phone") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim();
-  const message = String(formData.get("message") ?? "").trim();
+  const guard = await checkPublicFormGuard(formData, "quickRequest");
+
+  if (!guard.allowed) {
+    if (guard.honeypot) return { success: true };
+    const message = resolveFormGuardError(guard, t.errors.forms);
+    return { error: message ?? t.errors.forms.invalidSubmission };
+  }
+
+  const name = clampField(String(formData.get("name") ?? ""), FIELD_LIMITS.name);
+  const phone = clampField(String(formData.get("phone") ?? ""), FIELD_LIMITS.phone);
+  const email = clampField(String(formData.get("email") ?? ""), FIELD_LIMITS.email);
+  const message = clampField(
+    String(formData.get("message") ?? ""),
+    FIELD_LIMITS.message,
+  );
   const photo = getPhotoFromFormData(formData);
   const hadPhotoField = formHasPhotoField(formData);
 

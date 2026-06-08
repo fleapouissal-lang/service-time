@@ -467,6 +467,8 @@ export const messages = {
     payRedirecting: "Redirecting...",
     payNotConfigured:
       "Online payment is not enabled. Add Accept (Paymob) keys in `.env` then run npm run sync:env.",
+    payProcessing:
+      "Payment received. Your order will be confirmed shortly once verification completes.",
     payMethodsTitle: "Available payment methods",
     payMethods: [
       "Mada (MADA)",
@@ -1356,6 +1358,10 @@ export const messages = {
       invalidPrice: "Enter a valid price.",
       actionFailed: "Could not update the quote. Try again.",
       notAccepted: "Price must be agreed before assigning a technician or changing status.",
+    },
+    forms: {
+      rateLimit: "Too many submissions. Please wait and try again.",
+      invalidSubmission: "Could not submit the form. Please try again.",
     },
     contact: {
       requiredFields: "Name, mobile number, and message are required",

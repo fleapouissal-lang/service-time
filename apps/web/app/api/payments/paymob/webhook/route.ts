@@ -23,8 +23,10 @@ type PaymobTransactionPayload = {
 };
 
 function verifyPaymobHmac(obj: Record<string, unknown>, receivedHmac: string): boolean {
-  const secret = process.env.PAYMOB_HMAC_SECRET;
-  if (!secret) return true;
+  const secret = process.env.PAYMOB_HMAC_SECRET?.trim();
+  if (!secret || !receivedHmac) {
+    return false;
+  }
 
   const sourceData = (obj.source_data as Record<string, unknown> | undefined) ?? {};
   const order = (obj.order as Record<string, unknown> | undefined) ?? {};
@@ -81,7 +83,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ ok: true });
   }
 
-  if (hmac && !verifyPaymobHmac(obj, hmac)) {
+  const hmacSecret = process.env.PAYMOB_HMAC_SECRET?.trim();
+  if (process.env.NODE_ENV === "production" && !hmacSecret) {
+    console.error("[paymob] PAYMOB_HMAC_SECRET is required in production");
+    return NextResponse.json({ error: "Server misconfigured" }, { status: 503 });
+  }
+
+  if (!hmac || !verifyPaymobHmac(obj, hmac)) {
     return NextResponse.json({ error: "Invalid HMAC" }, { status: 401 });
   }
 

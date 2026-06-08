@@ -10,7 +10,7 @@ import type {
   ServiceType,
   TechnicianType,
 } from "@service-time/types";
-import { createAuthServerClient, requireProfile } from "@/lib/auth";
+import { createAuthServerClient, requireProfile, requireProfileOrThrow } from "@/lib/auth";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { isQuotePending } from "@/lib/suggest-service-price";
@@ -46,9 +46,8 @@ function parseOrderLocation(formData: FormData) {
 }
 
 async function adminClient() {
-  const profile = await requireProfile(["admin"]);
-  if (!profile) throw new Error("غير مصرح");
-  return createAuthServerClient();
+  await requireProfileOrThrow(["admin"]);
+  return await createAuthServerClient();
 }
 
 export type UpdateOrderFormState = {
@@ -111,7 +110,7 @@ export async function updateOrderAction(
 }
 
 export async function deleteAdminOrderAction(formData: FormData) {
-  await requireProfile(["admin"]);
+  await requireProfileOrThrow(["admin"]);
   const admin = getAdminSupabaseClient();
   if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
 
@@ -358,7 +357,7 @@ export async function toggleTechnicianAction(formData: FormData) {
 }
 
 export async function createPlatformUserAction(formData: FormData) {
-  await requireProfile(["admin"]);
+  await requireProfileOrThrow(["admin"]);
 
   const admin = getAdminSupabaseClient();
   if (!admin) {
@@ -497,7 +496,7 @@ export async function createAdminOrderAction(
   _prev: CreateAdminOrderFormState,
   formData: FormData,
 ): Promise<CreateAdminOrderFormState> {
-  await requireProfile(["admin"]);
+  await requireProfileOrThrow(["admin"]);
   const admin = getAdminSupabaseClient();
   if (!admin) {
     return { error: mapQuickClientError("server_incomplete") };

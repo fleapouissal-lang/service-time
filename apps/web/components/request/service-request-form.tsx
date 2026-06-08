@@ -8,6 +8,7 @@ import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
 import { ServicePriceProposalField } from "@/components/request/service-price-proposal-field";
+import { FormSecurityFields } from "@/components/forms/form-security-fields";
 import { RequestFormShell } from "@/components/request/request-form-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -144,7 +145,8 @@ export function ServiceRequestForm({
           fullWidth && !bare ? "w-full max-w-none pb-0" : undefined
         }
       >
-        <form ref={formRef} action={action} className="space-y-6">
+        <form ref={formRef} action={action} className="relative space-y-6">
+          <FormSecurityFields />
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />
           ) : null}

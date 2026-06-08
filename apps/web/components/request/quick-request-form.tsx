@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
+import { FormSecurityFields } from "@/components/forms/form-security-fields";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 export function QuickRequestForm() {
@@ -24,7 +25,8 @@ export function QuickRequestForm() {
 
   return (
     <RequestFormShell>
-      <form ref={formRef} action={action} className="space-y-5">
+      <form ref={formRef} action={action} className="relative space-y-5">
+        <FormSecurityFields />
         {state.success ? (
           <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-sm text-[#94D4B9]">
             <p className="font-semibold">
