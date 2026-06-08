@@ -7,6 +7,7 @@ import {
 import { LiveTechnicianMap } from "@/components/tracking/live-technician-map";
 import { TrackingSearch } from "@/components/tracking/tracking-search";
 import { ClientQuotePanel } from "@/components/request/client-quote-panel";
+import { ClientServicePaymentPanel } from "@/components/request/client-service-payment-panel";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getTrackingHistory, getTrackingRequest, getTechnicianLocationForTracking } from "@/lib/queries";
 
@@ -25,12 +26,12 @@ export default async function ClientTrackDetailPage({
   searchParams,
 }: {
   params: Promise<{ token: string }>;
-  searchParams: Promise<{ success?: string }>;
+  searchParams: Promise<{ success?: string; payment?: string }>;
 }) {
   const { t } = await getServerI18n();
   const { token: rawToken } = await params;
   const token = decodeURIComponent(rawToken).trim();
-  const { success } = await searchParams;
+  const { success, payment } = await searchParams;
 
   const [request, history] = await Promise.all([
     getTrackingRequest(token),
@@ -85,6 +86,12 @@ export default async function ClientTrackDetailPage({
         <p className="text-muted">{t.tracking.subtitle}</p>
       </div>
 
+      {payment === "1" && (
+        <div className="rounded-2xl border border-primary/30 bg-primary/10 px-5 py-4 text-sm text-primary">
+          {t.request.payment.paidHint}
+        </div>
+      )}
+
       {success === "1" && (
         <div className="rounded-2xl border border-primary/30 bg-primary/10 px-5 py-4 text-sm text-primary">
           {t.tracking.successBanner}
@@ -94,6 +101,8 @@ export default async function ClientTrackDetailPage({
       <RequestSummary request={request} />
 
       <ClientQuotePanel order={request} />
+
+      <ClientServicePaymentPanel order={request} />
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h2 className="mb-6 text-lg font-bold">{t.tracking.timelineTitle}</h2>

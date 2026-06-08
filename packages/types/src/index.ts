@@ -169,6 +169,9 @@ export interface ServiceRequest {
   admin_counter_price: number | null;
   agreed_price: number | null;
   quote_status: QuoteStatus | null;
+  payment_method: SparePartPaymentMethod | null;
+  payment_status: SparePartPaymentStatus | null;
+  payment_reference: string | null;
   created_at: string;
   updated_at: string;
 }

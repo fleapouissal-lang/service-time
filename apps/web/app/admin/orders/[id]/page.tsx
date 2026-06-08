@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 import { AdminOrderDeleteButton } from "@/components/admin/admin-order-delete-button";
 import { AdminOrderUpdateForm } from "@/components/admin/admin-order-update-form";
 import { AdminQuotePanel } from "@/components/admin/admin-quote-panel";
+import { AdminServicePaymentPanel } from "@/components/admin/admin-service-payment-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -19,6 +20,7 @@ import { getIntlLocale } from "@/lib/i18n/config";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { isQuotePending } from "@/lib/suggest-service-price";
+import { isPaymentBlockingAssignment } from "@/lib/service-request-payment";
 import {
   buildPrioritySelectOptions,
   buildStatusSelectOptions,
@@ -139,6 +141,8 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
 
           <AdminQuotePanel order={order} />
 
+          <AdminServicePaymentPanel order={order} />
+
           <div>
             <p className="mb-3 text-sm font-semibold">{p.detail.updateOrder}</p>
             <AdminOrderUpdateForm
@@ -153,6 +157,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               priorityOptions={priorityOptions}
               technicianOptions={technicianOptions}
               quotePending={quotePending}
+              paymentBlocking={isPaymentBlockingAssignment(order)}
             />
           </div>
 

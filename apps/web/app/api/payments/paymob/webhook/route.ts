@@ -103,6 +103,47 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Server misconfigured" }, { status: 500 });
   }
 
+  const serviceRequestId = orderId.startsWith("sr:")
+    ? orderId.slice(3)
+    : null;
+
+  if (serviceRequestId) {
+    const { data: request } = await supabase
+      .from("service_requests")
+      .select("id, agreed_price, payment_status, payment_method")
+      .eq("id", serviceRequestId)
+      .maybeSingle();
+
+    if (!request || request.payment_method !== "online") {
+      return NextResponse.json({ ok: true });
+    }
+
+    const expectedAmount = amountToHalalas(Number(request.agreed_price) || 0);
+    const paidAmount = Number(payload.obj?.amount_cents ?? 0);
+    const transactionId = String(payload.obj?.id ?? "");
+    const success = Boolean(payload.obj?.success);
+    const currency = payload.obj?.currency ?? "SAR";
+
+    if (success && currency === "SAR" && paidAmount === expectedAmount) {
+      if (request.payment_status !== "paid") {
+        await supabase
+          .from("service_requests")
+          .update({
+            payment_status: "paid",
+            payment_reference: transactionId || null,
+          })
+          .eq("id", serviceRequestId);
+      }
+    } else if (!success && request.payment_status === "pending") {
+      await supabase
+        .from("service_requests")
+        .update({ payment_status: "failed" })
+        .eq("id", serviceRequestId);
+    }
+
+    return NextResponse.json({ ok: true });
+  }
+
   const { data: order } = await supabase
     .from("spare_part_orders")
     .select("id, total_amount, payment_status, payment_method")

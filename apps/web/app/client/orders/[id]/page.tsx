@@ -16,6 +16,7 @@ import {
   getRequestStatusHistory,
 } from "@/lib/dashboard-queries";
 import { ClientQuotePanel } from "@/components/request/client-quote-panel";
+import { ClientServicePaymentPanel } from "@/components/request/client-service-payment-panel";
 
 export default async function ClientOrderDetailPage({
   params,
@@ -88,6 +89,8 @@ export default async function ClientOrderDetailPage({
           ) : null}
 
           <ClientQuotePanel order={order} />
+
+          <ClientServicePaymentPanel order={order} />
 
           <Link
             href={`/client/track/${order.tracking_token}`}

@@ -128,6 +128,8 @@ export async function createPaymobIntention(input: {
   billing: PaymobBillingData;
   redirectionUrl: string;
   notificationUrl: string;
+  itemName?: string;
+  specialReference?: string;
 }): Promise<PaymobIntentionResult> {
   const configError = getPaymobConfigurationError();
   if (configError) {
@@ -142,7 +144,8 @@ export async function createPaymobIntention(input: {
     throw new Error("مبلغ الطلب غير صالح للدفع.");
   }
 
-  const itemName = `طلب قطع غيار ${input.orderToken}`;
+  const itemName = input.itemName ?? `طلب قطع غيار ${input.orderToken}`;
+  const specialReference = input.specialReference ?? input.orderId;
 
   const response = await fetch(`${PAYMOB_BASE_URL}/v1/intention/`, {
     method: "POST",
@@ -178,7 +181,7 @@ export async function createPaymobIntention(input: {
         postal_code: "NA",
         shipping_method: "NA",
       },
-      special_reference: input.orderId,
+      special_reference: specialReference,
       expiration: 3600,
       notification_url: input.notificationUrl,
       redirection_url: input.redirectionUrl,

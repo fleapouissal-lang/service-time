@@ -14,6 +14,7 @@ import { createAuthServerClient, requireProfile, requireProfileOrThrow } from "@
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { isQuotePending } from "@/lib/suggest-service-price";
+import { isPaymentBlockingAssignment } from "@/lib/service-request-payment";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import {
@@ -70,7 +71,9 @@ export async function updateOrderAction(
 
     const { data: existing } = await supabase
       .from("service_requests")
-      .select("client_proposed_price, quote_status")
+      .select(
+        "client_proposed_price, quote_status, payment_method, payment_status, agreed_price",
+      )
       .eq("id", id)
       .maybeSingle();
 
@@ -83,6 +86,18 @@ export async function updateOrderAction(
         status !== "cancelled"
       ) {
         return { error: t.errors.quote.notAccepted };
+      }
+    }
+
+    if (existing && isPaymentBlockingAssignment(existing)) {
+      if (assigned) {
+        return { error: t.errors.servicePayment.assignBlocked };
+      }
+      if (
+        status !== "received" &&
+        status !== "cancelled"
+      ) {
+        return { error: t.errors.servicePayment.assignBlocked };
       }
     }
 
@@ -579,6 +594,24 @@ export async function createAdminOrderAction(
   ).trim();
   const assignedTechnicianId = assignedRaw || null;
 
+  const t = getDictionary(await getLocale());
+  const cp = t.dashboard.admin.ordersPage.createOrderPayment;
+
+  const priceRaw = String(formData.get("agreed_price") ?? "").trim();
+  const agreedPrice = priceRaw ? Number(priceRaw) : NaN;
+  if (!Number.isFinite(agreedPrice) || agreedPrice <= 0) {
+    return { error: cp.priceRequired };
+  }
+
+  const paymentMethodRaw = String(formData.get("payment_method") ?? "cash_on_delivery");
+  const paymentMethod =
+    paymentMethodRaw === "online" ? "online" : "cash_on_delivery";
+  const paymentReference = String(formData.get("payment_reference") ?? "").trim();
+
+  if (paymentMethod === "online" && !paymentReference) {
+    return { error: cp.paymentReferenceRequired };
+  }
+
   if (assignedTechnicianId) {
     const technician = await getPlatformUserById(assignedTechnicianId);
     if (!technician || technician.role !== "technician") {
@@ -602,6 +635,12 @@ export async function createAdminOrderAction(
       status: "received",
       priority,
       assigned_technician_id: assignedTechnicianId,
+      client_proposed_price: agreedPrice,
+      agreed_price: agreedPrice,
+      quote_status: "accepted",
+      payment_method: paymentMethod,
+      payment_status: paymentMethod === "online" ? "paid" : "pending",
+      payment_reference: paymentMethod === "online" ? paymentReference : null,
     })
     .select("id")
     .single();

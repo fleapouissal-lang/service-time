@@ -16,6 +16,7 @@ import {
 import type { Profile } from "@service-time/types";
 import { createAdminOrderAction } from "@/app/admin/actions";
 import { AdminClientVehicleField } from "@/components/admin/admin-client-vehicle-field";
+import { AdminOrderPricePaymentFields } from "@/components/admin/admin-order-price-payment-fields";
 import { LocationField } from "@/components/request/location-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -57,6 +58,11 @@ export function AdminCreateOrderForm({
   const [selectedClientId, setSelectedClientId] = useState("");
   const [clientSearch, setClientSearch] = useState("");
   const [stepError, setStepError] = useState("");
+  const [serviceType, setServiceType] = useState("periodic_maintenance");
+  const [executionMethod, setExecutionMethod] = useState("mobile_workshop");
+  const [paymentMethod, setPaymentMethod] = useState<
+    "cash_on_delivery" | "online"
+  >("cash_on_delivery");
   const [state, action, pending] = useActionState(createAdminOrderAction, {});
   const handledSuccessRef = useRef(false);
 
@@ -70,6 +76,9 @@ export function AdminCreateOrderForm({
     setSelectedClientId("");
     setClientSearch("");
     setStepError("");
+    setServiceType("periodic_maintenance");
+    setExecutionMethod("mobile_workshop");
+    setPaymentMethod("cash_on_delivery");
   }, [state.success, router]);
 
   const filteredClients = useMemo(() => {
@@ -89,6 +98,9 @@ export function AdminCreateOrderForm({
     setSelectedClientId("");
     setClientSearch("");
     setStepError("");
+    setServiceType("periodic_maintenance");
+    setExecutionMethod("mobile_workshop");
+    setPaymentMethod("cash_on_delivery");
   }
 
   function closeForm() {
@@ -370,7 +382,8 @@ export function AdminCreateOrderForm({
                       id="service_type"
                       name="service_type"
                       options={serviceTypeOptions}
-                      defaultValue="periodic_maintenance"
+                      value={serviceType}
+                      onValueChange={setServiceType}
                       required
                     />
                   </div>
@@ -382,7 +395,8 @@ export function AdminCreateOrderForm({
                       id="execution_method"
                       name="execution_method"
                       options={executionMethodOptions}
-                      defaultValue="mobile_workshop"
+                      value={executionMethod}
+                      onValueChange={setExecutionMethod}
                       required
                     />
                   </div>
@@ -403,6 +417,14 @@ export function AdminCreateOrderForm({
                       name="assigned_technician_id"
                       options={technicianOptions}
                       defaultValue=""
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <AdminOrderPricePaymentFields
+                      serviceType={serviceType}
+                      executionMethod={executionMethod}
+                      paymentMethod={paymentMethod}
+                      onPaymentMethodChange={setPaymentMethod}
                     />
                   </div>
                   <div className="md:col-span-2">

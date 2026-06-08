@@ -22,6 +22,7 @@ type AdminOrderUpdateFormProps = {
   priorityOptions: IconSelectOption[];
   technicianOptions: IconSelectOption[];
   quotePending?: boolean;
+  paymentBlocking?: boolean;
 };
 
 export function AdminOrderUpdateForm({
@@ -36,19 +37,23 @@ export function AdminOrderUpdateForm({
   priorityOptions,
   technicianOptions,
   quotePending = false,
+  paymentBlocking = false,
 }: AdminOrderUpdateFormProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.ordersPage;
   const q = p.quote;
+  const pay = p.payment;
   const [state, action, pending] = useActionState(updateOrderAction, {});
 
-  const filteredStatusOptions = quotePending
+  const assignmentBlocked = quotePending || paymentBlocking;
+
+  const filteredStatusOptions = assignmentBlocked
     ? statusOptions.filter(
         (option) => option.value === "received" || option.value === "cancelled",
       )
     : statusOptions;
 
-  const filteredTechnicianOptions = quotePending
+  const filteredTechnicianOptions = assignmentBlocked
     ? technicianOptions.filter((option) => option.value === "")
     : technicianOptions;
 
@@ -56,6 +61,9 @@ export function AdminOrderUpdateForm({
     <div>
       {quotePending ? (
         <p className="mb-3 text-sm text-amber-700">{q.assignBlockedHint}</p>
+      ) : null}
+      {paymentBlocking ? (
+        <p className="mb-3 text-sm text-amber-700">{pay.assignBlockedHint}</p>
       ) : null}
       <form action={action} className="space-y-5">
         <input type="hidden" name="id" value={orderId} />
@@ -74,7 +82,7 @@ export function AdminOrderUpdateForm({
           <IconSelect
             name="assigned_technician_id"
             options={filteredTechnicianOptions}
-            defaultValue={quotePending ? "" : assignedTechnicianId}
+            defaultValue={assignmentBlocked ? "" : assignedTechnicianId}
           />
           <Button type="submit" variant="default" className="h-11" disabled={pending}>
             {pending ? t.common.saving : t.common.save}
