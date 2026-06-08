@@ -243,6 +243,13 @@ export const messages = {
     },
   },
 
+  quoteStatus: {
+    pending_admin: "بانتظار مراجعة المدير",
+    admin_countered: "عرض مقابل مرسل",
+    accepted: "تم الاتفاق على السعر",
+    declined: "مرفوض",
+  },
+
   home: {
     hero: {
       titleBefore: "سيارتك تستحق الأفضل،",
@@ -415,11 +422,28 @@ export const messages = {
       step1Title: "بياناتك والموقع",
       step2Title: "تفاصيل الخدمة",
       nextStep: "التالي",
+      proposedPrice: "عرض السعر (ر.س) *",
+      suggestedPrice: "السعر المقترح حسب طلبك: {price}",
+      priceNegotiationHint:
+        "يراجع المدير عرضك وإما يقبله أو يقترح سعراً آخر — مثل تطبيقات النقل.",
       submit: "إرسال الطلب",
       successTitle: "✓ تم إرسال طلبك بنجاح.",
       trackingToken: "رمز التتبع:",
       loginToTrack: "لمتابعة طلبك من لوحة العميل.",
       loginLink: "سجّل الدخول",
+    },
+    quote: {
+      title: "تفاوض السعر",
+      yourOffer: "عرضك",
+      adminOffer: "عرض المدير",
+      agreedPrice: "السعر المتفق عليه",
+      waitingAdmin: "تم إرسال عرضك. بانتظار مراجعة المدير.",
+      counterReceived:
+        "اقترح المدير سعراً مختلفاً. اقبل العرض لتأكيد الطلب.",
+      acceptCounter: "قبول العرض المقابل",
+      priceAccepted: "تم الاتفاق على السعر. سيتم تعيين فني لطلبك قريباً.",
+      acceptSuccess: "تم قبول العرض. السعر مؤكد.",
+      loginToAccept: "لقبول العرض المقابل.",
     },
     location: {
       browserUnsupported: "المتصفح لا يدعم تحديد الموقع",
@@ -979,6 +1003,21 @@ export const messages = {
           location: "الموقع",
           updateOrder: "تحديث الطلب",
         },
+        quote: {
+          title: "تفاوض السعر",
+          clientOffer: "عرض العميل",
+          adminCounter: "عرضك المقابل",
+          agreedPrice: "السعر المتفق عليه",
+          pendingHint:
+            "اقبل سعر العميل لتعيين فني، أو أرسل عرضاً مقابلاً.",
+          acceptClientPrice: "قبول سعر العميل",
+          counterPriceLabel: "العرض المقابل (ر.س)",
+          sendCounter: "إرسال عرض مقابل",
+          acceptedHint: "تم تأكيد السعر — يمكنك تعيين فني ومتابعة الطلب.",
+          assignBlockedHint:
+            "تعيين الفني متوقف حتى يتم الاتفاق على السعر.",
+          saveSuccess: "تم تحديث العرض بنجاح.",
+        },
         createOrder: "إنشاء طلب",
         createOrderHint: "اختر عميلاً أو أنشئ حساباً جديداً ثم أدخل تفاصيل الطلب.",
         showCreateForm: "إنشاء طلب جديد",
@@ -1311,6 +1350,13 @@ export const messages = {
       quickEmailUsed:
         "هذا البريد مستخدم بحساب غير عميل. استخدم بريداً آخر أو سجّل الدخول.",
       quickAccountFailed: "تعذّر إنشاء حساب العميل. حاول مجدداً.",
+      invalidPrice: "أدخل سعراً صالحاً أكبر من صفر.",
+    },
+    quote: {
+      invalidRequest: "طلب غير صالح.",
+      invalidPrice: "أدخل سعراً صالحاً.",
+      actionFailed: "تعذّر تحديث العرض. حاول مجدداً.",
+      notAccepted: "يجب الاتفاق على السعر قبل تعيين فني أو تغيير الحالة.",
     },
     contact: {
       requiredFields: "الاسم ورقم الجوال والرسالة مطلوبة",

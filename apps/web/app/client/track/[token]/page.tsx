@@ -6,6 +6,7 @@ import {
 } from "@/components/tracking/tracking-timeline";
 import { LiveTechnicianMap } from "@/components/tracking/live-technician-map";
 import { TrackingSearch } from "@/components/tracking/tracking-search";
+import { ClientQuotePanel } from "@/components/request/client-quote-panel";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getTrackingHistory, getTrackingRequest, getTechnicianLocationForTracking } from "@/lib/queries";
 
@@ -91,6 +92,8 @@ export default async function ClientTrackDetailPage({
       )}
 
       <RequestSummary request={request} />
+
+      <ClientQuotePanel order={request} />
 
       <div className="rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h2 className="mb-6 text-lg font-bold">{t.tracking.timelineTitle}</h2>

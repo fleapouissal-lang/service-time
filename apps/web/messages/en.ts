@@ -243,6 +243,13 @@ export const messages = {
     },
   },
 
+  quoteStatus: {
+    pending_admin: "Awaiting admin review",
+    admin_countered: "Counter-offer sent",
+    accepted: "Price agreed",
+    declined: "Declined",
+  },
+
   home: {
     hero: {
       titleBefore: "Your car deserves the best,",
@@ -415,11 +422,28 @@ export const messages = {
       step1Title: "Your details & location",
       step2Title: "Service details",
       nextStep: "Next",
+      proposedPrice: "Your price offer (SAR) *",
+      suggestedPrice: "Suggested price based on your request: {price}",
+      priceNegotiationHint:
+        "The admin will review your offer and accept it or propose another price — similar to ride-hailing apps.",
       submit: "Submit request",
       successTitle: "✓ Your request was submitted successfully.",
       trackingToken: "Tracking code:",
       loginToTrack: "to track your order from the client dashboard.",
       loginLink: "Sign in",
+    },
+    quote: {
+      title: "Price negotiation",
+      yourOffer: "Your offer",
+      adminOffer: "Admin counter-offer",
+      agreedPrice: "Agreed price",
+      waitingAdmin: "Your offer was sent. Waiting for admin review.",
+      counterReceived:
+        "The admin proposed a different price. Accept it to confirm the order.",
+      acceptCounter: "Accept counter-offer",
+      priceAccepted: "Price agreed. Your request will be assigned to a technician soon.",
+      acceptSuccess: "Counter-offer accepted. Price confirmed.",
+      loginToAccept: "to accept the counter-offer.",
     },
     location: {
       browserUnsupported: "Browser does not support geolocation",
@@ -979,6 +1003,21 @@ export const messages = {
           location: "Location",
           updateOrder: "Update order",
         },
+        quote: {
+          title: "Price negotiation",
+          clientOffer: "Client offer",
+          adminCounter: "Your counter-offer",
+          agreedPrice: "Agreed price",
+          pendingHint:
+            "Accept the client's price to assign a technician, or send a counter-offer.",
+          acceptClientPrice: "Accept client price",
+          counterPriceLabel: "Counter-offer (SAR)",
+          sendCounter: "Send counter-offer",
+          acceptedHint: "Price confirmed — you can assign a technician and proceed.",
+          assignBlockedHint:
+            "Technician assignment is blocked until the price is agreed.",
+          saveSuccess: "Quote updated successfully.",
+        },
         createOrder: "Create order",
         createOrderHint: "Pick an existing client or create a new account, then enter order details.",
         showCreateForm: "Create new order",
@@ -1310,6 +1349,13 @@ export const messages = {
       quickEmailUsed:
         "This email is already used by a non-client account. Use another email or sign in.",
       quickAccountFailed: "Could not create your client account. Please try again.",
+      invalidPrice: "Enter a valid price greater than zero.",
+    },
+    quote: {
+      invalidRequest: "Invalid request.",
+      invalidPrice: "Enter a valid price.",
+      actionFailed: "Could not update the quote. Try again.",
+      notAccepted: "Price must be agreed before assigning a technician or changing status.",
     },
     contact: {
       requiredFields: "Name, mobile number, and message are required",

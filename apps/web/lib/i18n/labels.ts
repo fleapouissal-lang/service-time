@@ -344,3 +344,7 @@ export function buildSparePartOrderStatusOptions(t: Messages): IconSelectOption[
     }),
   );
 }
+
+export function getQuoteStatusLabels(t: Messages): Record<string, string> {
+  return t.quoteStatus;
+}

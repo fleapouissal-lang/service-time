@@ -11,6 +11,9 @@ import type {
   TechnicianType,
 } from "@service-time/types";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { getLocale } from "@/lib/i18n/get-locale";
+import { isQuotePending } from "@/lib/suggest-service-price";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import {
@@ -58,12 +61,31 @@ export async function updateOrderAction(
   formData: FormData,
 ): Promise<UpdateOrderFormState> {
   try {
+    const t = getDictionary(await getLocale());
     const supabase = await adminClient();
     const id = String(formData.get("id"));
     const status = String(formData.get("status")) as ServiceRequestStatus;
     const priority = String(formData.get("priority")) as RequestPriority;
     const assigned = String(formData.get("assigned_technician_id") ?? "");
     const location = parseOrderLocation(formData);
+
+    const { data: existing } = await supabase
+      .from("service_requests")
+      .select("client_proposed_price, quote_status")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (existing && isQuotePending(existing)) {
+      if (assigned) {
+        return { error: t.errors.quote.notAccepted };
+      }
+      if (
+        status !== "received" &&
+        status !== "cancelled"
+      ) {
+        return { error: t.errors.quote.notAccepted };
+      }
+    }
 
     const { error } = await supabase
       .from("service_requests")

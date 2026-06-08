@@ -15,6 +15,7 @@ import {
   getRequestById,
   getRequestStatusHistory,
 } from "@/lib/dashboard-queries";
+import { ClientQuotePanel } from "@/components/request/client-quote-panel";
 
 export default async function ClientOrderDetailPage({
   params,
@@ -85,6 +86,8 @@ export default async function ClientOrderDetailPage({
               <p className="mt-1 whitespace-pre-wrap">{order.description}</p>
             </div>
           ) : null}
+
+          <ClientQuotePanel order={order} />
 
           <Link
             href={`/client/track/${order.tracking_token}`}

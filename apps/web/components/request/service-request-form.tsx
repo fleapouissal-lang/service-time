@@ -7,6 +7,7 @@ import { CheckCircle2, FileText, Phone, User } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
+import { ServicePriceProposalField } from "@/components/request/service-price-proposal-field";
 import { RequestFormShell } from "@/components/request/request-form-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -53,6 +54,9 @@ export function ServiceRequestForm({
   const defaultExecution =
     searchParams.get("execution_method") ?? "mobile_workshop";
 
+  const [serviceType, setServiceType] = useState(defaultType);
+  const [executionMethod, setExecutionMethod] = useState(defaultExecution);
+
   const serviceTypeOptions = useMemo(
     () => buildServiceRequestTypeOptions(t),
     [t],
@@ -89,6 +93,7 @@ export function ServiceRequestForm({
     const nameEl = form.querySelector<HTMLInputElement>("#customer_name");
     const phoneEl = form.querySelector<HTMLInputElement>("#customer_phone");
     const carEl = form.querySelector<HTMLInputElement>('input[name="car_type"]');
+    const priceEl = form.querySelector<HTMLInputElement>("#client_proposed_price");
 
     if (!nameEl?.value.trim() || !phoneEl?.value.trim()) {
       setStepError(t.errors.request.namePhoneRequired);
@@ -102,11 +107,17 @@ export function ServiceRequestForm({
       return;
     }
 
-    for (const el of [nameEl, phoneEl, carEl]) {
+    for (const el of [nameEl, phoneEl, carEl, priceEl]) {
       if (el && !el.checkValidity()) {
         el.reportValidity();
         return;
       }
+    }
+
+    if (priceEl && Number(priceEl.value) <= 0) {
+      setStepError(f.proposedPrice);
+      priceEl.focus();
+      return;
     }
 
     setStepError("");
@@ -248,7 +259,8 @@ export function ServiceRequestForm({
                     id="service_type"
                     name="service_type"
                     options={serviceTypeOptions}
-                    defaultValue={defaultType}
+                    value={serviceType}
+                    onValueChange={setServiceType}
                     required
                   />
                 </div>
@@ -259,10 +271,16 @@ export function ServiceRequestForm({
                     id="execution_method"
                     name="execution_method"
                     options={executionMethodOptions}
-                    defaultValue={defaultExecution}
+                    value={executionMethod}
+                    onValueChange={setExecutionMethod}
                     required
                   />
                 </div>
+
+                <ServicePriceProposalField
+                  serviceType={serviceType}
+                  executionMethod={executionMethod}
+                />
 
                 <div>
                   <Label htmlFor="description">{f.problemDescription}</Label>

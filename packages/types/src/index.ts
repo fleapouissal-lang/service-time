@@ -24,6 +24,12 @@ export enum ServiceRequestStatus {
 
 export type RequestPriority = "low" | "normal" | "high";
 
+export type QuoteStatus =
+  | "pending_admin"
+  | "admin_countered"
+  | "accepted"
+  | "declined";
+
 export type NotificationChannel = "whatsapp" | "sms";
 
 // ---------------------------------------------------------------------------
@@ -159,6 +165,10 @@ export interface ServiceRequest {
   priority: RequestPriority;
   assigned_technician_id: string | null;
   tracking_token: string;
+  client_proposed_price: number | null;
+  admin_counter_price: number | null;
+  agreed_price: number | null;
+  quote_status: QuoteStatus | null;
   created_at: string;
   updated_at: string;
 }

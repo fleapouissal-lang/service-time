@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { AdminOrderDeleteButton } from "@/components/admin/admin-order-delete-button";
 import { AdminOrderUpdateForm } from "@/components/admin/admin-order-update-form";
+import { AdminQuotePanel } from "@/components/admin/admin-quote-panel";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -17,6 +18,7 @@ import {
 import { getIntlLocale } from "@/lib/i18n/config";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
+import { isQuotePending } from "@/lib/suggest-service-price";
 import {
   buildPrioritySelectOptions,
   buildStatusSelectOptions,
@@ -49,6 +51,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   const assignedTechnician = technicians.find(
     (tech) => tech.id === order.assigned_technician_id,
   );
+  const quotePending = isQuotePending(order);
 
   return (
     <div className="space-y-6">
@@ -134,6 +137,8 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             </div>
           ) : null}
 
+          <AdminQuotePanel order={order} />
+
           <div>
             <p className="mb-3 text-sm font-semibold">{p.detail.updateOrder}</p>
             <AdminOrderUpdateForm
@@ -147,6 +152,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               statusOptions={statusOptions}
               priorityOptions={priorityOptions}
               technicianOptions={technicianOptions}
+              quotePending={quotePending}
             />
           </div>
 

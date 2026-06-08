@@ -21,6 +21,7 @@ type AdminOrderUpdateFormProps = {
   statusOptions: IconSelectOption[];
   priorityOptions: IconSelectOption[];
   technicianOptions: IconSelectOption[];
+  quotePending?: boolean;
 };
 
 export function AdminOrderUpdateForm({
@@ -34,20 +35,35 @@ export function AdminOrderUpdateForm({
   statusOptions,
   priorityOptions,
   technicianOptions,
+  quotePending = false,
 }: AdminOrderUpdateFormProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.ordersPage;
+  const q = p.quote;
   const [state, action, pending] = useActionState(updateOrderAction, {});
+
+  const filteredStatusOptions = quotePending
+    ? statusOptions.filter(
+        (option) => option.value === "received" || option.value === "cancelled",
+      )
+    : statusOptions;
+
+  const filteredTechnicianOptions = quotePending
+    ? technicianOptions.filter((option) => option.value === "")
+    : technicianOptions;
 
   return (
     <div>
+      {quotePending ? (
+        <p className="mb-3 text-sm text-amber-700">{q.assignBlockedHint}</p>
+      ) : null}
       <form action={action} className="space-y-5">
         <input type="hidden" name="id" value={orderId} />
 
         <div className="grid gap-3 md:grid-cols-4">
           <IconSelect
             name="status"
-            options={statusOptions}
+            options={filteredStatusOptions}
             defaultValue={status}
           />
           <IconSelect
@@ -57,8 +73,8 @@ export function AdminOrderUpdateForm({
           />
           <IconSelect
             name="assigned_technician_id"
-            options={technicianOptions}
-            defaultValue={assignedTechnicianId}
+            options={filteredTechnicianOptions}
+            defaultValue={quotePending ? "" : assignedTechnicianId}
           />
           <Button type="submit" variant="default" className="h-11" disabled={pending}>
             {pending ? t.common.saving : t.common.save}

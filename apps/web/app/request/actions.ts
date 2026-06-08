@@ -47,6 +47,8 @@ export async function submitServiceRequest(
   const execution_method = String(
     formData.get("execution_method") ?? "",
   ) as ExecutionMethod;
+  const priceRaw = String(formData.get("client_proposed_price") ?? "").trim();
+  const client_proposed_price = priceRaw ? Number(priceRaw) : null;
   const photo = getPhotoFromFormData(formData);
   const hadPhotoField = formHasPhotoField(formData);
 
@@ -62,6 +64,14 @@ export async function submitServiceRequest(
 
   if (!["workshop_visit", "mobile_workshop"].includes(execution_method)) {
     return { error: t.errors.request.invalidExecutionMethod };
+  }
+
+  if (
+    client_proposed_price == null ||
+    !Number.isFinite(client_proposed_price) ||
+    client_proposed_price <= 0
+  ) {
+    return { error: t.errors.request.invalidPrice };
   }
 
   if (hadPhotoField && !photo) {
@@ -91,6 +101,7 @@ export async function submitServiceRequest(
       location_lng !== null && Number.isFinite(location_lng)
         ? location_lng
         : null,
+    p_client_proposed_price: client_proposed_price,
   });
 
   if (error) {
