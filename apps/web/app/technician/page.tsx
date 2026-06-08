@@ -12,12 +12,16 @@ import {
   WeeklyTrendChart,
 } from "@/components/dashboard/dashboard-charts";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { TechnicianLatestOrdersSection } from "@/components/technician/technician-latest-orders-section";
 import {
   buildDashboardKpis,
   buildStatusChartData,
 } from "@/lib/dashboard-analytics";
 import { requireProfile } from "@/lib/auth";
-import { getTechnicianRequests } from "@/lib/dashboard-queries";
+import {
+  getRequestStatusHistoryBatch,
+  getTechnicianRequests,
+} from "@/lib/dashboard-queries";
 import {
   getOverviewPeriodLabel,
   getOverviewTrendTitle,
@@ -61,6 +65,15 @@ export default async function TechnicianHomePage({ searchParams }: PageProps) {
     insightsPeriod,
   );
   const insightsKpis = buildDashboardKpis(insightsOrders);
+  const latestOrders = [...allOrders]
+    .sort(
+      (a, b) =>
+        new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime(),
+    )
+    .slice(0, 6);
+  const historyByOrderId = await getRequestStatusHistoryBatch(
+    latestOrders.map((order) => order.id),
+  );
 
   const chartTabs = (
     key: "status" | "trend" | "insights",
@@ -121,6 +134,11 @@ export default async function TechnicianHomePage({ searchParams }: PageProps) {
           accent
         />
       </div>
+
+      <TechnicianLatestOrdersSection
+        orders={latestOrders}
+        historyByOrderId={historyByOrderId}
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <StatusDonutChart

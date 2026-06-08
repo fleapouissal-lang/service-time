@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   MapPin,
   Package,
+  Settings,
   ShoppingCart,
   Users,
   Wrench,
@@ -48,6 +49,11 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       label: messages.dashboard.admin.reports,
       icon: BarChart3,
     },
+    {
+      href: "/admin/settings",
+      label: messages.dashboard.settings.nav,
+      icon: Settings,
+    },
   ];
 }
 
@@ -67,6 +73,11 @@ export function getTechnicianNav(messages: Messages): DashboardNavItem[] {
       href: "/technician/location",
       label: messages.meta.technicianLocation,
       icon: MapPin,
+    },
+    {
+      href: "/technician/settings",
+      label: messages.dashboard.settings.nav,
+      icon: Settings,
     },
   ];
 }
@@ -97,6 +108,11 @@ export function getClientNav(messages: Messages): DashboardNavItem[] {
       href: "/client/track",
       label: messages.dashboard.client.track,
       icon: MapPin,
+    },
+    {
+      href: "/client/settings",
+      label: messages.dashboard.settings.nav,
+      icon: Settings,
     },
   ];
 }

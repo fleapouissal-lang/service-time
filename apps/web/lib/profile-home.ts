@@ -39,6 +39,5 @@ export function getProfileRoleLabel(t: Messages, role: ProfileRole): string {
 }
 
 export function getProfilePagePath(role: ProfileRole): string {
-  if (role === "client") return "/client/profile";
-  return getProfileHomePath(role);
+  return `${getProfileHomePath(role)}/settings`;
 }

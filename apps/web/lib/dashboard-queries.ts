@@ -174,6 +174,36 @@ export async function getRequestStatusHistory(requestId: string) {
   return data ?? [];
 }
 
+export async function getRequestStatusHistoryBatch(
+  requestIds: string[],
+): Promise<Record<string, Awaited<ReturnType<typeof getRequestStatusHistory>>>> {
+  if (!requestIds.length) return {};
+
+  const supabase = await createAuthServerClient();
+  const { data } = await supabase
+    .from("request_status_history")
+    .select("*")
+    .in("request_id", requestIds)
+    .order("created_at", { ascending: true });
+
+  const grouped: Record<
+    string,
+    Awaited<ReturnType<typeof getRequestStatusHistory>>
+  > = {};
+
+  for (const id of requestIds) {
+    grouped[id] = [];
+  }
+
+  for (const row of data ?? []) {
+    const requestId = row.request_id as string;
+    if (!grouped[requestId]) grouped[requestId] = [];
+    grouped[requestId].push(row);
+  }
+
+  return grouped;
+}
+
 export async function getTechnicianLiveLocation(technicianId: string) {
   const supabase = await createAuthServerClient();
   const { data } = await supabase

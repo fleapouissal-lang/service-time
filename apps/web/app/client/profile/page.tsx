@@ -30,7 +30,15 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{t.meta.clientProfile}</h1>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h1 className="text-2xl font-bold">{t.meta.clientProfile}</h1>
+        <Link
+          href="/client/settings"
+          className="text-sm font-semibold text-primary hover:underline"
+        >
+          {t.dashboard.settings.nav}
+        </Link>
+      </div>
 
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-6">
