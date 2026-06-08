@@ -89,6 +89,8 @@ export const messages = {
     details: "Details",
     search: "Search",
     filter: "Filter",
+    showFilters: "Show filters",
+    hideFilters: "Hide filters",
     clear: "Clear",
     edit: "Edit",
     add: "Add",

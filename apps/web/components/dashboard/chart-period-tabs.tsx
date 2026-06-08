@@ -5,6 +5,7 @@ import {
   buildOverviewHref,
   type OverviewPeriod,
 } from "@/lib/overview-period";
+import { MobileFilterPanel } from "@/components/dashboard/mobile-filter-panel";
 import { getOverviewPeriodOptions } from "@/lib/i18n/labels";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
@@ -26,25 +27,27 @@ export function ChartPeriodTabs({
   const tabs = getOverviewPeriodOptions(t);
 
   return (
-    <div className="flex flex-wrap gap-1">
-      {tabs.map((tab) => (
-        <Link
-          key={tab.value}
-          href={buildOverviewHref(
-            pathname,
-            { [paramKey]: tab.value },
-            preserveParams,
-          )}
-          className={cn(
-            "inline-flex h-7 items-center rounded-lg px-2.5 text-[11px] font-semibold transition-colors",
-            active === tab.value
-              ? "bg-primary text-primary-foreground"
-              : "border border-border bg-background text-muted hover:bg-primary/5 hover:text-foreground",
-          )}
-        >
-          {tab.label}
-        </Link>
-      ))}
-    </div>
+    <MobileFilterPanel label={t.common.period} className="lg:w-auto">
+      <div className="mt-3 flex flex-wrap gap-1 lg:mt-0">
+        {tabs.map((tab) => (
+          <Link
+            key={tab.value}
+            href={buildOverviewHref(
+              pathname,
+              { [paramKey]: tab.value },
+              preserveParams,
+            )}
+            className={cn(
+              "inline-flex h-7 items-center rounded-lg px-2.5 text-[11px] font-semibold transition-colors",
+              active === tab.value
+                ? "bg-primary text-primary-foreground"
+                : "border border-border bg-background text-muted hover:bg-primary/5 hover:text-foreground",
+            )}
+          >
+            {tab.label}
+          </Link>
+        ))}
+      </div>
+    </MobileFilterPanel>
   );
 }

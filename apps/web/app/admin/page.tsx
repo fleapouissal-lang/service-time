@@ -112,7 +112,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
         <h2 className="mb-3 text-sm font-semibold text-muted">
           {t.dashboard.common.ordersForPeriod} — {periodLabel}
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label={t.dashboard.admin.totalOrders}
             value={kpis.total}
@@ -163,7 +163,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
             {t.dashboard.common.manageUsers}
           </Link>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard
             label={t.dashboard.admin.clients}
             value={userStats.clients}

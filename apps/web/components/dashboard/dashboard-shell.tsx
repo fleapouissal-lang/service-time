@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import type { Profile } from "@service-time/types";
 import {
   DashboardSidebar,
   type DashboardNavItem,
 } from "@/components/dashboard/dashboard-sidebar";
+import { DashboardMobileHeader } from "@/components/dashboard/dashboard-mobile-header";
 import {
   getProfileHomePath,
   getProfilePagePath,
@@ -52,26 +53,82 @@ function DashboardLayout({
   items: DashboardNavItem[];
   onSignOut: () => void;
 }) {
+  const pathname = usePathname();
   const { open, toggle } = useSidebarOpen();
   const { locale } = useLocale();
   const displayName = getProfileDisplayName(profile, locale);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const sidebarUser = {
+    fullName: displayName,
+    role: profile.role,
+    avatarUrl: profile.avatar_url ?? null,
+    profileHref: getProfilePagePath(profile.role),
+    homeHref: getProfileHomePath(profile.role),
+  };
+
+  const closeMobileMenu = () => setMobileMenuOpen(false);
+
+  useEffect(() => {
+    closeMobileMenu();
+  }, [pathname]);
+
+  useEffect(() => {
+    if (!mobileMenuOpen) {
+      document.body.style.overflow = "";
+      return;
+    }
+
+    document.body.style.overflow = "hidden";
+
+    const handleMenuScroll = () => closeMobileMenu();
+    const menuEl = menuRef.current;
+    menuEl?.addEventListener("scroll", handleMenuScroll, { passive: true });
+    window.addEventListener("wheel", handleMenuScroll, { passive: true });
+
+    return () => {
+      document.body.style.overflow = "";
+      menuEl?.removeEventListener("scroll", handleMenuScroll);
+      window.removeEventListener("wheel", handleMenuScroll);
+    };
+  }, [mobileMenuOpen]);
 
   return (
-    <div className="flex h-dvh overflow-hidden bg-background">
-      <DashboardSidebar
-        user={{
-          fullName: displayName,
-          role: profile.role,
-          avatarUrl: profile.avatar_url ?? null,
-          profileHref: getProfilePagePath(profile.role),
-          homeHref: getProfileHomePath(profile.role),
-        }}
-        items={items}
-        open={open}
-        onToggle={toggle}
-        onSignOut={onSignOut}
+    <div className="flex h-dvh flex-col overflow-hidden bg-background lg:flex-row">
+      <DashboardMobileHeader
+        open={mobileMenuOpen}
+        onToggle={() => setMobileMenuOpen((value) => !value)}
       />
-      <main className="min-h-0 flex-1 overflow-y-auto p-6 lg:p-8">
+
+      {mobileMenuOpen ? (
+        <div
+          ref={menuRef}
+          className="fixed inset-x-0 top-20 z-40 flex h-[calc(100dvh-5rem)] flex-col lg:hidden"
+        >
+          <DashboardSidebar
+            user={sidebarUser}
+            items={items}
+            open
+            onToggle={closeMobileMenu}
+            onSignOut={onSignOut}
+            mobileMenu
+            onNavigate={closeMobileMenu}
+          />
+        </div>
+      ) : null}
+
+      <div className="hidden h-full shrink-0 lg:block">
+        <DashboardSidebar
+          user={sidebarUser}
+          items={items}
+          open={open}
+          onToggle={toggle}
+          onSignOut={onSignOut}
+        />
+      </div>
+
+      <main className="min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
         <div className="mx-auto w-full max-w-[1200px]">{children}</div>
       </main>
     </div>

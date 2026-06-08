@@ -89,6 +89,8 @@ export const messages = {
     details: "التفاصيل",
     search: "بحث",
     filter: "تصفية",
+    showFilters: "عرض الفلاتر",
+    hideFilters: "إخفاء الفلاتر",
     clear: "مسح",
     edit: "تعديل",
     add: "إضافة",
