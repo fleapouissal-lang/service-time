@@ -24,6 +24,9 @@ $$;
 GRANT EXECUTE ON FUNCTION public.get_technician_location_for_tracking(text)
   TO anon, authenticated;
 
+DROP POLICY IF EXISTS "technician_locations_client_select_assigned"
+  ON public.technician_locations;
+
 CREATE POLICY "technician_locations_client_select_assigned"
   ON public.technician_locations FOR SELECT
   USING (

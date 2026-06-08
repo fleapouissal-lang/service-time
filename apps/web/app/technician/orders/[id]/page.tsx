@@ -77,7 +77,15 @@ export default async function TechnicianOrderPage({
             <p className="mb-4 text-xs text-muted">
               {t.tracking.mapDisclaimer}
             </p>
-            <LocationTracker active={showLocation} />
+            <LocationTracker
+              active={showLocation}
+              destination={
+                order.location_lat != null && order.location_lng != null
+                  ? { lat: order.location_lat, lng: order.location_lng }
+                  : null
+              }
+              destinationAddress={order.location_text}
+            />
           </CardContent>
         </Card>
       )}

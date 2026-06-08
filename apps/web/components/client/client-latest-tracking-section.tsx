@@ -101,6 +101,12 @@ export function ClientLatestTrackingSection({
         <LiveTechnicianMap
           show={showLiveMap}
           technicianId={order.assigned_technician_id}
+          destination={
+            order.location_lat != null && order.location_lng != null
+              ? { lat: order.location_lat, lng: order.location_lng }
+              : null
+          }
+          destinationAddress={order.location_text}
           initialCoords={initialTechnicianCoords}
         />
       </CardContent>

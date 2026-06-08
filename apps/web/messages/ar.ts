@@ -600,6 +600,16 @@ export const messages = {
       "سيظهر موقع الفني على الخريطة عندما تكون حالة الطلب «الفني في الطريق».",
     mapWaitingForTechnician:
       "في انتظار مشاركة موقع الفني… اضغط «بدء مشاركة الموقع» من لوحة الفني.",
+    etaLabel: "الوقت المتوقع للوصول",
+    etaMinutes: "{{minutes}} د",
+    etaHoursMinutes: "{{hours}} س {{minutes}} د",
+    distanceLabel: "المسافة",
+    distanceKm: "{{km}} كم",
+    routeLoading: "جاري حساب المسار…",
+    geocodingFailed:
+      "تعذر تحديد موقع العنوان. أضف عنواناً أوضح أو حدّد الموقع على الخريطة عند إنشاء الطلب.",
+    noDestinationCoords:
+      "إحداثيات عنوان الخدمة غير متوفرة — لا يمكن حساب وقت الوصول.",
     mapTitle: "موقع الفني",
     mapDisclaimer:
       "* الموقع تقريبي ويعتمد على اتصال الفني بالإنترنت — ليس التزاماً بوقت وصول دقيق.",
@@ -1075,7 +1085,8 @@ export const messages = {
         stopped: "متوقف",
         browserUnsupported: "المتصفح لا يدعم تحديد الموقع",
         sending: "جاري الإرسال...",
-        updated: "تم تحديث الموقع",
+        sharingLive: "مشاركة الموقع مباشرة",
+      updated: "تم تحديث الموقع",
         stopSharing: "إيقاف المشاركة",
         startSharing: "بدء مشاركة الموقع",
       },

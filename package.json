@@ -22,7 +22,8 @@
     "db:delete-clients": "node scripts/delete-client-users.mjs --confirm",
     "db:client-dashboard-rls": "node scripts/apply-client-dashboard-rls.mjs",
     "db:create-service-request-rpc": "node scripts/apply-create-service-request-rpc.mjs",
-    "db:push": "supabase db push"
+    "db:technician-location": "node scripts/apply-technician-location-tracking.mjs",
+    "db:push": "npx supabase db push"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",

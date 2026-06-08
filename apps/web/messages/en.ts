@@ -600,6 +600,16 @@ export const messages = {
       "The technician's location will appear on the map when the order status is «Technician on the way».",
     mapWaitingForTechnician:
       "Waiting for the technician to share their location… Ask them to tap «Start sharing location».",
+    etaLabel: "Estimated arrival",
+    etaMinutes: "{{minutes}} min",
+    etaHoursMinutes: "{{hours}} h {{minutes}} min",
+    distanceLabel: "Distance",
+    distanceKm: "{{km}} km",
+    routeLoading: "Calculating route…",
+    geocodingFailed:
+      "Could not locate the service address. Use a clearer address or pick the location on the map when creating the order.",
+    noDestinationCoords:
+      "Service address coordinates are unavailable — ETA cannot be calculated.",
     mapTitle: "Technician location",
     mapDisclaimer:
       "* Location is approximate and depends on the technician's internet connection — not a commitment to exact arrival time.",
@@ -1075,7 +1085,8 @@ export const messages = {
         stopped: "Stopped",
         browserUnsupported: "Browser does not support geolocation",
         sending: "Sending...",
-        updated: "Location updated",
+        sharingLive: "Sharing location live",
+      updated: "Location updated",
         stopSharing: "Stop sharing",
         startSharing: "Start sharing location",
       },

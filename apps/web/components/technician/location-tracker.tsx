@@ -2,21 +2,32 @@
 
 import { useEffect, useState } from "react";
 import { updateTechnicianLocation } from "@/app/technician/actions";
-import { TrackingMapView } from "@/components/tracking/tracking-map-view";
+import { RouteTrackingMap } from "@/components/tracking/route-tracking-map";
 import { Button } from "@/components/ui/button";
+import type { MapCoords } from "@/lib/driving-route";
 import { useLocale } from "@/lib/i18n/locale-context";
 
-export function LocationTracker({ active }: { active: boolean }) {
+export function LocationTracker({
+  active,
+  destination = null,
+  destinationAddress = null,
+}: {
+  active: boolean;
+  destination?: MapCoords | null;
+  destinationAddress?: string | null;
+}) {
   const { messages: t } = useLocale();
-  const [status, setStatus] = useState<string>(t.dashboard.technician.tracker.stopped);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(
-    null,
+  const [status, setStatus] = useState<string>(
+    t.dashboard.technician.tracker.stopped,
   );
+  const [coords, setCoords] = useState<MapCoords | null>(null);
   const [watching, setWatching] = useState(false);
 
   useEffect(() => {
-    setStatus(t.dashboard.technician.tracker.stopped);
-  }, [t]);
+    if (!watching) {
+      setStatus(t.dashboard.technician.tracker.stopped);
+    }
+  }, [t, watching]);
 
   useEffect(() => {
     if (!watching || !active) return;
@@ -31,16 +42,16 @@ export function LocationTracker({ active }: { active: boolean }) {
         const lat = pos.coords.latitude;
         const lng = pos.coords.longitude;
         setCoords({ lat, lng });
-        setStatus(t.dashboard.technician.tracker.sending);
+        setStatus(t.dashboard.technician.tracker.sharingLive);
 
         const fd = new FormData();
         fd.set("lat", String(lat));
         fd.set("lng", String(lng));
         const result = await updateTechnicianLocation(fd);
-        setStatus(result.error ? result.error : t.dashboard.technician.tracker.updated);
+        if (result.error) setStatus(result.error);
       },
       (err) => setStatus(err.message),
-      { enableHighAccuracy: true, maximumAge: 10000, timeout: 15000 },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
     );
 
     return () => navigator.geolocation.clearWatch(id);
@@ -51,20 +62,25 @@ export function LocationTracker({ active }: { active: boolean }) {
       <Button
         type="button"
         variant={watching ? "outline" : "default"}
-        onClick={() => setWatching(!watching)}
+        onClick={() => {
+          if (watching) setCoords(null);
+          setWatching(!watching);
+        }}
       >
         {watching
           ? t.dashboard.technician.tracker.stopSharing
           : t.dashboard.technician.tracker.startSharing}
       </Button>
-      {coords && (
-        <>
-          <p className="text-xs text-muted" dir="ltr">
-            {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
-          </p>
-          <TrackingMapView lat={coords.lat} lng={coords.lng} show />
-        </>
-      )}
+
+      {watching && coords ? (
+        <RouteTrackingMap
+          show
+          technician={coords}
+          destination={destination}
+          destinationAddress={destinationAddress}
+        />
+      ) : null}
+
       <p className="text-sm">{status}</p>
     </div>
   );

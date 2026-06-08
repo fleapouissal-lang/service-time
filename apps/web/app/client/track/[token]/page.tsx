@@ -99,7 +99,13 @@ export default async function ClientTrackDetailPage({
 
       <LiveTechnicianMap
         show={showLiveMap}
-        trackingToken={token}
+        technicianId={request.assigned_technician_id}
+        destination={
+          request.location_lat != null && request.location_lng != null
+            ? { lat: request.location_lat, lng: request.location_lng }
+            : null
+        }
+        destinationAddress={request.location_text}
         initialCoords={
           technicianLocation
             ? { lat: technicianLocation.lat, lng: technicianLocation.lng }
