@@ -21,10 +21,14 @@ import {
 
 export function ServiceRequestForm({
   embedded = false,
+  fullWidth = false,
+  bare = false,
   defaultName = "",
   defaultPhone = "",
 }: {
   embedded?: boolean;
+  fullWidth?: boolean;
+  bare?: boolean;
   defaultName?: string;
   defaultPhone?: string;
 }) {
@@ -61,7 +65,12 @@ export function ServiceRequestForm({
         />
       ) : null}
 
-      <RequestFormShell>
+      <RequestFormShell
+        bare={bare}
+        containerClassName={
+          fullWidth && !bare ? "w-full max-w-none pb-0" : undefined
+        }
+      >
         <form action={action} className="space-y-6">
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />

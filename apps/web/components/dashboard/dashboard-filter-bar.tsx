@@ -48,6 +48,10 @@ export function DashboardFilterBar({
   const { messages: t } = useLocale();
   const active = hasActiveListFilters(values);
   const resolvedPlaceholder = searchPlaceholder ?? t.common.search;
+  const selectCount = selects.length;
+  const compactFilters = !showSearch && selectCount > 0 && selectCount <= 2;
+  const inlineFilterRow =
+    (showSearch && selectCount <= 2) || compactFilters;
 
   return (
     <Card className={cn(className)}>
@@ -55,10 +59,29 @@ export function DashboardFilterBar({
         <form
           method="get"
           action={pathname}
-          className="flex flex-wrap items-end gap-3"
+          className={cn(
+            "items-end gap-3",
+            inlineFilterRow
+              ? "flex flex-wrap"
+              : cn(
+                  "grid sm:grid-cols-2 lg:grid-cols-3",
+                  showSearch &&
+                    selectCount > 0 &&
+                    "xl:grid-cols-[minmax(220px,1.2fr)_repeat(auto-fit,minmax(180px,1fr))]",
+                ),
+          )}
         >
           {showSearch ? (
-            <div className="min-w-[220px] flex-1">
+            <div
+              className={cn(
+                "min-w-0",
+                inlineFilterRow
+                  ? "min-w-[220px] flex-[2_1_320px]"
+                  : selectCount > 0
+                    ? "sm:col-span-2 xl:col-span-1"
+                    : "sm:col-span-2 lg:col-span-1",
+              )}
+            >
               <Label htmlFor="dashboard-filter-q" className="text-xs text-muted">
                 {t.common.search}
               </Label>
@@ -72,7 +95,7 @@ export function DashboardFilterBar({
                   name="q"
                   defaultValue={values.q ?? ""}
                   placeholder={resolvedPlaceholder}
-                  className="ps-9"
+                  className="h-11 ps-9"
                 />
               </div>
             </div>
@@ -85,7 +108,13 @@ export function DashboardFilterBar({
           })}
 
           {selects.map((field) => (
-            <div key={field.name} className="min-w-[180px]">
+            <div
+              key={field.name}
+              className={cn(
+                "min-w-0",
+                inlineFilterRow && "min-w-[180px] flex-1",
+              )}
+            >
               <Label
                 htmlFor={`dashboard-filter-${field.name}`}
                 className="text-xs text-muted"
@@ -111,19 +140,37 @@ export function DashboardFilterBar({
             </div>
           ))}
 
-          <Button type="submit" className="h-11">
-            {t.common.filter}
-          </Button>
-
-          {active ? (
-            <Link
-              href={pathname}
-              className="inline-flex h-11 items-center gap-1.5 rounded-xl border border-border px-4 text-sm font-medium text-muted transition-colors hover:bg-primary/5 hover:text-foreground"
+          <div
+            className={cn(
+              "flex min-w-0 shrink-0 flex-col",
+              !inlineFilterRow &&
+                (showSearch && selectCount > 0
+                  ? "sm:col-span-2 xl:col-span-full xl:justify-self-start"
+                  : "sm:col-span-2 lg:col-span-1 lg:justify-self-start"),
+            )}
+          >
+            <Label
+              aria-hidden
+              className="pointer-events-none text-xs text-transparent select-none"
             >
-              <X className="size-4" aria-hidden />
-              {t.common.clear}
-            </Link>
-          ) : null}
+              {t.common.filter}
+            </Label>
+            <div className="mt-1 flex flex-wrap items-center gap-2">
+              <Button type="submit" className="h-11 shrink-0">
+                {t.common.filter}
+              </Button>
+
+              {active ? (
+                <Link
+                  href={pathname}
+                  className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border px-4 text-sm font-medium text-muted transition-colors hover:bg-primary/5 hover:text-foreground"
+                >
+                  <X className="size-4" aria-hidden />
+                  {t.common.clear}
+                </Link>
+              ) : null}
+            </div>
+          </div>
         </form>
 
         {resultCount !== undefined && totalCount !== undefined ? (

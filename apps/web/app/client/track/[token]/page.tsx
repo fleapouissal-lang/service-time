@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import {
   RequestSummary,
-  TrackingMapPlaceholder,
   TrackingTimeline,
 } from "@/components/tracking/tracking-timeline";
+import { LiveTechnicianMap } from "@/components/tracking/live-technician-map";
 import { TrackingSearch } from "@/components/tracking/tracking-search";
 import { getServerI18n } from "@/lib/i18n/server";
-import { getTrackingHistory, getTrackingRequest } from "@/lib/queries";
+import { getTrackingHistory, getTrackingRequest, getTechnicianLocationForTracking } from "@/lib/queries";
 
 export async function generateMetadata({
   params,
@@ -65,6 +65,9 @@ export default async function ClientTrackDetailPage({
 
   const showLiveMap =
     request.status === "on_the_way" || request.status === "arrived";
+  const technicianLocation = showLiveMap
+    ? await getTechnicianLocationForTracking(token)
+    : null;
 
   return (
     <div className="space-y-6">
@@ -94,10 +97,14 @@ export default async function ClientTrackDetailPage({
         <TrackingTimeline currentStatus={request.status} history={history} />
       </div>
 
-      <TrackingMapPlaceholder
-        lat={request.location_lat}
-        lng={request.location_lng}
+      <LiveTechnicianMap
         show={showLiveMap}
+        trackingToken={token}
+        initialCoords={
+          technicianLocation
+            ? { lat: technicianLocation.lat, lng: technicianLocation.lng }
+            : null
+        }
       />
 
       <Link

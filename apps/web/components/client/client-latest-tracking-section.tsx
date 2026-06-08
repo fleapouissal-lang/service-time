@@ -5,9 +5,9 @@ import Link from "next/link";
 import { ArrowLeft, Navigation } from "lucide-react";
 import {
   RequestSummary,
-  TrackingMapPlaceholder,
   TrackingTimeline,
 } from "@/components/tracking/tracking-timeline";
+import { LiveTechnicianMap } from "@/components/tracking/live-technician-map";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStatusLabels } from "@/lib/i18n/labels";
@@ -16,11 +16,13 @@ import { useLocale } from "@/lib/i18n/locale-context";
 type ClientLatestTrackingSectionProps = {
   order: ServiceRequest | null;
   history: RequestStatusHistory[];
+  initialTechnicianCoords?: { lat: number; lng: number } | null;
 };
 
 export function ClientLatestTrackingSection({
   order,
   history,
+  initialTechnicianCoords = null,
 }: ClientLatestTrackingSectionProps) {
   const { messages: t, locale } = useLocale();
   const statusLabels = getStatusLabels(t);
@@ -96,10 +98,10 @@ export function ClientLatestTrackingSection({
           <TrackingTimeline currentStatus={order.status} history={history} />
         </div>
 
-        <TrackingMapPlaceholder
-          lat={order.location_lat}
-          lng={order.location_lng}
+        <LiveTechnicianMap
           show={showLiveMap}
+          technicianId={order.assigned_technician_id}
+          initialCoords={initialTechnicianCoords}
         />
       </CardContent>
     </Card>

@@ -45,6 +45,10 @@ export function getClientOrderSearchPlaceholder(t: Messages) {
   return t.dashboard.filters.clientOrderSearch;
 }
 
+export function getClientSparePartOrderSearchPlaceholder(t: Messages) {
+  return t.dashboard.filters.clientSparePartOrderSearch;
+}
+
 export function getUserSearchPlaceholderForDashboard(t: Messages) {
   return t.dashboard.filters.userSearch;
 }

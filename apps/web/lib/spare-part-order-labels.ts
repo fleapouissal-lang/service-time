@@ -10,8 +10,7 @@ export function getSparePartOrderStatusLabelsForDashboard(t: Messages) {
   return getSparePartOrderStatusLabels(t);
 }
 
-export function getSparePartPaymentStatusLabelsForDashboard(t: Messages) {
-  return getSparePartPaymentStatusLabels(t);
+export function getSparePartPaymentStatusLabelsForDashboard(t: Messages) {  return getSparePartPaymentStatusLabels(t);
 }
 
 export function getSparePartPaymentMethodLabelsForDashboard(t: Messages) {
@@ -20,4 +19,10 @@ export function getSparePartPaymentMethodLabelsForDashboard(t: Messages) {
 
 export function buildSparePartOrderStatusOptionsForDashboard(t: Messages) {
   return buildSparePartOrderStatusOptions(t);
+}
+
+export function getSparePartOrderStatusFilterOptionsForDashboard(t: Messages) {
+  return Object.entries(getSparePartOrderStatusLabels(t)).map(
+    ([value, label]) => ({ value, label }),
+  );
 }

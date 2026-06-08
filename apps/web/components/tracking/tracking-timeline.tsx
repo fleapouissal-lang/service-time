@@ -1,7 +1,7 @@
 "use client";
 
 import type { RequestStatusHistory } from "@service-time/types";
-import { CheckCircle2, Circle, MapPin } from "lucide-react";
+import { CheckCircle2, Circle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -92,43 +92,7 @@ export function TrackingTimeline({
   );
 }
 
-export function TrackingMapPlaceholder({
-  lat,
-  lng,
-  show,
-}: {
-  lat: number | null;
-  lng: number | null;
-  show: boolean;
-}) {
-  const { messages: t } = useLocale();
-  if (!show || lat == null || lng == null) {
-    return (
-      <Card className="border-dashed">
-        <CardContent className="flex items-center gap-3 p-6 text-sm text-muted">
-          <MapPin className="size-5 shrink-0" />
-          <p>
-            {t.tracking.mapPlaceholder}
-          </p>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  return (
-    <div className="space-y-2">
-      <iframe
-        title={t.tracking.mapTitle}
-        src={`https://maps.google.com/maps?q=${lat},${lng}&z=14&output=embed`}
-        className="h-64 w-full rounded-2xl border border-border"
-        loading="lazy"
-      />
-      <p className="text-xs text-muted">
-        {t.tracking.mapDisclaimer}
-      </p>
-    </div>
-  );
-}
+export { TrackingMapView as TrackingMapPlaceholder } from "@/components/tracking/tracking-map-view";
 
 export function RequestSummary({
   request,

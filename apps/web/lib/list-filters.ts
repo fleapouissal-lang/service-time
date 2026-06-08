@@ -125,6 +125,33 @@ export function filterServiceRequests(
   });
 }
 
+export function filterSparePartOrders<
+  T extends {
+    status: string;
+    order_token: string;
+    notes: string | null;
+    created_at: string;
+  },
+>(items: T[], params: ListFilterParams): T[] {
+  return items.filter((item) => {
+    if (!filterByPeriod(item.created_at, params.period)) return false;
+
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      const hit =
+        matchesQuery(item.order_token, q) ||
+        matchesQuery(item.notes, q);
+      if (!hit) return false;
+    }
+
+    if (params.status && params.status !== "all" && item.status !== params.status) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
 export function filterServices(
   items: Service[],
   params: ListFilterParams,

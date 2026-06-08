@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { updateTechnicianLocation } from "@/app/technician/actions";
+import { TrackingMapView } from "@/components/tracking/tracking-map-view";
 import { Button } from "@/components/ui/button";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -57,9 +58,12 @@ export function LocationTracker({ active }: { active: boolean }) {
           : t.dashboard.technician.tracker.startSharing}
       </Button>
       {coords && (
-        <p className="text-xs text-muted" dir="ltr">
-          {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
-        </p>
+        <>
+          <p className="text-xs text-muted" dir="ltr">
+            {coords.lat.toFixed(5)}, {coords.lng.toFixed(5)}
+          </p>
+          <TrackingMapView lat={coords.lat} lng={coords.lng} show />
+        </>
       )}
       <p className="text-sm">{status}</p>
     </div>

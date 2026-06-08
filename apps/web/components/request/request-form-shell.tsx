@@ -3,12 +3,26 @@ import { cn } from "@/lib/utils";
 export function RequestFormShell({
   children,
   className,
+  containerClassName,
+  bare = false,
 }: {
   children: React.ReactNode;
   className?: string;
+  containerClassName?: string;
+  bare?: boolean;
 }) {
+  if (bare) {
+    return (
+      <div className={cn("mt-4 space-y-6", className, containerClassName)}>
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <section className="mx-auto w-[90%] max-w-2xl pb-16">
+    <section
+      className={cn("mx-auto w-[90%] max-w-2xl pb-16", containerClassName)}
+    >
       <div
         className={cn(
           "space-y-6 rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:p-8",

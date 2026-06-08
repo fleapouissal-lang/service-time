@@ -55,12 +55,17 @@ export function getTechnicianNav(messages: Messages): DashboardNavItem[] {
   return [
     {
       href: "/technician",
-      label: messages.dashboard.technician.orders,
+      label: messages.meta.technicianOverview,
+      icon: LayoutDashboard,
+    },
+    {
+      href: "/technician/orders",
+      label: messages.meta.technicianOrders,
       icon: ClipboardList,
     },
     {
       href: "/technician/location",
-      label: messages.dashboard.technician.location,
+      label: messages.meta.technicianLocation,
       icon: MapPin,
     },
   ];

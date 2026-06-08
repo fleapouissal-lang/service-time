@@ -173,3 +173,13 @@ export async function getRequestStatusHistory(requestId: string) {
     .order("created_at", { ascending: true });
   return data ?? [];
 }
+
+export async function getTechnicianLiveLocation(technicianId: string) {
+  const supabase = await createAuthServerClient();
+  const { data } = await supabase
+    .from("technician_locations")
+    .select("lat, lng, updated_at")
+    .eq("technician_id", technicianId)
+    .maybeSingle();
+  return data;
+}

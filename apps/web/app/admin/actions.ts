@@ -3,9 +3,11 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type {
+  ExecutionMethod,
   ProfileRole,
   RequestPriority,
   ServiceRequestStatus,
+  ServiceType,
   TechnicianType,
 } from "@service-time/types";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
@@ -15,6 +17,8 @@ import {
   getAvatarFromFormData,
   uploadProfileAvatar,
 } from "@/lib/upload-profile-avatar";
+import { getPlatformUserById } from "@/lib/admin-dashboard-data";
+import { resolveQuickRequestClient } from "@/lib/quick-request-client";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
 async function adminClient() {
@@ -380,4 +384,159 @@ export async function createPlatformUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
   revalidatePath("/admin");
+}
+
+export type CreateAdminOrderFormState = {
+  success?: boolean;
+  error?: string;
+};
+
+const ADMIN_ORDER_SERVICE_TYPES: ServiceType[] = [
+  "periodic_maintenance",
+  "emergency",
+  "spare_parts",
+];
+
+const ADMIN_ORDER_EXECUTION_METHODS: ExecutionMethod[] = [
+  "workshop_visit",
+  "mobile_workshop",
+];
+
+const ADMIN_ORDER_PRIORITIES: RequestPriority[] = ["low", "normal", "high"];
+
+function mapQuickClientError(code: string): string {
+  switch (code) {
+    case "email_used_non_client":
+      return "البريد الإلكتروني مستخدم لحساب غير عميل.";
+    case "create_user_failed":
+      return "تعذّر إنشاء حساب العميل.";
+    case "create_profile_failed":
+      return "تعذّر إنشاء ملف العميل.";
+    case "server_incomplete":
+      return "إعدادات الخادم غير مكتملة.";
+    default:
+      return "تعذّر إعداد العميل.";
+  }
+}
+
+export async function createAdminOrderAction(
+  _prev: CreateAdminOrderFormState,
+  formData: FormData,
+): Promise<CreateAdminOrderFormState> {
+  await requireProfile(["admin"]);
+  const admin = getAdminSupabaseClient();
+  if (!admin) {
+    return { error: mapQuickClientError("server_incomplete") };
+  }
+
+  const clientMode = String(formData.get("client_mode") ?? "existing");
+  let clientId: string;
+  let customerName: string;
+  let customerPhone: string;
+
+  if (clientMode === "new") {
+    const fullName = String(formData.get("customer_name") ?? "").trim();
+    const phoneRaw = String(formData.get("customer_phone") ?? "").trim();
+    const emailRaw = String(formData.get("customer_email") ?? "").trim();
+
+    if (fullName.length < 2) {
+      return { error: "أدخل اسم العميل." };
+    }
+    if (!phoneRaw) {
+      return { error: "رقم هاتف العميل مطلوب." };
+    }
+
+    const resolved = await resolveQuickRequestClient({
+      fullName,
+      phone: phoneRaw,
+      email: emailRaw || null,
+    });
+
+    if (!resolved.ok) {
+      return { error: mapQuickClientError(resolved.error) };
+    }
+
+    clientId = resolved.result.clientId;
+    customerName = fullName;
+    customerPhone = normalizePhone(phoneRaw);
+  } else {
+    clientId = String(formData.get("client_id") ?? "").trim();
+    if (!clientId) {
+      return { error: "اختر عميلاً مسجّلاً." };
+    }
+
+    const client = await getPlatformUserById(clientId);
+    if (!client || client.role !== "client") {
+      return { error: "العميل المحدد غير موجود." };
+    }
+    if (!client.phone?.trim()) {
+      return { error: "العميل المحدد لا يملك رقم هاتف." };
+    }
+
+    customerName = client.full_name;
+    customerPhone = normalizePhone(client.phone);
+  }
+
+  const serviceType = String(
+    formData.get("service_type") ?? "",
+  ) as ServiceType;
+  const executionMethod = String(
+    formData.get("execution_method") ?? "",
+  ) as ExecutionMethod;
+  const priority = String(
+    formData.get("priority") ?? "normal",
+  ) as RequestPriority;
+
+  if (!ADMIN_ORDER_SERVICE_TYPES.includes(serviceType)) {
+    return { error: "نوع الخدمة غير صالح." };
+  }
+  if (!ADMIN_ORDER_EXECUTION_METHODS.includes(executionMethod)) {
+    return { error: "طريقة التنفيذ غير صالحة." };
+  }
+  if (!ADMIN_ORDER_PRIORITIES.includes(priority)) {
+    return { error: "الأولوية غير صالحة." };
+  }
+
+  const carType = String(formData.get("car_type") ?? "").trim() || null;
+  const locationText =
+    String(formData.get("location_text") ?? "").trim() || null;
+  const description =
+    String(formData.get("description") ?? "").trim() || null;
+  const assignedRaw = String(
+    formData.get("assigned_technician_id") ?? "",
+  ).trim();
+  const assignedTechnicianId = assignedRaw || null;
+
+  if (assignedTechnicianId) {
+    const technician = await getPlatformUserById(assignedTechnicianId);
+    if (!technician || technician.role !== "technician") {
+      return { error: "الفني المحدد غير صالح." };
+    }
+  }
+
+  const { data, error } = await admin
+    .from("service_requests")
+    .insert({
+      client_id: clientId,
+      customer_name: customerName,
+      customer_phone: customerPhone,
+      car_type: carType,
+      location_text: locationText,
+      description,
+      service_type: serviceType,
+      execution_method: executionMethod,
+      status: "received",
+      priority,
+      assigned_technician_id: assignedTechnicianId,
+    })
+    .select("id")
+    .single();
+
+  if (error || !data?.id) {
+    return { error: error?.message ?? "تعذّر إنشاء الطلب." };
+  }
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  redirect(`/admin/orders/${data.id}`);
 }

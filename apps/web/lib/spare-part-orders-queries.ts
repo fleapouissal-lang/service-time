@@ -24,6 +24,33 @@ export async function getClientSparePartOrders(
   return (data as SparePartOrder[]) ?? [];
 }
 
+export async function getClientSparePartOrdersWithItems(
+  clientId: string,
+): Promise<SparePartOrderWithItems[]> {
+  const orders = await getClientSparePartOrders(clientId);
+  if (!orders.length) return [];
+
+  const supabase = await createAuthServerClient();
+  const orderIds = orders.map((order) => order.id);
+  const { data: items } = await supabase
+    .from("spare_part_order_items")
+    .select("*")
+    .in("order_id", orderIds)
+    .order("created_at", { ascending: true });
+
+  const itemsByOrder = new Map<string, SparePartOrderItem[]>();
+  for (const item of (items as SparePartOrderItem[]) ?? []) {
+    const list = itemsByOrder.get(item.order_id) ?? [];
+    list.push(item);
+    itemsByOrder.set(item.order_id, list);
+  }
+
+  return orders.map((order) => ({
+    ...order,
+    items: itemsByOrder.get(order.id) ?? [],
+  }));
+}
+
 export async function getClientSparePartOrder(
   clientId: string,
   orderId: string,

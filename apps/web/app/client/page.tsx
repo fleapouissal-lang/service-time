@@ -19,7 +19,7 @@ import {
   buildDashboardKpis,
   buildStatusChartData,
 } from "@/lib/dashboard-analytics";
-import { getClientRequests, getRequestStatusHistory } from "@/lib/dashboard-queries";
+import { getClientRequests, getRequestStatusHistory, getTechnicianLiveLocation } from "@/lib/dashboard-queries";
 import { pickLatestTrackableOrder } from "@/lib/client-latest-tracking";
 import { getIntlLocale } from "@/lib/i18n/config";
 import {
@@ -50,6 +50,13 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
   const latestHistory = latestOrder
     ? await getRequestStatusHistory(latestOrder.id)
     : [];
+  const latestShowLiveMap =
+    latestOrder?.status === "on_the_way" ||
+    latestOrder?.status === "arrived";
+  const latestTechnicianLocation =
+    latestShowLiveMap && latestOrder?.assigned_technician_id
+      ? await getTechnicianLiveLocation(latestOrder.assigned_technician_id)
+      : null;
   const periodOrders = filterByOverviewPeriod(allOrders, params.period);
   const orders = periodOrders;
   const kpis = buildDashboardKpis(orders);
@@ -143,7 +150,18 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
         </Link>
       </div>
 
-      <ClientLatestTrackingSection order={latestOrder} history={latestHistory} />
+      <ClientLatestTrackingSection
+        order={latestOrder}
+        history={latestHistory}
+        initialTechnicianCoords={
+          latestTechnicianLocation
+            ? {
+                lat: latestTechnicianLocation.lat,
+                lng: latestTechnicianLocation.lng,
+              }
+            : null
+        }
+      />
 
       <div className="grid gap-4 lg:grid-cols-3">
         <StatusDonutChart

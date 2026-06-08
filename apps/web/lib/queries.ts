@@ -121,3 +121,26 @@ export async function getTrackingHistory(
   if (error) return [];
   return (data ?? []) as RequestStatusHistory[];
 }
+
+export type TechnicianLiveLocation = {
+  lat: number;
+  lng: number;
+  updated_at: string;
+};
+
+export async function getTechnicianLocationForTracking(
+  token: string,
+): Promise<TechnicianLiveLocation | null> {
+  const supabase = createWebSupabaseClient();
+  const normalized = token.trim();
+  if (!normalized) return null;
+
+  const { data, error } = await supabase.rpc(
+    "get_technician_location_for_tracking",
+    { p_token: normalized },
+  );
+
+  if (error || !data?.length) return null;
+  const row = data[0] as TechnicianLiveLocation;
+  return row;
+}

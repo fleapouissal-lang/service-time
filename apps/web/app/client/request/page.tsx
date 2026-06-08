@@ -25,7 +25,7 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
   const params = parseListFilters(await searchParams);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
       <div>
         <h1 className="text-2xl font-bold">{t.request.title}</h1>
         <p className="text-muted">{t.request.description}</p>
@@ -55,6 +55,7 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
       <Suspense>
         <ServiceRequestForm
           embedded
+          fullWidth
           defaultName={profile?.full_name ?? ""}
           defaultPhone={profile?.phone ?? ""}
         />

@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { ClientOrdersTable } from "@/components/client/client-orders-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { TrackingSearch } from "@/components/tracking/tracking-search";
 import {
@@ -9,7 +8,11 @@ import {
   getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
 import { getClientRequests } from "@/lib/dashboard-queries";
-import { getServiceTypeLabels, getStatusLabels } from "@/lib/i18n/labels";
+import {
+  getExecutionMethodLabels,
+  getServiceTypeLabels,
+  getStatusLabels,
+} from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
 
@@ -29,9 +32,10 @@ export default async function ClientTrackPage({ searchParams }: PageProps) {
   const orders = filterServiceRequests(allOrders, params);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const statusLabels = getStatusLabels(t);
+  const executionMethodLabels = getExecutionMethodLabels(t);
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
       <div>
         <h1 className="text-2xl font-bold">{t.dashboard.client.track}</h1>
         <p className="text-muted">{t.tracking.description}</p>
@@ -55,36 +59,23 @@ export default async function ClientTrackPage({ searchParams }: PageProps) {
       <TrackingSearch embedded />
 
       <Card>
-        <CardContent className="p-6">
-          <h2 className="mb-4 text-lg font-semibold">{t.dashboard.client.orders}</h2>
+        <CardContent className="p-0">
+          <div className="border-b border-border px-6 py-4">
+            <h2 className="text-lg font-semibold">{t.dashboard.client.orders}</h2>
+          </div>
           {orders.length === 0 ? (
-            <p className="text-sm text-muted">
+            <p className="p-6 text-center text-sm text-muted">
               {allOrders.length === 0
                 ? t.common.noData
                 : t.common.noResultsFiltered}
             </p>
           ) : (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <Link
-                  key={order.id}
-                  href={`/client/track/${order.tracking_token}`}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-primary/5"
-                >
-                  <div>
-                    <p className="font-semibold">
-                      {serviceTypeLabels[order.service_type]}
-                    </p>
-                    <p className="text-xs text-muted" dir="ltr">
-                      {order.tracking_token}
-                    </p>
-                  </div>
-                  <Badge variant="secondary">
-                    {statusLabels[order.status as keyof typeof statusLabels]}
-                  </Badge>
-                </Link>
-              ))}
-            </div>
+            <ClientOrdersTable
+              orders={orders}
+              statusLabels={statusLabels}
+              serviceTypeLabels={serviceTypeLabels}
+              executionMethodLabels={executionMethodLabels}
+            />
           )}
         </CardContent>
       </Card>

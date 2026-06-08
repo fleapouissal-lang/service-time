@@ -1,8 +1,11 @@
+import { AdminCreateOrderForm } from "@/components/admin/admin-create-order-form";
 import { AdminOrdersTable } from "@/components/admin/admin-orders-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { Card, CardContent } from "@/components/ui/card";
+import { getPlatformUsers } from "@/lib/admin-dashboard-data";
 import {
   getAllServiceRequests,
+  getTechnicians,
 } from "@/lib/dashboard-queries";
 import {
   getOrderSearchPlaceholder,
@@ -11,9 +14,15 @@ import {
   getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
 import {
+  buildExecutionMethodSelectOptions,
+  buildPrioritySelectOptions,
+  buildServiceRequestTypeOptions,
+  buildTechnicianAssignOptions,
+} from "@/lib/select-option-builders";
+import {
+  getPriorityLabels,
   getServiceTypeLabels,
   getStatusLabels,
-  getPriorityLabels,
 } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
@@ -29,11 +38,19 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const { t } = await getServerI18n();
   const p = t.dashboard.admin.ordersPage;
   const params = parseListFilters(await searchParams);
-  const allOrders = await getAllServiceRequests();
+  const [allOrders, clients, technicians] = await Promise.all([
+    getAllServiceRequests(),
+    getPlatformUsers("client"),
+    getTechnicians(),
+  ]);
   const orders = filterServiceRequests(allOrders, params);
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const priorityLabels = getPriorityLabels(t);
+  const serviceTypeOptions = buildServiceRequestTypeOptions(t);
+  const executionMethodOptions = buildExecutionMethodSelectOptions(t);
+  const priorityOptions = buildPrioritySelectOptions(t);
+  const technicianOptions = buildTechnicianAssignOptions(t, technicians);
 
   return (
     <div className="space-y-8">
@@ -65,6 +82,14 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
         ]}
         resultCount={orders.length}
         totalCount={allOrders.length}
+      />
+
+      <AdminCreateOrderForm
+        clients={clients}
+        serviceTypeOptions={serviceTypeOptions}
+        executionMethodOptions={executionMethodOptions}
+        priorityOptions={priorityOptions}
+        technicianOptions={technicianOptions}
       />
 
       <Card>

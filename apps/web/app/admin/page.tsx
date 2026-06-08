@@ -117,7 +117,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
         <h2 className="mb-3 text-sm font-semibold text-muted">
           {t.dashboard.common.ordersForPeriod} — {periodLabel}
         </h2>
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <StatCard
             label={t.dashboard.admin.totalOrders}
             value={kpis.total}

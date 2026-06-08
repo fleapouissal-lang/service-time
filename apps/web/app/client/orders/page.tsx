@@ -1,13 +1,15 @@
 import Link from "next/link";
+import { Suspense } from "react";
+import { ClientNewOrderSection } from "@/components/client/client-new-order-section";
+import { ClientOrdersTable } from "@/components/client/client-orders-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { requireProfile } from "@/lib/auth";
 import {
   getClientOrderSearchPlaceholder,
   getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
 import { getClientRequests } from "@/lib/dashboard-queries";
-import { getIntlLocale } from "@/lib/i18n/config";
 import {
   getExecutionMethodLabels,
   getServiceTypeLabels,
@@ -21,25 +23,21 @@ type PageProps = {
 };
 
 export default async function ClientOrdersPage({ searchParams }: PageProps) {
-  const { t, locale } = await getServerI18n();
+  const { t } = await getServerI18n();
+  const p = t.dashboard.client.ordersPage;
+  const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
   const orders = filterServiceRequests(allOrders, params);
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const executionMethodLabels = getExecutionMethodLabels(t);
-  const intlLocale = getIntlLocale(locale);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
+      <div>
         <h1 className="text-2xl font-bold">{t.dashboard.client.orders}</h1>
-        <Link
-          href="/client/request"
-          className="text-sm font-semibold text-primary hover:underline"
-        >
-          + {t.dashboard.client.newRequest}
-        </Link>
+        <p className="text-muted">{p.subtitle}</p>
       </div>
 
       <DashboardFilterBar
@@ -57,52 +55,38 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
         totalCount={allOrders.length}
       />
 
-      <div className="space-y-4">
-        {orders.map((order) => (
-          <Card key={order.id}>
-            <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-              <div>
-                <p className="font-semibold">
-                  {serviceTypeLabels[order.service_type]}
-                </p>
-                <p className="text-sm text-muted">
-                  {executionMethodLabels[order.execution_method]} ·{" "}
-                  {order.location_text ?? t.common.dash}
-                </p>
-                <p className="mt-1 text-xs text-muted">
-                  {new Date(order.created_at).toLocaleString(intlLocale)}
-                </p>
-              </div>
-              <div className="flex items-center gap-3">
-                <Badge variant="secondary">
-                  {statusLabels[order.status as keyof typeof statusLabels]}
-                </Badge>
-                <Link
-                  href={`/client/orders/${order.id}`}
-                  className="text-sm font-semibold text-primary hover:underline"
-                >
-                  {t.common.details}
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      <Suspense>
+        <ClientNewOrderSection
+          defaultName={profile?.full_name ?? ""}
+          defaultPhone={profile?.phone ?? ""}
+        />
+      </Suspense>
 
-        {orders.length === 0 && (
-          <p className="text-muted">
-            {allOrders.length === 0 ? (
-              <>
-                {t.common.noData}.{" "}
-                <Link href="/client/request" className="text-primary">
-                  {t.dashboard.client.newRequest}
-                </Link>
-              </>
-            ) : (
-              t.common.noResultsFiltered
-            )}
-          </p>
-        )}
-      </div>
+      <Card>
+        <CardContent className="p-0">
+          {orders.length === 0 ? (
+            <p className="p-6 text-center text-sm text-muted">
+              {allOrders.length === 0 ? (
+                <>
+                  {t.common.noData}.{" "}
+                  <Link href="/client/request" className="font-semibold text-primary hover:underline">
+                    {t.dashboard.client.newRequest}
+                  </Link>
+                </>
+              ) : (
+                t.common.noResultsFiltered
+              )}
+            </p>
+          ) : (
+            <ClientOrdersTable
+              orders={orders}
+              statusLabels={statusLabels}
+              serviceTypeLabels={serviceTypeLabels}
+              executionMethodLabels={executionMethodLabels}
+            />
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
