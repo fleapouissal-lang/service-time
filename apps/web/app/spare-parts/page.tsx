@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { SparePartsPageClient } from "@/components/spare-parts/spare-parts-page-client";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
   getSparePartsPage,
-  SPARE_PARTS_PAGE_SIZE,
+  resolveSparePartsPageSize,
 } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,18 +16,19 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SparePartsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; size?: string }>;
 }) {
   const { t } = await getServerI18n();
-  const { page: pageParam } = await searchParams;
+  const { page: pageParam, size: sizeParam } = await searchParams;
   const requestedPage = Math.max(1, Number(pageParam) || 1);
+  const pageSize = resolveSparePartsPageSize(sizeParam);
 
-  let { parts, total } = await getSparePartsPage(requestedPage);
-  const totalPages = Math.max(1, Math.ceil(total / SPARE_PARTS_PAGE_SIZE));
+  let { parts, total } = await getSparePartsPage(requestedPage, pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const currentPage = Math.min(requestedPage, totalPages);
 
   if (currentPage !== requestedPage && total > 0) {
-    ({ parts } = await getSparePartsPage(currentPage));
+    ({ parts } = await getSparePartsPage(currentPage, pageSize));
   }
 
   return (
@@ -39,11 +41,14 @@ export default async function SparePartsPage({
       />
 
       <section className="mx-auto w-[90%] max-w-[1200px] pb-24">
-        <SparePartsPageClient
-          parts={parts}
-          currentPage={currentPage}
-          totalPages={totalPages}
-        />
+        <Suspense fallback={null}>
+          <SparePartsPageClient
+            parts={parts}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            pageSize={pageSize}
+          />
+        </Suspense>
       </section>
     </>
   );

@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft, MapPin, Navigation } from "lucide-react";
+import { MapPin, Navigation } from "lucide-react";
+import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getWorkshopAddress,
@@ -36,7 +37,7 @@ export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
           className="hidden shrink-0 items-center gap-1 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold sm:flex"
         >
           {t.common.viewAll}
-          <ArrowLeft className="size-4" />
+          <LocaleForwardArrow />
         </Link>
       </div>
 
@@ -94,7 +95,7 @@ export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
           className="inline-flex h-11 items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9]/30 px-6 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold"
         >
           {t.common.viewAll}
-          <ArrowLeft className="size-4" />
+          <LocaleForwardArrow />
         </Link>
       </div>
     </section>

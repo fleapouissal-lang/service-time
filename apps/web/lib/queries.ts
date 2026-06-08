@@ -24,6 +24,13 @@ export async function getServices(): Promise<Service[]> {
 }
 
 export const SPARE_PARTS_PAGE_SIZE = 12;
+export const SPARE_PARTS_MOBILE_PAGE_SIZE = 6;
+
+export function resolveSparePartsPageSize(sizeParam?: string): number {
+  const parsed = Number(sizeParam);
+  if (parsed === SPARE_PARTS_MOBILE_PAGE_SIZE) return SPARE_PARTS_MOBILE_PAGE_SIZE;
+  return SPARE_PARTS_PAGE_SIZE;
+}
 
 export async function getSpareParts(): Promise<SparePart[]> {
   const supabase = createWebSupabaseClient();
@@ -37,13 +44,16 @@ export async function getSpareParts(): Promise<SparePart[]> {
   return (data ?? []) as SparePart[];
 }
 
-export async function getSparePartsPage(page: number): Promise<{
+export async function getSparePartsPage(
+  page: number,
+  pageSize: number = SPARE_PARTS_PAGE_SIZE,
+): Promise<{
   parts: SparePart[];
   total: number;
 }> {
   const safePage = Math.max(1, page);
-  const from = (safePage - 1) * SPARE_PARTS_PAGE_SIZE;
-  const to = from + SPARE_PARTS_PAGE_SIZE - 1;
+  const from = (safePage - 1) * pageSize;
+  const to = from + pageSize - 1;
 
   const supabase = createWebSupabaseClient();
   const { data, error, count } = await supabase

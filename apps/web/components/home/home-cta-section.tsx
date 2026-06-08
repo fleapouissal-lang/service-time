@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type CtaSectionProps = {
@@ -44,7 +44,7 @@ export function CtaSection({
             className="inline-flex h-12 items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] px-8 text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
           >
             {ctaLabel}
-            <ArrowLeft className="size-4" aria-hidden />
+            <LocaleForwardArrow />
           </Link>
         </div>
       </div>

@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ArrowLeft, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  LocaleCarouselNext,
+  LocaleCarouselPrev,
+  LocaleForwardArrow,
+} from "@/components/ui/locale-arrows";
 import type { Service } from "@service-time/types";
 import { ServiceCard } from "@/components/services/service-card";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -92,7 +96,7 @@ export function HomeServicesSection({ services }: HomeServicesSectionProps) {
           className="hidden items-center gap-1 text-sm font-semibold text-primary hover:underline sm:flex"
         >
           {t.common.viewAll}
-          <ArrowLeft className="size-4 rtl:rotate-180" />
+          <LocaleForwardArrow />
         </Link>
       </div>
 
@@ -114,7 +118,7 @@ export function HomeServicesSection({ services }: HomeServicesSectionProps) {
               className={arrowClass}
               aria-label={copy.prevAria}
             >
-              <ChevronLeft className="size-4 rtl:rotate-180" aria-hidden />
+              <LocaleCarouselPrev />
             </button>
 
             <div ref={viewportRef} className="min-w-0 flex-1 overflow-hidden">
@@ -147,7 +151,7 @@ export function HomeServicesSection({ services }: HomeServicesSectionProps) {
               className={arrowClass}
               aria-label={copy.nextAria}
             >
-              <ChevronRight className="size-4 rtl:rotate-180" aria-hidden />
+              <LocaleCarouselNext />
             </button>
           </div>
 
@@ -165,7 +169,7 @@ export function HomeServicesSection({ services }: HomeServicesSectionProps) {
           className="inline-flex h-11 items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9]/30 px-6 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:bg-[#94D4B9]/10"
         >
           {t.common.viewAll}
-          <ArrowLeft className="size-4 rtl:rotate-180" />
+          <LocaleForwardArrow />
         </Link>
       </div>
     </section>

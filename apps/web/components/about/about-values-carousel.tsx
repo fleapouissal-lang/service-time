@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Award,
-  ChevronLeft,
-  ChevronRight,
   Eye,
   ShieldCheck,
   Smartphone,
@@ -12,84 +10,108 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { AboutSectionHeader } from "@/components/about/about-section-header";
+import {
+  LocaleCarouselNext,
+  LocaleCarouselPrev,
+} from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 const VALUE_ICONS: LucideIcon[] = [Award, Zap, Eye, ShieldCheck, Smartphone];
 
-const AUTO_INTERVAL_MS = 4500;
-const VISIBLE_MD = 3;
-const VISIBLE_SM = 1;
+const GAP_PX = 20;
+const VISIBLE_DESKTOP = 3;
+const VISIBLE_MOBILE = 1;
+const DESKTOP_MQ = "(min-width: 768px)";
+
+const arrowClass = cn(
+  "inline-flex size-8 shrink-0 items-center justify-center self-center rounded-full bg-[#94D4B9] text-[#050B10]",
+  "shadow-[0_0_14px_rgba(148,212,185,0.35)] transition-all duration-300",
+  "hover:scale-105 hover:shadow-[0_0_18px_rgba(148,212,185,0.5)] active:scale-95",
+  "disabled:pointer-events-none disabled:opacity-40",
+  "md:size-10 md:border md:border-[#94D4B9]/30 md:bg-transparent md:text-[#94D4B9] md:shadow-none",
+  "md:hover:scale-100 md:hover:border-[#94D4B9]/50 md:hover:bg-[#94D4B9]/10 md:active:scale-100",
+);
+
+type CarouselMetrics = {
+  cardWidth: number;
+  step: number;
+};
 
 export function AboutValuesCarousel() {
   const { messages: t } = useLocale();
   const values = t.about.values;
   const items = values.items;
-  const trackRef = useRef<HTMLDivElement>(null);
+  const viewportRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [step, setStep] = useState(0);
-  const [visibleCount, setVisibleCount] = useState(VISIBLE_MD);
+  const [visibleCount, setVisibleCount] = useState(VISIBLE_DESKTOP);
+  const [metrics, setMetrics] = useState<CarouselMetrics>({
+    cardWidth: 0,
+    step: 0,
+  });
   const [paused, setPaused] = useState(false);
 
   const maxIndex = Math.max(0, items.length - visibleCount);
 
-  const clampIndex = useCallback(
-    (index: number) => {
-      if (maxIndex === 0) return 0;
-      if (index < 0) return maxIndex;
-      if (index > maxIndex) return 0;
-      return index;
-    },
-    [maxIndex],
-  );
-
-  const goTo = useCallback(
-    (index: number) => {
-      setActiveIndex(clampIndex(index));
-    },
-    [clampIndex],
-  );
-
   const goNext = useCallback(() => {
-    setActiveIndex((current) =>
-      current >= maxIndex ? 0 : current + 1,
-    );
+    setActiveIndex((current) => (current >= maxIndex ? 0 : current + 1));
   }, [maxIndex]);
 
   const goPrev = useCallback(() => {
-    setActiveIndex((current) =>
-      current <= 0 ? maxIndex : current - 1,
-    );
+    setActiveIndex((current) => (current <= 0 ? maxIndex : current - 1));
   }, [maxIndex]);
+
+  const goTo = useCallback(
+    (index: number) => {
+      setActiveIndex(Math.max(0, Math.min(index, maxIndex)));
+    },
+    [maxIndex],
+  );
 
   useEffect(() => {
     setActiveIndex((current) => Math.min(current, maxIndex));
   }, [maxIndex]);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 768px)");
+    const media = window.matchMedia(DESKTOP_MQ);
     const updateVisible = () => {
-      setVisibleCount(mq.matches ? VISIBLE_MD : VISIBLE_SM);
+      setVisibleCount(media.matches ? VISIBLE_DESKTOP : VISIBLE_MOBILE);
     };
 
     updateVisible();
-    mq.addEventListener("change", updateVisible);
-    return () => mq.removeEventListener("change", updateVisible);
+    media.addEventListener("change", updateVisible);
+    return () => media.removeEventListener("change", updateVisible);
   }, []);
 
   useEffect(() => {
-    const measure = () => {
-      const track = trackRef.current;
-      const first = track?.querySelector<HTMLElement>("[data-value-card]");
-      if (!first || !track) return;
+    const viewport = viewportRef.current;
+    if (!viewport) return;
 
-      const gap = parseFloat(getComputedStyle(track).columnGap || track.style.gap) || 20;
-      setStep(first.offsetWidth + gap);
+    const measure = () => {
+      const width = viewport.clientWidth;
+
+      if (visibleCount === 1) {
+        setMetrics({ cardWidth: width, step: width });
+        return;
+      }
+
+      const cardWidth = (width - GAP_PX * (visibleCount - 1)) / visibleCount;
+      setMetrics({
+        cardWidth,
+        step: cardWidth + GAP_PX,
+      });
     };
 
     measure();
+
+    const observer = new ResizeObserver(measure);
+    observer.observe(viewport);
     window.addEventListener("resize", measure);
-    return () => window.removeEventListener("resize", measure);
+
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("resize", measure);
+    };
   }, [visibleCount]);
 
   useEffect(() => {
@@ -100,9 +122,12 @@ export function AboutValuesCarousel() {
     ).matches;
     if (prefersReducedMotion) return;
 
-    const timer = window.setInterval(goNext, AUTO_INTERVAL_MS);
+    const timer = window.setInterval(goNext, 4500);
     return () => window.clearInterval(timer);
   }, [goNext, maxIndex, paused]);
+
+  const translateX =
+    metrics.step > 0 ? -activeIndex * metrics.step : 0;
 
   return (
     <section className="space-y-8">
@@ -113,7 +138,7 @@ export function AboutValuesCarousel() {
       />
 
       <div
-        className="flex items-center gap-3 sm:gap-4"
+        className="flex items-center gap-1.5 md:gap-4"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}
@@ -122,46 +147,55 @@ export function AboutValuesCarousel() {
             setPaused(false);
           }
         }}
+        onTouchStart={() => setPaused(true)}
+        onTouchEnd={() => setPaused(false)}
       >
         <button
           type="button"
           onClick={goPrev}
           disabled={maxIndex === 0}
-          className={cn(
-            "inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10",
-            maxIndex === 0 && "pointer-events-none opacity-40",
-          )}
+          className={arrowClass}
           aria-label={values.prevAria}
         >
-          <ChevronRight className="size-5" aria-hidden />
+          <LocaleCarouselPrev className="size-4 md:size-5" />
         </button>
 
-        <div className="min-w-0 flex-1 overflow-hidden">
+        <div ref={viewportRef} className="min-w-0 flex-1 overflow-hidden">
           <div
-            ref={trackRef}
-            className="flex gap-5 transition-transform duration-500 ease-out"
+            className="flex gap-0 transition-transform duration-500 ease-out md:gap-5"
+            dir="ltr"
             style={{
-              transform: step ? `translate3d(${activeIndex * step}px, 0, 0)` : undefined,
+              transform: `translate3d(${translateX}px, 0, 0)`,
             }}
           >
             {items.map((item, index) => {
               const Icon = VALUE_ICONS[index] ?? Award;
+              const isVisible =
+                index >= activeIndex && index < activeIndex + visibleCount;
 
               return (
                 <div
                   key={item.title}
-                  data-value-card
-                  className="flex min-h-[220px] min-w-full shrink-0 flex-col rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:min-w-[calc((100%-2.5rem)/3)] md:flex-[0_0_calc((100%-2.5rem)/3)]"
+                  className="shrink-0"
+                  style={{
+                    width:
+                      metrics.cardWidth > 0
+                        ? metrics.cardWidth
+                        : "100%",
+                  }}
+                  aria-hidden={!isVisible}
                 >
-                  <span className="mb-4 flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#94D4B9]/10">
-                    <Icon className="size-5 text-[#94D4B9]" aria-hidden />
-                  </span>
-                  <h3 className="text-lg font-semibold text-[#94D4B9]">
-                    {item.title}
-                  </h3>
-                  <p className="mt-3 line-clamp-3 min-h-[5.25rem] text-sm leading-7 text-muted">
-                    {item.text}
-                  </p>
+                  <div className="flex min-h-[220px] flex-col rounded-2xl border border-[#94D4B9]/10 bg-[#091014] p-4 shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:rounded-[20px] md:p-6">
+                    <span className="mb-4 flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#94D4B9]/10">
+                      <Icon className="size-5 text-[#94D4B9]" aria-hidden />
+                    </span>
+                    <h3 className="text-lg font-semibold text-[#94D4B9]">
+                      {item.title}
+                    </h3>
+                    <p className="mt-3 line-clamp-3 min-h-[5.25rem] text-sm leading-7 text-muted">
+                      {item.text}
+                    </p>
+                  </div>
                 </div>
               );
             })}
@@ -172,38 +206,37 @@ export function AboutValuesCarousel() {
           type="button"
           onClick={goNext}
           disabled={maxIndex === 0}
-          className={cn(
-            "inline-flex size-10 shrink-0 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10",
-            maxIndex === 0 && "pointer-events-none opacity-40",
-          )}
+          className={arrowClass}
           aria-label={values.nextAria}
         >
-          <ChevronLeft className="size-5" aria-hidden />
+          <LocaleCarouselNext className="size-4 md:size-5" />
         </button>
       </div>
 
-      <div
-        className="flex items-center justify-center gap-2"
-        role="tablist"
-        aria-label={values.indicatorsAria}
-      >
-        {Array.from({ length: maxIndex + 1 }, (_, index) => (
-          <button
-            key={index}
-            type="button"
-            role="tab"
-            aria-selected={index === activeIndex}
-            aria-label={values.slideAria.replace("{n}", String(index + 1))}
-            onClick={() => goTo(index)}
-            className={cn(
-              "h-2 rounded-full transition-all duration-300",
-              index === activeIndex
-                ? "w-8 bg-[#94D4B9]"
-                : "w-2 bg-[#94D4B9]/30 hover:bg-[#94D4B9]/50",
-            )}
-          />
-        ))}
-      </div>
+      {maxIndex > 0 ? (
+        <div
+          className="flex items-center justify-center gap-2"
+          role="tablist"
+          aria-label={values.indicatorsAria}
+        >
+          {Array.from({ length: maxIndex + 1 }, (_, index) => (
+            <button
+              key={index}
+              type="button"
+              role="tab"
+              aria-selected={index === activeIndex}
+              aria-label={values.slideAria.replace("{n}", String(index + 1))}
+              onClick={() => goTo(index)}
+              className={cn(
+                "h-2 rounded-full transition-all duration-300",
+                index === activeIndex
+                  ? "w-8 bg-[#94D4B9]"
+                  : "w-2 bg-[#94D4B9]/30 hover:bg-[#94D4B9]/50",
+              )}
+            />
+          ))}
+        </div>
+      ) : null}
     </section>
   );
 }

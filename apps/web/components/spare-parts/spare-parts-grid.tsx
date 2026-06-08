@@ -14,11 +14,12 @@ export function SparePartsGrid({ parts }: SparePartsGridProps) {
 
   return (
     <>
-      <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 items-stretch gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
         {parts.map((part) => (
           <SparePartCard
             key={part.id}
             part={part}
+            variant="home"
             onOpen={setSelectedPart}
           />
         ))}

@@ -6,6 +6,7 @@ import { SparePartsPagination } from "@/components/spare-parts/spare-parts-pagin
 import { SparePartsCartDrawer } from "@/components/spare-parts/spare-parts-cart-drawer";
 import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { useIsClientForCart } from "@/lib/use-is-client-for-cart";
+import { useSparePartsPageSizeSync } from "@/lib/use-spare-parts-page-size-sync";
 import { ShoppingCart } from "lucide-react";
 import { useState } from "react";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -15,6 +16,7 @@ type SparePartsPageClientProps = {
   parts: SparePart[];
   currentPage: number;
   totalPages: number;
+  pageSize: number;
 };
 
 function SparePartsCartFab() {
@@ -54,8 +56,11 @@ export function SparePartsPageClient({
   parts,
   currentPage,
   totalPages,
+  pageSize,
 }: SparePartsPageClientProps) {
   const { messages: t } = useLocale();
+  useSparePartsPageSizeSync();
+
   return (
     <>
       {parts.length > 0 ? (
@@ -64,6 +69,7 @@ export function SparePartsPageClient({
           <SparePartsPagination
             currentPage={currentPage}
             totalPages={totalPages}
+            pageSize={pageSize}
           />
         </>
       ) : (

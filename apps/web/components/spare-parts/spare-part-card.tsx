@@ -151,10 +151,14 @@ export function SparePartCard({
           {name}
         </h3>
 
-        <div className={cn("mt-2 shrink-0", isHome && "hidden sm:block")}>
+        <div className={cn("shrink-0", isHome ? "mt-1 sm:mt-2" : "mt-2")}>
           <SparePartPrice
             price={Number(part.price) || 0}
-            className={!inStock ? "text-muted line-through opacity-70" : undefined}
+            size={isHome ? "sm" : "md"}
+            className={cn(
+              !inStock && "text-muted line-through opacity-70",
+              isHome && "sm:text-base",
+            )}
           />
         </div>
 

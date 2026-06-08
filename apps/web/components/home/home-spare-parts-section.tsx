@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
+import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { SparePartCard } from "@/components/spare-parts/spare-part-card";
 import { SparePartDetailModal } from "@/components/spare-parts/spare-part-detail-modal";
 import type { SparePart } from "@service-time/types";
@@ -30,7 +30,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
           className="hidden shrink-0 items-center gap-1 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold sm:inline-flex"
         >
           {messages.common.viewAll}
-          <ArrowLeft className="size-4 rtl:rotate-180" />
+          <LocaleForwardArrow />
         </Link>
       </div>
 
@@ -62,7 +62,7 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
           className="inline-flex h-11 items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9]/30 px-6 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold"
         >
           {messages.common.viewAll}
-          <ArrowLeft className="size-4 rtl:rotate-180" />
+          <LocaleForwardArrow />
         </Link>
       </div>
     </section>
