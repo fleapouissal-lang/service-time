@@ -5,18 +5,31 @@ import { useState } from "react";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
-const fieldShellClass =
-  "flex w-full items-center gap-3 rounded-xl border border-[#94D4B9]/15 bg-[#091014] px-3 transition-all duration-200 hover:border-[#94D4B9]/30 focus-within:border-[#94D4B9]/40 focus-within:ring-2 focus-within:ring-[#94D4B9]/25";
+type LocationFieldProps = {
+  variant?: "request" | "dashboard";
+  defaultText?: string;
+  defaultLat?: number | null;
+  defaultLng?: number | null;
+};
 
-export function LocationField() {
+export function LocationField({
+  variant = "request",
+  defaultText = "",
+  defaultLat = null,
+  defaultLng = null,
+}: LocationFieldProps) {
   const { messages: t } = useLocale();
   const loc = t.request.location;
-  const [text, setText] = useState("");
-  const [lat, setLat] = useState<number | null>(null);
-  const [lng, setLng] = useState<number | null>(null);
+  const [text, setText] = useState(defaultText);
+  const [lat, setLat] = useState<number | null>(defaultLat);
+  const [lng, setLng] = useState<number | null>(defaultLng);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [gpsActive, setGpsActive] = useState(false);
+  const [gpsActive, setGpsActive] = useState(
+    defaultLat != null && defaultLng != null,
+  );
+
+  const isDashboard = variant === "dashboard";
 
   const useCurrentLocation = () => {
     setError(null);
@@ -69,9 +82,24 @@ export function LocationField() {
 
   return (
     <div className="space-y-3">
-      <div className={cn(fieldShellClass, "h-11")}>
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#94D4B9]/10">
-          <MapPin className="size-4 text-[#94D4B9]" aria-hidden />
+      <div
+        className={cn(
+          "flex w-full items-center gap-3 rounded-xl border px-3 transition-all duration-200 h-11",
+          isDashboard
+            ? "border-border bg-background focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/20"
+            : "border-[#94D4B9]/15 bg-[#091014] hover:border-[#94D4B9]/30 focus-within:border-[#94D4B9]/40 focus-within:ring-2 focus-within:ring-[#94D4B9]/25",
+        )}
+      >
+        <span
+          className={cn(
+            "flex size-8 shrink-0 items-center justify-center rounded-lg",
+            isDashboard ? "bg-primary/10" : "bg-[#94D4B9]/10",
+          )}
+        >
+          <MapPin
+            className={cn("size-4", isDashboard ? "text-primary" : "text-[#94D4B9]")}
+            aria-hidden
+          />
         </span>
 
         <input
@@ -97,9 +125,13 @@ export function LocationField() {
           aria-label={loc.useMyLocation}
           className={cn(
             "flex size-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
-            gpsActive
-              ? "bg-[#94D4B9]/20 text-[#94D4B9]"
-              : "bg-[#94D4B9]/10 text-[#94D4B9] hover:bg-[#94D4B9]/20",
+            isDashboard
+              ? gpsActive
+                ? "bg-primary/20 text-primary"
+                : "bg-primary/10 text-primary hover:bg-primary/20"
+              : gpsActive
+                ? "bg-[#94D4B9]/20 text-[#94D4B9]"
+                : "bg-[#94D4B9]/10 text-[#94D4B9] hover:bg-[#94D4B9]/20",
             loading && "cursor-wait opacity-80",
           )}
         >
@@ -114,10 +146,19 @@ export function LocationField() {
       <input type="hidden" name="location_lat" value={lat ?? ""} />
       <input type="hidden" name="location_lng" value={lng ?? ""} />
 
+      <p className="text-xs text-muted">{loc.gpsHint}</p>
+
       {error ? <p className="text-xs text-red-400">{error}</p> : null}
 
       {lat !== null && lng !== null ? (
-        <div className="overflow-hidden rounded-[20px] border border-[#94D4B9]/20 shadow-[0_4px_24px_rgba(148,212,185,0.08)]">
+        <div
+          className={cn(
+            "overflow-hidden rounded-2xl border",
+            isDashboard
+              ? "border-border shadow-sm"
+              : "border-[#94D4B9]/20 shadow-[0_4px_24px_rgba(148,212,185,0.08)]",
+          )}
+        >
           <iframe
             title={loc.mapTitle}
             src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
@@ -126,7 +167,10 @@ export function LocationField() {
             referrerPolicy="no-referrer-when-downgrade"
           />
           <p
-            className="bg-[#091014] px-3 py-2 text-center text-xs text-muted"
+            className={cn(
+              "px-3 py-2 text-center text-xs text-muted",
+              isDashboard ? "bg-muted/20" : "bg-[#091014]",
+            )}
             dir="ltr"
           >
             {lat.toFixed(5)}, {lng.toFixed(5)}

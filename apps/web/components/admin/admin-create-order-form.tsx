@@ -4,11 +4,9 @@ import { useActionState, useMemo, useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
-  Car,
   CheckCircle2,
   ChevronDown,
   FileText,
-  MapPin,
   Phone,
   Plus,
   Search,
@@ -16,6 +14,8 @@ import {
 } from "lucide-react";
 import type { Profile } from "@service-time/types";
 import { createAdminOrderAction } from "@/app/admin/actions";
+import { AdminClientVehicleField } from "@/components/admin/admin-client-vehicle-field";
+import { LocationField } from "@/components/request/location-field";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
@@ -384,22 +384,15 @@ export function AdminCreateOrderForm({
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <Label htmlFor="car_type">{t.request.form.car}</Label>
-                    <IconInput
-                      id="car_type"
-                      name="car_type"
-                      icon={Car}
-                      placeholder={t.common.placeholderCar}
+                    <AdminClientVehicleField
+                      clientId={
+                        clientMode === "existing" ? selectedClientId : null
+                      }
                     />
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="location_text">{t.request.form.location}</Label>
-                    <IconInput
-                      id="location_text"
-                      name="location_text"
-                      icon={MapPin}
-                      placeholder={t.common.placeholderLocation}
-                    />
+                    <LocationField variant="dashboard" />
                   </div>
                   <div className="md:col-span-2">
                     <Label htmlFor="description">

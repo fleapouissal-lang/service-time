@@ -3,8 +3,10 @@
 import { useActionState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { updateOrderAction } from "@/app/admin/actions";
+import { LocationField } from "@/components/request/location-field";
 import { Button } from "@/components/ui/button";
 import { IconSelect } from "@/components/ui/icon-select";
+import { Label } from "@/components/ui/label";
 import type { IconSelectOption } from "@/lib/icon-select-options";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -13,6 +15,9 @@ type AdminOrderUpdateFormProps = {
   status: string;
   priority: string;
   assignedTechnicianId: string;
+  locationText?: string | null;
+  locationLat?: number | null;
+  locationLng?: number | null;
   statusOptions: IconSelectOption[];
   priorityOptions: IconSelectOption[];
   technicianOptions: IconSelectOption[];
@@ -23,35 +28,55 @@ export function AdminOrderUpdateForm({
   status,
   priority,
   assignedTechnicianId,
+  locationText = "",
+  locationLat = null,
+  locationLng = null,
   statusOptions,
   priorityOptions,
   technicianOptions,
 }: AdminOrderUpdateFormProps) {
   const { messages: t } = useLocale();
+  const p = t.dashboard.admin.ordersPage;
   const [state, action, pending] = useActionState(updateOrderAction, {});
 
   return (
     <div>
-      <form action={action} className="grid gap-3 md:grid-cols-4">
+      <form action={action} className="space-y-5">
         <input type="hidden" name="id" value={orderId} />
-        <IconSelect
-          name="status"
-          options={statusOptions}
-          defaultValue={status}
-        />
-        <IconSelect
-          name="priority"
-          options={priorityOptions}
-          defaultValue={priority}
-        />
-        <IconSelect
-          name="assigned_technician_id"
-          options={technicianOptions}
-          defaultValue={assignedTechnicianId}
-        />
-        <Button type="submit" variant="default" className="h-11" disabled={pending}>
-          {pending ? t.common.saving : t.common.save}
-        </Button>
+
+        <div className="grid gap-3 md:grid-cols-4">
+          <IconSelect
+            name="status"
+            options={statusOptions}
+            defaultValue={status}
+          />
+          <IconSelect
+            name="priority"
+            options={priorityOptions}
+            defaultValue={priority}
+          />
+          <IconSelect
+            name="assigned_technician_id"
+            options={technicianOptions}
+            defaultValue={assignedTechnicianId}
+          />
+          <Button type="submit" variant="default" className="h-11" disabled={pending}>
+            {pending ? t.common.saving : t.common.save}
+          </Button>
+        </div>
+
+        <div>
+          <Label htmlFor="location_text">{p.detail.location}</Label>
+          <div className="mt-2">
+            <LocationField
+              key={`${orderId}-${locationText ?? ""}-${locationLat ?? ""}-${locationLng ?? ""}`}
+              variant="dashboard"
+              defaultText={locationText ?? ""}
+              defaultLat={locationLat}
+              defaultLng={locationLng}
+            />
+          </div>
+        </div>
       </form>
 
       {state.success ? (

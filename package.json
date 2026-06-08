@@ -23,6 +23,7 @@
     "db:client-dashboard-rls": "node scripts/apply-client-dashboard-rls.mjs",
     "db:create-service-request-rpc": "node scripts/apply-create-service-request-rpc.mjs",
     "db:technician-location": "node scripts/apply-technician-location-tracking.mjs",
+    "db:client-vehicles": "node scripts/apply-client-vehicles.mjs",
     "db:push": "npx supabase db push"
   },
   "devDependencies": {

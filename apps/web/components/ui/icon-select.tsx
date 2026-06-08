@@ -15,6 +15,7 @@ import {
   MapPin,
   Minus,
   Package,
+  Plus,
   Shield,
   Sun,
   Truck,
@@ -53,6 +54,7 @@ const SELECT_ICONS: Record<string, LucideIcon> = {
   "building-2": Building2,
   car: Car,
   "user-x": UserX,
+  plus: Plus,
 };
 
 function resolveIcon(key?: string, fallback: LucideIcon = Circle): LucideIcon {

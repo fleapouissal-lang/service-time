@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AdminOverviewOrdersTable } from "@/components/admin/admin-overview-orders-table";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -31,12 +32,7 @@ import {
   getAdminServiceRequests,
   getUserRoleStats,
 } from "@/lib/admin-dashboard-data";
-import { getIntlLocale } from "@/lib/i18n/config";
-import {
-  getOverviewPeriodLabel,
-  getOverviewTrendTitle,
-  getStatusLabels,
-} from "@/lib/i18n/labels";
+import { getOverviewPeriodLabel, getOverviewTrendTitle, getStatusLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
   buildOverviewTrend,
@@ -67,7 +63,6 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
   const kpis = buildDashboardKpis(orders);
   const periodLabel = getOverviewPeriodLabel(t, params.period);
   const statusLabels = getStatusLabels(t);
-  const intlLocale = getIntlLocale(locale);
   const inProgress =
     (kpis.byStatus.in_progress ?? 0) + (kpis.byStatus.on_the_way ?? 0);
 
@@ -271,36 +266,10 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
               {`${t.dashboard.admin.noOrdersInPeriod} ${periodLabel}.`}
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-sm">
-                <thead>
-                  <tr className="border-b text-right text-muted">
-                    <th className="pb-2 font-medium">{t.dashboard.admin.ordersTable.customer}</th>
-                    <th className="pb-2 font-medium">{t.dashboard.admin.ordersTable.status}</th>
-                    <th className="pb-2 font-medium">{t.dashboard.admin.ordersTable.priority}</th>
-                    <th className="pb-2 font-medium">{t.dashboard.admin.ordersTable.date}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.slice(0, 20).map((order) => (
-                    <tr key={order.id} className="border-b border-border">
-                      <td className="py-3 font-medium">{order.customer_name}</td>
-                      <td className="py-3">
-                        {
-                          statusLabels[
-                            order.status as keyof typeof statusLabels
-                          ]
-                        }
-                      </td>
-                      <td className="py-3 text-muted">{order.priority}</td>
-                      <td className="py-3 text-muted">
-                        {new Date(order.created_at).toLocaleDateString(intlLocale)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <AdminOverviewOrdersTable
+              orders={orders}
+              statusLabels={statusLabels}
+            />
           )}
         </CardContent>
       </Card>

@@ -7,10 +7,12 @@ import { deleteSparePartAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTable, AdminTableCell, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice } from "@/lib/format-price";
 import { getSparePartCategory, getSparePartName } from "@/lib/localized-content";
 import { getSparePartCoverImage } from "@/lib/spare-part-images";
+import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type AdminSparePartsTableProps = {
@@ -22,6 +24,15 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
   const p = t.dashboard.admin.sparePartsPage;
   const [deleteTarget, setDeleteTarget] = useState<SparePart | null>(null);
   const [pending, startTransition] = useTransition();
+  const {
+    pageItems,
+    setPage,
+    page,
+    totalPages,
+    totalItems,
+    from,
+    to,
+  } = useDashboardTablePagination(parts);
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -53,7 +64,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           </AdminTableHeadCell>
         </AdminTableHead>
         <tbody>
-          {parts.map((part) => {
+          {pageItems.map((part) => {
             const name = getSparePartName(part, locale);
             const category = getSparePartCategory(part, locale);
             const coverImage = getSparePartCoverImage(part);
@@ -108,6 +119,15 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           })}
         </tbody>
       </AdminTable>
+
+      <DashboardTablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        from={from}
+        to={to}
+        onPageChange={setPage}
+      />
 
       <AdminConfirmDialog
         open={Boolean(deleteTarget)}

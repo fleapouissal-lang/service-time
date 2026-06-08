@@ -11,8 +11,10 @@ import {
   AdminTableHeadCell,
 } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { getServiceName } from "@/lib/localized-content";
+import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type AdminServicesTableProps = {
@@ -28,6 +30,15 @@ export function AdminServicesTable({
   const p = t.dashboard.admin.servicesPage;
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
   const [pending, startTransition] = useTransition();
+  const {
+    pageItems,
+    setPage,
+    page,
+    totalPages,
+    totalItems,
+    from,
+    to,
+  } = useDashboardTablePagination(services);
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -54,7 +65,7 @@ export function AdminServicesTable({
           </AdminTableHeadCell>
         </AdminTableHead>
         <tbody>
-          {services.map((service) => {
+          {pageItems.map((service) => {
             const name = getServiceName(service, locale);
 
             return (
@@ -94,6 +105,15 @@ export function AdminServicesTable({
           })}
         </tbody>
       </AdminTable>
+
+      <DashboardTablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        from={from}
+        to={to}
+        onPageChange={setPage}
+      />
 
       <AdminConfirmDialog
         open={Boolean(deleteTarget)}

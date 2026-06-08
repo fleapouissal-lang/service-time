@@ -19,7 +19,25 @@ import {
 } from "@/lib/upload-profile-avatar";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
 import { resolveQuickRequestClient } from "@/lib/quick-request-client";
+import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
 import { normalizePhone } from "@/lib/whatsapp-utils";
+
+function parseOrderLocation(formData: FormData) {
+  const locationText =
+    String(formData.get("location_text") ?? "").trim() || null;
+  const latRaw = String(formData.get("location_lat") ?? "").trim();
+  const lngRaw = String(formData.get("location_lng") ?? "").trim();
+  const lat = latRaw ? Number(latRaw) : null;
+  const lng = lngRaw ? Number(lngRaw) : null;
+
+  return {
+    location_text: locationText,
+    location_lat:
+      lat !== null && Number.isFinite(lat) ? lat : null,
+    location_lng:
+      lng !== null && Number.isFinite(lng) ? lng : null,
+  };
+}
 
 async function adminClient() {
   const profile = await requireProfile(["admin"]);
@@ -42,6 +60,7 @@ export async function updateOrderAction(
     const status = String(formData.get("status")) as ServiceRequestStatus;
     const priority = String(formData.get("priority")) as RequestPriority;
     const assigned = String(formData.get("assigned_technician_id") ?? "");
+    const location = parseOrderLocation(formData);
 
     const { error } = await supabase
       .from("service_requests")
@@ -49,6 +68,7 @@ export async function updateOrderAction(
         status,
         priority,
         assigned_technician_id: assigned || null,
+        ...location,
       })
       .eq("id", id);
 
@@ -63,6 +83,20 @@ export async function updateOrderAction(
       error: err instanceof Error ? err.message : "Unknown error",
     };
   }
+}
+
+export async function deleteAdminOrderAction(formData: FormData) {
+  await requireProfile(["admin"]);
+  const admin = getAdminSupabaseClient();
+  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
+
+  const id = String(formData.get("id"));
+  const { error } = await admin.from("service_requests").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin");
+  redirect("/admin/orders");
 }
 
 export async function saveServiceAction(formData: FormData) {
@@ -498,8 +532,7 @@ export async function createAdminOrderAction(
   }
 
   const carType = String(formData.get("car_type") ?? "").trim() || null;
-  const locationText =
-    String(formData.get("location_text") ?? "").trim() || null;
+  const location = parseOrderLocation(formData);
   const description =
     String(formData.get("description") ?? "").trim() || null;
   const assignedRaw = String(
@@ -521,7 +554,9 @@ export async function createAdminOrderAction(
       customer_name: customerName,
       customer_phone: customerPhone,
       car_type: carType,
-      location_text: locationText,
+      location_text: location.location_text,
+      location_lat: location.location_lat,
+      location_lng: location.location_lng,
       description,
       service_type: serviceType,
       execution_method: executionMethod,
@@ -534,6 +569,10 @@ export async function createAdminOrderAction(
 
   if (error || !data?.id) {
     return { error: error?.message ?? "تعذّر إنشاء الطلب." };
+  }
+
+  if (carType) {
+    await saveClientVehicleAsAdmin(clientId, carType);
   }
 
   revalidatePath("/admin/orders");

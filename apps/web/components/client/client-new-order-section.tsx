@@ -10,11 +10,13 @@ import { useLocale } from "@/lib/i18n/locale-context";
 type ClientNewOrderSectionProps = {
   defaultName: string;
   defaultPhone: string;
+  savedVehicles?: string[];
 };
 
 export function ClientNewOrderSection({
   defaultName,
   defaultPhone,
+  savedVehicles = [],
 }: ClientNewOrderSectionProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.client.ordersPage;
@@ -54,6 +56,7 @@ export function ClientNewOrderSection({
             bare
             defaultName={defaultName}
             defaultPhone={defaultPhone}
+            savedVehicles={savedVehicles}
           />
         ) : null}
       </CardContent>

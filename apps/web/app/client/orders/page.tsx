@@ -10,6 +10,7 @@ import {
   getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
 import { getClientRequests } from "@/lib/dashboard-queries";
+import { getClientVehicles } from "@/lib/client-vehicles";
 import {
   getExecutionMethodLabels,
   getServiceTypeLabels,
@@ -28,6 +29,9 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
+  const savedVehicles = profile
+    ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
+    : [];
   const orders = filterServiceRequests(allOrders, params);
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
@@ -59,6 +63,7 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
         <ClientNewOrderSection
           defaultName={profile?.full_name ?? ""}
           defaultPhone={profile?.phone ?? ""}
+          savedVehicles={savedVehicles}
         />
       </Suspense>
 

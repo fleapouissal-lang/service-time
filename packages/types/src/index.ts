@@ -133,6 +133,14 @@ export interface SparePartOrderItem {
   created_at: string;
 }
 
+export interface ClientVehicle {
+  id: string;
+  client_id: string;
+  label: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ServiceRequest {
   id: string;
   client_id: string | null;

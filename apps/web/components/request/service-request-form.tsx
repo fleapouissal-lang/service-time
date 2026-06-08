@@ -3,9 +3,10 @@
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useActionState, useMemo } from "react";
-import { FileText, Phone, User, Car } from "lucide-react";
+import { FileText, Phone, User } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
+import { ClientVehicleField } from "@/components/request/client-vehicle-field";
 import { RequestFormShell } from "@/components/request/request-form-shell";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -25,12 +26,14 @@ export function ServiceRequestForm({
   bare = false,
   defaultName = "",
   defaultPhone = "",
+  savedVehicles = [],
 }: {
   embedded?: boolean;
   fullWidth?: boolean;
   bare?: boolean;
   defaultName?: string;
   defaultPhone?: string;
+  savedVehicles?: string[];
 }) {
   const { messages: t } = useLocale();
   const searchParams = useSearchParams();
@@ -127,15 +130,7 @@ export function ServiceRequestForm({
             </div>
           </div>
 
-          <div>
-            <Label htmlFor="car_type">{t.request.form.car}</Label>
-            <IconInput
-              id="car_type"
-              name="car_type"
-              icon={Car}
-              placeholder={t.common.placeholderCar}
-            />
-          </div>
+          <ClientVehicleField vehicles={savedVehicles} />
 
           <div>
             <Label htmlFor="location_text">{t.request.form.location}</Label>

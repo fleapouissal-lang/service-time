@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { AdminOrderDeleteButton } from "@/components/admin/admin-order-delete-button";
 import { AdminOrderUpdateForm } from "@/components/admin/admin-order-update-form";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -115,6 +116,11 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             <div className="rounded-xl border border-border p-4">
               <p className="text-xs font-medium text-muted">{p.detail.location}</p>
               <p className="mt-1 text-sm">{order.location_text}</p>
+              {order.location_lat != null && order.location_lng != null ? (
+                <p className="mt-1 font-mono text-xs text-muted" dir="ltr">
+                  {order.location_lat.toFixed(5)}, {order.location_lng.toFixed(5)}
+                </p>
+              ) : null}
             </div>
           ) : null}
 
@@ -132,9 +138,19 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               status={order.status}
               priority={order.priority}
               assignedTechnicianId={order.assigned_technician_id ?? ""}
+              locationText={order.location_text}
+              locationLat={order.location_lat}
+              locationLng={order.location_lng}
               statusOptions={statusOptions}
               priorityOptions={priorityOptions}
               technicianOptions={technicianOptions}
+            />
+          </div>
+
+          <div className="flex justify-end border-t border-border pt-4">
+            <AdminOrderDeleteButton
+              orderId={order.id}
+              customerName={order.customer_name}
             />
           </div>
         </CardContent>

@@ -3,9 +3,11 @@
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { getIntlLocale } from "@/lib/i18n/config";
+import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type {
   SparePartOrderStatus,
@@ -29,9 +31,19 @@ export function AdminSparePartOrdersTable({
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartOrdersPage;
   const intlLocale = getIntlLocale(locale);
+  const {
+    pageItems,
+    setPage,
+    page,
+    totalPages,
+    totalItems,
+    from,
+    to,
+  } = useDashboardTablePagination(orders);
 
   return (
-    <AdminTable>
+    <>
+      <AdminTable>
       <AdminTableHead>
         <AdminTableHeadCell className="min-w-[11rem]">{p.table.client}</AdminTableHeadCell>
         <AdminTableHeadCell align="center" className="min-w-[7rem]">
@@ -51,7 +63,7 @@ export function AdminSparePartOrdersTable({
         </AdminTableHeadCell>
       </AdminTableHead>
       <tbody>
-        {orders.map((order) => {
+        {pageItems.map((order) => {
           const orderTotal = order.items.reduce(
             (sum, item) =>
               sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
@@ -111,6 +123,16 @@ export function AdminSparePartOrdersTable({
           );
         })}
       </tbody>
-    </AdminTable>
+      </AdminTable>
+
+      <DashboardTablePagination
+        page={page}
+        totalPages={totalPages}
+        totalItems={totalItems}
+        from={from}
+        to={to}
+        onPageChange={setPage}
+      />
+    </>
   );
 }

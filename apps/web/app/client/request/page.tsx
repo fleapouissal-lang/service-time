@@ -6,6 +6,7 @@ import {
   getExecutionMethodFilterOptionsForDashboard,
   getServiceTypeFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
+import { getClientVehicles } from "@/lib/client-vehicles";
 import { requireProfile } from "@/lib/auth";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
@@ -23,6 +24,9 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
   const { t } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
+  const savedVehicles = profile
+    ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
+    : [];
 
   return (
     <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
@@ -58,6 +62,7 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
           fullWidth
           defaultName={profile?.full_name ?? ""}
           defaultPhone={profile?.phone ?? ""}
+          savedVehicles={savedVehicles}
         />
       </Suspense>
     </div>

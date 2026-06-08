@@ -9,6 +9,7 @@ import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getExecutionMethodLabels, getServiceTypeLabels } from "@/lib/i18n/labels";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { notifyOrderCreated } from "@/lib/order-notifications";
+import { saveClientVehicle } from "@/lib/client-vehicles";
 import {
   formHasPhotoField,
   getPhotoFromFormData,
@@ -144,6 +145,10 @@ export async function submitServiceRequest(
     carType: car_type || null,
     locationText: location_text || null,
   }).catch((err) => console.error("[request] order notify:", err));
+
+  if (car_type) {
+    await saveClientVehicle(profile.id, car_type);
+  }
 
   revalidatePath("/client/track");
   revalidatePath("/client/orders");
