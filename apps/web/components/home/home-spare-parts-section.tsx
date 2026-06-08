@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { SparePartCard } from "@/components/spare-parts/spare-part-card";
+import { SparePartDetailModal } from "@/components/spare-parts/spare-part-detail-modal";
 import type { SparePart } from "@service-time/types";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -12,6 +14,7 @@ type HomeSparePartsSectionProps = {
 
 export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
   const { messages } = useLocale();
+  const [selectedPart, setSelectedPart] = useState<SparePart | null>(null);
 
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] py-16">
@@ -31,10 +34,15 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
         </Link>
       </div>
 
-      <div className="grid items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 items-stretch gap-3 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
         {parts.length > 0 ? (
           parts.map((part) => (
-            <SparePartCard key={part.id} part={part} variant="home" />
+            <SparePartCard
+              key={part.id}
+              part={part}
+              variant="home"
+              onOpen={setSelectedPart}
+            />
           ))
         ) : (
           <p className="col-span-full text-start text-muted">
@@ -42,6 +50,11 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
           </p>
         )}
       </div>
+
+      <SparePartDetailModal
+        part={selectedPart}
+        onClose={() => setSelectedPart(null)}
+      />
 
       <div className="mt-10 flex justify-center sm:hidden">
         <Link
