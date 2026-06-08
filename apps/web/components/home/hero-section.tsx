@@ -21,12 +21,24 @@ export function HeroSection({
     <section className="relative -mt-20 min-h-[100svh] w-full overflow-hidden bg-[#050B10] pt-20">
       <div className="pointer-events-none absolute inset-0">
         <Image
+          src="/hero-bg-mobile.png"
+          alt=""
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-[28%_center] md:hidden"
+        />
+        <Image
           src="/hero-bg.png"
           alt=""
           fill
           priority
           sizes="100vw"
-          className="object-cover object-center"
+          className="hidden object-cover object-center md:block"
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-[#050B10]/80 via-[#050B10]/40 to-transparent md:from-[#050B10]/60 md:via-transparent"
+          aria-hidden
         />
       </div>
 
