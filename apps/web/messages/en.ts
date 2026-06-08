@@ -802,6 +802,7 @@ export const messages = {
         createOrderHint: "Submit a new maintenance request and we will contact you soon.",
         showAddForm: "Create new request",
         hideAddForm: "Hide form",
+        createSuccess: "Request submitted successfully. The list below has been updated.",
         table: {
           service: "Service",
           execution: "Execution",

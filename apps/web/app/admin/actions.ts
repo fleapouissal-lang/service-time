@@ -19,6 +19,8 @@ import {
 } from "@/lib/upload-profile-avatar";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
 import { resolveQuickRequestClient } from "@/lib/quick-request-client";
+import { notifyOrderCreated } from "@/lib/order-notifications";
+import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
@@ -575,7 +577,7 @@ export async function createAdminOrderAction(
     await saveClientVehicleAsAdmin(clientId, carType);
   }
 
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin");
-  redirect(`/admin/orders/${data.id}`);
+  revalidateServiceRequestDashboards();
+
+  return { success: true };
 }

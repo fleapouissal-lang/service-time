@@ -802,6 +802,7 @@ export const messages = {
         createOrderHint: "أرسل طلب صيانة جديد وسنتواصل معك قريباً.",
         showAddForm: "إنشاء طلب جديد",
         hideAddForm: "إخفاء النموذج",
+        createSuccess: "تم إرسال الطلب بنجاح. تم تحديث القائمة أدناه.",
         table: {
           service: "الخدمة",
           execution: "طريقة التنفيذ",

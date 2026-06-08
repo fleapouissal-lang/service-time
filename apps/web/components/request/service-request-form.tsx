@@ -1,9 +1,9 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { useActionState, useMemo } from "react";
-import { FileText, Phone, User } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useActionState, useEffect, useMemo, useRef } from "react";
+import { CheckCircle2, FileText, Phone, User } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
@@ -27,6 +27,8 @@ export function ServiceRequestForm({
   defaultName = "",
   defaultPhone = "",
   savedVehicles = [],
+  refreshDashboard = false,
+  onSuccess,
 }: {
   embedded?: boolean;
   fullWidth?: boolean;
@@ -34,8 +36,11 @@ export function ServiceRequestForm({
   defaultName?: string;
   defaultPhone?: string;
   savedVehicles?: string[];
+  refreshDashboard?: boolean;
+  onSuccess?: () => void;
 }) {
   const { messages: t } = useLocale();
+  const router = useRouter();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
   const defaultType =
@@ -55,6 +60,15 @@ export function ServiceRequestForm({
   );
 
   const [state, action, pending] = useActionState(submitServiceRequest, {});
+  const handledSuccessRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!state.success || !state.trackingToken) return;
+    if (handledSuccessRef.current === state.trackingToken) return;
+    handledSuccessRef.current = state.trackingToken;
+    router.refresh();
+    onSuccess?.();
+  }, [state.success, state.trackingToken, router, onSuccess]);
 
   return (
     <>
@@ -78,22 +92,45 @@ export function ServiceRequestForm({
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />
           ) : null}
+          {refreshDashboard ? (
+            <input type="hidden" name="refresh_dashboard" value="1" />
+          ) : null}
 
           {state.success && state.trackingToken ? (
-            <div className="space-y-4 rounded-xl border border-primary/30 bg-primary/10 px-4 py-4 text-sm text-primary">
-              <p className="font-semibold">{t.request.form.successTitle}</p>
+            <div
+              className="space-y-3 rounded-xl border border-primary/30 bg-primary/10 px-4 py-4 text-sm text-primary"
+              role="status"
+              aria-live="polite"
+            >
+              <p className="flex items-center gap-2 font-semibold">
+                <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+                {refreshDashboard
+                  ? t.dashboard.client.ordersPage.createSuccess
+                  : t.request.form.successTitle}
+              </p>
               <p>
                 {t.request.form.trackingToken}{" "}
                 <code dir="ltr" className="rounded bg-white/50 px-2 py-0.5">
                   {state.trackingToken}
                 </code>
               </p>
-              <p>
-                <Link href="/login?next=/client/track" className="font-semibold underline">
-                  {t.request.form.loginLink}
-                </Link>{" "}
-                {t.request.form.loginToTrack}
-              </p>
+              {refreshDashboard ? (
+                <p>
+                  <Link
+                    href={`/client/track/${state.trackingToken}`}
+                    className="font-semibold underline"
+                  >
+                    {t.dashboard.client.trackOrder}
+                  </Link>
+                </p>
+              ) : (
+                <p>
+                  <Link href="/login?next=/client/track" className="font-semibold underline">
+                    {t.request.form.loginLink}
+                  </Link>{" "}
+                  {t.request.form.loginToTrack}
+                </p>
+              )}
             </div>
           ) : null}
 

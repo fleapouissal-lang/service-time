@@ -21,6 +21,12 @@ export function ClientNewOrderSection({
   const { messages: t } = useLocale();
   const p = t.dashboard.client.ordersPage;
   const [open, setOpen] = useState(false);
+  const [formKey, setFormKey] = useState(0);
+
+  function handleOrderCreated() {
+    setOpen(false);
+    setFormKey((value) => value + 1);
+  }
 
   return (
     <Card>
@@ -52,11 +58,14 @@ export function ClientNewOrderSection({
 
         {open ? (
           <ServiceRequestForm
+            key={formKey}
             embedded
             bare
+            refreshDashboard
             defaultName={defaultName}
             defaultPhone={defaultPhone}
             savedVehicles={savedVehicles}
+            onSuccess={handleOrderCreated}
           />
         ) : null}
       </CardContent>

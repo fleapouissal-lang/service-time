@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   ArrowLeft,
   ArrowRight,
@@ -44,6 +45,7 @@ export function AdminCreateOrderForm({
   technicianOptions,
 }: AdminCreateOrderFormProps) {
   const { messages: t } = useLocale();
+  const router = useRouter();
   const p = t.dashboard.admin.ordersPage;
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(1);
@@ -52,6 +54,19 @@ export function AdminCreateOrderForm({
   const [clientSearch, setClientSearch] = useState("");
   const [stepError, setStepError] = useState("");
   const [state, action, pending] = useActionState(createAdminOrderAction, {});
+  const handledSuccessRef = useRef(false);
+
+  useEffect(() => {
+    if (!state.success || handledSuccessRef.current) return;
+    handledSuccessRef.current = true;
+    router.refresh();
+    setOpen(false);
+    setStep(1);
+    setClientMode("existing");
+    setSelectedClientId("");
+    setClientSearch("");
+    setStepError("");
+  }, [state.success, router]);
 
   const filteredClients = useMemo(() => {
     const query = clientSearch.trim().toLowerCase();
@@ -127,7 +142,10 @@ export function AdminCreateOrderForm({
             variant={open ? "outline" : "default"}
             onClick={() => {
               if (open) closeForm();
-              else setOpen(true);
+              else {
+                handledSuccessRef.current = false;
+                setOpen(true);
+              }
             }}
             aria-expanded={open}
           >

@@ -1,15 +1,15 @@
 "use server";
 
 import type { ExecutionMethod, ServiceType } from "@service-time/types";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
+import { saveClientVehicle } from "@/lib/client-vehicles";
 import { ensureServerEnv } from "@/lib/env-server";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getExecutionMethodLabels, getServiceTypeLabels } from "@/lib/i18n/labels";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { notifyOrderCreated } from "@/lib/order-notifications";
-import { saveClientVehicle } from "@/lib/client-vehicles";
+import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import {
   formHasPhotoField,
   getPhotoFromFormData,
@@ -150,8 +150,15 @@ export async function submitServiceRequest(
     await saveClientVehicle(profile.id, car_type);
   }
 
-  revalidatePath("/client/track");
-  revalidatePath("/client/orders");
-  revalidatePath("/request");
+  revalidateServiceRequestDashboards();
+
+  const refreshDashboard = formData.get("refresh_dashboard") === "1";
+  if (refreshDashboard) {
+    return {
+      success: true,
+      trackingToken: row.tracking_token,
+    };
+  }
+
   redirect(`/client/track/${row.tracking_token}?success=1`);
 }
