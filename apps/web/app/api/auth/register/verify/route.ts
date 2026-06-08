@@ -7,6 +7,7 @@ import {
 } from "@/lib/password-reset";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { getProfileAvatarPublicUrl } from "@/lib/upload-profile-avatar";
+import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 
 export async function POST(request: Request) {
   const admin = getAdminSupabaseClient();
@@ -87,10 +88,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const fullName =
-    (authUser.user.user_metadata?.full_name as string | undefined) ??
-    authUser.user.email ??
+  const meta = authUser.user.user_metadata ?? {};
+  const fullNameAr =
+    (meta.full_name_ar as string | undefined)?.trim() ||
+    (meta.full_name as string | undefined)?.trim() ||
+    authUser.user.email ||
     "عميل";
+  const fullNameEn = (meta.full_name_en as string | undefined)?.trim() ?? "";
+  const localizedNames = await resolveProfileNamesFromFields(
+    fullNameAr,
+    fullNameEn,
+  );
 
   const { error: confirmError } = await admin.auth.admin.updateUserById(
     record.user_id,
@@ -113,7 +121,9 @@ export async function POST(request: Request) {
   const { error: profileError } = await admin.from("profiles").upsert(
     {
       id: record.user_id,
-      full_name: fullName,
+      full_name: localizedNames.full_name,
+      full_name_ar: localizedNames.full_name_ar,
+      full_name_en: localizedNames.full_name_en,
       phone: record.phone,
       role: "client",
       technician_type: null,

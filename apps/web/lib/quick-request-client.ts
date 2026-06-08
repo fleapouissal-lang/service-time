@@ -9,6 +9,7 @@ import {
   normalizePhone,
   phoneToWhatsAppDigits,
 } from "@/lib/whatsapp-utils";
+import { resolveLocalizedProfileNames } from "@/lib/profile-names";
 
 export type QuickRequestClientResult = {
   clientId: string;
@@ -161,11 +162,14 @@ export async function resolveQuickRequestClient(input: {
   }
 
   const userId = created.user.id;
+  const localizedNames = await resolveLocalizedProfileNames(input.fullName.trim());
 
   const { error: profileError } = await admin.from("profiles").upsert(
     {
       id: userId,
-      full_name: input.fullName.trim(),
+      full_name: localizedNames.full_name,
+      full_name_ar: localizedNames.full_name_ar,
+      full_name_en: localizedNames.full_name_en,
       phone: normalizedPhone,
       role: "client",
       technician_type: null,

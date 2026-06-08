@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { IconSelect } from "@/components/ui/icon-select";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { getIntlLocale } from "@/lib/i18n/config";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type {
   SparePartOrderStatus,
@@ -52,7 +53,9 @@ export function AdminSparePartOrderEditForm({
         <div className="rounded-xl border border-border p-4">
           <p className="text-xs font-medium text-muted">{p.detail.client}</p>
           <p className="mt-1 font-semibold">
-            {order.client?.full_name ?? t.common.dash}
+            {order.client
+              ? getProfileDisplayName(order.client, locale)
+              : t.common.dash}
           </p>
           {order.client?.phone ? (
             <p className="mt-0.5 text-sm text-muted" dir="ltr">

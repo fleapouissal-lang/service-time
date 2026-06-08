@@ -14,6 +14,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getProfileDisplayName, getProfileNameFields } from "@/lib/profile-display-name";
 import { getProfileRoleLabel, getTechnicianTypeLabels } from "@/lib/i18n/labels";
 
 type DashboardSettingsPanelProps = {
@@ -119,9 +120,11 @@ export function DashboardSettingsPanel({
   profile,
   email,
 }: DashboardSettingsPanelProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const router = useRouter();
   const s = t.dashboard.settings;
+  const displayName = getProfileDisplayName(profile, locale);
+  const { ar: defaultNameAr, en: defaultNameEn } = getProfileNameFields(profile);
   const [profileState, profileAction, profilePending] = useActionState(
     updateProfileSettingsAction,
     {},
@@ -154,34 +157,51 @@ export function DashboardSettingsPanel({
 
           <form action={profileAction} className="space-y-5">
             <SettingsAvatarField
-              fullName={profile.full_name}
+              fullName={displayName}
               avatarUrl={profile.avatar_url}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
-                <Label htmlFor="settings_full_name">{s.fullName}</Label>
+                <Label htmlFor="settings_full_name_ar">{s.fullNameAr}</Label>
                 <Input
-                  id="settings_full_name"
-                  name="full_name"
+                  id="settings_full_name_ar"
+                  name="full_name_ar"
                   required
                   minLength={2}
-                  defaultValue={profile.full_name}
+                  defaultValue={defaultNameAr}
                   className="mt-1"
+                  dir="rtl"
+                  placeholder={s.fullNameArPlaceholder}
                 />
               </div>
               <div>
-                <Label htmlFor="settings_phone">{s.phone}</Label>
+                <Label htmlFor="settings_full_name_en">{s.fullNameEn}</Label>
                 <Input
-                  id="settings_phone"
-                  name="phone"
-                  type="tel"
-                  dir="ltr"
-                  defaultValue={profile.phone ?? ""}
+                  id="settings_full_name_en"
+                  name="full_name_en"
+                  required
+                  minLength={2}
+                  defaultValue={defaultNameEn}
                   className="mt-1"
-                  placeholder={s.phonePlaceholder}
+                  dir="ltr"
+                  placeholder={s.fullNameEnPlaceholder}
                 />
               </div>
+            </div>
+            <p className="text-xs text-muted">{s.bilingualNamesHint}</p>
+
+            <div>
+              <Label htmlFor="settings_phone">{s.phone}</Label>
+              <Input
+                id="settings_phone"
+                name="phone"
+                type="tel"
+                dir="ltr"
+                defaultValue={profile.phone ?? ""}
+                className="mt-1 max-w-md"
+                placeholder={s.phonePlaceholder}
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

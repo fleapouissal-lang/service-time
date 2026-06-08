@@ -1,3 +1,4 @@
+import { getProfileSearchText } from "@/lib/profile-display-name";
 import type { Profile, Service, ServiceRequest, SparePart } from "@service-time/types";
 
 export type ListFilterParams = {
@@ -225,7 +226,8 @@ export function filterProfiles(
     if (params.q) {
       const q = params.q.toLowerCase();
       const hit =
-        matchesQuery(item.full_name, q) || matchesQuery(item.phone, q);
+        getProfileSearchText(item).includes(q) ||
+        matchesQuery(item.phone, q);
       if (!hit) return false;
     }
 

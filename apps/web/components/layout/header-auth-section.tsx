@@ -8,6 +8,7 @@ import type { ProfileRole } from "@service-time/types";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { getProfileHomePath } from "@/lib/profile-home";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 import { cn } from "@/lib/utils";
 
@@ -175,7 +176,7 @@ export function HeaderAuthSection({
   onNavigate?: () => void;
 }) {
   const router = useRouter();
-  const { messages } = useLocale();
+  const { messages, locale } = useLocale();
   const [profile, setProfile] = useState<HeaderProfile | null>(null);
   const [ready, setReady] = useState(false);
 
@@ -195,13 +196,13 @@ export function HeaderAuthSection({
 
       const { data } = await supabase
         .from("profiles")
-        .select("full_name, role, avatar_url, is_active")
+        .select("full_name, full_name_ar, full_name_en, role, avatar_url, is_active")
         .eq("id", user.id)
         .maybeSingle();
 
       if (data?.is_active && data.role) {
         setProfile({
-          fullName: data.full_name,
+          fullName: getProfileDisplayName(data, locale),
           role: data.role as ProfileRole,
           avatarUrl: data.avatar_url ?? null,
         });
@@ -221,7 +222,7 @@ export function HeaderAuthSection({
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [locale]);
 
   async function handleSignOut() {
     const supabase = createAuthBrowserClient();

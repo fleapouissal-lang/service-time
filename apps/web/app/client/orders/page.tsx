@@ -16,6 +16,7 @@ import {
   getServiceTypeLabels,
   getStatusLabels,
 } from "@/lib/i18n/labels";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
 
@@ -24,7 +25,7 @@ type PageProps = {
 };
 
 export default async function ClientOrdersPage({ searchParams }: PageProps) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const p = t.dashboard.client.ordersPage;
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
@@ -61,7 +62,9 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
 
       <Suspense>
         <ClientNewOrderSection
-          defaultName={profile?.full_name ?? ""}
+          defaultName={
+            profile ? getProfileDisplayName(profile, locale) : ""
+          }
           defaultPhone={profile?.phone ?? ""}
           savedVehicles={savedVehicles}
         />

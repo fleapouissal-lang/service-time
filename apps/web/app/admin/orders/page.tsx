@@ -35,7 +35,7 @@ type PageProps = {
 };
 
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const p = t.dashboard.admin.ordersPage;
   const params = parseListFilters(await searchParams);
   const [allOrders, clients, technicians] = await Promise.all([
@@ -50,7 +50,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const serviceTypeOptions = buildServiceRequestTypeOptions(t);
   const executionMethodOptions = buildExecutionMethodSelectOptions(t);
   const priorityOptions = buildPrioritySelectOptions(t);
-  const technicianOptions = buildTechnicianAssignOptions(t, technicians);
+  const technicianOptions = buildTechnicianAssignOptions(t, technicians, locale);
 
   return (
     <div className="space-y-8">

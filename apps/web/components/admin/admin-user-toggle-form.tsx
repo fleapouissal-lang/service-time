@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { Profile } from "@service-time/types";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import type { ProfileRole, TechnicianType } from "@service-time/types";
 
 type AdminUserToggleFormProps = {
@@ -18,15 +19,16 @@ export function AdminUserToggleForm({
   roleLabels,
   technicianTypeLabels,
 }: AdminUserToggleFormProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.usersPage;
+  const displayName = getProfileDisplayName(user, locale);
 
   return (
     <div className="space-y-6">
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="rounded-xl border border-border p-4">
           <p className="text-xs font-medium text-muted">{p.detail.fullName}</p>
-          <p className="mt-1 font-semibold">{user.full_name}</p>
+          <p className="mt-1 font-semibold">{displayName}</p>
         </div>
         <div className="rounded-xl border border-border p-4">
           <p className="text-xs font-medium text-muted">{p.detail.phone}</p>

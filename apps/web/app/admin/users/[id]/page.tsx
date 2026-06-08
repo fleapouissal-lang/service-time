@@ -5,6 +5,7 @@ import { AdminUserToggleForm } from "@/components/admin/admin-user-toggle-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
 import { getRoleLabels, getTechnicianTypeLabels } from "@/lib/i18n/labels";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
@@ -12,7 +13,7 @@ type PageProps = {
 };
 
 export default async function AdminUserDetailPage({ params }: PageProps) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const p = t.dashboard.admin.usersPage;
   const { id } = await params;
   const user = await getPlatformUserById(id);
@@ -33,7 +34,7 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
           {p.backToList}
         </Link>
         <h1 className="text-2xl font-bold">{p.editUser}</h1>
-        <p className="text-muted">{user.full_name}</p>
+        <p className="text-muted">{getProfileDisplayName(user, locale)}</p>
       </div>
 
       <Card>

@@ -15,7 +15,8 @@ export function ClientRegisterForm() {
   const { messages: t } = useLocale();
   const router = useRouter();
   const [step, setStep] = useState<Step>("register");
-  const [fullName, setFullName] = useState("");
+  const [fullNameAr, setFullNameAr] = useState("");
+  const [fullNameEn, setFullNameEn] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -30,7 +31,8 @@ export function ClientRegisterForm() {
 
   function buildRegisterFormData() {
     const formData = new FormData();
-    formData.set("fullName", fullName);
+    formData.set("fullNameAr", fullNameAr);
+    formData.set("fullNameEn", fullNameEn);
     formData.set("phone", phone);
     formData.set("email", email);
     formData.set("password", password);
@@ -58,6 +60,16 @@ export function ClientRegisterForm() {
     e.preventDefault();
     setError("");
     setInfo("");
+
+    if (fullNameAr.trim().length < 2) {
+      setError(t.errors.register.fullNameArRequired);
+      return;
+    }
+
+    if (fullNameEn.trim().length < 2) {
+      setError(t.errors.register.fullNameEnRequired);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError(t.errors.auth.passwordMismatch);
@@ -176,19 +188,37 @@ export function ClientRegisterForm() {
         >
           <ProfileAvatarPicker onChange={setAvatarFile} />
 
-          <div>
-            <Label htmlFor="full_name" className="text-white">
-              {t.register.fullName}
-            </Label>
-            <Input
-              id="full_name"
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              required
-              placeholder={t.common.placeholderName}
-              className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
-            />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <Label htmlFor="full_name_ar" className="text-white">
+                {t.register.fullNameAr}
+              </Label>
+              <Input
+                id="full_name_ar"
+                value={fullNameAr}
+                onChange={(e) => setFullNameAr(e.target.value)}
+                required
+                dir="rtl"
+                placeholder={t.register.fullNameArPlaceholder}
+                className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
+              />
+            </div>
+            <div>
+              <Label htmlFor="full_name_en" className="text-white">
+                {t.register.fullNameEn}
+              </Label>
+              <Input
+                id="full_name_en"
+                value={fullNameEn}
+                onChange={(e) => setFullNameEn(e.target.value)}
+                required
+                dir="ltr"
+                placeholder={t.register.fullNameEnPlaceholder}
+                className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
+              />
+            </div>
           </div>
+          <p className="text-xs text-white/50">{t.register.bilingualNamesHint}</p>
 
           <div>
             <Label htmlFor="phone" className="text-white">

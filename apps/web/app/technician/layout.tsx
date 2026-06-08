@@ -1,18 +1,20 @@
 import { redirect } from "next/navigation";
-import { TechnicianDashboardShell } from "@/components/dashboard/dashboard-shell";
+import { TechnicianDashboardWithLocale } from "@/components/dashboard/dashboard-with-locale";
 import { requireProfile } from "@/lib/auth";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export default async function TechnicianLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const { locale } = await getServerI18n();
   const profile = await requireProfile(["technician"]);
   if (!profile) redirect("/login?next=/technician");
 
   return (
-    <TechnicianDashboardShell profile={profile}>
+    <TechnicianDashboardWithLocale locale={locale} profile={profile}>
       {children}
-    </TechnicianDashboardShell>
+    </TechnicianDashboardWithLocale>
   );
 }

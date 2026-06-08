@@ -2,12 +2,13 @@ import { togglePlatformUserAction } from "@/app/admin/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getRoleLabels, getTechnicianTypeLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import type { Profile } from "@service-time/types";
 
 export async function PlatformUsersList({ users }: { users: Profile[] }) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const roleLabels = getRoleLabels(t);
   const technicianTypeLabels = getTechnicianTypeLabels(t);
 
@@ -17,7 +18,9 @@ export async function PlatformUsersList({ users }: { users: Profile[] }) {
 
   return (
     <div className="space-y-3">
-      {users.map((user) => (
+      {users.map((user) => {
+        const displayName = getProfileDisplayName(user, locale);
+        return (
         <Card key={user.id}>
           <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-4">
@@ -30,11 +33,11 @@ export async function PlatformUsersList({ users }: { users: Profile[] }) {
                 />
               ) : (
                 <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                  {user.full_name.slice(0, 1)}
+                  {displayName.slice(0, 1)}
                 </div>
               )}
               <div>
-                <p className="font-semibold">{user.full_name}</p>
+                <p className="font-semibold">{displayName}</p>
                 <p className="text-sm text-muted" dir="ltr">
                   {user.phone ?? t.common.dash}
                 </p>
@@ -66,7 +69,8 @@ export async function PlatformUsersList({ users }: { users: Profile[] }) {
             </form>
           </CardContent>
         </Card>
-      ))}
+        );
+      })}
     </div>
   );
 }

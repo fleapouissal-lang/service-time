@@ -8,6 +8,7 @@ import {
 } from "@/lib/dashboard-filter-options";
 import { getClientVehicles } from "@/lib/client-vehicles";
 import { requireProfile } from "@/lib/auth";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
 
@@ -21,7 +22,7 @@ type PageProps = {
 };
 
 export default async function ClientRequestPage({ searchParams }: PageProps) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
   const savedVehicles = profile
@@ -60,7 +61,9 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
         <ServiceRequestForm
           embedded
           fullWidth
-          defaultName={profile?.full_name ?? ""}
+          defaultName={
+            profile ? getProfileDisplayName(profile, locale) : ""
+          }
           defaultPhone={profile?.phone ?? ""}
           savedVehicles={savedVehicles}
         />

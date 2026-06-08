@@ -33,6 +33,8 @@ export type NotificationChannel = "whatsapp" | "sms";
 export interface Profile {
   id: string;
   full_name: string;
+  full_name_ar: string | null;
+  full_name_en: string | null;
   phone: string | null;
   role: ProfileRole;
   technician_type: TechnicianType | null;

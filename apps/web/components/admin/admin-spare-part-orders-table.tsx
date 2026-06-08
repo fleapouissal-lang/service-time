@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type {
   SparePartOrderStatus,
@@ -75,7 +76,11 @@ export function AdminSparePartOrdersTable({
             <tr key={order.id} className="border-b border-border">
               <AdminTableCell className="min-w-[11rem]">
                 <AdminTableCustomerInfo
-                  name={order.client?.full_name ?? t.common.dash}
+                  name={
+                    order.client
+                      ? getProfileDisplayName(order.client, locale)
+                      : t.common.dash
+                  }
                   phone={order.client?.phone}
                 />
               </AdminTableCell>

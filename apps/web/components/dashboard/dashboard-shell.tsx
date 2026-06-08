@@ -17,6 +17,7 @@ import {
   getClientNav,
   getTechnicianNav,
 } from "@/lib/i18n/dashboard-nav";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 
 const STORAGE_KEY = "service-time-sidebar-open";
@@ -40,16 +41,6 @@ function useSidebarOpen() {
   return { open, toggle };
 }
 
-function toDashboardUser(profile: Profile) {
-  return {
-    fullName: profile.full_name,
-    role: profile.role,
-    avatarUrl: profile.avatar_url ?? null,
-    profileHref: getProfilePagePath(profile.role),
-    homeHref: getProfileHomePath(profile.role),
-  };
-}
-
 function DashboardLayout({
   children,
   profile,
@@ -62,11 +53,19 @@ function DashboardLayout({
   onSignOut: () => void;
 }) {
   const { open, toggle } = useSidebarOpen();
+  const { locale } = useLocale();
+  const displayName = getProfileDisplayName(profile, locale);
 
   return (
     <div className="flex h-dvh overflow-hidden bg-background">
       <DashboardSidebar
-        user={toDashboardUser(profile)}
+        user={{
+          fullName: displayName,
+          role: profile.role,
+          avatarUrl: profile.avatar_url ?? null,
+          profileHref: getProfilePagePath(profile.role),
+          homeHref: getProfileHomePath(profile.role),
+        }}
         items={items}
         open={open}
         onToggle={toggle}

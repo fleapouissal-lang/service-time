@@ -10,6 +10,7 @@ import {
 } from "@/lib/dashboard-filter-options";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { getProfileRoleLabel, getStatusLabels } from "@/lib/i18n/labels";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
 
@@ -21,6 +22,7 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
   const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
   if (!profile) return null;
+  const displayName = getProfileDisplayName(profile, locale);
 
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
@@ -43,13 +45,13 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-6">
           <ProfileAvatar
-            fullName={profile.full_name}
+            fullName={displayName}
             avatarUrl={profile.avatar_url}
             size="md"
             className="!size-20 !text-2xl"
           />
           <div className="space-y-2">
-            <p className="text-xl font-bold">{profile.full_name}</p>
+            <p className="text-xl font-bold">{displayName}</p>
             <p className="text-sm text-muted">
               {getProfileRoleLabel(t, profile.role)}
             </p>

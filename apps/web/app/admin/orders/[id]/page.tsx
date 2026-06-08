@@ -15,6 +15,7 @@ import {
   getPriorityLabels,
 } from "@/lib/i18n/labels";
 import { getIntlLocale } from "@/lib/i18n/config";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
   buildPrioritySelectOptions,
@@ -42,7 +43,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   const priorityLabels = getPriorityLabels(t);
   const statusOptions = buildStatusSelectOptions(t);
   const priorityOptions = buildPrioritySelectOptions(t);
-  const technicianOptions = buildTechnicianAssignOptions(t, technicians);
+  const technicianOptions = buildTechnicianAssignOptions(t, technicians, locale);
   const intlLocale = getIntlLocale(locale);
 
   const assignedTechnician = technicians.find(
@@ -98,7 +99,9 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             <div className="rounded-xl border border-border p-4">
               <p className="text-xs font-medium text-muted">{p.detail.technician}</p>
               <p className="mt-1 text-sm">
-                {assignedTechnician?.full_name ?? t.common.dash}
+                {assignedTechnician
+                  ? getProfileDisplayName(assignedTechnician, locale)
+                  : t.common.dash}
               </p>
             </div>
           </div>

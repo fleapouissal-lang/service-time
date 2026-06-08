@@ -7,6 +7,7 @@ import { DashboardTablePagination } from "@/components/dashboard/dashboard-table
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import type { ProfileRole, TechnicianType } from "@service-time/types";
 
 type AdminUsersTableProps = {
@@ -20,7 +21,7 @@ export function AdminUsersTable({
   roleLabels,
   technicianTypeLabels,
 }: AdminUsersTableProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.usersPage;
   const {
     pageItems,
@@ -49,6 +50,7 @@ export function AdminUsersTable({
         <tbody>
           {pageItems.map((user) => {
             const detailHref = `/admin/users/${user.id}`;
+            const displayName = getProfileDisplayName(user, locale);
 
             return (
               <tr key={user.id} className="border-b border-border">
@@ -58,15 +60,15 @@ export function AdminUsersTable({
                       // eslint-disable-next-line @next/next/no-img-element
                       <img
                         src={user.avatar_url}
-                        alt={user.full_name}
+                        alt={displayName}
                         className="size-10 shrink-0 rounded-full object-cover ring-2 ring-primary/20"
                       />
                     ) : (
                       <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        {user.full_name.slice(0, 1)}
+                        {displayName.slice(0, 1)}
                       </span>
                     )}
-                    <span className="font-semibold leading-snug">{user.full_name}</span>
+                    <span className="font-semibold leading-snug">{displayName}</span>
                   </div>
                 </AdminTableCell>
                 <AdminTableCell ltr className="min-w-[8rem] text-muted">

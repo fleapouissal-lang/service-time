@@ -25,6 +25,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { IconSelectOption } from "@/lib/icon-select-options";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  getProfileDisplayName,
+  getProfileSearchText,
+} from "@/lib/profile-display-name";
 import { cn } from "@/lib/utils";
 
 type AdminCreateOrderFormProps = {
@@ -44,7 +48,7 @@ export function AdminCreateOrderForm({
   priorityOptions,
   technicianOptions,
 }: AdminCreateOrderFormProps) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const router = useRouter();
   const p = t.dashboard.admin.ordersPage;
   const [open, setOpen] = useState(false);
@@ -72,7 +76,7 @@ export function AdminCreateOrderForm({
     const query = clientSearch.trim().toLowerCase();
     if (!query) return clients;
     return clients.filter((client) => {
-      const haystack = `${client.full_name} ${client.phone ?? ""}`.toLowerCase();
+      const haystack = `${getProfileSearchText(client)} ${client.phone ?? ""}`.toLowerCase();
       return haystack.includes(query);
     });
   }, [clientSearch, clients]);
@@ -268,7 +272,7 @@ export function AdminCreateOrderForm({
                             >
                               <span>
                                 <span className="block font-semibold">
-                                  {client.full_name}
+                                  {getProfileDisplayName(client, locale)}
                                 </span>
                                 <span
                                   className="mt-0.5 block text-sm text-muted"
@@ -349,7 +353,7 @@ export function AdminCreateOrderForm({
                   <p className="font-semibold">{p.step1Title}</p>
                   {clientMode === "existing" && selectedClient ? (
                     <p className="mt-1 text-muted">
-                      {selectedClient.full_name}
+                      {getProfileDisplayName(selectedClient, locale)}
                       <span dir="ltr" className="mx-2">
                         {selectedClient.phone}
                       </span>

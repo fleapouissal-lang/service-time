@@ -96,16 +96,33 @@ export function CreatePlatformUserForm() {
         className="[&_p]:text-foreground [&_button]:border-primary/40 [&_button]:text-primary"
       />
 
-      <div>
-        <Label htmlFor="full_name">{t.dashboard.admin.users.fullName}</Label>
-        <Input
-          id="full_name"
-          name="full_name"
-          required
-          className="mt-2"
-          placeholder={t.common.placeholderName}
-        />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div>
+          <Label htmlFor="full_name_ar">{t.common.fullNameAr}</Label>
+          <Input
+            id="full_name_ar"
+            name="full_name_ar"
+            required
+            minLength={2}
+            dir="rtl"
+            className="mt-2"
+            placeholder={t.common.fullNameArPlaceholder}
+          />
+        </div>
+        <div>
+          <Label htmlFor="full_name_en">{t.common.fullNameEn}</Label>
+          <Input
+            id="full_name_en"
+            name="full_name_en"
+            required
+            minLength={2}
+            dir="ltr"
+            className="mt-2"
+            placeholder={t.common.fullNameEnPlaceholder}
+          />
+        </div>
       </div>
+      <p className="text-xs text-muted">{t.common.bilingualNamesHint}</p>
 
       <div>
         <Label htmlFor="email">{t.common.email} *</Label>

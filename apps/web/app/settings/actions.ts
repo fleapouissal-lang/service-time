@@ -7,6 +7,7 @@ import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { isStrongEnoughPassword } from "@/lib/password-reset";
 import { getProfileHomePath } from "@/lib/profile-home";
+import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import {
   getAvatarFromFormData,
   uploadProfileAvatar,
@@ -43,11 +44,16 @@ export async function updateProfileSettingsAction(
     return { error: s.notAuthenticated };
   }
 
-  const full_name = String(formData.get("full_name") ?? "").trim();
+  const full_name_ar = String(formData.get("full_name_ar") ?? "").trim();
+  const full_name_en = String(formData.get("full_name_en") ?? "").trim();
   const phone = String(formData.get("phone") ?? "").trim();
 
-  if (full_name.length < 2) {
-    return { error: s.nameRequired };
+  if (full_name_ar.length < 2) {
+    return { error: s.nameArRequired };
+  }
+
+  if (full_name_en.length < 2) {
+    return { error: s.nameEnRequired };
   }
 
   const supabase = await createAuthServerClient();
@@ -62,10 +68,17 @@ export async function updateProfileSettingsAction(
     avatar_url = uploaded.publicUrl;
   }
 
+  const localizedNames = await resolveProfileNamesFromFields(
+    full_name_ar,
+    full_name_en,
+  );
+
   const { error } = await supabase
     .from("profiles")
     .update({
-      full_name,
+      full_name: localizedNames.full_name,
+      full_name_ar: localizedNames.full_name_ar,
+      full_name_en: localizedNames.full_name_en,
       phone: phone || null,
       avatar_url,
     })

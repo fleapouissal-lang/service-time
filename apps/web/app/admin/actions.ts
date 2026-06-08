@@ -22,6 +22,7 @@ import { resolveQuickRequestClient } from "@/lib/quick-request-client";
 import { notifyOrderCreated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
+import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
 function parseOrderLocation(formData: FormData) {
@@ -342,7 +343,8 @@ export async function createPlatformUserAction(formData: FormData) {
     throw new Error("إعدادات الخادم غير مكتملة.");
   }
 
-  const fullName = String(formData.get("full_name") ?? "").trim();
+  const fullNameAr = String(formData.get("full_name_ar") ?? "").trim();
+  const fullNameEn = String(formData.get("full_name_en") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const password = String(formData.get("password") ?? "");
   const phoneRaw = String(formData.get("phone") ?? "").trim();
@@ -351,8 +353,12 @@ export async function createPlatformUserAction(formData: FormData) {
   const technicianTypeRaw = String(formData.get("technician_type") ?? "").trim();
   const avatarFile = getAvatarFromFormData(formData);
 
-  if (!fullName || fullName.length < 2) {
-    throw new Error("أدخل الاسم الكامل.");
+  if (fullNameAr.length < 2) {
+    throw new Error("أدخل الاسم بالعربية.");
+  }
+
+  if (fullNameEn.length < 2) {
+    throw new Error("أدخل الاسم بالإنجليزية.");
   }
 
   if (!email.includes("@")) {
@@ -375,12 +381,20 @@ export async function createPlatformUserAction(formData: FormData) {
     technicianType = technicianTypeRaw;
   }
 
+  const localizedNames = await resolveProfileNamesFromFields(
+    fullNameAr,
+    fullNameEn,
+  );
+
   const { data: created, error: createError } =
     await admin.auth.admin.createUser({
       email,
       password,
       email_confirm: true,
-      user_metadata: { full_name: fullName, phone },
+      user_metadata: {
+        full_name: localizedNames.full_name,
+        phone,
+      },
     });
 
   if (createError || !created.user) {
@@ -402,7 +416,9 @@ export async function createPlatformUserAction(formData: FormData) {
   const { error: profileError } = await admin.from("profiles").upsert(
     {
       id: userId,
-      full_name: fullName,
+      full_name: localizedNames.full_name,
+      full_name_ar: localizedNames.full_name_ar,
+      full_name_en: localizedNames.full_name_en,
       phone,
       role,
       technician_type: technicianType,

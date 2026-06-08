@@ -6,6 +6,7 @@ import {
 } from "@/components/request/request-page-content";
 import type { RequestMode } from "@/components/request/request-mode-hub";
 import { getCurrentProfile } from "@/lib/auth";
+import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getProfileHomePath } from "@/lib/profile-home";
 
@@ -36,6 +37,7 @@ function parseMode(raw: string | undefined): RequestMode {
 
 export default async function RequestPage({ searchParams }: PageProps) {
   const rawParams = await searchParams;
+  const { locale } = await getServerI18n();
   const mode = parseMode(rawParams.mode);
   const nextPath = buildNextPath({ ...rawParams, mode: "full" });
   const profile = await getCurrentProfile();
@@ -55,7 +57,9 @@ export default async function RequestPage({ searchParams }: PageProps) {
       <RequestPageContent
         mode={mode}
         isClient={isClient}
-        defaultName={isClient ? profile!.full_name : ""}
+        defaultName={
+          isClient ? getProfileDisplayName(profile!, locale) : ""
+        }
         defaultPhone={isClient ? profile!.phone ?? "" : ""}
         loginNextPath={nextPath}
       />

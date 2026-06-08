@@ -1,5 +1,10 @@
 import type { Messages } from "@/messages/types";
 import type { IconSelectOption } from "@/lib/icon-select-options";
+import type { Locale } from "@/lib/i18n/config";
+import {
+  getProfileDisplayName,
+  type ProfileNameSource,
+} from "@/lib/profile-display-name";
 import type {
   SparePartOrderStatus,
   SparePartPaymentMethod,
@@ -306,13 +311,14 @@ export function buildFilterSelectOptions(
 
 export function buildTechnicianAssignOptions(
   t: Messages,
-  technicians: { id: string; full_name: string }[],
+  technicians: (ProfileNameSource & { id: string })[],
+  locale: Locale,
 ): IconSelectOption[] {
   return [
     { value: "", label: t.dashboard.common.noTechnician, icon: "user-x" },
     ...technicians.map((technician) => ({
       value: technician.id,
-      label: technician.full_name,
+      label: getProfileDisplayName(technician, locale),
       icon: "user",
     })),
   ];

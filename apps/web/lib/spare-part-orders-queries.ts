@@ -8,7 +8,7 @@ import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 
 export type SparePartOrderWithItems = SparePartOrder & {
   items: SparePartOrderItem[];
-  client?: Pick<Profile, "full_name" | "phone"> | null;
+  client?: Pick<Profile, "full_name" | "full_name_ar" | "full_name_en" | "phone"> | null;
 };
 
 export async function getClientSparePartOrders(
@@ -99,14 +99,19 @@ export async function getAdminSparePartOrders(): Promise<
       .in("order_id", orderIds),
     supabase
       .from("profiles")
-      .select("id, full_name, phone")
+      .select("id, full_name, full_name_ar, full_name_en, phone")
       .in("id", clientIds),
   ]);
 
   const profileMap = new Map(
     (profiles ?? []).map((p) => [
       p.id,
-      { full_name: p.full_name, phone: p.phone },
+      {
+        full_name: p.full_name,
+        full_name_ar: p.full_name_ar,
+        full_name_en: p.full_name_en,
+        phone: p.phone,
+      },
     ]),
   );
 
@@ -146,7 +151,7 @@ export async function getAdminSparePartOrderById(
       .order("created_at", { ascending: true }),
     supabase
       .from("profiles")
-      .select("id, full_name, phone")
+      .select("id, full_name, full_name_ar, full_name_en, phone")
       .eq("id", order.client_id)
       .maybeSingle(),
   ]);
@@ -155,7 +160,12 @@ export async function getAdminSparePartOrderById(
     ...(order as SparePartOrder),
     items: (items as SparePartOrderItem[]) ?? [],
     client: profile
-      ? { full_name: profile.full_name, phone: profile.phone }
+      ? {
+          full_name: profile.full_name,
+          full_name_ar: profile.full_name_ar,
+          full_name_en: profile.full_name_en,
+          phone: profile.phone,
+        }
       : null,
   };
 }

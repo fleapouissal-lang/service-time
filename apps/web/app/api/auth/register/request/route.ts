@@ -21,7 +21,8 @@ import {
 } from "@/lib/whatsapp";
 
 async function parseRegisterPayload(request: Request): Promise<{
-  fullName: string;
+  fullNameAr: string;
+  fullNameEn: string;
   phone: string;
   email: string;
   password: string;
@@ -32,8 +33,13 @@ async function parseRegisterPayload(request: Request): Promise<{
   if (contentType.includes("multipart/form-data")) {
     const formData = await request.formData();
     const avatar = formData.get("avatar");
+    const legacyName = String(formData.get("fullName") ?? "").trim();
+    const fullNameAr =
+      String(formData.get("fullNameAr") ?? "").trim() || legacyName;
+    const fullNameEn = String(formData.get("fullNameEn") ?? "").trim();
     return {
-      fullName: String(formData.get("fullName") ?? "").trim(),
+      fullNameAr,
+      fullNameEn,
       phone: String(formData.get("phone") ?? "").trim(),
       email: String(formData.get("email") ?? "").trim(),
       password: String(formData.get("password") ?? ""),
@@ -44,13 +50,17 @@ async function parseRegisterPayload(request: Request): Promise<{
 
   const body = (await request.json()) as {
     fullName?: string;
+    fullNameAr?: string;
+    fullNameEn?: string;
     phone?: string;
     email?: string;
     password?: string;
   };
 
+  const legacyName = (body.fullName ?? "").trim();
   return {
-    fullName: (body.fullName ?? "").trim(),
+    fullNameAr: (body.fullNameAr ?? "").trim() || legacyName,
+    fullNameEn: (body.fullNameEn ?? "").trim(),
     phone: (body.phone ?? "").trim(),
     email: (body.email ?? "").trim(),
     password: body.password ?? "",
@@ -74,15 +84,22 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "طلب غير صالح." }, { status: 400 });
   }
 
-  const fullName = payload.fullName;
+  const fullNameAr = payload.fullNameAr;
+  const fullNameEn = payload.fullNameEn;
   const phone = normalizePhone(payload.phone);
   const email = normalizeEmail(payload.email);
   const password = payload.password;
   const avatarFile = payload.avatarFile;
 
-  if (!fullName || fullName.length < 2) {
-    return NextResponse.json({ error: "أدخل الاسم الكامل." }, { status: 400 });
+  if (fullNameAr.length < 2) {
+    return NextResponse.json({ error: "أدخل الاسم بالعربية." }, { status: 400 });
   }
+
+  if (fullNameEn.length < 2) {
+    return NextResponse.json({ error: "أدخل الاسم بالإنجليزية." }, { status: 400 });
+  }
+
+  const displayNameAr = fullNameAr;
 
   if (!phone || phone.length < 10) {
     return NextResponse.json(
@@ -142,7 +159,12 @@ export async function POST(request: Request) {
       existing.id,
       {
         password,
-        user_metadata: { full_name: fullName, phone },
+        user_metadata: {
+          full_name: displayNameAr,
+          full_name_ar: fullNameAr,
+          full_name_en: fullNameEn,
+          phone,
+        },
       },
     );
     if (updateError) {
@@ -158,7 +180,12 @@ export async function POST(request: Request) {
         email,
         password,
         email_confirm: false,
-        user_metadata: { full_name: fullName, phone },
+        user_metadata: {
+          full_name: displayNameAr,
+          full_name_ar: fullNameAr,
+          full_name_en: fullNameEn,
+          phone,
+        },
       });
 
     if (createError || !created.user) {
@@ -212,23 +239,27 @@ export async function POST(request: Request) {
     );
   }
 
-  const mail = await sendClientVerificationCode(email, code, fullName);
+  const mail = await sendClientVerificationCode(email, code, displayNameAr);
   if (!mail.ok) {
     return NextResponse.json({ error: mail.error }, { status: 502 });
   }
 
   void sendAdminClientRegistrationNotification({
-    fullName,
+    fullName: displayNameAr,
     phone: normalizePhone(phone),
     email,
     code,
-    whatsappClientUrl: buildWhatsAppSendCodeToClientUrl(phone, code, fullName),
+    whatsappClientUrl: buildWhatsAppSendCodeToClientUrl(
+      phone,
+      code,
+      displayNameAr,
+    ),
   }).catch((err) => console.error("[register/request] admin notify:", err));
 
   return NextResponse.json({
     ok: true,
     message: "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
-    whatsappUrl: buildWhatsAppVerificationUrl(phone, code, fullName),
+    whatsappUrl: buildWhatsAppVerificationUrl(phone, code, displayNameAr),
     expiresInSeconds: RESET_CODE_TTL_MS / 1000,
     devMode: mail.dev === true,
   });
