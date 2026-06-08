@@ -73,7 +73,6 @@ function FullRequestPanel({
   return (
     <ServiceRequestForm
       embedded
-      fullWidth
       defaultName={defaultName}
       defaultPhone={defaultPhone}
       savedVehicles={savedVehicles}

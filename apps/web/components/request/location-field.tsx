@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 
 type LocationFieldProps = {
   variant?: "request" | "dashboard";
+  /** Carte plus petite et moins d'espace (formulaire compact). */
+  compact?: boolean;
   defaultText?: string;
   defaultLat?: number | null;
   defaultLng?: number | null;
@@ -14,6 +16,7 @@ type LocationFieldProps = {
 
 export function LocationField({
   variant = "request",
+  compact = false,
   defaultText = "",
   defaultLat = null,
   defaultLng = null,
@@ -81,7 +84,7 @@ export function LocationField({
   };
 
   return (
-    <div className="space-y-3">
+    <div className={cn("space-y-3", compact && "space-y-2")}>
       <div
         className={cn(
           "flex w-full items-center gap-3 rounded-xl border px-3 transition-all duration-200 h-11",
@@ -146,11 +149,11 @@ export function LocationField({
       <input type="hidden" name="location_lat" value={lat ?? ""} />
       <input type="hidden" name="location_lng" value={lng ?? ""} />
 
-      <p className="text-xs text-muted">{loc.gpsHint}</p>
+      {!compact ? <p className="text-xs text-muted">{loc.gpsHint}</p> : null}
 
       {error ? <p className="text-xs text-red-400">{error}</p> : null}
 
-      {lat !== null && lng !== null ? (
+      {lat !== null && lng !== null && !compact ? (
         <div
           className={cn(
             "overflow-hidden rounded-2xl border",

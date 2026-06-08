@@ -16,6 +16,8 @@ export type PhotoUploadFieldProps = {
   hint?: string;
   defaultPreviewUrl?: string | null;
   defaultFileName?: string;
+  /** Zone d'upload plus compacte (comme طلب سريع). */
+  compact?: boolean;
 };
 
 function isBlobUrl(url: string) {
@@ -33,6 +35,7 @@ export function PhotoUploadField({
   hint,
   defaultPreviewUrl = null,
   defaultFileName = "",
+  compact = false,
 }: PhotoUploadFieldProps) {
   const { messages: t } = useLocale();
   const resolvedTitle = title ?? t.request.form.photoTitle;
@@ -56,9 +59,14 @@ export function PhotoUploadField({
       <label
         htmlFor={id}
         className={cn(
-          "group flex cursor-pointer flex-col items-center justify-center gap-5 rounded-[20px] border-2 border-dashed border-[#94D4B9]/45 bg-[#050B10] px-6 py-10 transition-all duration-300",
-          "hover:border-[#94D4B9]/70 hover:bg-[#091014] hover:shadow-[0_8px_32px_rgba(148,212,185,0.12)]",
-          previewUrl && "border-solid border-[#94D4B9]/35 py-8",
+          "group flex cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#94D4B9]/45 bg-[#050B10] transition-all duration-300",
+          compact
+            ? "gap-3 px-4 py-6 hover:border-[#94D4B9]/70 hover:bg-[#091014]"
+            : "gap-5 px-6 py-10 hover:border-[#94D4B9]/70 hover:bg-[#091014] hover:shadow-[0_8px_32px_rgba(148,212,185,0.12)]",
+          previewUrl &&
+            (compact
+              ? "border-solid border-[#94D4B9]/35 py-5"
+              : "border-solid border-[#94D4B9]/35 py-8"),
         )}
       >
         {previewUrl ? (
@@ -68,26 +76,44 @@ export function PhotoUploadField({
               <img
                 src={previewUrl}
                 alt={fileName || resolvedTitle}
-                className="mx-auto max-h-44 w-full object-contain"
+                className={cn(
+                  "mx-auto w-full object-contain",
+                  compact ? "max-h-32" : "max-h-44",
+                )}
               />
             </div>
             <p className="max-w-xs truncate text-center text-sm font-medium text-[#94D4B9]">
               {fileName}
             </p>
-            <span className="rounded-full border border-[#94D4B9] px-8 py-2.5 text-xs font-semibold tracking-wide text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10">
+            <span
+              className={cn(
+                "rounded-full border border-[#94D4B9] text-xs font-semibold tracking-wide text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10",
+                compact ? "px-6 py-2" : "px-8 py-2.5",
+              )}
+            >
               {resolvedChangeLabel}
             </span>
           </>
         ) : (
           <>
-            <div className="relative flex size-20 items-center justify-center">
+            <div
+              className={cn(
+                "relative flex items-center justify-center",
+                compact ? "size-14" : "size-20",
+              )}
+            >
               <span
                 className="absolute inset-0 rounded-full border border-[#94D4B9]/20"
                 aria-hidden
               />
-              <span className="flex size-14 items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#091014] shadow-[inset_0_0_24px_rgba(148,212,185,0.06)]">
+              <span
+                className={cn(
+                  "flex items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#091014] shadow-[inset_0_0_24px_rgba(148,212,185,0.06)]",
+                  compact ? "size-10" : "size-14",
+                )}
+              >
                 <Plus
-                  className="size-7 text-[#94D4B9]"
+                  className={cn("text-[#94D4B9]", compact ? "size-5" : "size-7")}
                   strokeWidth={1.5}
                   aria-hidden
                 />
@@ -95,13 +121,27 @@ export function PhotoUploadField({
             </div>
 
             <div className="space-y-1 text-center">
-              <p className="text-lg font-semibold text-[#94D4B9]">
+              <p
+                className={cn(
+                  "font-semibold text-[#94D4B9]",
+                  compact ? "text-base" : "text-lg",
+                )}
+              >
                 {resolvedTitle}
               </p>
-              <p className="text-sm text-[#94D4B9]/75">{resolvedSubtitle}</p>
+              {!compact ? (
+                <p className="text-sm text-[#94D4B9]/75">{resolvedSubtitle}</p>
+              ) : null}
             </div>
 
-            <span className="rounded-full border border-[#94D4B9] px-8 py-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10">
+            <span
+              className={cn(
+                "rounded-full border border-[#94D4B9] text-xs font-semibold text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10",
+                compact
+                  ? "px-6 py-2 tracking-wide"
+                  : "px-8 py-2.5 uppercase tracking-[0.12em]",
+              )}
+            >
               {resolvedButtonLabel}
             </span>
           </>

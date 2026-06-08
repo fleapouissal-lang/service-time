@@ -58,15 +58,16 @@ export default async function ClientRequestPage({ searchParams }: PageProps) {
       />
 
       <Suspense>
-        <ServiceRequestForm
-          embedded
-          fullWidth
-          defaultName={
-            profile ? getProfileDisplayName(profile, locale) : ""
-          }
-          defaultPhone={profile?.phone ?? ""}
-          savedVehicles={savedVehicles}
-        />
+        <div className="mx-auto w-full max-w-2xl">
+          <ServiceRequestForm
+            embedded
+            defaultName={
+              profile ? getProfileDisplayName(profile, locale) : ""
+            }
+            defaultPhone={profile?.phone ?? ""}
+            savedVehicles={savedVehicles}
+          />
+        </div>
       </Suspense>
     </div>
   );

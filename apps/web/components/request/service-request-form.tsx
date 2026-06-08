@@ -27,6 +27,7 @@ import { cn } from "@/lib/utils";
 export function ServiceRequestForm({
   embedded = false,
   fullWidth = false,
+  compact = false,
   bare = false,
   defaultName = "",
   defaultPhone = "",
@@ -36,6 +37,8 @@ export function ServiceRequestForm({
 }: {
   embedded?: boolean;
   fullWidth?: boolean;
+  /** Force la mise en page compacte (auto si embedded sans fullWidth). */
+  compact?: boolean;
   bare?: boolean;
   defaultName?: string;
   defaultPhone?: string;
@@ -126,6 +129,8 @@ export function ServiceRequestForm({
   }
 
   const showFormFields = !state.success || !state.trackingToken;
+  const isCompact = compact || (embedded && !fullWidth);
+  const useMobileSteps = !isCompact;
 
   return (
     <>
@@ -145,7 +150,11 @@ export function ServiceRequestForm({
           fullWidth && !bare ? "w-full max-w-none pb-0" : undefined
         }
       >
-        <form ref={formRef} action={action} className="relative space-y-6">
+        <form
+          ref={formRef}
+          action={action}
+          className={cn("relative", isCompact ? "space-y-5" : "space-y-6")}
+        >
           <FormSecurityFields />
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />
@@ -201,16 +210,21 @@ export function ServiceRequestForm({
           {showFormFields ? (
             <>
               <div
-                className={cn("space-y-5", step !== 1 && "hidden lg:block")}
+                className={cn(
+                  "space-y-5",
+                  useMobileSteps && step !== 1 && "hidden lg:block",
+                )}
               >
-                <div className="flex items-center justify-between gap-3 lg:hidden">
-                  <p className="text-sm font-semibold text-[#94D4B9]">
-                    {f.step1Title}
-                  </p>
-                  <span className="text-xs tabular-nums text-muted">1 / 2</span>
-                </div>
+                {useMobileSteps ? (
+                  <div className="flex items-center justify-between gap-3 lg:hidden">
+                    <p className="text-sm font-semibold text-[#94D4B9]">
+                      {f.step1Title}
+                    </p>
+                    <span className="text-xs tabular-nums text-muted">1 / 2</span>
+                  </div>
+                ) : null}
 
-                <div className="grid gap-5 sm:grid-cols-2">
+                <div className={isCompact ? "space-y-5" : "grid gap-5 sm:grid-cols-2"}>
                   <div>
                     <Label htmlFor="customer_name">{f.name}</Label>
                     <IconInput
@@ -241,19 +255,24 @@ export function ServiceRequestForm({
 
                 <div>
                   <Label htmlFor="location_text">{f.location}</Label>
-                  <LocationField />
+                  <LocationField compact={isCompact} />
                 </div>
               </div>
 
               <div
-                className={cn("space-y-5", step !== 2 && "hidden lg:block")}
+                className={cn(
+                  "space-y-5",
+                  useMobileSteps && step !== 2 && "hidden lg:block",
+                )}
               >
-                <div className="flex items-center justify-between gap-3 lg:hidden">
-                  <p className="text-sm font-semibold text-[#94D4B9]">
-                    {f.step2Title}
-                  </p>
-                  <span className="text-xs tabular-nums text-muted">2 / 2</span>
-                </div>
+                {useMobileSteps ? (
+                  <div className="flex items-center justify-between gap-3 lg:hidden">
+                    <p className="text-sm font-semibold text-[#94D4B9]">
+                      {f.step2Title}
+                    </p>
+                    <span className="text-xs tabular-nums text-muted">2 / 2</span>
+                  </div>
+                ) : null}
 
                 <div>
                   <Label htmlFor="service_type">{f.serviceType}</Label>
@@ -282,6 +301,7 @@ export function ServiceRequestForm({
                 <ServicePriceProposalField
                   serviceType={serviceType}
                   executionMethod={executionMethod}
+                  compact={isCompact}
                 />
 
                 <div>
@@ -299,61 +319,67 @@ export function ServiceRequestForm({
                     id="photo"
                     name="photo"
                     accept="image/jpeg,image/png,image/webp"
+                    compact={isCompact}
                   />
                 </div>
               </div>
 
-              {stepError ? (
+              {stepError && useMobileSteps ? (
                 <p className="text-sm text-red-600 lg:hidden" role="alert">
                   {stepError}
                 </p>
               ) : null}
 
-              <div className="flex flex-col gap-3 lg:hidden">
-                {step === 1 ? (
-                  <Button
-                    type="button"
-                    variant="accent"
-                    size="lg"
-                    className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
-                    onClick={goToStep2}
-                  >
-                    {f.nextStep}
-                    <LocaleForwardArrow />
-                  </Button>
-                ) : (
-                  <div className="flex gap-2">
+              {useMobileSteps ? (
+                <div className="flex flex-col gap-3 lg:hidden">
+                  {step === 1 ? (
                     <Button
                       type="button"
-                      variant="outline"
-                      size="lg"
-                      className="h-12 shrink-0 rounded-[20px]"
-                      disabled={pending}
-                      onClick={() => {
-                        setStep(1);
-                        setStepError("");
-                      }}
-                    >
-                      {t.common.back}
-                    </Button>
-                    <Button
-                      type="submit"
                       variant="accent"
                       size="lg"
-                      className="h-12 flex-1 rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
-                      disabled={pending}
+                      className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                      onClick={goToStep2}
                     >
-                      {pending ? t.common.sending : f.submit}
+                      {f.nextStep}
+                      <LocaleForwardArrow />
                     </Button>
-                  </div>
-                )}
-              </div>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="lg"
+                        className="h-12 shrink-0 rounded-[20px]"
+                        disabled={pending}
+                        onClick={() => {
+                          setStep(1);
+                          setStepError("");
+                        }}
+                      >
+                        {t.common.back}
+                      </Button>
+                      <Button
+                        type="submit"
+                        variant="accent"
+                        size="lg"
+                        className="h-12 flex-1 rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                        disabled={pending}
+                      >
+                        {pending ? t.common.sending : f.submit}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              ) : null}
 
               <Button
                 type="submit"
                 variant="accent"
                 size="lg"
-                className="hidden h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90 lg:flex"
+                className={cn(
+                  "h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90",
+                  useMobileSteps ? "hidden lg:flex" : "flex",
+                )}
                 disabled={pending}
               >
                 {pending ? t.common.sending : f.submit}
