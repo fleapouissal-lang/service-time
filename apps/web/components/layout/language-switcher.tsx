@@ -16,12 +16,14 @@ type LanguageSwitcherProps = {
   /** Sidebar / light surfaces */
   tone?: "dark" | "light";
   className?: string;
+  onLocaleChange?: () => void;
 };
 
 export function LanguageSwitcher({
   isTransparent = false,
   tone = "dark",
   className,
+  onLocaleChange,
 }: LanguageSwitcherProps) {
   const { locale, messages, setLocale, isPending } = useLocale();
   const isLight = tone === "light";
@@ -49,7 +51,10 @@ export function LanguageSwitcher({
             key={code}
             type="button"
             onClick={() => {
-              if (!active) setLocale(code);
+              if (!active) {
+                setLocale(code);
+                onLocaleChange?.();
+              }
             }}
             disabled={isPending}
             aria-pressed={active}

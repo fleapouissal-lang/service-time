@@ -34,7 +34,7 @@ export function SiteFooter() {
           <p className="font-semibold text-[#94D4B9]">
             {messages.footer.quickLinks}
           </p>
-          <ul className="mt-3 space-y-2 text-sm">
+          <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-1 md:space-y-2">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
@@ -52,7 +52,7 @@ export function SiteFooter() {
           <p className="font-semibold text-[#94D4B9]">
             {messages.footer.contact}
           </p>
-          <ul className="mt-3 space-y-2.5 text-sm">
+          <ul className="mt-3 grid grid-cols-3 gap-x-3 gap-y-2 text-xs leading-snug sm:text-sm md:grid-cols-1 md:space-y-2.5">
             <li>
               <a
                 href={`tel:${phone.replace(/[^\d+]/g, "")}`}
@@ -66,12 +66,14 @@ export function SiteFooter() {
               <a
                 href={`mailto:${email}`}
                 dir="ltr"
-                className="inline-block font-normal text-white transition-all duration-200 hover:font-bold"
+                className="inline-block break-all font-normal text-white transition-all duration-200 hover:font-bold"
               >
                 {email}
               </a>
             </li>
-            <li className="leading-7 text-white/85">{messages.footer.location}</li>
+            <li className="text-white/85 md:leading-7">
+              {messages.footer.location}
+            </li>
           </ul>
         </div>
       </div>

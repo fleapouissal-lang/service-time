@@ -9,8 +9,10 @@ import { cn } from "@/lib/utils";
 
 export function HeaderCartButton({
   isTransparent,
+  onNavigate,
 }: {
   isTransparent: boolean;
+  onNavigate?: () => void;
 }) {
   const { messages: t } = useLocale();
   const cart = useOptionalSparePartsCart();
@@ -23,6 +25,7 @@ export function HeaderCartButton({
   return (
     <Link
       href="/spare-parts?cart=1"
+      onClick={() => onNavigate?.()}
       className={cn(
         "relative inline-flex size-10 items-center justify-center rounded-[20px] transition-colors",
         isTransparent

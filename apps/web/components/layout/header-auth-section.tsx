@@ -44,26 +44,50 @@ function GuestButtons({
   onNavigate?: () => void;
   labels: { register: string; login: string };
 }) {
+  if (fullWidth) {
+    return (
+      <div className="flex w-full flex-row gap-2">
+        <Link
+          href="/register"
+          onClick={onNavigate}
+          className={cn(
+            registerButtonClass,
+            "h-11 min-w-0 flex-1 px-2 text-center text-xs sm:text-sm",
+          )}
+        >
+          {labels.register}
+        </Link>
+        <Link
+          href="/login"
+          onClick={onNavigate}
+          className={cn(
+            ctaButtonClass,
+            "h-11 min-w-0 flex-1 px-2 text-center text-xs sm:text-sm",
+          )}
+          style={{
+            backgroundColor: HEADER_MINT,
+            color: HEADER_DARK,
+          }}
+        >
+          {labels.login}
+        </Link>
+      </div>
+    );
+  }
+
   return (
     <>
       <Link
         href="/register"
         onClick={onNavigate}
-        className={cn(
-          registerButtonClass,
-          fullWidth && "mt-3 h-11 w-full",
-        )}
+        className={registerButtonClass}
       >
         {labels.register}
       </Link>
       <Link
         href="/login"
         onClick={onNavigate}
-        className={cn(
-          ctaButtonClass,
-          fullWidth ? "mt-2 h-11 w-full" : undefined,
-          isTransparent && !fullWidth && undefined,
-        )}
+        className={ctaButtonClass}
         style={{
           backgroundColor: HEADER_MINT,
           color: HEADER_DARK,
@@ -98,7 +122,7 @@ function UserProfileButton({
     <div
       className={cn(
         "flex items-center gap-2",
-        fullWidth && "mt-3 w-full flex-col",
+        fullWidth && "w-full flex-col",
       )}
     >
       <Link
