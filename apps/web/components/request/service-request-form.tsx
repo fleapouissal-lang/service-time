@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useActionState, useEffect, useMemo, useRef } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, FileText, Phone, User } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
@@ -12,6 +12,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { IconSelect } from "@/components/ui/icon-select";
+import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -19,6 +20,7 @@ import {
   buildExecutionMethodSelectOptions,
   buildServiceRequestTypeOptions,
 } from "@/lib/i18n/labels";
+import { cn } from "@/lib/utils";
 
 export function ServiceRequestForm({
   embedded = false,
@@ -40,6 +42,7 @@ export function ServiceRequestForm({
   onSuccess?: () => void;
 }) {
   const { messages: t } = useLocale();
+  const f = t.request.form;
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
@@ -61,6 +64,9 @@ export function ServiceRequestForm({
 
   const [state, action, pending] = useActionState(submitServiceRequest, {});
   const handledSuccessRef = useRef<string | null>(null);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [stepError, setStepError] = useState("");
 
   useEffect(() => {
     if (!state.success || !state.trackingToken) return;
@@ -69,6 +75,45 @@ export function ServiceRequestForm({
     router.refresh();
     onSuccess?.();
   }, [state.success, state.trackingToken, router, onSuccess]);
+
+  useEffect(() => {
+    if (state.error === t.errors.request.namePhoneRequired) {
+      setStep(1);
+    }
+  }, [state.error, t.errors.request.namePhoneRequired]);
+
+  function goToStep2() {
+    const form = formRef.current;
+    if (!form) return;
+
+    const nameEl = form.querySelector<HTMLInputElement>("#customer_name");
+    const phoneEl = form.querySelector<HTMLInputElement>("#customer_phone");
+    const carEl = form.querySelector<HTMLInputElement>('input[name="car_type"]');
+
+    if (!nameEl?.value.trim() || !phoneEl?.value.trim()) {
+      setStepError(t.errors.request.namePhoneRequired);
+      (nameEl?.value.trim() ? phoneEl : nameEl)?.focus();
+      return;
+    }
+
+    if (carEl && carEl.required && !carEl.value.trim()) {
+      setStepError(f.car);
+      carEl.focus();
+      return;
+    }
+
+    for (const el of [nameEl, phoneEl, carEl]) {
+      if (el && !el.checkValidity()) {
+        el.reportValidity();
+        return;
+      }
+    }
+
+    setStepError("");
+    setStep(2);
+  }
+
+  const showFormFields = !state.success || !state.trackingToken;
 
   return (
     <>
@@ -88,7 +133,7 @@ export function ServiceRequestForm({
           fullWidth && !bare ? "w-full max-w-none pb-0" : undefined
         }
       >
-        <form action={action} className="space-y-6">
+        <form ref={formRef} action={action} className="space-y-6">
           {embedded ? (
             <input type="hidden" name="client_dashboard" value="1" />
           ) : null}
@@ -106,10 +151,10 @@ export function ServiceRequestForm({
                 <CheckCircle2 className="size-4 shrink-0" aria-hidden />
                 {refreshDashboard
                   ? t.dashboard.client.ordersPage.createSuccess
-                  : t.request.form.successTitle}
+                  : f.successTitle}
               </p>
               <p>
-                {t.request.form.trackingToken}{" "}
+                {f.trackingToken}{" "}
                 <code dir="ltr" className="rounded bg-white/50 px-2 py-0.5">
                   {state.trackingToken}
                 </code>
@@ -126,9 +171,9 @@ export function ServiceRequestForm({
               ) : (
                 <p>
                   <Link href="/login?next=/client/track" className="font-semibold underline">
-                    {t.request.form.loginLink}
+                    {f.loginLink}
                   </Link>{" "}
-                  {t.request.form.loginToTrack}
+                  {f.loginToTrack}
                 </p>
               )}
             </div>
@@ -140,89 +185,161 @@ export function ServiceRequestForm({
             </div>
           )}
 
-          <div className="grid gap-5 sm:grid-cols-2">
-            <div>
-              <Label htmlFor="customer_name">{t.request.form.name}</Label>
-              <IconInput
-                id="customer_name"
-                name="customer_name"
-                icon={User}
-                required
-                defaultValue={defaultName}
-                placeholder={t.common.placeholderName}
-              />
-            </div>
-            <div>
-              <Label htmlFor="customer_phone">{t.request.form.phone}</Label>
-              <IconInput
-                id="customer_phone"
-                name="customer_phone"
-                icon={Phone}
-                required
-                dir="ltr"
-                defaultValue={defaultPhone}
-                readOnly={embedded && Boolean(defaultPhone)}
-                placeholder={t.common.placeholderPhone}
-              />
-            </div>
-          </div>
+          {showFormFields ? (
+            <>
+              <div
+                className={cn("space-y-5", step !== 1 && "hidden lg:block")}
+              >
+                <div className="flex items-center justify-between gap-3 lg:hidden">
+                  <p className="text-sm font-semibold text-[#94D4B9]">
+                    {f.step1Title}
+                  </p>
+                  <span className="text-xs tabular-nums text-muted">1 / 2</span>
+                </div>
 
-          <ClientVehicleField vehicles={savedVehicles} />
+                <div className="grid gap-5 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="customer_name">{f.name}</Label>
+                    <IconInput
+                      id="customer_name"
+                      name="customer_name"
+                      icon={User}
+                      required
+                      defaultValue={defaultName}
+                      placeholder={t.common.placeholderName}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="customer_phone">{f.phone}</Label>
+                    <IconInput
+                      id="customer_phone"
+                      name="customer_phone"
+                      icon={Phone}
+                      required
+                      dir="ltr"
+                      defaultValue={defaultPhone}
+                      readOnly={embedded && Boolean(defaultPhone)}
+                      placeholder={t.common.placeholderPhone}
+                    />
+                  </div>
+                </div>
 
-          <div>
-            <Label htmlFor="location_text">{t.request.form.location}</Label>
-            <LocationField />
-          </div>
+                <ClientVehicleField vehicles={savedVehicles} />
 
-          <div>
-            <Label htmlFor="service_type">{t.request.form.serviceType}</Label>
-            <IconSelect
-              id="service_type"
-              name="service_type"
-              options={serviceTypeOptions}
-              defaultValue={defaultType}
-              required
-            />
-          </div>
+                <div>
+                  <Label htmlFor="location_text">{f.location}</Label>
+                  <LocationField />
+                </div>
+              </div>
 
-          <div>
-            <Label htmlFor="execution_method">{t.request.form.executionMethod}</Label>
-            <IconSelect
-              id="execution_method"
-              name="execution_method"
-              options={executionMethodOptions}
-              defaultValue={defaultExecution}
-              required
-            />
-          </div>
+              <div
+                className={cn("space-y-5", step !== 2 && "hidden lg:block")}
+              >
+                <div className="flex items-center justify-between gap-3 lg:hidden">
+                  <p className="text-sm font-semibold text-[#94D4B9]">
+                    {f.step2Title}
+                  </p>
+                  <span className="text-xs tabular-nums text-muted">2 / 2</span>
+                </div>
 
-          <div>
-            <Label htmlFor="description">{t.request.form.problemDescription}</Label>
-            <IconTextarea
-              id="description"
-              name="description"
-              icon={FileText}
-              placeholder={t.common.placeholderNotes}
-            />
-          </div>
+                <div>
+                  <Label htmlFor="service_type">{f.serviceType}</Label>
+                  <IconSelect
+                    id="service_type"
+                    name="service_type"
+                    options={serviceTypeOptions}
+                    defaultValue={defaultType}
+                    required
+                  />
+                </div>
 
-          <div>
-            <PhotoUploadField
-              id="photo"
-              name="photo"
-              accept="image/jpeg,image/png,image/webp"
-            />
-          </div>
+                <div>
+                  <Label htmlFor="execution_method">{f.executionMethod}</Label>
+                  <IconSelect
+                    id="execution_method"
+                    name="execution_method"
+                    options={executionMethodOptions}
+                    defaultValue={defaultExecution}
+                    required
+                  />
+                </div>
 
-          <Button
-            type="submit"
-            variant="accent"
-            size="lg"
-            className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
-            disabled={pending}
-          >
-            {pending ? t.common.sending : t.request.form.submit}
-          </Button>
+                <div>
+                  <Label htmlFor="description">{f.problemDescription}</Label>
+                  <IconTextarea
+                    id="description"
+                    name="description"
+                    icon={FileText}
+                    placeholder={t.common.placeholderNotes}
+                  />
+                </div>
+
+                <div>
+                  <PhotoUploadField
+                    id="photo"
+                    name="photo"
+                    accept="image/jpeg,image/png,image/webp"
+                  />
+                </div>
+              </div>
+
+              {stepError ? (
+                <p className="text-sm text-red-600 lg:hidden" role="alert">
+                  {stepError}
+                </p>
+              ) : null}
+
+              <div className="flex flex-col gap-3 lg:hidden">
+                {step === 1 ? (
+                  <Button
+                    type="button"
+                    variant="accent"
+                    size="lg"
+                    className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                    onClick={goToStep2}
+                  >
+                    {f.nextStep}
+                    <LocaleForwardArrow />
+                  </Button>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="lg"
+                      className="h-12 shrink-0 rounded-[20px]"
+                      disabled={pending}
+                      onClick={() => {
+                        setStep(1);
+                        setStepError("");
+                      }}
+                    >
+                      {t.common.back}
+                    </Button>
+                    <Button
+                      type="submit"
+                      variant="accent"
+                      size="lg"
+                      className="h-12 flex-1 rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                      disabled={pending}
+                    >
+                      {pending ? t.common.sending : f.submit}
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              <Button
+                type="submit"
+                variant="accent"
+                size="lg"
+                className="hidden h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90 lg:flex"
+                disabled={pending}
+              >
+                {pending ? t.common.sending : f.submit}
+              </Button>
+            </>
+          ) : null}
         </form>
       </RequestFormShell>
     </>

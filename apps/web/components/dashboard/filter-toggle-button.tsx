@@ -7,6 +7,7 @@ type FilterToggleButtonProps = {
   open: boolean;
   onToggle: () => void;
   active?: boolean;
+  text?: string;
   showLabel?: string;
   hideLabel?: string;
   className?: string;
@@ -16,10 +17,13 @@ export function FilterToggleButton({
   open,
   onToggle,
   active = false,
+  text,
   showLabel,
   hideLabel,
   className,
 }: FilterToggleButtonProps) {
+  const visibleText = text ?? showLabel;
+
   return (
     <button
       type="button"
@@ -27,14 +31,24 @@ export function FilterToggleButton({
       aria-expanded={open}
       aria-label={open ? hideLabel : showLabel}
       className={cn(
-        "relative shrink-0 p-2 text-[#94D4B9] transition-opacity hover:opacity-80 active:opacity-70",
+        "relative inline-flex shrink-0 items-center gap-1.5 p-2 text-[#94D4B9] transition-opacity hover:opacity-80 active:opacity-70",
         className,
       )}
     >
       {open ? (
-        <X className="size-5" aria-hidden />
+        <>
+          <X className="size-5 shrink-0" aria-hidden />
+          {hideLabel ? (
+            <span className="text-sm font-semibold">{hideLabel}</span>
+          ) : null}
+        </>
       ) : (
-        <SlidersHorizontal className="size-5" aria-hidden />
+        <>
+          <SlidersHorizontal className="size-5 shrink-0" aria-hidden />
+          {visibleText ? (
+            <span className="text-sm font-semibold">{visibleText}</span>
+          ) : null}
+        </>
       )}
       {active && !open ? (
         <span

@@ -52,16 +52,14 @@ export function DashboardFilterBar({
   const active = hasActiveListFilters(values);
   const resolvedPlaceholder = searchPlaceholder ?? t.common.search;
 
-  const countLine =
-    resultCount !== undefined && totalCount !== undefined ? (
-      <p className="text-xs text-muted">
-        {active
-          ? t.common.resultCount
-              .replace("{count}", String(resultCount))
-              .replace("{total}", String(totalCount))
-          : t.common.itemCount.replace("{count}", String(totalCount))}
-      </p>
-    ) : null;
+  const countText =
+    resultCount !== undefined && totalCount !== undefined
+      ? active
+        ? t.common.resultCount
+            .replace("{count}", String(resultCount))
+            .replace("{total}", String(totalCount))
+        : t.common.itemCount.replace("{count}", String(totalCount))
+      : null;
 
   return (
     <Card
@@ -78,13 +76,14 @@ export function DashboardFilterBar({
             mobileOpen ? "mb-3 justify-end" : "justify-between",
           )}
         >
-          {!mobileOpen && countLine ? (
-            <p className="min-w-0 flex-1 text-xs text-muted">{countLine}</p>
+          {!mobileOpen && countText ? (
+            <p className="min-w-0 flex-1 text-xs text-muted">{countText}</p>
           ) : null}
           <FilterToggleButton
             open={mobileOpen}
             onToggle={() => setMobileOpen((value) => !value)}
             active={active}
+            text={t.common.filtering}
             showLabel={t.common.showFilters}
             hideLabel={t.common.hideFilters}
           />
@@ -170,7 +169,9 @@ export function DashboardFilterBar({
             </div>
           </form>
 
-          {countLine ? <div className="mt-3">{countLine}</div> : null}
+          {countText ? (
+            <p className="mt-3 text-xs text-muted">{countText}</p>
+          ) : null}
         </div>
       </CardContent>
     </Card>

@@ -36,6 +36,7 @@ export function MobileFilterPanel({
           open={open}
           onToggle={() => setOpen((value) => !value)}
           active={active}
+          text={filterLabel}
           showLabel={filterLabel}
           hideLabel={t.common.hideFilters}
         />

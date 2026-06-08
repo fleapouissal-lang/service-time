@@ -20,7 +20,7 @@ export function StatCard({
   className,
 }: StatCardProps) {
   return (
-    <Card className={cn("overflow-hidden", className)}>
+    <Card className={cn("h-full overflow-hidden", className)}>
       <CardContent className="p-3 sm:p-5">
         <div className="flex items-start justify-between gap-2 sm:gap-3">
           <div className="min-w-0 flex-1">
