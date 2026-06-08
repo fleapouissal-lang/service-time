@@ -1,8 +1,10 @@
 "use client";
 
-import { Plus, X } from "lucide-react";
+import { Plus, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
+import { ProductImageStudioModal } from "@/components/admin/product-image-studio-modal";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { ProductImageStudioSettings } from "@/lib/product-image-studio";
 import { cn } from "@/lib/utils";
 
 export type MultiPhotoUploadFieldProps = {
@@ -15,6 +17,7 @@ export type MultiPhotoUploadFieldProps = {
   hint?: string;
   addMoreLabel?: string;
   removeLabel?: string;
+  imageStudio?: boolean;
 };
 
 function isBlobUrl(url: string) {
@@ -25,6 +28,9 @@ type PendingFile = {
   id: string;
   file: File;
   previewUrl: string;
+  originalFile: File;
+  studioSettings?: ProductImageStudioSettings;
+  backgroundImageFile?: File | null;
 };
 
 export function MultiPhotoUploadField({
@@ -37,6 +43,7 @@ export function MultiPhotoUploadField({
   hint,
   addMoreLabel,
   removeLabel,
+  imageStudio = false,
 }: MultiPhotoUploadFieldProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
@@ -50,6 +57,16 @@ export function MultiPhotoUploadField({
   const [keptUrls, setKeptUrls] = useState<string[]>(defaultImages);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [inputKey, setInputKey] = useState(0);
+  const [studioQueue, setStudioQueue] = useState<File[]>([]);
+  const [studioFile, setStudioFile] = useState<File | null>(null);
+  const [studioBatchTotal, setStudioBatchTotal] = useState(0);
+  const [studioInitialSettings, setStudioInitialSettings] = useState<
+    ProductImageStudioSettings | undefined
+  >(undefined);
+  const [studioInitialBackgroundImageFile, setStudioInitialBackgroundImageFile] =
+    useState<File | null>(null);
+  const [editingPendingId, setEditingPendingId] = useState<string | null>(null);
+  const studioOpen = studioFile !== null;
 
   const existingImagesJson = useMemo(
     () => JSON.stringify(keptUrls),
@@ -85,6 +102,136 @@ export function MultiPhotoUploadField({
       }
       return current.filter((item) => item.id !== id);
     });
+  }
+
+  function addPendingFile(
+    file: File,
+    originalFile: File,
+    studioSettings?: ProductImageStudioSettings,
+    replaceId?: string,
+    backgroundImageFile?: File | null,
+  ) {
+    const previewUrl = URL.createObjectURL(file);
+    const id =
+      replaceId ??
+      `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`;
+
+    setPendingFiles((current) => {
+      if (replaceId) {
+        const previous = current.find((item) => item.id === replaceId);
+        if (previous && isBlobUrl(previous.previewUrl)) {
+          URL.revokeObjectURL(previous.previewUrl);
+        }
+        return current.map((item) =>
+          item.id === replaceId
+            ? {
+                ...item,
+                file,
+                previewUrl,
+                originalFile,
+                studioSettings,
+                backgroundImageFile: backgroundImageFile ?? item.backgroundImageFile,
+              }
+            : item,
+        );
+      }
+      return [
+        ...current,
+        {
+          id,
+          file,
+          previewUrl,
+          originalFile,
+          studioSettings,
+          backgroundImageFile: backgroundImageFile ?? null,
+        },
+      ];
+    });
+  }
+
+  function openNextStudioFile(queue: File[]) {
+    if (!queue.length) {
+      setStudioFile(null);
+      setStudioQueue([]);
+      setStudioInitialSettings(undefined);
+      setStudioInitialBackgroundImageFile(null);
+      setEditingPendingId(null);
+      return;
+    }
+
+    const [next, ...rest] = queue;
+    setStudioFile(next);
+    setStudioQueue(rest);
+    setStudioInitialSettings(undefined);
+    setStudioInitialBackgroundImageFile(null);
+  }
+
+  function closeStudio() {
+    setStudioFile(null);
+    setStudioQueue([]);
+    setStudioInitialSettings(undefined);
+    setStudioInitialBackgroundImageFile(null);
+    setEditingPendingId(null);
+  }
+
+  function handleStudioApply(
+    processed: File,
+    settings: ProductImageStudioSettings,
+    meta: { backgroundImageFile: File | null },
+  ) {
+    if (!studioFile) return;
+
+    if (editingPendingId) {
+      addPendingFile(
+        processed,
+        studioFile,
+        settings,
+        editingPendingId,
+        meta.backgroundImageFile,
+      );
+      closeStudio();
+      return;
+    }
+
+    addPendingFile(
+      processed,
+      studioFile,
+      settings,
+      undefined,
+      meta.backgroundImageFile,
+    );
+    openNextStudioFile(studioQueue);
+  }
+
+  function handleStudioSkipOriginal() {
+    if (!studioFile) return;
+
+    if (editingPendingId) {
+      closeStudio();
+      return;
+    }
+
+    addPendingFile(studioFile, studioFile);
+    openNextStudioFile(studioQueue);
+  }
+
+  function startStudioForFiles(files: File[]) {
+    if (!files.length) return;
+    const [first, ...rest] = files;
+    setStudioBatchTotal(files.length);
+    setStudioQueue(rest);
+    setStudioFile(first);
+    setStudioInitialSettings(undefined);
+    setStudioInitialBackgroundImageFile(null);
+    setEditingPendingId(null);
+  }
+
+  function editPendingInStudio(pending: PendingFile) {
+    setStudioFile(pending.originalFile);
+    setStudioQueue([]);
+    setStudioInitialSettings(pending.studioSettings);
+    setStudioInitialBackgroundImageFile(pending.backgroundImageFile ?? null);
+    setEditingPendingId(pending.id);
   }
 
   return (
@@ -126,14 +273,26 @@ export function MultiPhotoUploadField({
                 alt={pending.file.name}
                 className="aspect-square w-full object-cover"
               />
-              <button
-                type="button"
-                onClick={() => removePending(pending.id)}
-                className="absolute top-2 left-2 flex size-7 items-center justify-center rounded-full border border-red-400/40 bg-[#050B10]/90 text-red-300 transition-colors hover:bg-red-950/80"
-                aria-label={resolvedRemove}
-              >
-                <X className="size-3.5" aria-hidden />
-              </button>
+              <div className="absolute top-2 left-2 flex gap-1.5">
+                {imageStudio ? (
+                  <button
+                    type="button"
+                    onClick={() => editPendingInStudio(pending)}
+                    className="flex size-7 items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#050B10]/90 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
+                    aria-label={p.editPhotoStudio}
+                  >
+                    <Sparkles className="size-3.5" aria-hidden />
+                  </button>
+                ) : null}
+                <button
+                  type="button"
+                  onClick={() => removePending(pending.id)}
+                  className="flex size-7 items-center justify-center rounded-full border border-red-400/40 bg-[#050B10]/90 text-red-300 transition-colors hover:bg-red-950/80"
+                  aria-label={resolvedRemove}
+                >
+                  <X className="size-3.5" aria-hidden />
+                </button>
+              </div>
             </li>
           ))}
         </ul>
@@ -179,18 +338,37 @@ export function MultiPhotoUploadField({
             const files = Array.from(event.target.files ?? []);
             if (!files.length) return;
 
-            setPendingFiles((current) => [
-              ...current,
-              ...files.map((file) => ({
-                id: `${file.name}-${file.lastModified}-${Math.random().toString(36).slice(2)}`,
-                file,
-                previewUrl: URL.createObjectURL(file),
-              })),
-            ]);
+            if (imageStudio) {
+              startStudioForFiles(files);
+            } else {
+              for (const file of files) {
+                addPendingFile(file, file);
+              }
+            }
             setInputKey((value) => value + 1);
           }}
         />
       </label>
+
+      {imageStudio ? (
+        <ProductImageStudioModal
+          open={studioOpen}
+          file={studioFile}
+          initialSettings={studioInitialSettings}
+          initialBackgroundImageFile={studioInitialBackgroundImageFile}
+          queuePosition={
+            !editingPendingId && studioBatchTotal > 1
+              ? {
+                  current: studioBatchTotal - studioQueue.length,
+                  total: studioBatchTotal,
+                }
+              : undefined
+          }
+          onClose={closeStudio}
+          onApply={handleStudioApply}
+          onSkip={editingPendingId ? undefined : handleStudioSkipOriginal}
+        />
+      ) : null}
 
       {pendingFiles.map((pending) => (
         <input

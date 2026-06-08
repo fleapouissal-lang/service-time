@@ -78,6 +78,7 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
             id={`spare-part-images-${part.id}`}
             defaultImages={existingImages}
             accept="image/jpeg,image/png,image/webp,image/gif"
+            imageStudio
           />
         </div>
         <div className="md:col-span-2">

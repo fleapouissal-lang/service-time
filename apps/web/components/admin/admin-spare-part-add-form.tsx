@@ -93,6 +93,7 @@ export function AdminSparePartAddForm() {
                 <MultiPhotoUploadField
                   id="spare-part-images-add"
                   accept="image/jpeg,image/png,image/webp,image/gif"
+                  imageStudio
                 />
               </div>
               <Textarea

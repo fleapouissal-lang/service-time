@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     "@service-time/ui",
     "@service-time/lib",
     "@service-time/types",
+    "@imgly/background-removal",
   ],
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
