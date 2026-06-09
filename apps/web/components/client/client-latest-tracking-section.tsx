@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { getStatusLabels } from "@/lib/i18n/labels";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDate } from "@/lib/format-datetime";
 
 type ClientLatestTrackingSectionProps = {
   order: ServiceRequest | null;
@@ -75,7 +76,7 @@ export function ClientLatestTrackingSection({
             <p className="text-sm text-muted">
               {t.dashboard.client.latestTracking.subtitle}{" "}
               <span className="font-medium text-foreground">
-                {new Date(order.created_at).toLocaleDateString(locale)}
+                {formatDate(order.created_at, locale)}
               </span>
               {" · "}
               <span className="font-medium text-foreground">

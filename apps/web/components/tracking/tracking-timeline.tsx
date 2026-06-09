@@ -11,6 +11,7 @@ import {
 } from "@/lib/i18n/labels";
 import { STATUS_ORDER } from "@/lib/constants";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDateTime } from "@/lib/format-datetime";
 import { cn } from "@/lib/utils";
 
 export function TrackingTimeline({
@@ -81,7 +82,7 @@ export function TrackingTimeline({
                 .filter((h) => h.status === status)
                 .map((h) => (
                   <p key={h.id} className="mt-1 text-xs text-muted">
-                    {new Date(h.created_at).toLocaleString(locale)}
+                    {formatDateTime(h.created_at, locale)}
                   </p>
                 ))}
             </div>

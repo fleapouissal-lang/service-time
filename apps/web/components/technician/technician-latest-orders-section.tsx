@@ -13,6 +13,7 @@ import {
   getStatusLabels,
 } from "@/lib/i18n/labels";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { formatDateTime } from "@/lib/format-datetime";
 
 type TechnicianLatestOrdersSectionProps = {
   orders: ServiceRequest[];
@@ -95,7 +96,7 @@ export function TechnicianLatestOrdersSection({
                   {featured.location_text ? ` · ${featured.location_text}` : ""}
                 </p>
                 <p className="text-xs text-muted">
-                  {new Date(featured.updated_at).toLocaleString(locale)}
+                  {formatDateTime(featured.updated_at, locale)}
                 </p>
               </div>
               <div className="flex flex-col items-end gap-2">
@@ -136,7 +137,7 @@ export function TechnicianLatestOrdersSection({
                       {executionMethodLabels[order.execution_method]}
                     </p>
                     <p className="text-xs text-muted">
-                      {new Date(order.updated_at).toLocaleString(locale)}
+                      {formatDateTime(order.updated_at, locale)}
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
