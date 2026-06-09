@@ -23,7 +23,7 @@ import {
 } from "@/lib/form-security";
 import {
   contactValidationErrorMessage,
-  validateRequiredContact,
+  validateQuickRequestContact,
 } from "@/lib/contact-validation";
 
 export interface QuickRequestFormState {
@@ -55,11 +55,11 @@ export async function submitQuickServiceRequest(
   const photo = getPhotoFromFormData(formData);
   const hadPhotoField = formHasPhotoField(formData);
 
-  if (!name || !phone || !email || !message) {
+  if (!name || !phone || !message) {
     return { error: t.errors.contact.requiredFields };
   }
 
-  const contact = validateRequiredContact(email, phone);
+  const contact = validateQuickRequestContact(phone, email);
   if (!contact.ok) {
     return {
       error: contactValidationErrorMessage(contact.error, {
@@ -71,7 +71,7 @@ export async function submitQuickServiceRequest(
     };
   }
 
-  const validatedEmail = contact.email;
+  const validatedEmail = contact.email || null;
   const validatedPhone = contact.phone;
 
   if (hadPhotoField && !photo) {

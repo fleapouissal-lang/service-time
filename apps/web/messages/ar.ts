@@ -44,11 +44,13 @@ export const messages = {
     clientOrders: "طلباتي",
     clientProfile: "الملف الشخصي",
     clientSparePartOrders: "طلبات قطع الغيار",
+    clientQuickRequests: "الطلبات السريعة",
     adminOverview: "نظرة عامة",
     adminOrders: "إدارة الطلبات",
     adminServices: "إدارة الخدمات",
     adminSpareParts: "إدارة قطع الغيار",
     adminSparePartOrders: "طلبات قطع الغيار",
+    adminQuickRequests: "الطلبات السريعة",
     adminUsers: "المستخدمون",
     adminTechnicians: "الفنيون",
     adminReports: "التقارير",
@@ -397,14 +399,15 @@ export const messages = {
     quickForm: {
       name: "الاسم *",
       phone: "رقم الجوال *",
-      email: "البريد الإلكتروني *",
+      email: "البريد الإلكتروني (اختياري)",
+      emailHint: "بدون بريد — يُنشأ حسابك برقم الجوال ويُرسل الرمز عبر واتساب.",
       message: "الرسالة *",
       submit: "إرسال الطلب السريع",
       successTitle: "✓ تم إرسال طلبك السريع.",
       successHint: "سيتواصل معك فريقنا قريباً عبر الهاتف أو واتساب.",
       successTitleNewAccount: "✓ تم إرسال الطلب وإنشاء حسابك.",
       successHintNewAccount:
-        "تم إرسال بيانات الدخول عبر واتساب والبريد (إن وُجد). يمكنك تسجيل الدخول لمتابعة طلباتك.",
+        "تم إنشاء حسابك تلقائياً. تفقد واتساب والبريد (إن أدخلته) لبيانات الدخول وكلمة المرور.",
     },
     whatsappForm: {
       description: "املأ بياناتك (اختياري) ثم افتح واتساب للتواصل مع فريقنا.",
@@ -774,6 +777,8 @@ export const messages = {
       submit: "تسجيل الدخول",
       showPassword: "إظهار كلمة المرور",
       hidePassword: "إخفاء كلمة المرور",
+      noAccount: "ليس لديك حساب؟",
+      registerLink: "إنشاء حساب",
     },
     footer: {
       copyright: "جميع الحقوق محفوظة",
@@ -958,6 +963,7 @@ export const messages = {
       overview: "نظرة عامة",
       orders: "طلباتي",
       sparePartOrders: "طلبات القطع",
+      quickRequests: "الطلبات السريعة",
       newRequest: "طلب جديد",
       track: "تتبع الطلب",
       title: "لوحة العميل",
@@ -1044,6 +1050,15 @@ export const messages = {
           view: "عرض",
         },
       },
+      quickRequestsPage: {
+        subtitle: "طلباتك السريعة المرسلة من صفحة طلب سريع",
+        newRequest: "طلب سريع جديد",
+        table: {
+          message: "الرسالة",
+          photo: "صورة",
+          date: "التاريخ",
+        },
+      },
     },
     admin: {
       overview: "نظرة عامة",
@@ -1051,6 +1066,7 @@ export const messages = {
       services: "الخدمات",
       spareParts: "قطع الغيار",
       sparePartOrders: "طلبات القطع",
+      quickRequests: "الطلبات السريعة",
       reports: "التقارير",
       reportsPage: {
         subtitle: "نظرة عامة على الأداء والإحصائيات حسب التصفية",
@@ -1339,6 +1355,17 @@ export const messages = {
           unitPrice: "سعر الوحدة",
           lineTotal: "إجمالي السطر",
           updateStatus: "تحديث الحالة",
+        },
+      },
+      quickRequestsPage: {
+        subtitle: "طلبات سريعة من الزوار والعملاء (بدون طلب صيانة كامل)",
+        table: {
+          contact: "العميل / الزائر",
+          message: "الرسالة",
+          photo: "صورة",
+          account: "حساب مرتبط",
+          date: "التاريخ",
+          viewClient: "عرض العميل",
         },
       },
       content: {

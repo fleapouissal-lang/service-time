@@ -1,4 +1,8 @@
-import { getLoginUrl } from "@/lib/quick-request-client";
+import {
+  getLoginUrl,
+  isSyntheticLoginEmail,
+  resolveLoginIdentifier,
+} from "@/lib/quick-request-client";
 import { sendEmail, type SendEmailResult } from "@/lib/send-email";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import { normalizePhone } from "@/lib/whatsapp-utils";
@@ -52,12 +56,13 @@ export function buildAccountWelcomeWhatsAppMessage(
 ): string {
   const loginUrl = payload.loginUrl ?? getLoginUrl();
   const phone = payload.phone ? normalizePhone(payload.phone) : null;
+  const loginId = resolveLoginIdentifier(payload.loginEmail, payload.phone);
   const lines = [
     `مرحباً ${payload.fullName}،`,
     introLine(payload.source),
     "",
     "بيانات تسجيل الدخول:",
-    `البريد أو الجوال: ${payload.loginEmail}`,
+    `البريد أو الجوال: ${loginId}`,
   ];
 
   if (phone) {
@@ -81,6 +86,7 @@ export function buildAccountWelcomeWhatsAppMessage(
 function buildAccountWelcomeEmailHtml(payload: AccountWelcomePayload): string {
   const loginUrl = payload.loginUrl ?? getLoginUrl();
   const phone = payload.phone ? normalizePhone(payload.phone) : null;
+  const loginId = resolveLoginIdentifier(payload.loginEmail, payload.phone);
   const passwordHtml = payload.password
     ? `<p><strong>كلمة المرور:</strong> <span dir="ltr" style="font-family: monospace;">${escapeHtml(payload.password)}</span></p>`
     : payload.source === "client_registered"
@@ -91,12 +97,16 @@ function buildAccountWelcomeEmailHtml(payload: AccountWelcomePayload): string {
     ? `<p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(phone)}</span></p>`
     : "";
 
+  const loginLabel = isSyntheticLoginEmail(payload.loginEmail)
+    ? "تسجيل الدخول بالجوال"
+    : "البريد";
+
   return `
     <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
       <h2 style="color: #050B10;">مرحباً بك في Service Time</h2>
       <p>مرحباً ${escapeHtml(payload.fullName)}،</p>
       <p>${escapeHtml(introLine(payload.source))}</p>
-      <p><strong>البريد:</strong> <span dir="ltr">${escapeHtml(payload.loginEmail)}</span></p>
+      <p><strong>${loginLabel}:</strong> <span dir="ltr">${escapeHtml(loginId)}</span></p>
       ${phoneHtml}
       ${passwordHtml}
       <p><a href="${escapeHtml(loginUrl)}" dir="ltr">تسجيل الدخول</a></p>
@@ -125,9 +135,11 @@ export async function notifyAccountCreated(
 ): Promise<void> {
   const whatsappText = buildAccountWelcomeWhatsAppMessage(payload);
 
-  const mail = await sendAccountWelcomeEmail(payload);
-  if (!mail.ok) {
-    console.error("[account-welcome] email:", mail.error);
+  if (!isSyntheticLoginEmail(payload.loginEmail)) {
+    const mail = await sendAccountWelcomeEmail(payload);
+    if (!mail.ok) {
+      console.error("[account-welcome] email:", mail.error);
+    }
   }
 
   const phone = payload.phone?.trim();

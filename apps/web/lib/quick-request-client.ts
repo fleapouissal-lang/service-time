@@ -23,6 +23,20 @@ function buildSyntheticEmail(phone: string): string {
   return `${phoneToWhatsAppDigits(phone)}@quick.servicetime.sa`;
 }
 
+export function isSyntheticLoginEmail(email: string): boolean {
+  return email.trim().toLowerCase().endsWith("@quick.servicetime.sa");
+}
+
+export function resolveLoginIdentifier(
+  loginEmail: string,
+  phone: string | null,
+): string {
+  if (isSyntheticLoginEmail(loginEmail) && phone) {
+    return normalizePhone(phone);
+  }
+  return loginEmail;
+}
+
 async function getClientProfile(
   admin: SupabaseClient,
   userId: string,

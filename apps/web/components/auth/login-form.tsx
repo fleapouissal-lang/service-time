@@ -259,6 +259,13 @@ export function LoginForm() {
                     {loading ? t.common.signingIn : t.login.form.submit}
                     <ArrowLeft className="size-4" aria-hidden />
                   </button>
+
+                  <p className="text-center text-sm text-white/50">
+                    {t.login.form.noAccount}{" "}
+                    <Link href="/register" className="text-[#94D4B9] hover:underline">
+                      {t.login.form.registerLink}
+                    </Link>
+                  </p>
                 </form>
               </>
             )}

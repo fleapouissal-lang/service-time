@@ -43,11 +43,13 @@ export const messages = {
     clientOrders: "My Orders",
     clientProfile: "Profile",
     clientSparePartOrders: "Parts Orders",
+    clientQuickRequests: "Quick requests",
     adminOverview: "Overview",
     adminOrders: "Orders",
     adminServices: "Services",
     adminSpareParts: "Spare Parts",
     adminSparePartOrders: "Parts Orders",
+    adminQuickRequests: "Quick requests",
     adminUsers: "Users",
     adminTechnicians: "Technicians",
     adminReports: "Reports",
@@ -396,14 +398,15 @@ export const messages = {
     quickForm: {
       name: "Name *",
       phone: "Mobile number *",
-      email: "Email *",
+      email: "Email (optional)",
+      emailHint: "No email — your account is created with your phone number; credentials are sent via WhatsApp.",
       message: "Message *",
       submit: "Send quick request",
       successTitle: "✓ Your quick request was sent.",
       successHint: "Our team will contact you soon via phone or WhatsApp.",
       successTitleNewAccount: "✓ Request sent and account created.",
       successHintNewAccount:
-        "Your login details were sent via WhatsApp and email (if provided). You can sign in to track your requests.",
+        "Your account was created automatically. Check WhatsApp and your email (if provided) for your login and password.",
     },
     whatsappForm: {
       description: "Fill in your details (optional) then open WhatsApp to message our team.",
@@ -773,6 +776,8 @@ export const messages = {
       submit: "Sign in",
       showPassword: "Show password",
       hidePassword: "Hide password",
+      noAccount: "Don't have an account?",
+      registerLink: "Create account",
     },
     footer: {
       copyright: "All rights reserved",
@@ -957,6 +962,7 @@ export const messages = {
       overview: "Overview",
       orders: "My orders",
       sparePartOrders: "Parts orders",
+      quickRequests: "Quick requests",
       newRequest: "New request",
       track: "Track order",
       title: "Client dashboard",
@@ -1043,6 +1049,15 @@ export const messages = {
           view: "View",
         },
       },
+      quickRequestsPage: {
+        subtitle: "Your quick requests sent from the quick request form",
+        newRequest: "New quick request",
+        table: {
+          message: "Message",
+          photo: "Photo",
+          date: "Date",
+        },
+      },
     },
     admin: {
       overview: "Overview",
@@ -1050,6 +1065,7 @@ export const messages = {
       services: "Services",
       spareParts: "Spare parts",
       sparePartOrders: "Parts orders",
+      quickRequests: "Quick requests",
       reports: "Reports",
       reportsPage: {
         subtitle: "Performance overview and filtered analytics",
@@ -1339,6 +1355,17 @@ export const messages = {
           unitPrice: "Unit price",
           lineTotal: "Line total",
           updateStatus: "Update status",
+        },
+      },
+      quickRequestsPage: {
+        subtitle: "Quick requests from visitors and clients (without a full service order)",
+        table: {
+          contact: "Client / visitor",
+          message: "Message",
+          photo: "Photo",
+          account: "Linked account",
+          date: "Date",
+          viewClient: "View client",
         },
       },
       content: {

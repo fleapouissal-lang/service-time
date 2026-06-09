@@ -12,7 +12,7 @@ import { FormSecurityFields } from "@/components/forms/form-security-fields";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   contactValidationErrorMessage,
-  validateRequiredContact,
+  validateQuickRequestContact,
 } from "@/lib/contact-validation";
 
 export function QuickRequestForm() {
@@ -35,9 +35,9 @@ export function QuickRequestForm() {
     setClientError("");
 
     const formData = new FormData(e.currentTarget);
-    const contact = validateRequiredContact(
-      String(formData.get("email") ?? ""),
+    const contact = validateQuickRequestContact(
       String(formData.get("phone") ?? ""),
+      String(formData.get("email") ?? ""),
     );
 
     if (!contact.ok) {
@@ -112,10 +112,10 @@ export function QuickRequestForm() {
             name="email"
             icon={Mail}
             type="email"
-            required
             dir="ltr"
             placeholder={t.common.placeholderEmail}
           />
+          <p className="mt-1.5 text-xs text-muted">{form.emailHint}</p>
         </div>
 
         <div>
