@@ -8,7 +8,23 @@ const rootDir = path.join(__dirname, "../..");
 loadEnvConfig(rootDir);
 loadEnvConfig(webDir);
 
+function allowedDevOriginsFromEnv(): string[] {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  if (!appUrl) return [];
+
+  try {
+    const { hostname } = new URL(appUrl);
+    if (!hostname || hostname === "localhost" || hostname === "127.0.0.1") {
+      return [];
+    }
+    return [hostname];
+  } catch {
+    return [];
+  }
+}
+
 const nextConfig: NextConfig = {
+  allowedDevOrigins: allowedDevOriginsFromEnv(),
   transpilePackages: [
     "@service-time/ui",
     "@service-time/lib",
