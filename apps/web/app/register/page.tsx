@@ -1,10 +1,17 @@
 import type { Metadata } from "next";
 import { ClientRegisterForm } from "@/components/auth/client-register-form";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.register };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.register,
+    description: t.meta.descriptions.register,
+    pathname: "/register",
+    locale,
+    noIndex: true,
+  });
 }
 
 export default function RegisterPage() {

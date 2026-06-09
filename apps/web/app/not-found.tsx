@@ -1,6 +1,19 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { PageHeader } from "@/components/layout/page-header";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.notFound,
+    description: t.notFound.description,
+    pathname: "/404",
+    locale,
+    noIndex: true,
+  });
+}
 
 export default async function NotFound() {
   const { t } = await getServerI18n();

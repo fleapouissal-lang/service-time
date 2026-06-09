@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import { PageHeader } from "@/components/layout/page-header";
 import { PaymobCheckoutButton } from "@/components/spare-parts/paymob-checkout-button";
@@ -7,11 +8,23 @@ import { requireProfile } from "@/lib/auth";
 import { isPaymobConfigured, getPaymobConfigurationError } from "@/lib/paymob";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 
 type PageProps = {
   params: Promise<{ orderId: string }>;
   searchParams: Promise<{ success?: string; id?: string }>;
 };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.sparePartsPay,
+    description: t.meta.descriptions.spareParts,
+    pathname: "/spare-parts/checkout/pay",
+    locale,
+    noIndex: true,
+  });
+}
 
 export default async function SparePartsPaymentPage({
   params,

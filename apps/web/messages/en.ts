@@ -3,6 +3,27 @@ export const messages = {
     siteTitle: "Service Time | Car Maintenance in Riyadh",
     siteDescription:
       "Service Time platform for car maintenance and spare parts in Riyadh — request service, live tracking, fixed workshop or mobile service.",
+    keywords:
+      "car maintenance Riyadh, auto repair Saudi Arabia, mobile mechanic Riyadh, spare parts, Service Time, صيانة سيارات الرياض",
+    descriptions: {
+      home:
+        "Book car maintenance in Riyadh with Service Time — workshop or mobile service, genuine spare parts, and live order tracking across the city.",
+      services:
+        "Browse Service Time maintenance packages in Riyadh: oil change, diagnostics, brakes, AC, and more — at our workshop or at your location.",
+      request:
+        "Request car maintenance online in Riyadh. Choose workshop or mobile service, pick a time, and track your order in real time.",
+      spareParts:
+        "Shop car spare parts in Riyadh with Service Time — browse categories, add to cart, and order delivery with cash or online payment.",
+      about:
+        "Learn about Service Time — a Saudi platform for professional car maintenance, mobile technicians, and quality spare parts in Riyadh.",
+      contact:
+        "Contact Service Time in Riyadh for car maintenance, spare parts, or support — phone, email, and workshop locations.",
+      locations:
+        "Find Service Time workshop locations in Riyadh with addresses and maps — visit us or request mobile service to your address.",
+      login: "Sign in to your Service Time account to track orders, manage requests, and shop spare parts.",
+      register:
+        "Create a Service Time client account to request maintenance, track orders, and order spare parts in Riyadh.",
+    },
     home: "Home",
     services: "Services",
     request: "Request Service",

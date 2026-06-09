@@ -3,11 +3,17 @@ import { ServicesCtaSection } from "@/components/home/home-cta-section";
 import { ServiceCard } from "@/components/services/service-card";
 import { ServicesHeroSection } from "@/components/services/services-hero-section";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { getServices } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.services };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.services,
+    description: t.meta.descriptions.services,
+    pathname: "/services",
+    locale,
+  });
 }
 
 export default async function ServicesPage() {

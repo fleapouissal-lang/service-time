@@ -9,11 +9,17 @@ import { getCurrentProfile } from "@/lib/auth";
 import { getClientVehicles } from "@/lib/client-vehicles";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { getProfileHomePath } from "@/lib/profile-home";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.request };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.request,
+    description: t.meta.descriptions.request,
+    pathname: "/request",
+    locale,
+  });
 }
 
 type PageProps = {

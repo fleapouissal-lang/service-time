@@ -3,12 +3,18 @@ import { Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
 import { ContactInfoCard } from "@/components/contact/contact-info-card";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
 import { getSiteContent, getWorkshops } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.contact };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.contact,
+    description: t.meta.descriptions.contact,
+    pathname: "/contact",
+    locale,
+  });
 }
 
 function phoneTelHref(phone: string) {

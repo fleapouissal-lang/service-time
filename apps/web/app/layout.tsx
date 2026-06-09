@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { AuthSessionGuard } from "@/components/auth/auth-session-guard";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -8,6 +8,7 @@ import { SparePartsCartRoot } from "@/components/spare-parts/spare-parts-cart-ro
 import { getDir } from "@/lib/i18n/config";
 import { getServerI18n } from "@/lib/i18n/server";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { buildSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
 const poppins = Poppins({
@@ -16,20 +17,20 @@ const poppins = Poppins({
   weight: ["400", "500", "600", "700"],
 });
 
+export const viewport: Viewport = {
+  themeColor: "#94D4B9",
+  width: "device-width",
+  initialScale: 1,
+};
+
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return {
-    title: {
-      default: t.meta.siteTitle,
-      template: "%s | Service Time",
-    },
-    description: t.meta.siteDescription,
-    icons: {
-      icon: "/logos/icon.png",
-      shortcut: "/logos/icon.png",
-      apple: "/logos/icon.png",
-    },
-  };
+  const { locale, t } = await getServerI18n();
+  return buildSiteMetadata({
+    locale,
+    siteTitle: t.meta.siteTitle,
+    siteDescription: t.meta.siteDescription,
+    keywords: t.meta.keywords.split(",").map((k) => k.trim()),
+  });
 }
 
 export default async function RootLayout({

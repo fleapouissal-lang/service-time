@@ -3,12 +3,18 @@ import { MapPin, Navigation } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
 import { getWorkshops } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.locations };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.locations,
+    description: t.meta.descriptions.locations,
+    pathname: "/locations",
+    locale,
+  });
 }
 
 export default async function LocationsPage() {

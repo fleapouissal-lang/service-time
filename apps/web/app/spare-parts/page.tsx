@@ -3,12 +3,18 @@ import { Suspense } from "react";
 import { PageHeader } from "@/components/layout/page-header";
 import { SparePartsPageClient } from "@/components/spare-parts/spare-parts-page-client";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { resolveSparePartsPageSize } from "@/lib/spare-parts-pagination";
 import { getSparePartsPage } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.spareParts };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.spareParts,
+    description: t.meta.descriptions.spareParts,
+    pathname: "/spare-parts",
+    locale,
+  });
 }
 
 export default async function SparePartsPage({

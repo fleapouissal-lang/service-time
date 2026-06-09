@@ -4,11 +4,17 @@ import { AboutValuesCarousel } from "@/components/about/about-values-carousel";
 import { AboutCtaSection } from "@/components/home/home-cta-section";
 import { pickLocalized } from "@/lib/localized-content";
 import { getServerI18n } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo";
 import { getSiteContent } from "@/lib/queries";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const { t } = await getServerI18n();
-  return { title: t.meta.about };
+  const { locale, t } = await getServerI18n();
+  return buildPageMetadata({
+    title: t.meta.about,
+    description: t.meta.descriptions.about,
+    pathname: "/about",
+    locale,
+  });
 }
 
 export default async function AboutPage() {
