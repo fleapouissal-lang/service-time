@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { ClientQuickRequestsTable } from "@/components/client/client-quick-requests-table";
 import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { requireProfile } from "@/lib/auth";
 import { getClientQuickRequests } from "@/lib/quick-requests-queries";
 import { getServerI18n } from "@/lib/i18n/server";
+import { cn } from "@/lib/utils";
 
 export default async function ClientQuickRequestsPage() {
   const { t } = await getServerI18n();
@@ -21,9 +22,12 @@ export default async function ClientQuickRequestsPage() {
           <h1 className="text-2xl font-bold">{t.dashboard.client.quickRequests}</h1>
           <p className="text-muted">{p.subtitle}</p>
         </div>
-        <Button asChild variant="accent" className="rounded-xl">
-          <Link href="/request?mode=quick">{p.newRequest}</Link>
-        </Button>
+        <Link
+          href="/request?mode=quick"
+          className={cn(buttonVariants({ variant: "accent", size: "lg" }), "rounded-xl")}
+        >
+          {p.newRequest}
+        </Link>
       </div>
 
       <Card>

@@ -62,7 +62,7 @@ export function ClientQuickRequestsTable({
                   <span className="text-muted">—</span>
                 )}
               </AdminTableCell>
-              <AdminTableCell align="center" dir="ltr">
+              <AdminTableCell align="center" ltr>
                 <span className="text-sm tabular-nums text-muted">
                   {formatDateTime(row.created_at, locale, {
                     dateStyle: "medium",
