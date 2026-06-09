@@ -68,12 +68,8 @@ function GuestButtons({
           onClick={onNavigate}
           className={cn(
             ctaButtonClass,
-            "h-11 min-w-0 flex-1 px-2 text-center text-xs sm:text-sm",
+            "h-11 min-w-0 flex-1 bg-[#94D4B9] px-2 text-center text-xs text-[#050B10] sm:text-sm",
           )}
-          style={{
-            backgroundColor: HEADER_MINT,
-            color: HEADER_DARK,
-          }}
         >
           {labels.login}
         </Link>
@@ -95,12 +91,8 @@ function GuestButtons({
         onClick={onNavigate}
         className={cn(
           ctaButtonClass,
-          "shrink-0 px-3 text-xs whitespace-nowrap xl:px-5 xl:text-sm",
+          "shrink-0 bg-[#94D4B9] px-3 text-xs text-[#050B10] whitespace-nowrap xl:px-5 xl:text-sm",
         )}
-        style={{
-          backgroundColor: HEADER_MINT,
-          color: HEADER_DARK,
-        }}
       >
         {labels.login}
       </Link>
@@ -211,39 +203,59 @@ export function HeaderAuthSection({
   const router = useRouter();
   const { messages, locale } = useLocale();
   const [profile, setProfile] = useState<HeaderProfile | null>(null);
-  const [ready, setReady] = useState(false);
+
+  const guestLabels =
+    variant === "mobile"
+      ? {
+          register: messages.auth.register,
+          login: messages.auth.login,
+        }
+      : {
+          register: messages.auth.headerRegister,
+          login: messages.auth.headerLogin,
+        };
 
   useEffect(() => {
+    let cancelled = false;
     const supabase = createAuthBrowserClient();
 
     async function loadProfile() {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const authResult = await Promise.race([
+          supabase.auth.getUser(),
+          new Promise<never>((_, reject) => {
+            window.setTimeout(() => reject(new Error("auth-timeout")), 6_000);
+          }),
+        ]);
 
-      if (!user) {
-        setProfile(null);
-        setReady(true);
-        return;
+        const user = authResult.data.user;
+        if (!user) {
+          if (!cancelled) setProfile(null);
+          return;
+        }
+
+        const { data } = await supabase
+          .from("profiles")
+          .select(
+            "full_name, full_name_ar, full_name_en, role, avatar_url, is_active",
+          )
+          .eq("id", user.id)
+          .maybeSingle();
+
+        if (cancelled) return;
+
+        if (data?.is_active && data.role) {
+          setProfile({
+            fullName: getProfileDisplayName(data, locale),
+            role: data.role as ProfileRole,
+            avatarUrl: data.avatar_url ?? null,
+          });
+        } else {
+          setProfile(null);
+        }
+      } catch {
+        if (!cancelled) setProfile(null);
       }
-
-      const { data } = await supabase
-        .from("profiles")
-        .select("full_name, full_name_ar, full_name_en, role, avatar_url, is_active")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (data?.is_active && data.role) {
-        setProfile({
-          fullName: getProfileDisplayName(data, locale),
-          role: data.role as ProfileRole,
-          avatarUrl: data.avatar_url ?? null,
-        });
-      } else {
-        setProfile(null);
-      }
-
-      setReady(true);
     }
 
     void loadProfile();
@@ -254,21 +266,15 @@ export function HeaderAuthSection({
       void loadProfile();
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [locale]);
 
   async function handleSignOut() {
     await signOutAndRedirect(router);
     setProfile(null);
-  }
-
-  if (!ready) {
-    return variant === "desktop" ? (
-      <div className="flex shrink-0 items-center gap-1.5">
-        <div className="h-10 w-[5.5rem] animate-pulse rounded-[20px] bg-white/5 xl:w-24" />
-        <div className="h-10 w-14 animate-pulse rounded-[20px] bg-white/5 xl:w-20" />
-      </div>
-    ) : null;
   }
 
   if (profile) {
@@ -290,17 +296,7 @@ export function HeaderAuthSection({
       isTransparent={isTransparent}
       fullWidth={variant === "mobile"}
       onNavigate={onNavigate}
-      labels={
-        variant === "mobile"
-          ? {
-              register: messages.auth.register,
-              login: messages.auth.login,
-            }
-          : {
-              register: messages.auth.headerRegister,
-              login: messages.auth.headerLogin,
-            }
-      }
+      labels={guestLabels}
     />
   );
 }
