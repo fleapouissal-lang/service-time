@@ -191,46 +191,6 @@ export async function sendContactChangeVerificationCode(
   );
 }
 
-function buildAdminClientRegistrationHtml(payload: {
-  fullName: string;
-  phone: string;
-  email: string;
-  code: string;
-  whatsappClientUrl: string;
-}): string {
-  return `
-    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
-      <h2 style="color: #050B10;">تسجيل عميل جديد — Service Time</h2>
-      <p><strong>الاسم:</strong> ${escapeHtml(payload.fullName)}</p>
-      <p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(payload.phone)}</span></p>
-      <p><strong>البريد:</strong> <span dir="ltr">${escapeHtml(payload.email)}</span></p>
-      <p><strong>رمز التحقق:</strong> <span style="font-size: 22px; letter-spacing: 4px;">${payload.code}</span></p>
-      <p style="color: #666;">إذا لم يستلم العميل البريد، أرسل له الرمز عبر واتساب:</p>
-      <p><a href="${escapeHtml(payload.whatsappClientUrl)}" dir="ltr">فتح واتساب وإرسال الرمز للعميل</a></p>
-    </div>
-  `.trim();
-}
-
-/** Notifie l'admin pour qu'il puisse envoyer le code au client par WhatsApp */
-export async function sendAdminClientRegistrationNotification(payload: {
-  fullName: string;
-  phone: string;
-  email: string;
-  code: string;
-  whatsappClientUrl: string;
-}): Promise<SendEmailResult> {
-  const notifyTo = getContactNotifyEmail();
-  if (!notifyTo) {
-    return { ok: true, dev: true };
-  }
-
-  return sendEmail(
-    notifyTo,
-    `تسجيل عميل — ${payload.fullName}`,
-    buildAdminClientRegistrationHtml(payload),
-  );
-}
-
 function buildContactEmailHtml(payload: {
   name: string;
   phone: string;

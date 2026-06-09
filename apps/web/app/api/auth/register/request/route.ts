@@ -6,19 +6,11 @@ import {
   generateResetCode,
   hashResetCode,
   isStrongEnoughPassword,
-  normalizeEmail,
 } from "@/lib/password-reset";
-import {
-  sendAdminClientRegistrationNotification,
-  sendClientVerificationCode,
-} from "@/lib/send-email";
+import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { uploadProfileAvatar } from "@/lib/upload-profile-avatar";
-import {
-  buildWhatsAppSendCodeToClientUrl,
-  buildWhatsAppVerificationUrl,
-  normalizePhone,
-} from "@/lib/whatsapp";
+import { buildWhatsAppVerificationUrl } from "@/lib/whatsapp";
 import {
   contactValidationErrorMessageAr,
   validateRequiredContact,
@@ -243,17 +235,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: mail.error }, { status: 502 });
   }
 
-  void sendAdminClientRegistrationNotification({
-    fullName: displayNameAr,
-    phone: normalizePhone(phone),
-    email,
-    code,
-    whatsappClientUrl: buildWhatsAppSendCodeToClientUrl(
-      phone,
-      code,
-      displayNameAr,
-    ),
-  }).catch((err) => console.error("[register/request] admin notify:", err));
+  console.info(`[register/request] verification code sent to ${email}`);
 
   return NextResponse.json({
     ok: true,
