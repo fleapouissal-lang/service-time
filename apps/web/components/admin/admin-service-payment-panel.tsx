@@ -23,6 +23,7 @@ type AdminServicePaymentPanelProps = {
     ServiceRequest,
     | "id"
     | "client_proposed_price"
+    | "admin_counter_price"
     | "agreed_price"
     | "quote_status"
     | "payment_method"

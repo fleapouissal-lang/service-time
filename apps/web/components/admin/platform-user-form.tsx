@@ -45,7 +45,7 @@ export function PlatformUserForm({
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.usersPage;
   const s = t.dashboard.settings;
-  const formRef = useRef<HTMLFormElement>(null);
+  const formRef = useRef<HTMLDivElement>(null);
   const isEdit = Boolean(editUser);
   const [createOpen, setCreateOpen] = useState(false);
   const [error, setError] = useState("");
