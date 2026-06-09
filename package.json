@@ -11,7 +11,7 @@
     "sync-env": "node scripts/sync-env.mjs",
     "build": "turbo build",
     "build:web": "node scripts/sync-env.mjs && turbo build --filter=web",
-    "start:web": "node scripts/sync-env.mjs && npm run start -w web -- --port 3000",
+    "start:web": "node scripts/sync-env.mjs && node scripts/ensure-web-build.mjs && npm run start -w web -- --port 3000",
     "lint": "turbo lint",
     "db:migrate": "node scripts/migrate-database.mjs",
     "db:seed": "node scripts/seed-database.mjs",
