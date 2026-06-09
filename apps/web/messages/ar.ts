@@ -1309,6 +1309,10 @@ export const messages = {
         editOrder: "تفاصيل الطلب",
         backToList: "العودة إلى قائمة الطلبات",
         saveSuccess: "✓ تم تحديث حالة الطلب بنجاح.",
+        deleteOrder: "حذف الطلب",
+        deleteConfirmTitle: "حذف طلب القطع؟",
+        deleteConfirmMessage:
+          'هل أنت متأكد من حذف "{name}"؟ سيتم استرجاع المخزون تلقائياً. لا يمكن التراجع عن هذا الإجراء.',
         table: {
           client: "العميل",
           orderToken: "رمز الطلب",

@@ -164,6 +164,44 @@ export async function deleteAdminOrderAction(formData: FormData) {
   redirect("/admin/orders");
 }
 
+export async function deleteSparePartOrderAction(formData: FormData) {
+  await requireProfileOrThrow(["admin"]);
+  const admin = getAdminSupabaseClient();
+  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("معرّف الطلب مطلوب.");
+
+  const { data: order, error: fetchError } = await admin
+    .from("spare_part_orders")
+    .select("status")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchError) throw new Error(fetchError.message);
+  if (!order) throw new Error("الطلب غير موجود.");
+
+  if (order.status !== "cancelled") {
+    const { error: cancelError } = await admin
+      .from("spare_part_orders")
+      .update({ status: "cancelled" })
+      .eq("id", id);
+
+    if (cancelError) throw new Error(cancelError.message);
+  }
+
+  const { error } = await admin.from("spare_part_orders").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/spare-part-orders");
+  revalidatePath(`/admin/spare-part-orders/${id}`);
+  revalidatePath("/admin");
+  revalidatePath("/admin/reports");
+  revalidatePath("/client/spare-part-orders");
+  revalidatePath("/spare-parts");
+  redirect("/admin/spare-part-orders");
+}
+
 export async function saveServiceAction(formData: FormData) {
   const supabase = await adminClient();
   const id = String(formData.get("id") ?? "");

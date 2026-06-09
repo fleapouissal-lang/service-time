@@ -1,6 +1,7 @@
 "use client";
 
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
+import { AdminSparePartOrderDeleteButton } from "@/components/admin/admin-spare-part-order-delete-button";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
@@ -59,7 +60,7 @@ export function AdminSparePartOrdersTable({
         <AdminTableHeadCell align="center" className="min-w-[9rem]">
           {p.table.date}
         </AdminTableHeadCell>
-        <AdminTableHeadCell align="center" className="w-28">
+        <AdminTableHeadCell align="center" className="w-36">
           {p.table.actions}
         </AdminTableHeadCell>
       </AdminTableHead>
@@ -71,6 +72,11 @@ export function AdminSparePartOrdersTable({
             0,
           );
           const detailHref = `/admin/spare-part-orders/${order.id}`;
+          const deleteLabel =
+            order.customer_full_name ??
+            (order.client
+              ? getProfileDisplayName(order.client, locale)
+              : order.order_token);
 
           return (
             <tr key={order.id} className="border-b border-border">
@@ -115,14 +121,21 @@ export function AdminSparePartOrdersTable({
                   timeStyle: "short",
                 })}
               </AdminTableCell>
-              <AdminTableCell align="center" className="w-28">
-                <AdminTableActions
-                  viewHref={detailHref}
-                  editHref={detailHref}
-                  viewLabel={p.table.view}
-                  editLabel={p.table.edit}
-                  className="justify-center"
-                />
+              <AdminTableCell align="center" className="w-36">
+                <div className="flex items-center justify-center gap-1.5">
+                  <AdminTableActions
+                    viewHref={detailHref}
+                    editHref={detailHref}
+                    viewLabel={p.table.view}
+                    editLabel={p.table.edit}
+                    className="justify-center"
+                  />
+                  <AdminSparePartOrderDeleteButton
+                    orderId={order.id}
+                    orderLabel={deleteLabel}
+                    variant="icon"
+                  />
+                </div>
               </AdminTableCell>
             </tr>
           );

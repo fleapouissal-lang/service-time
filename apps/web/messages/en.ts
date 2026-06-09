@@ -1309,6 +1309,10 @@ export const messages = {
         editOrder: "Order details",
         backToList: "Back to orders list",
         saveSuccess: "✓ Order status updated successfully.",
+        deleteOrder: "Delete order",
+        deleteConfirmTitle: "Delete this parts order?",
+        deleteConfirmMessage:
+          'Are you sure you want to delete "{name}"? Stock will be restored automatically. This action cannot be undone.',
         table: {
           client: "Client",
           orderToken: "Order code",

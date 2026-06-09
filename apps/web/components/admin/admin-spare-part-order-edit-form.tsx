@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
 import { updateSparePartOrderStatusFormAction } from "@/app/spare-parts/actions";
+import { AdminSparePartOrderDeleteButton } from "@/components/admin/admin-spare-part-order-delete-button";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconSelect } from "@/components/ui/icon-select";
@@ -189,6 +190,18 @@ export function AdminSparePartOrderEditForm({
           {state.error}
         </div>
       ) : null}
+
+      <div className="border-t border-border pt-6">
+        <AdminSparePartOrderDeleteButton
+          orderId={order.id}
+          orderLabel={
+            order.customer_full_name ??
+            (order.client
+              ? getProfileDisplayName(order.client, locale)
+              : order.order_token)
+          }
+        />
+      </div>
     </div>
   );
 }
