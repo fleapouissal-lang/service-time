@@ -10,7 +10,10 @@ import {
 import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { uploadProfileAvatar } from "@/lib/upload-profile-avatar";
-import { buildWhatsAppVerificationUrl } from "@/lib/whatsapp";
+import {
+  buildWhatsAppSendCodeToClientUrl,
+} from "@/lib/whatsapp";
+import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import {
   contactValidationErrorMessageAr,
   validateRequiredContact,
@@ -237,10 +240,25 @@ export async function POST(request: Request) {
 
   console.info(`[register/request] verification code sent to ${email}`);
 
+  const whatsappCodeText = [
+    `مرحباً ${displayNameAr}،`,
+    "رمز تفعيل حسابك في Service Time:",
+    code,
+    "أدخل هذا الرمز في صفحة التسجيل (صلاحية 10 دقائق).",
+  ].join("\n");
+
+  void sendWhatsAppMessage(phone, whatsappCodeText).then((result) => {
+    if (result.ok && !result.dev) {
+      console.info(`[register/request] verification code sent via WhatsApp to ${phone}`);
+    } else if (!result.ok) {
+      console.warn("[register/request] WhatsApp verification:", result.error);
+    }
+  });
+
   return NextResponse.json({
     ok: true,
     message: "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
-    whatsappUrl: buildWhatsAppVerificationUrl(phone, code, displayNameAr),
+    whatsappUrl: buildWhatsAppSendCodeToClientUrl(phone, code, displayNameAr),
     expiresInSeconds: RESET_CODE_TTL_MS / 1000,
     devMode: mail.dev === true,
   });

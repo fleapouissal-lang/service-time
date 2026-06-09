@@ -9,6 +9,8 @@
   "scripts": {
     "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && turbo dev --filter=web --filter=mobile",
     "sync-env": "node scripts/sync-env.mjs",
+    "check:email": "node scripts/check-email-env.mjs",
+    "test:smtp": "node scripts/test-smtp.mjs",
     "build": "turbo build",
     "build:web": "node scripts/sync-env.mjs && turbo build --filter=web",
     "start:web": "node scripts/sync-env.mjs && node scripts/ensure-web-build.mjs && npm run start -w web -- --port 3000",

@@ -37,6 +37,7 @@ async function sendViaSmtp(
   to: string,
   subject: string,
   html: string,
+  text?: string,
 ): Promise<SendEmailResult> {
   const { host, port, user, pass, from } = getSmtpConfig();
 
@@ -54,10 +55,17 @@ async function sendViaSmtp(
 
   try {
     await transporter.verify();
-    await transporter.sendMail({ from, to, subject, html });
+    const info = await transporter.sendMail({
+      from,
+      to,
+      subject,
+      html,
+      text: text ?? html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim(),
+    });
+    console.info(`[email] SMTP sent to ${to} messageId=${info.messageId ?? "n/a"}`);
     return { ok: true };
   } catch (error) {
-    console.error("[email] SMTP error:", error);
+    console.error(`[email] SMTP error to ${to}:`, error);
     return { ok: false, error: "تعذّر إرسال البريد. تحقق من إعدادات Gmail." };
   }
 }
@@ -102,17 +110,26 @@ export async function sendEmail(
   to: string,
   subject: string,
   html: string,
+  text?: string,
 ): Promise<SendEmailResult> {
   ensureServerEnv();
 
   const { user, pass } = getSmtpConfig();
   if (user && pass) {
-    return sendViaSmtp(to, subject, html);
+    return sendViaSmtp(to, subject, html, text);
   }
 
   const resendKey = process.env.RESEND_API_KEY?.trim();
   if (resendKey) {
     return sendViaResend(to, subject, html);
+  }
+
+  if (process.env.NODE_ENV === "production") {
+    console.error("[email] SMTP/Resend not configured in production");
+    return {
+      ok: false,
+      error: "خدمة البريد غير مفعّلة على الخادم. تواصل مع الدعم.",
+    };
   }
 
   console.info(`[email] Dev mode — would send to ${to}: ${subject}`);
@@ -160,10 +177,18 @@ export async function sendClientVerificationCode(
   code: string,
   fullName: string,
 ): Promise<SendEmailResult> {
+  const text = [
+    `مرحباً ${fullName}،`,
+    "استخدم الرمز التالي لتفعيل حسابك في Service Time:",
+    code,
+    "صلاحية الرمز: 10 دقائق.",
+  ].join("\n");
+
   return sendEmail(
     email,
     "رمز تفعيل حسابك — Service Time",
     buildClientVerifyEmailHtml(code, fullName),
+    text,
   );
 }
 
