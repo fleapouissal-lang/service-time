@@ -1359,6 +1359,17 @@ export const messages = {
       },
       quickRequestsPage: {
         subtitle: "طلبات سريعة من الزوار والعملاء (بدون طلب صيانة كامل)",
+        detailTitle: "تفاصيل الطلب السريع",
+        detailClose: "إغلاق",
+        detailContact: "بيانات التواصل",
+        detailMessage: "الرسالة",
+        detailDate: "تاريخ الإرسال",
+        detailAccount: "الحساب المرتبط",
+        detailPhoto: "الصورة المرفقة",
+        detailNoPhoto: "بدون صورة",
+        detailPhotoError: "تعذّر تحميل الصورة",
+        deleteConfirmTitle: "حذف طلب سريع؟",
+        deleteConfirmMessage: "سيتم حذف طلب \"{name}\" نهائياً مع صورته إن وُجدت.",
         table: {
           contact: "العميل / الزائر",
           message: "الرسالة",
@@ -1366,6 +1377,8 @@ export const messages = {
           account: "حساب مرتبط",
           date: "التاريخ",
           viewClient: "عرض العميل",
+          actions: "إجراءات",
+          view: "عرض التفاصيل",
         },
       },
       content: {

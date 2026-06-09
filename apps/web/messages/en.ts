@@ -1359,6 +1359,17 @@ export const messages = {
       },
       quickRequestsPage: {
         subtitle: "Quick requests from visitors and clients (without a full service order)",
+        detailTitle: "Quick request details",
+        detailClose: "Close",
+        detailContact: "Contact details",
+        detailMessage: "Message",
+        detailDate: "Submitted at",
+        detailAccount: "Linked account",
+        detailPhoto: "Attached photo",
+        detailNoPhoto: "No photo",
+        detailPhotoError: "Could not load photo",
+        deleteConfirmTitle: "Delete quick request?",
+        deleteConfirmMessage: "Request from \"{name}\" will be permanently deleted along with its photo if any.",
         table: {
           contact: "Client / visitor",
           message: "Message",
@@ -1366,6 +1377,8 @@ export const messages = {
           account: "Linked account",
           date: "Date",
           viewClient: "View client",
+          actions: "Actions",
+          view: "View details",
         },
       },
       content: {

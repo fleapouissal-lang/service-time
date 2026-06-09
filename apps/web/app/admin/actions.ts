@@ -202,6 +202,55 @@ export async function deleteSparePartOrderAction(formData: FormData) {
   redirect("/admin/spare-part-orders");
 }
 
+export async function getQuickRequestPhotoSignedUrlAction(
+  storagePath: string,
+): Promise<{ url: string } | { error: string }> {
+  await requireProfileOrThrow(["admin"]);
+
+  const path = String(storagePath ?? "").trim();
+  if (!path) {
+    return { error: "مسار الصورة غير صالح." };
+  }
+
+  const { getQuickRequestPhotoSignedUrl } = await import("@/lib/quick-request-photo");
+  const url = await getQuickRequestPhotoSignedUrl(path);
+  if (!url) {
+    return { error: "تعذّر تحميل الصورة." };
+  }
+
+  return { url };
+}
+
+export async function deleteQuickRequestAction(formData: FormData) {
+  await requireProfileOrThrow(["admin"]);
+  const admin = getAdminSupabaseClient();
+  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) throw new Error("معرّف الطلب مطلوب.");
+
+  const { data: row, error: fetchError } = await admin
+    .from("quick_requests")
+    .select("photo_storage_path")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchError) throw new Error(fetchError.message);
+  if (!row) throw new Error("الطلب غير موجود.");
+
+  if (row.photo_storage_path) {
+    const { removeQuickRequestPhoto } = await import("@/lib/quick-request-photo");
+    await removeQuickRequestPhoto(row.photo_storage_path);
+  }
+
+  const { error } = await admin.from("quick_requests").delete().eq("id", id);
+  if (error) throw new Error(error.message);
+
+  revalidatePath("/admin/quick-requests");
+  revalidatePath("/admin");
+  revalidatePath("/client/quick-requests");
+}
+
 export async function saveServiceAction(formData: FormData) {
   const supabase = await adminClient();
   const id = String(formData.get("id") ?? "");

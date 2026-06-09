@@ -7,6 +7,7 @@ const actionBtnClass =
 
 type AdminTableActionsProps = {
   viewHref?: string;
+  onView?: () => void;
   editHref?: string;
   onEdit?: () => void;
   viewLabel: string;
@@ -18,6 +19,7 @@ type AdminTableActionsProps = {
 
 export function AdminTableActions({
   viewHref,
+  onView,
   editHref,
   onEdit,
   viewLabel,
@@ -28,7 +30,17 @@ export function AdminTableActions({
 }: AdminTableActionsProps) {
   return (
     <div className={cn("flex items-center justify-center gap-1.5", className)}>
-      {viewHref ? (
+      {onView ? (
+        <button
+          type="button"
+          onClick={onView}
+          className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}
+          title={viewLabel}
+          aria-label={viewLabel}
+        >
+          <Eye className="size-4" aria-hidden />
+        </button>
+      ) : viewHref ? (
         <Link
           href={viewHref}
           className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}

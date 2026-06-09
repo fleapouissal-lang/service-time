@@ -1,4 +1,5 @@
 import { ensureServerEnv } from "@/lib/env-server";
+import { QUICK_REQUEST_PHOTO_BUCKET } from "@/lib/quick-request-photo";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { createWebSupabaseClient } from "@/lib/supabase";
 
@@ -42,11 +43,11 @@ export async function uploadQuickRequestPhoto(
 
   const admin = getAdminSupabaseClient();
   const supabase = admin ?? createWebSupabaseClient();
-  const storagePath = `quick/${quickRequestId}/${crypto.randomUUID()}.${extensionForMime(mime)}`;
+  const storagePath = `${quickRequestId}/${crypto.randomUUID()}.${extensionForMime(mime)}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error: uploadError } = await supabase.storage
-    .from("request-photos")
+    .from(QUICK_REQUEST_PHOTO_BUCKET)
     .upload(storagePath, buffer, {
       contentType: mime,
       upsert: false,
