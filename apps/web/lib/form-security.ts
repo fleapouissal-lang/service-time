@@ -17,6 +17,8 @@ const RATE_LIMITS = {
   serviceRequest: { max: 12, windowMs: 60 * 60 * 1000 },
   login: { max: 25, windowMs: 15 * 60 * 1000 },
   forgotPassword: { max: 5, windowMs: 60 * 60 * 1000 },
+  geocode: { max: 60, windowMs: 15 * 60 * 1000 },
+  geocodePublic: { max: 25, windowMs: 15 * 60 * 1000 },
 } as const;
 
 type RateScope = keyof typeof RATE_LIMITS;
@@ -131,6 +133,45 @@ export async function checkForgotPasswordRateLimit(
   const ip = await getRequestIp();
   const key = `forgotPassword:${ip}:${email.toLowerCase()}`;
   const limit = RATE_LIMITS.forgotPassword;
+  const now = Date.now();
+  pruneBuckets(now);
+
+  const bucket = buckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt: now + limit.windowMs });
+    return true;
+  }
+
+  if (bucket.count >= limit.max) return false;
+  bucket.count += 1;
+  return true;
+}
+
+export async function checkGeocodeRateLimit(actorId: string): Promise<boolean> {
+  const ip = await getRequestIp();
+  const key = `geocode:${actorId}:${ip}`;
+  const limit = RATE_LIMITS.geocode;
+  const now = Date.now();
+  pruneBuckets(now);
+
+  const bucket = buckets.get(key);
+  if (!bucket || bucket.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt: now + limit.windowMs });
+    return true;
+  }
+
+  if (bucket.count >= limit.max) return false;
+  bucket.count += 1;
+  return true;
+}
+
+export async function checkApiRateLimit(
+  scope: keyof typeof RATE_LIMITS,
+  keySuffix: string,
+): Promise<boolean> {
+  const ip = await getRequestIp();
+  const key = `${scope}:${keySuffix}:${ip}`;
+  const limit = RATE_LIMITS[scope];
   const now = Date.now();
   pruneBuckets(now);
 

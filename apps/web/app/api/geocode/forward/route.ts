@@ -1,6 +1,10 @@
 import { NextResponse } from "next/server";
+import { guardGeocodeApi } from "@/lib/geocode-guard";
 
 export async function GET(request: Request) {
+  const guard = await guardGeocodeApi();
+  if (!guard.ok) return guard.response;
+
   const { searchParams } = new URL(request.url);
   const query = searchParams.get("q")?.trim();
 

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,10 +20,12 @@ import {
 export function CreatePlatformUserForm() {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.usersPage;
+  const s = t.dashboard.settings;
   const [open, setOpen] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [passwordResetToken, setPasswordResetToken] = useState(0);
   const [role, setRole] = useState<ProfileRole>("technician");
   const [technicianTypeKey, setTechnicianTypeKey] = useState(0);
   const roleOptions = buildRoleSelectOptions(t);
@@ -41,6 +44,7 @@ export function CreatePlatformUserForm() {
       await createPlatformUserAction(formData);
       setSuccess(t.dashboard.admin.users.createSuccess);
       form.reset();
+      setPasswordResetToken((token) => token + 1);
       setRole("technician");
       setTechnicianTypeKey((key) => key + 1);
       setOpen(false);
@@ -150,14 +154,17 @@ export function CreatePlatformUserForm() {
 
       <div>
         <Label htmlFor="password">{t.common.password} *</Label>
-        <Input
+        <PasswordInput
           id="password"
           name="password"
-          type="password"
-          dir="ltr"
+          inputDir="ltr"
           required
           minLength={8}
+          autoComplete="new-password"
           className="mt-2"
+          showPasswordLabel={s.showPassword}
+          hidePasswordLabel={s.hidePassword}
+          resetToken={passwordResetToken}
         />
       </div>
 

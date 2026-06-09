@@ -8,6 +8,8 @@ import {
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { getProfileAvatarPublicUrl } from "@/lib/upload-profile-avatar";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
+import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
+import { getLoginUrl } from "@/lib/quick-request-client";
 
 export async function POST(request: Request) {
   const admin = getAdminSupabaseClient();
@@ -147,6 +149,14 @@ export async function POST(request: Request) {
     .eq("id", record.id);
 
   await admin.from("client_verification_codes").delete().eq("id", record.id);
+
+  void notifyAccountCreated({
+    fullName: fullNameAr,
+    loginEmail: email,
+    phone: record.phone,
+    source: "client_registered",
+    loginUrl: getLoginUrl(),
+  }).catch((err) => console.error("[register/verify] welcome notify:", err));
 
   return NextResponse.json({
     ok: true,

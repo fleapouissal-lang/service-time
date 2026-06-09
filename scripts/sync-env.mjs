@@ -29,6 +29,7 @@ const SERVER_KEYS = new Set([
   "PAYMOB_INTEGRATION_IDS",
   "PAYMOB_INTEGRATION_ID",
   "PAYMOB_HMAC_SECRET",
+  "OPENAI_API_KEY",
 ]);
 
 function parseEnvValue(raw) {
@@ -73,13 +74,41 @@ for (const line of content.split("\n")) {
   parsed.set(key, value);
 }
 
-if (parsed.get("WHATSAPP_NUMBER") && !parsed.get("NEXT_PUBLIC_WHATSAPP_NUMBER")) {
+if (parsed.get("WHATSAPP_NUMBER")) {
   parsed.set("NEXT_PUBLIC_WHATSAPP_NUMBER", parsed.get("WHATSAPP_NUMBER"));
 }
 
-const webEntries = [...parsed.entries()].filter(
-  ([key]) => key.startsWith("NEXT_PUBLIC_") || SERVER_KEYS.has(key),
-);
+/** Ordre stable dans apps/web/.env.local */
+const WEB_ENV_ORDER = [
+  "NEXT_PUBLIC_APP_URL",
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "SMTP_HOST",
+  "SMTP_PORT",
+  "SMTP_USER",
+  "SMTP_PASS",
+  "EMAIL_FROM",
+  "CONTACT_NOTIFY_EMAIL",
+  "RESEND_API_KEY",
+  "PASSWORD_RESET_SECRET",
+  "WHATSAPP_NUMBER",
+  "NEXT_PUBLIC_WHATSAPP_NUMBER",
+  "WHATSAPP_ACCESS_TOKEN",
+  "WHATSAPP_PHONE_NUMBER_ID",
+  "PAYMOB_BASE_URL",
+  "PAYMOB_SECRET_KEY",
+  "NEXT_PUBLIC_PAYMOB_PUBLIC_KEY",
+  "PAYMOB_INTEGRATION_IDS",
+  "PAYMOB_HMAC_SECRET",
+  "OPENAI_API_KEY",
+];
+
+const webEntries = WEB_ENV_ORDER.filter(
+  (key) =>
+    parsed.has(key) &&
+    (key.startsWith("NEXT_PUBLIC_") || SERVER_KEYS.has(key)),
+).map((key) => [key, parsed.get(key)]);
 
 if (webEntries.length === 0) {
   console.warn("⚠️  Variables web manquantes dans .env");

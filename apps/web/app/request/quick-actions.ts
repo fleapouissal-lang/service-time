@@ -7,11 +7,8 @@ import {
   getLoginUrl,
   resolveQuickRequestClient,
 } from "@/lib/quick-request-client";
-import { buildQuickRequestWelcomeWhatsAppMessage } from "@/lib/quick-request-welcome";
-import {
-  sendQuickRequestAdminNotification,
-  sendQuickRequestWelcomeEmail,
-} from "@/lib/send-email";
+import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
+import { sendQuickRequestAdminNotification } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { uploadQuickRequestPhoto } from "@/lib/upload-quick-request-photo";
 import {
@@ -19,7 +16,6 @@ import {
   getPhotoFromFormData,
 } from "@/lib/upload-request-photo";
 import { normalizePhone } from "@/lib/whatsapp-utils";
-import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import {
   FIELD_LIMITS,
   checkPublicFormGuard,
@@ -92,7 +88,7 @@ export async function submitQuickServiceRequest(
     return { error: t.errors.contact.sendFailed };
   }
 
-  const { clientId, createdNew, generatedPassword, loginEmail, notifiedEmail } =
+  const { clientId, createdNew, generatedPassword, loginEmail } =
     clientResolution.result;
 
   const { data: row, error: insertError } = await admin
@@ -143,27 +139,14 @@ export async function submitQuickServiceRequest(
   }
 
   if (createdNew && generatedPassword) {
-    const loginUrl = getLoginUrl();
-    const welcomePayload = {
+    void notifyAccountCreated({
       fullName: name,
       loginEmail,
-      password: generatedPassword,
-      loginUrl,
       phone: normalizePhone(phone),
-    };
-
-    if (notifiedEmail) {
-      const welcomeMail = await sendQuickRequestWelcomeEmail(welcomePayload);
-      if (!welcomeMail.ok) {
-        console.error("[quick-request] welcome email:", welcomeMail.error);
-      }
-    }
-
-    const waText = buildQuickRequestWelcomeWhatsAppMessage(welcomePayload);
-    const waResult = await sendWhatsAppMessage(phone, waText);
-    if (!waResult.ok) {
-      console.error("[quick-request] welcome whatsapp:", waResult.error);
-    }
+      password: generatedPassword,
+      source: "quick_request",
+      loginUrl: getLoginUrl(),
+    }).catch((err) => console.error("[quick-request] welcome notify:", err));
   }
 
   const mail = await sendQuickRequestAdminNotification({

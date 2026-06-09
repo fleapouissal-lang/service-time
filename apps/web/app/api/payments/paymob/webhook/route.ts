@@ -84,8 +84,8 @@ export async function POST(request: Request) {
   }
 
   const hmacSecret = process.env.PAYMOB_HMAC_SECRET?.trim();
-  if (process.env.NODE_ENV === "production" && !hmacSecret) {
-    console.error("[paymob] PAYMOB_HMAC_SECRET is required in production");
+  if (!hmacSecret) {
+    console.error("[paymob] PAYMOB_HMAC_SECRET is required");
     return NextResponse.json({ error: "Server misconfigured" }, { status: 503 });
   }
 

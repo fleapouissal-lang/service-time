@@ -27,6 +27,8 @@ import { notifyOrderCreated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
+import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
+import { getLoginUrl } from "@/lib/quick-request-client";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
 function parseOrderLocation(formData: FormData) {
@@ -468,6 +470,15 @@ export async function createPlatformUserAction(formData: FormData) {
     await admin.auth.admin.deleteUser(userId);
     throw new Error(profileError.message);
   }
+
+  void notifyAccountCreated({
+    fullName: localizedNames.full_name_ar || localizedNames.full_name,
+    loginEmail: email,
+    phone,
+    password,
+    source: "admin_created",
+    loginUrl: getLoginUrl(),
+  }).catch((err) => console.error("[admin/create-user] welcome notify:", err));
 
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
