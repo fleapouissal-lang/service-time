@@ -1,8 +1,6 @@
-import { CreatePlatformUserForm } from "@/components/admin/create-platform-user-form";
-import { AdminUsersTable } from "@/components/admin/admin-users-table";
+import { AdminUsersWorkspace } from "@/components/admin/admin-users-workspace";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { StatCard } from "@/components/dashboard/stat-card";
-import { Card, CardContent } from "@/components/ui/card";
 import {
   getPlatformUsers,
   getUserRoleStats,
@@ -70,45 +68,35 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
         />
       </div>
 
-      <CreatePlatformUserForm />
-
-      <DashboardFilterBar
-        pathname="/admin/users"
-        values={params}
-        searchPlaceholder={getUserSearchPlaceholderForDashboard(t)}
-        selects={[
-          {
-            name: "role",
-            label: t.dashboard.admin.users.accountType,
-            options: getRoleFilterOptionsForDashboard(t),
-          },
-          {
-            name: "active",
-            label: t.common.status,
-            options: getActiveFilterOptionsForDashboard(t),
-          },
-        ]}
-        resultCount={users.length}
+      <AdminUsersWorkspace
+        users={users}
+        roleLabels={roleLabels}
+        technicianTypeLabels={technicianTypeLabels}
+        emptyMessage={t.dashboard.admin.users.noUsers}
+        emptyFilteredMessage={t.dashboard.admin.users.emptyFiltered}
         totalCount={allUsers.length}
+        filters={
+          <DashboardFilterBar
+            pathname="/admin/users"
+            values={params}
+            searchPlaceholder={getUserSearchPlaceholderForDashboard(t)}
+            selects={[
+              {
+                name: "role",
+                label: t.dashboard.admin.users.accountType,
+                options: getRoleFilterOptionsForDashboard(t),
+              },
+              {
+                name: "active",
+                label: t.common.status,
+                options: getActiveFilterOptionsForDashboard(t),
+              },
+            ]}
+            resultCount={users.length}
+            totalCount={allUsers.length}
+          />
+        }
       />
-
-      <Card>
-        <CardContent className="p-0">
-          {users.length === 0 ? (
-            <p className="p-6 text-center text-sm text-muted">
-              {allUsers.length === 0
-                ? t.dashboard.admin.users.noUsers
-                : t.dashboard.admin.users.emptyFiltered}
-            </p>
-          ) : (
-            <AdminUsersTable
-              users={users}
-              roleLabels={roleLabels}
-              technicianTypeLabels={technicianTypeLabels}
-            />
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }

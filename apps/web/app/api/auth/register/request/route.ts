@@ -19,6 +19,10 @@ import {
   buildWhatsAppVerificationUrl,
   normalizePhone,
 } from "@/lib/whatsapp";
+import {
+  contactValidationErrorMessageAr,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
 
 async function parseRegisterPayload(request: Request): Promise<{
   fullNameAr: string;
@@ -86,8 +90,6 @@ export async function POST(request: Request) {
 
   const fullNameAr = payload.fullNameAr;
   const fullNameEn = payload.fullNameEn;
-  const phone = normalizePhone(payload.phone);
-  const email = normalizeEmail(payload.email);
   const password = payload.password;
   const avatarFile = payload.avatarFile;
 
@@ -101,19 +103,16 @@ export async function POST(request: Request) {
 
   const displayNameAr = fullNameAr;
 
-  if (!phone || phone.length < 10) {
+  const contact = validateRequiredContact(payload.email, payload.phone);
+  if (!contact.ok) {
     return NextResponse.json(
-      { error: "أدخل رقم جوال صالح." },
+      { error: contactValidationErrorMessageAr(contact.error) },
       { status: 400 },
     );
   }
 
-  if (!email || !email.includes("@")) {
-    return NextResponse.json(
-      { error: "البريد الإلكتروني مطلوب للتفعيل." },
-      { status: 400 },
-    );
-  }
+  const phone = contact.phone;
+  const email = contact.email;
 
   if (!isStrongEnoughPassword(password)) {
     return NextResponse.json(

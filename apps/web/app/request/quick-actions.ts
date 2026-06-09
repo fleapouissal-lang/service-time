@@ -15,13 +15,16 @@ import {
   formHasPhotoField,
   getPhotoFromFormData,
 } from "@/lib/upload-request-photo";
-import { normalizePhone } from "@/lib/whatsapp-utils";
 import {
   FIELD_LIMITS,
   checkPublicFormGuard,
   clampField,
   resolveFormGuardError,
 } from "@/lib/form-security";
+import {
+  contactValidationErrorMessage,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
 
 export interface QuickRequestFormState {
   error?: string;
@@ -52,13 +55,24 @@ export async function submitQuickServiceRequest(
   const photo = getPhotoFromFormData(formData);
   const hadPhotoField = formHasPhotoField(formData);
 
-  if (!name || !phone || !message) {
+  if (!name || !phone || !email || !message) {
     return { error: t.errors.contact.requiredFields };
   }
 
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: t.errors.contact.invalidEmail };
+  const contact = validateRequiredContact(email, phone);
+  if (!contact.ok) {
+    return {
+      error: contactValidationErrorMessage(contact.error, {
+        emailRequired: t.errors.contact.emailRequired,
+        invalidEmail: t.errors.contact.invalidEmail,
+        phoneRequired: t.errors.contact.phoneRequired,
+        invalidPhone: t.errors.contact.invalidPhone,
+      }),
+    };
   }
+
+  const validatedEmail = contact.email;
+  const validatedPhone = contact.phone;
 
   if (hadPhotoField && !photo) {
     return { error: t.errors.request.photoReadFailed };
@@ -73,8 +87,8 @@ export async function submitQuickServiceRequest(
 
   const clientResolution = await resolveQuickRequestClient({
     fullName: name,
-    phone,
-    email: email || null,
+    phone: validatedPhone,
+    email: validatedEmail,
   });
 
   if (!clientResolution.ok) {
@@ -95,8 +109,8 @@ export async function submitQuickServiceRequest(
     .from("quick_requests")
     .insert({
       name,
-      phone: normalizePhone(phone),
-      email: email || null,
+      phone: validatedPhone,
+      email: validatedEmail,
       message,
       client_id: clientId,
     })
@@ -142,7 +156,7 @@ export async function submitQuickServiceRequest(
     void notifyAccountCreated({
       fullName: name,
       loginEmail,
-      phone: normalizePhone(phone),
+      phone: validatedPhone,
       password: generatedPassword,
       source: "quick_request",
       loginUrl: getLoginUrl(),
@@ -151,8 +165,8 @@ export async function submitQuickServiceRequest(
 
   const mail = await sendQuickRequestAdminNotification({
     name,
-    phone: normalizePhone(phone),
-    email: email || null,
+    phone: validatedPhone,
+    email: validatedEmail,
     message,
     hasPhoto: Boolean(photoStoragePath),
   });

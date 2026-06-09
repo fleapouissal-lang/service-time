@@ -11,6 +11,11 @@ import {
   clampField,
   resolveFormGuardError,
 } from "@/lib/form-security";
+import {
+  contactValidationErrorMessage,
+  validateEmailField,
+  validatePhoneField,
+} from "@/lib/contact-validation";
 
 export interface ContactFormState {
   error?: string;
@@ -42,16 +47,36 @@ export async function submitContactMessage(
     return { error: t.errors.contact.requiredFields };
   }
 
-  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    return { error: t.errors.contact.invalidEmail };
+  const phoneResult = validatePhoneField(phone, { required: true });
+  if (!phoneResult.ok) {
+    return {
+      error: contactValidationErrorMessage(phoneResult.error, {
+        emailRequired: t.errors.contact.emailRequired,
+        invalidEmail: t.errors.contact.invalidEmail,
+        phoneRequired: t.errors.contact.phoneRequired,
+        invalidPhone: t.errors.contact.invalidPhone,
+      }),
+    };
+  }
+
+  const emailResult = validateEmailField(email, { required: false });
+  if (!emailResult.ok) {
+    return {
+      error: contactValidationErrorMessage(emailResult.error, {
+        emailRequired: t.errors.contact.emailRequired,
+        invalidEmail: t.errors.contact.invalidEmail,
+        phoneRequired: t.errors.contact.phoneRequired,
+        invalidPhone: t.errors.contact.invalidPhone,
+      }),
+    };
   }
 
   ensureServerEnv();
 
   const payload = {
     name,
-    phone,
-    email: email || null,
+    phone: phoneResult.value,
+    email: emailResult.value || null,
     message,
   };
 

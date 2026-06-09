@@ -10,6 +10,7 @@ type ProfileAvatarPickerProps = {
   label?: string;
   hint?: string;
   className?: string;
+  defaultAvatarUrl?: string | null;
   onChange?: (file: File | null) => void;
 };
 
@@ -18,6 +19,7 @@ export function ProfileAvatarPicker({
   label,
   hint,
   className,
+  defaultAvatarUrl = null,
   onChange,
 }: ProfileAvatarPickerProps) {
   const { messages: t } = useLocale();
@@ -26,6 +28,7 @@ export function ProfileAvatarPicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const displayUrl = preview ?? defaultAvatarUrl;
 
   function clearSelection() {
     setPreview(null);
@@ -61,10 +64,10 @@ export function ProfileAvatarPicker({
           className="relative flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-[#94D4B9]/50 bg-[#94D4B9]/5 transition-colors hover:border-[#94D4B9] hover:bg-[#94D4B9]/10"
           aria-label={resolvedLabel}
         >
-          {preview ? (
+          {displayUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
-              src={preview}
+              src={displayUrl}
               alt=""
               className="size-full object-cover"
             />

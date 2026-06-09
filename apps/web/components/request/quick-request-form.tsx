@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState, useTransition, type FormEvent } from "react";
 import { Mail, MessageSquare, Phone, User } from "lucide-react";
 import { submitQuickServiceRequest } from "@/app/request/quick-actions";
 import { RequestFormShell } from "@/components/request/request-form-shell";
@@ -10,22 +10,56 @@ import { Label } from "@/components/ui/label";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { FormSecurityFields } from "@/components/forms/form-security-fields";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  contactValidationErrorMessage,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
 
 export function QuickRequestForm() {
   const { messages: t } = useLocale();
   const form = t.request.quickForm;
   const [state, action, pending] = useActionState(submitQuickServiceRequest, {});
+  const [, startSubmitTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
+  const [clientError, setClientError] = useState("");
 
   useEffect(() => {
     if (state.success) {
       formRef.current?.reset();
+      setClientError("");
     }
   }, [state.success]);
 
+  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setClientError("");
+
+    const formData = new FormData(e.currentTarget);
+    const contact = validateRequiredContact(
+      String(formData.get("email") ?? ""),
+      String(formData.get("phone") ?? ""),
+    );
+
+    if (!contact.ok) {
+      setClientError(
+        contactValidationErrorMessage(contact.error, {
+          emailRequired: t.errors.contact.emailRequired,
+          invalidEmail: t.errors.contact.invalidEmail,
+          phoneRequired: t.errors.contact.phoneRequired,
+          invalidPhone: t.errors.contact.invalidPhone,
+        }),
+      );
+      return;
+    }
+
+    startSubmitTransition(() => {
+      action(formData);
+    });
+  }
+
   return (
     <RequestFormShell>
-      <form ref={formRef} action={action} className="relative space-y-5">
+      <form ref={formRef} onSubmit={handleSubmit} className="relative space-y-5">
         <FormSecurityFields />
         {state.success ? (
           <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-sm text-[#94D4B9]">
@@ -42,9 +76,9 @@ export function QuickRequestForm() {
           </div>
         ) : null}
 
-        {state.error ? (
+        {state.error || clientError ? (
           <div className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-3 text-sm text-red-300">
-            {state.error}
+            {clientError || state.error}
           </div>
         ) : null}
 
@@ -78,6 +112,7 @@ export function QuickRequestForm() {
             name="email"
             icon={Mail}
             type="email"
+            required
             dir="ltr"
             placeholder={t.common.placeholderEmail}
           />

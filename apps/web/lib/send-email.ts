@@ -167,6 +167,30 @@ export async function sendClientVerificationCode(
   );
 }
 
+function buildContactChangeVerifyEmailHtml(code: string, fullName: string): string {
+  return `
+    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.7; color: #050B10;">
+      <h2 style="color: #050B10;">Service Time</h2>
+      <p>مرحباً ${escapeHtml(fullName)}،</p>
+      <p>استخدم الرمز التالي لتأكيد بريدك الإلكتروني الجديد:</p>
+      <p style="font-size: 28px; font-weight: bold; letter-spacing: 6px; color: #0f5132;">${code}</p>
+      <p style="color: #666;">صلاحية الرمز: 10 دقائق.</p>
+    </div>
+  `.trim();
+}
+
+export async function sendContactChangeVerificationCode(
+  email: string,
+  code: string,
+  fullName: string,
+): Promise<SendEmailResult> {
+  return sendEmail(
+    email,
+    "رمز تأكيد البريد — Service Time",
+    buildContactChangeVerifyEmailHtml(code, fullName),
+  );
+}
+
 function buildAdminClientRegistrationHtml(payload: {
   fullName: string;
   phone: string;

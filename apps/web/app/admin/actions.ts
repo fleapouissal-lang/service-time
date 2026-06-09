@@ -11,6 +11,7 @@ import type {
   TechnicianType,
 } from "@service-time/types";
 import { createAuthServerClient, requireProfile, requireProfileOrThrow } from "@/lib/auth";
+import { findAuthUserByEmail } from "@/lib/auth-users";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { isQuotePending } from "@/lib/suggest-service-price";
@@ -19,6 +20,7 @@ import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import {
   getAvatarFromFormData,
+  PROFILE_AVATAR_BUCKET,
   uploadProfileAvatar,
 } from "@/lib/upload-profile-avatar";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
@@ -29,7 +31,29 @@ import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
 import { getLoginUrl } from "@/lib/quick-request-client";
+import {
+  contactValidationErrorMessageAr,
+  isValidMobilePhone,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
+import {
+  applyPlatformUserUpdate,
+  parsePlatformUserUpdateInput,
+  validatePlatformUserUpdateInput,
+} from "@/lib/platform-user-update";
 import { normalizePhone } from "@/lib/whatsapp-utils";
+import {
+  buildPhoneContactVerifyWhatsAppMessage,
+  CONTACT_VERIFY_MAX_ATTEMPTS,
+  CONTACT_VERIFY_TTL_MS,
+  emailsEqual,
+  generateContactVerifyCode,
+  hashContactVerifyCode,
+  isValidContactVerifyCode,
+  phonesEqual,
+} from "@/lib/platform-user-contact-verification";
+import { sendContactChangeVerificationCode } from "@/lib/send-email";
+import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 
 function parseOrderLocation(formData: FormData) {
   const locationText =
@@ -373,6 +397,76 @@ export async function toggleTechnicianAction(formData: FormData) {
   return togglePlatformUserAction(formData);
 }
 
+export async function deletePlatformUserAction(formData: FormData) {
+  const currentAdmin = await requireProfileOrThrow(["admin"]);
+
+  const admin = getAdminSupabaseClient();
+  if (!admin) {
+    throw new Error("إعدادات الخادم غير مكتملة.");
+  }
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) {
+    throw new Error("معرّف المستخدم غير صالح.");
+  }
+
+  if (id === currentAdmin.id) {
+    throw new Error("لا يمكنك حذف حسابك الحالي.");
+  }
+
+  const { data: target, error: fetchError } = await admin
+    .from("profiles")
+    .select("id, role, full_name")
+    .eq("id", id)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (!target) {
+    throw new Error("المستخدم غير موجود.");
+  }
+
+  if (target.role === "admin") {
+    const { count, error: countError } = await admin
+      .from("profiles")
+      .select("id", { count: "exact", head: true })
+      .eq("role", "admin");
+
+    if (countError) {
+      throw new Error(countError.message);
+    }
+
+    if ((count ?? 0) <= 1) {
+      throw new Error("لا يمكن حذف آخر مدير.");
+    }
+  }
+
+  try {
+    const { data: files } = await admin.storage
+      .from(PROFILE_AVATAR_BUCKET)
+      .list(id);
+
+    if (files?.length) {
+      await admin.storage
+        .from(PROFILE_AVATAR_BUCKET)
+        .remove(files.map((file) => `${id}/${file.name}`));
+    }
+  } catch {
+    // Nettoyage avatar best-effort — la suppression auth reste prioritaire.
+  }
+
+  const { error: deleteError } = await admin.auth.admin.deleteUser(id);
+  if (deleteError) {
+    throw new Error(deleteError.message);
+  }
+
+  revalidatePath("/admin/users");
+  revalidatePath("/admin/technicians");
+  revalidatePath("/admin");
+}
+
 export async function createPlatformUserAction(formData: FormData) {
   await requireProfileOrThrow(["admin"]);
 
@@ -383,10 +477,9 @@ export async function createPlatformUserAction(formData: FormData) {
 
   const fullNameAr = String(formData.get("full_name_ar") ?? "").trim();
   const fullNameEn = String(formData.get("full_name_en") ?? "").trim();
-  const email = String(formData.get("email") ?? "").trim().toLowerCase();
+  const emailRaw = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const phoneRaw = String(formData.get("phone") ?? "").trim();
-  const phone = phoneRaw ? normalizePhone(phoneRaw) : null;
   const role = String(formData.get("role") ?? "technician") as ProfileRole;
   const technicianTypeRaw = String(formData.get("technician_type") ?? "").trim();
   const avatarFile = getAvatarFromFormData(formData);
@@ -399,9 +492,13 @@ export async function createPlatformUserAction(formData: FormData) {
     throw new Error("أدخل الاسم بالإنجليزية.");
   }
 
-  if (!email.includes("@")) {
-    throw new Error("البريد الإلكتروني غير صالح.");
+  const contact = validateRequiredContact(emailRaw, phoneRaw);
+  if (!contact.ok) {
+    throw new Error(contactValidationErrorMessageAr(contact.error));
   }
+
+  const email = contact.email;
+  const phone = contact.phone;
 
   if (password.length < 8) {
     throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
@@ -483,6 +580,430 @@ export async function createPlatformUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
   revalidatePath("/admin");
+}
+
+export type PlatformUserEditData = {
+  id: string;
+  email: string;
+  full_name_ar: string;
+  full_name_en: string;
+  phone: string | null;
+  role: ProfileRole;
+  technician_type: TechnicianType | null;
+  avatar_url: string | null;
+};
+
+export async function getPlatformUserEditDataAction(
+  userId: string,
+): Promise<PlatformUserEditData | null> {
+  await requireProfileOrThrow(["admin"]);
+
+  const admin = getAdminSupabaseClient();
+  if (!admin) {
+    throw new Error("إعدادات الخادم غير مكتملة.");
+  }
+
+  const { data: profile, error } = await admin
+    .from("profiles")
+    .select(
+      "id, full_name, full_name_ar, full_name_en, phone, role, technician_type, avatar_url",
+    )
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  if (!profile) {
+    return null;
+  }
+
+  const { data: authData, error: authError } =
+    await admin.auth.admin.getUserById(userId);
+
+  if (authError || !authData.user) {
+    throw new Error(authError?.message ?? "المستخدم غير موجود.");
+  }
+
+  return {
+    id: profile.id,
+    email: authData.user.email ?? "",
+    full_name_ar: profile.full_name_ar ?? profile.full_name,
+    full_name_en: profile.full_name_en ?? profile.full_name,
+    phone: profile.phone,
+    role: profile.role as ProfileRole,
+    technician_type: profile.technician_type as TechnicianType | null,
+    avatar_url: profile.avatar_url,
+  };
+}
+
+async function assertCanDemoteAdmin(
+  admin: NonNullable<ReturnType<typeof getAdminSupabaseClient>>,
+  userId: string,
+  nextRole: ProfileRole,
+) {
+  const { data: current, error: fetchError } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", userId)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (!current || current.role !== "admin" || nextRole === "admin") {
+    return;
+  }
+
+  const { count, error: countError } = await admin
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "admin");
+
+  if (countError) {
+    throw new Error(countError.message);
+  }
+
+  if ((count ?? 0) <= 1) {
+    throw new Error("لا يمكن تغيير دور آخر مدير.");
+  }
+}
+
+export type UpdatePlatformUserResult =
+  | { status: "applied" }
+  | {
+      status: "verification_required";
+      verificationId: string;
+      emailChanged: boolean;
+      phoneChanged: boolean;
+    };
+
+type ContactVerificationPayload = {
+  full_name_ar: string;
+  full_name_en: string;
+  email: string;
+  phone: string | null;
+  role: ProfileRole;
+  technician_type: TechnicianType | null;
+};
+
+type ContactVerificationRow = {
+  id: string;
+  user_id: string;
+  admin_id: string;
+  payload: ContactVerificationPayload;
+  new_email: string | null;
+  new_phone: string | null;
+  old_email: string | null;
+  old_phone: string | null;
+  email_code_hash: string | null;
+  phone_code_hash: string | null;
+  email_attempts: number;
+  phone_attempts: number;
+  expires_at: string;
+};
+
+function revalidatePlatformUserPaths(userId: string) {
+  revalidatePath("/admin/users");
+  revalidatePath("/admin/technicians");
+  revalidatePath(`/admin/users/${userId}`);
+  revalidatePath("/admin");
+}
+
+async function confirmPlatformUserContactVerification(
+  admin: NonNullable<ReturnType<typeof getAdminSupabaseClient>>,
+  currentAdminId: string,
+  input: ReturnType<typeof parsePlatformUserUpdateInput>,
+  verificationId: string,
+  emailCode: string,
+  phoneCode: string,
+): Promise<UpdatePlatformUserResult> {
+  const { data: row, error: fetchError } = await admin
+    .from("platform_user_contact_verifications")
+    .select("*")
+    .eq("id", verificationId)
+    .eq("user_id", input.id)
+    .maybeSingle();
+
+  if (fetchError) {
+    throw new Error(fetchError.message);
+  }
+
+  if (!row) {
+    throw new Error("انتهت صلاحية التحقق. أعد المحاولة.");
+  }
+
+  const record = row as ContactVerificationRow;
+
+  if (record.admin_id !== currentAdminId) {
+    throw new Error("غير مصرح.");
+  }
+
+  if (new Date(record.expires_at).getTime() < Date.now()) {
+    await admin
+      .from("platform_user_contact_verifications")
+      .delete()
+      .eq("id", verificationId);
+    throw new Error("انتهت صلاحية رمز التحقق. أعد المحاولة.");
+  }
+
+  const emailChanged = Boolean(record.email_code_hash);
+  const phoneChanged = Boolean(record.phone_code_hash);
+
+  if (emailChanged) {
+    if (!isValidContactVerifyCode(emailCode)) {
+      throw new Error("أدخل رمز البريد الإلكتروني (6 أرقام).");
+    }
+
+    const expectedEmail = record.new_email ?? input.email;
+    const emailHash = hashContactVerifyCode("email", expectedEmail, emailCode);
+
+    if (emailHash !== record.email_code_hash) {
+      const nextAttempts = record.email_attempts + 1;
+      if (nextAttempts >= CONTACT_VERIFY_MAX_ATTEMPTS) {
+        await admin
+          .from("platform_user_contact_verifications")
+          .delete()
+          .eq("id", verificationId);
+        throw new Error("تجاوزت عدد محاولات رمز البريد. أعد المحاولة.");
+      }
+
+      await admin
+        .from("platform_user_contact_verifications")
+        .update({ email_attempts: nextAttempts })
+        .eq("id", verificationId);
+      throw new Error("رمز البريد الإلكتروني غير صحيح.");
+    }
+  }
+
+  if (phoneChanged) {
+    if (!isValidContactVerifyCode(phoneCode)) {
+      throw new Error("أدخل رمز واتساب (6 أرقام).");
+    }
+
+    const phoneTarget = record.new_phone ?? record.old_phone ?? "";
+    const phoneHash = hashContactVerifyCode("phone", phoneTarget, phoneCode);
+
+    if (phoneHash !== record.phone_code_hash) {
+      const nextAttempts = record.phone_attempts + 1;
+      if (nextAttempts >= CONTACT_VERIFY_MAX_ATTEMPTS) {
+        await admin
+          .from("platform_user_contact_verifications")
+          .delete()
+          .eq("id", verificationId);
+        throw new Error("تجاوزت عدد محاولات رمز واتساب. أعد المحاولة.");
+      }
+
+      await admin
+        .from("platform_user_contact_verifications")
+        .update({ phone_attempts: nextAttempts })
+        .eq("id", verificationId);
+      throw new Error("رمز واتساب غير صحيح.");
+    }
+  }
+
+  await assertCanDemoteAdmin(admin, input.id, input.role);
+
+  const existing = await findAuthUserByEmail(input.email);
+  if (existing && existing.id !== input.id) {
+    throw new Error("هذا البريد مستخدم بالفعل.");
+  }
+
+  await applyPlatformUserUpdate(admin, input);
+
+  await admin
+    .from("platform_user_contact_verifications")
+    .delete()
+    .eq("id", verificationId);
+
+  revalidatePlatformUserPaths(input.id);
+  return { status: "applied" };
+}
+
+async function initiatePlatformUserContactVerification(
+  admin: NonNullable<ReturnType<typeof getAdminSupabaseClient>>,
+  currentAdminId: string,
+  input: ReturnType<typeof parsePlatformUserUpdateInput>,
+  oldEmail: string,
+  oldPhone: string | null,
+  emailChanged: boolean,
+  phoneChanged: boolean,
+): Promise<UpdatePlatformUserResult> {
+  const emailVerifyCode = emailChanged ? generateContactVerifyCode() : null;
+  const phoneVerifyCode = phoneChanged ? generateContactVerifyCode() : null;
+  const phoneVerifyTarget = phoneChanged ? (input.phone ?? oldPhone) : null;
+
+  if (phoneChanged && !phoneVerifyTarget) {
+    throw new Error("لا يمكن التحقق من رقم الجوال.");
+  }
+
+  const payload: ContactVerificationPayload = {
+    full_name_ar: input.fullNameAr,
+    full_name_en: input.fullNameEn,
+    email: input.email,
+    phone: input.phone,
+    role: input.role,
+    technician_type: input.technicianType,
+  };
+
+  await admin
+    .from("platform_user_contact_verifications")
+    .delete()
+    .eq("user_id", input.id);
+
+  const { data: row, error: insertError } = await admin
+    .from("platform_user_contact_verifications")
+    .insert({
+      user_id: input.id,
+      admin_id: currentAdminId,
+      payload,
+      new_email: emailChanged ? input.email : null,
+      new_phone: phoneChanged ? input.phone : null,
+      old_email: oldEmail,
+      old_phone: oldPhone,
+      email_code_hash: emailVerifyCode
+        ? hashContactVerifyCode("email", input.email, emailVerifyCode)
+        : null,
+      phone_code_hash:
+        phoneVerifyCode && phoneVerifyTarget
+          ? hashContactVerifyCode("phone", phoneVerifyTarget, phoneVerifyCode)
+          : null,
+      expires_at: new Date(Date.now() + CONTACT_VERIFY_TTL_MS).toISOString(),
+    })
+    .select("id")
+    .single();
+
+  if (insertError || !row) {
+    throw new Error(insertError?.message ?? "تعذّر بدء التحقق.");
+  }
+
+  if (emailChanged && emailVerifyCode) {
+    const mail = await sendContactChangeVerificationCode(
+      input.email,
+      emailVerifyCode,
+      input.fullNameAr,
+    );
+    if (!mail.ok) {
+      await admin
+        .from("platform_user_contact_verifications")
+        .delete()
+        .eq("id", row.id);
+      throw new Error(mail.error ?? "تعذّر إرسال رمز البريد.");
+    }
+  }
+
+  if (phoneChanged && phoneVerifyCode && phoneVerifyTarget) {
+    const wa = await sendWhatsAppMessage(
+      phoneVerifyTarget,
+      buildPhoneContactVerifyWhatsAppMessage({
+        fullName: input.fullNameAr,
+        code: phoneVerifyCode,
+      }),
+    );
+    if (!wa.ok) {
+      await admin
+        .from("platform_user_contact_verifications")
+        .delete()
+        .eq("id", row.id);
+      throw new Error(wa.error ?? "تعذّر إرسال رمز واتساب.");
+    }
+  }
+
+  if (process.env.NODE_ENV !== "production") {
+    console.info("[contact-verify]", {
+      userId: input.id,
+      emailCode: emailVerifyCode,
+      phoneCode: phoneVerifyCode,
+      phoneTarget: phoneVerifyTarget,
+    });
+  }
+
+  return {
+    status: "verification_required",
+    verificationId: row.id,
+    emailChanged,
+    phoneChanged,
+  };
+}
+
+export async function updatePlatformUserAction(
+  formData: FormData,
+): Promise<UpdatePlatformUserResult> {
+  const currentAdmin = await requireProfileOrThrow(["admin"]);
+
+  const admin = getAdminSupabaseClient();
+  if (!admin) {
+    throw new Error("إعدادات الخادم غير مكتملة.");
+  }
+
+  const input = parsePlatformUserUpdateInput(formData);
+  validatePlatformUserUpdateInput(input);
+
+  const verificationId = String(formData.get("verification_id") ?? "").trim();
+  const emailCode = String(formData.get("email_verification_code") ?? "").trim();
+  const phoneCode = String(formData.get("phone_verification_code") ?? "").trim();
+
+  if (verificationId) {
+    return confirmPlatformUserContactVerification(
+      admin,
+      currentAdmin.id,
+      input,
+      verificationId,
+      emailCode,
+      phoneCode,
+    );
+  }
+
+  const { data: authData, error: authError } =
+    await admin.auth.admin.getUserById(input.id);
+
+  if (authError || !authData.user) {
+    throw new Error(authError?.message ?? "المستخدم غير موجود.");
+  }
+
+  const { data: profile, error: profileError } = await admin
+    .from("profiles")
+    .select("phone")
+    .eq("id", input.id)
+    .maybeSingle();
+
+  if (profileError) {
+    throw new Error(profileError.message);
+  }
+
+  const oldEmail = authData.user.email ?? "";
+  const oldPhone = profile?.phone ?? null;
+  const emailChanged = !emailsEqual(oldEmail, input.email);
+  const phoneChanged = !phonesEqual(oldPhone, input.phone);
+
+  if (phoneChanged && input.phone && !isValidMobilePhone(input.phone)) {
+    throw new Error(contactValidationErrorMessageAr("phone_invalid"));
+  }
+
+  await assertCanDemoteAdmin(admin, input.id, input.role);
+
+  const existing = await findAuthUserByEmail(input.email);
+  if (existing && existing.id !== input.id) {
+    throw new Error("هذا البريد مستخدم بالفعل.");
+  }
+
+  if (!emailChanged && !phoneChanged) {
+    await applyPlatformUserUpdate(admin, input);
+    revalidatePlatformUserPaths(input.id);
+    return { status: "applied" };
+  }
+
+  return initiatePlatformUserContactVerification(
+    admin,
+    currentAdmin.id,
+    input,
+    oldEmail,
+    oldPhone,
+    emailChanged,
+    phoneChanged,
+  );
 }
 
 export type CreateAdminOrderFormState = {

@@ -8,6 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ProfileAvatarPicker } from "@/components/auth/profile-avatar-picker";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  contactValidationErrorMessage,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
 
 type Step = "register" | "verify";
 
@@ -73,6 +77,19 @@ export function ClientRegisterForm() {
 
     if (password !== confirmPassword) {
       setError(t.errors.auth.passwordMismatch);
+      return;
+    }
+
+    const contact = validateRequiredContact(email, phone);
+    if (!contact.ok) {
+      setError(
+        contactValidationErrorMessage(contact.error, {
+          emailRequired: t.errors.register.emailRequired,
+          invalidEmail: t.errors.contact.invalidEmail,
+          phoneRequired: t.errors.register.phoneRequired,
+          invalidPhone: t.errors.register.invalidPhone,
+        }),
+      );
       return;
     }
 

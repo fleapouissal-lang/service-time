@@ -8,6 +8,7 @@ const actionBtnClass =
 type AdminTableActionsProps = {
   viewHref?: string;
   editHref?: string;
+  onEdit?: () => void;
   viewLabel: string;
   editLabel: string;
   deleteLabel?: string;
@@ -18,6 +19,7 @@ type AdminTableActionsProps = {
 export function AdminTableActions({
   viewHref,
   editHref,
+  onEdit,
   viewLabel,
   editLabel,
   deleteLabel,
@@ -36,7 +38,17 @@ export function AdminTableActions({
           <Eye className="size-4" aria-hidden />
         </Link>
       ) : null}
-      {editHref ? (
+      {onEdit ? (
+        <button
+          type="button"
+          onClick={onEdit}
+          className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}
+          title={editLabel}
+          aria-label={editLabel}
+        >
+          <Pencil className="size-4" aria-hidden />
+        </button>
+      ) : editHref ? (
         <Link
           href={editHref}
           className={cn(actionBtnClass, "hover:bg-primary/5 hover:text-primary")}

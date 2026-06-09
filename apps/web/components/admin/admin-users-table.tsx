@@ -1,28 +1,43 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { useState, useTransition } from "react";
 import type { Profile } from "@service-time/types";
-import { AdminTable, AdminTableCell, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
+import type { ProfileRole, TechnicianType } from "@service-time/types";
+import { deletePlatformUserAction } from "@/app/admin/actions";
+import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
+import {
+  AdminTable,
+  AdminTableCell,
+  AdminTableHead,
+  AdminTableHeadCell,
+} from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
-import type { ProfileRole, TechnicianType } from "@service-time/types";
 
 type AdminUsersTableProps = {
   users: Profile[];
   roleLabels: Record<ProfileRole, string>;
   technicianTypeLabels: Record<TechnicianType, string>;
+  onEditUser?: (user: Profile) => void;
 };
 
 export function AdminUsersTable({
   users,
   roleLabels,
   technicianTypeLabels,
+  onEditUser,
 }: AdminUsersTableProps) {
+  const router = useRouter();
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.usersPage;
+  const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+  const [pending, startTransition] = useTransition();
   const {
     pageItems,
     setPage,
@@ -33,8 +48,34 @@ export function AdminUsersTable({
     to,
   } = useDashboardTablePagination(users);
 
+  const handleDelete = () => {
+    if (!deleteTarget) return;
+
+    const formData = new FormData();
+    formData.set("id", deleteTarget.id);
+
+    startTransition(async () => {
+      setDeleteError("");
+      try {
+        await deletePlatformUserAction(formData);
+        setDeleteTarget(null);
+        router.refresh();
+      } catch (err) {
+        setDeleteError(
+          err instanceof Error ? err.message : t.errors.admin.deleteFailed,
+        );
+      }
+    });
+  };
+
   return (
     <>
+      {deleteError ? (
+        <div className="border-b border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-600">
+          {deleteError}
+        </div>
+      ) : null}
+
       <AdminTable>
         <AdminTableHead>
           <AdminTableHeadCell>{p.table.user}</AdminTableHeadCell>
@@ -43,7 +84,7 @@ export function AdminUsersTable({
           </AdminTableHeadCell>
           <AdminTableHeadCell align="center">{p.table.role}</AdminTableHeadCell>
           <AdminTableHeadCell align="center">{t.common.status}</AdminTableHeadCell>
-          <AdminTableHeadCell align="center" className="w-28">
+          <AdminTableHeadCell align="center" className="w-36">
             {p.table.actions}
           </AdminTableHeadCell>
         </AdminTableHead>
@@ -89,12 +130,18 @@ export function AdminUsersTable({
                     {user.is_active ? t.common.active : t.common.inactive}
                   </Badge>
                 </AdminTableCell>
-                <AdminTableCell align="center" className="w-28">
+                <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
                     viewHref={detailHref}
-                    editHref={detailHref}
+                    onEdit={onEditUser ? () => onEditUser(user) : undefined}
+                    editHref={onEditUser ? undefined : detailHref}
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
+                    deleteLabel={t.common.delete}
+                    onDelete={() => {
+                      setDeleteError("");
+                      setDeleteTarget(user);
+                    }}
                     className="justify-center"
                   />
                 </AdminTableCell>
@@ -111,6 +158,30 @@ export function AdminUsersTable({
         from={from}
         to={to}
         onPageChange={setPage}
+      />
+
+      <AdminConfirmDialog
+        open={Boolean(deleteTarget)}
+        title={p.deleteConfirmTitle}
+        message={
+          deleteTarget
+            ? p.deleteConfirmMessage.replace(
+                "{name}",
+                getProfileDisplayName(deleteTarget, locale),
+              )
+            : ""
+        }
+        cancelLabel={t.common.cancel}
+        confirmLabel={t.common.delete}
+        loadingLabel={t.common.loading}
+        pending={pending}
+        onCancel={() => {
+          if (!pending) {
+            setDeleteTarget(null);
+            setDeleteError("");
+          }
+        }}
+        onConfirm={handleDelete}
       />
     </>
   );
