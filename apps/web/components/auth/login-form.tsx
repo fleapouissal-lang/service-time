@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { FormEvent, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
@@ -18,7 +18,6 @@ import type { ProfileRole } from "@service-time/types";
 
 export function LoginForm() {
   const { messages: t, locale } = useLocale();
-  const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
   const registered = searchParams.get("registered") === "1";
@@ -60,8 +59,10 @@ export function LoginForm() {
       }
 
       markAuthSessionActive();
-      router.push(resolvePostLoginPath(data.role ?? "client", next));
-      router.refresh();
+      const destination = resolvePostLoginPath(data.role ?? "client", next);
+      // Navigation complète pour que le navigateur envoie les cookies Set-Cookie au serveur
+      window.location.assign(destination);
+      return;
     } catch {
       setError(t.errors.auth.serverConnection);
       setLoading(false);

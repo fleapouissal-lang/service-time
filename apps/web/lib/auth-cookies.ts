@@ -15,10 +15,25 @@ export function shouldUseSecureAuthCookies(): boolean {
 
 /** Marqueur sessionStorage — absent après fermeture d'onglet / navigateur. */
 export const AUTH_TAB_SESSION_KEY = "st-auth-tab-active";
+export const AUTH_LOGIN_GRACE_KEY = "st-auth-login-at";
+const LOGIN_GRACE_MS = 30_000;
 
 export function activateAuthTabSession(): void {
   if (typeof window === "undefined") return;
   sessionStorage.setItem(AUTH_TAB_SESSION_KEY, "1");
+}
+
+export function markLoginGracePeriod(): void {
+  if (typeof window === "undefined") return;
+  sessionStorage.setItem(AUTH_LOGIN_GRACE_KEY, String(Date.now()));
+}
+
+export function isWithinLoginGracePeriod(): boolean {
+  if (typeof window === "undefined") return false;
+  const raw = sessionStorage.getItem(AUTH_LOGIN_GRACE_KEY);
+  if (!raw) return false;
+  const elapsed = Date.now() - Number(raw);
+  return Number.isFinite(elapsed) && elapsed >= 0 && elapsed < LOGIN_GRACE_MS;
 }
 
 export function hasAuthTabSession(): boolean {
@@ -61,7 +76,7 @@ export type AuthCookie = {
   options: CookieOptions;
 };
 
-/** Cookie de session strict — ignore maxAge/expires venant de @supabase/ssr (400 jours). */
+/** Conserve maxAge Supabase ; force seulement secure / sameSite / path. */
 export function applySessionAuthCookieOptions(
   options: CookieOptions,
   deleting = false,
@@ -71,10 +86,10 @@ export function applySessionAuthCookieOptions(
   }
 
   return {
-    path: "/",
-    sameSite: "lax",
+    ...options,
+    path: options.path ?? "/",
+    sameSite: options.sameSite ?? "lax",
     secure: shouldUseSecureAuthCookies(),
-    httpOnly: options.httpOnly ?? false,
   };
 }
 

@@ -2,6 +2,7 @@ import {
   activateAuthTabSession,
   clearAuthTabSession,
   clearLegacySupabaseStorage,
+  markLoginGracePeriod,
 } from "@/lib/auth-cookies";
 
 type AppRouter = {
@@ -34,4 +35,5 @@ export async function signOutAndRedirect(
 export function markAuthSessionActive() {
   clearLegacySupabaseStorage();
   activateAuthTabSession();
+  markLoginGracePeriod();
 }

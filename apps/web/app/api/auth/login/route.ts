@@ -81,6 +81,9 @@ export async function POST(request: Request) {
     );
   }
 
+  // Force l'écriture des cookies de session avant la réponse JSON
+  await supabase.auth.getSession();
+
   const active = await isActivePlatformUser(data.user.id);
   if (!active) {
     await supabase.auth.signOut();
@@ -96,12 +99,10 @@ export async function POST(request: Request) {
     .eq("id", data.user.id)
     .maybeSingle();
 
-  await supabase.auth.getUser();
+  const role = (profile?.role as ProfileRole | undefined) ?? "client";
 
   return NextResponse.json(
-    {
-      role: (profile?.role as ProfileRole | undefined) ?? "client",
-    },
+    { role },
     {
       headers: {
         "Cache-Control": "private, no-store, must-revalidate",
