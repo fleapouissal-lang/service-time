@@ -1,6 +1,17 @@
 import type { CookieOptions } from "@supabase/ssr";
 
-const isProd = process.env.NODE_ENV === "production";
+/** Secure cookies only when the app URL is HTTPS (HTTP VPS needs secure: false). */
+export function shouldUseSecureAuthCookies(): boolean {
+  const override = process.env.AUTH_COOKIE_SECURE?.trim().toLowerCase();
+  if (override === "true") return true;
+  if (override === "false") return false;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL?.trim() ?? "";
+  if (appUrl.startsWith("https://")) return true;
+  if (appUrl.startsWith("http://")) return false;
+
+  return process.env.NODE_ENV === "production";
+}
 
 /** Marqueur sessionStorage — absent après fermeture d'onglet / navigateur. */
 export const AUTH_TAB_SESSION_KEY = "st-auth-tab-active";
@@ -41,7 +52,7 @@ export function isSupabaseAuthCookieName(name: string): boolean {
 export const AUTH_COOKIE_DEFAULTS: CookieOptions = {
   path: "/",
   sameSite: "lax",
-  secure: isProd,
+  secure: shouldUseSecureAuthCookies(),
 };
 
 export type AuthCookie = {
@@ -62,7 +73,7 @@ export function applySessionAuthCookieOptions(
   return {
     path: "/",
     sameSite: "lax",
-    secure: isProd,
+    secure: shouldUseSecureAuthCookies(),
     httpOnly: options.httpOnly ?? false,
   };
 }

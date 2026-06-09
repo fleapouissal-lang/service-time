@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect } from "react";
+import { usePathname, useRouter } from "next/navigation";
 import {
   clearAuthTabSession,
   clearLegacySupabaseStorage,
@@ -10,17 +10,18 @@ import {
 import { signOutAndRedirect } from "@/lib/sign-out-client";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
 
+const PUBLIC_AUTH_PATHS = new Set(["/login", "/register"]);
+
 /**
  * Si des cookies auth existent sans marqueur sessionStorage (onglet fermé,
  * navigateur rouvert, nouvelle fenêtre), déconnexion immédiate.
  */
 export function AuthSessionGuard() {
   const router = useRouter();
-  const running = useRef(false);
+  const pathname = usePathname();
 
   useEffect(() => {
-    if (running.current) return;
-    running.current = true;
+    if (PUBLIC_AUTH_PATHS.has(pathname)) return;
 
     async function enforce() {
       if (hasAuthTabSession()) return;
@@ -38,7 +39,7 @@ export function AuthSessionGuard() {
     }
 
     void enforce();
-  }, [router]);
+  }, [pathname, router]);
 
   return null;
 }
