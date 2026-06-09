@@ -259,7 +259,7 @@ export function AdminCreateOrderForm({
                       className="pe-10"
                     />
                   </div>
-                  <ul className="max-h-64 space-y-2 overflow-y-auto rounded-xl border border-border p-2">
+                  <ul className="scrollbar-theme max-h-64 space-y-2 overflow-y-auto rounded-xl border border-border p-2">
                     {filteredClients.length === 0 ? (
                       <li className="px-3 py-6 text-center text-sm text-muted">
                         {p.noClientsFound}

@@ -11,12 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth-errors";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { cn } from "@/lib/utils";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import { markAuthSessionActive } from "@/lib/sign-out-client";
 import type { ProfileRole } from "@service-time/types";
 
 export function LoginForm() {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
@@ -77,8 +78,17 @@ export function LoginForm() {
           className="pointer-events-none absolute inset-0 bg-[#050B10]/70"
           aria-hidden
         />
+        <div
+          className={cn(
+            "pointer-events-none absolute inset-y-0 w-[58%] from-[#0E1312] to-transparent",
+            locale === "ar"
+              ? "start-0 bg-gradient-to-r"
+              : "end-0 bg-gradient-to-l",
+          )}
+          aria-hidden
+        />
 
-        <Link href="/" className="absolute right-8 top-8 z-20">
+        <Link href="/" className="absolute end-8 top-8 z-20">
           <Image
             src="/logos/banner.png"
             alt={t.common.brandNameAr}

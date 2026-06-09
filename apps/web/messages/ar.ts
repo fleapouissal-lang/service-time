@@ -939,6 +939,31 @@ export const messages = {
         viewFull: "التتبع الكامل",
         empty: "لا توجد طلبات للتتبع بعد.",
         activeBadge: "نشط",
+        financial: {
+          awaiting_adminTitle: "السعر قيد المراجعة",
+          awaiting_adminHint:
+            "نعرض عرضك ({price}). سنُبلغك فور التأكيد.",
+          counter_offerTitle: "سعر جديد مقترح",
+          counter_offerHint:
+            "اقترح الفريق {price}. افتح الطلب للقبول والمتابعة.",
+          choose_paymentTitle: "تم تأكيد السعر",
+          choose_paymentHint:
+            "المبلغ المتفق عليه: {price}. اختر طريقة الدفع.",
+          pay_onlineTitle: "بانتظار الدفع الإلكتروني",
+          pay_onlineHint:
+            "المبلغ المستحق: {price}. أكمل الدفع للمتابعة.",
+          pay_cashTitle: "الدفع عند الخدمة",
+          pay_cashHint:
+            "المبلغ المتفق عليه: {price}. الدفع عند تنفيذ الخدمة.",
+          paidTitle: "تم استلام الدفع",
+          paidHint:
+            "استلمنا {price}. جاري تعيين الفني.",
+          payment_failedTitle: "فشل الدفع",
+          payment_failedHint:
+            "تعذّر إتمام الدفع ({price}). حاول مرة أخرى.",
+          viewDetails: "عرض الطلب",
+          payNow: "ادفع الآن",
+        },
       },
       ordersPage: {
         subtitle: "عرض ومتابعة جميع طلبات الصيانة",

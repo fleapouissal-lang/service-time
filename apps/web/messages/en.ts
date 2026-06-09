@@ -939,6 +939,31 @@ export const messages = {
         viewFull: "Full tracking",
         empty: "You have no orders to track yet.",
         activeBadge: "Active",
+        financial: {
+          awaiting_adminTitle: "Price under review",
+          awaiting_adminHint:
+            "We're reviewing your offer ({price}). We'll update you once it's confirmed.",
+          counter_offerTitle: "New price proposed",
+          counter_offerHint:
+            "The team suggested {price}. Open the order to accept and continue.",
+          choose_paymentTitle: "Price confirmed",
+          choose_paymentHint:
+            "Agreed amount: {price}. Choose how you want to pay.",
+          pay_onlineTitle: "Awaiting online payment",
+          pay_onlineHint:
+            "Amount due: {price}. Complete payment to proceed.",
+          pay_cashTitle: "Pay on service",
+          pay_cashHint:
+            "Agreed amount: {price}. Pay when the service is delivered.",
+          paidTitle: "Payment received",
+          paidHint:
+            "We received {price}. Technician assignment is in progress.",
+          payment_failedTitle: "Payment failed",
+          payment_failedHint:
+            "Could not complete payment for {price}. Please try again.",
+          viewDetails: "View order",
+          payNow: "Pay now",
+        },
       },
       ordersPage: {
         subtitle: "View and follow all your service requests",

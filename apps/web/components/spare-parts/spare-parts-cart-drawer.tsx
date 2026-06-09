@@ -79,7 +79,7 @@ export function SparePartsCartDrawer({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4">
+        <div className="scrollbar-theme flex-1 overflow-y-auto p-4">
           {items.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center gap-3 py-16 text-center">
               <ShoppingCart className="size-12 text-muted/40" aria-hidden />

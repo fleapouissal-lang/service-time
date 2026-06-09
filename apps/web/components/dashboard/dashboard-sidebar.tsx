@@ -166,7 +166,7 @@ export function DashboardSidebar({
 
         <nav
           className={cn(
-            "flex-1 overflow-y-auto py-3",
+            "scrollbar-theme flex-1 overflow-y-auto py-3",
             isExpanded ? "space-y-1 px-2" : "flex flex-col items-center gap-2 px-2",
           )}
         >

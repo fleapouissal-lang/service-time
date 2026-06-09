@@ -165,7 +165,7 @@ export function IconSelect({
         <ul
           role="listbox"
           aria-labelledby={selectId}
-          className="absolute z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] p-1.5 shadow-[0_16px_52px_rgba(148,212,185,0.22)]"
+          className="scrollbar-theme absolute z-50 mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] p-1.5 shadow-[0_16px_52px_rgba(148,212,185,0.22)]"
         >
           {options.map((option, index) => {
             const Icon = resolveIcon(option.icon, FallbackIcon);

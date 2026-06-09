@@ -67,7 +67,7 @@ export function SparePartDetailModal({
         onClick={onClose}
       />
 
-      <div className="relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] shadow-[0_24px_64px_rgba(0,0,0,0.55)]">
+      <div className="scrollbar-theme relative z-10 max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] shadow-[0_24px_64px_rgba(0,0,0,0.55)]">
         <button
           type="button"
           onClick={onClose}

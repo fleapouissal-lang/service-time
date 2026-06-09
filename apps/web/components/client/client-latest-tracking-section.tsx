@@ -3,6 +3,7 @@
 import type { RequestStatusHistory, ServiceRequest } from "@service-time/types";
 import Link from "next/link";
 import { ArrowLeft, Navigation } from "lucide-react";
+import { ClientOrderFinancialStatusBanner } from "@/components/client/client-order-financial-status-banner";
 import {
   RequestSummary,
   TrackingTimeline,
@@ -90,6 +91,8 @@ export function ClientLatestTrackingSection({
             <ArrowLeft className="size-4" aria-hidden />
           </Link>
         </div>
+
+        <ClientOrderFinancialStatusBanner order={order} />
 
         <RequestSummary request={order} />
 
