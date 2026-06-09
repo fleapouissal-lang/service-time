@@ -71,6 +71,8 @@ export const messages = {
   auth: {
     register: "Sign up",
     login: "Sign in",
+    headerRegister: "Sign up",
+    headerLogin: "Sign in",
     logout: "Sign out",
   },
 

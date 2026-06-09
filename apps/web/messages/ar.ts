@@ -72,6 +72,8 @@ export const messages = {
   auth: {
     register: "إنشاء حساب",
     login: "تسجيل الدخول",
+    headerRegister: "حساب جديد",
+    headerLogin: "دخول",
     logout: "تسجيل الخروج",
   },
 

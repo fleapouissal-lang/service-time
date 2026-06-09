@@ -28,11 +28,16 @@ const ctaButtonClass = cn(
   RADIUS,
 );
 
-const registerButtonClass = cn(
-  "inline-flex h-10 items-center justify-center border border-[#94D4B9] bg-transparent px-5 text-sm font-semibold text-[#94D4B9]",
-  "transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#94D4B9]/10 hover:shadow-[0_0_20px_rgba(148,212,185,0.22)]",
-  RADIUS,
-);
+function registerButtonClass(isTransparent: boolean) {
+  return cn(
+    "inline-flex h-10 shrink-0 items-center justify-center border bg-transparent px-3 text-xs font-semibold whitespace-nowrap xl:px-5 xl:text-sm",
+    "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(148,212,185,0.22)]",
+    RADIUS,
+    isTransparent
+      ? "border-white/80 text-white hover:border-white hover:bg-white/10"
+      : "border-[#94D4B9] text-[#94D4B9] hover:bg-[#94D4B9]/10",
+  );
+}
 
 function GuestButtons({
   isTransparent,
@@ -52,7 +57,7 @@ function GuestButtons({
           href="/register"
           onClick={onNavigate}
           className={cn(
-            registerButtonClass,
+            registerButtonClass(isTransparent),
             "h-11 min-w-0 flex-1 px-2 text-center text-xs sm:text-sm",
           )}
         >
@@ -77,18 +82,21 @@ function GuestButtons({
   }
 
   return (
-    <>
+    <div className="flex shrink-0 items-center gap-1.5 xl:gap-2">
       <Link
         href="/register"
         onClick={onNavigate}
-        className={registerButtonClass}
+        className={registerButtonClass(isTransparent)}
       >
         {labels.register}
       </Link>
       <Link
         href="/login"
         onClick={onNavigate}
-        className={ctaButtonClass}
+        className={cn(
+          ctaButtonClass,
+          "shrink-0 px-3 text-xs whitespace-nowrap xl:px-5 xl:text-sm",
+        )}
         style={{
           backgroundColor: HEADER_MINT,
           color: HEADER_DARK,
@@ -96,7 +104,7 @@ function GuestButtons({
       >
         {labels.login}
       </Link>
-    </>
+    </div>
   );
 }
 
@@ -256,7 +264,10 @@ export function HeaderAuthSection({
 
   if (!ready) {
     return variant === "desktop" ? (
-      <div className="h-10 w-28 animate-pulse rounded-[20px] bg-white/5" />
+      <div className="flex shrink-0 items-center gap-1.5">
+        <div className="h-10 w-[5.5rem] animate-pulse rounded-[20px] bg-white/5 xl:w-24" />
+        <div className="h-10 w-14 animate-pulse rounded-[20px] bg-white/5 xl:w-20" />
+      </div>
     ) : null;
   }
 
@@ -279,7 +290,17 @@ export function HeaderAuthSection({
       isTransparent={isTransparent}
       fullWidth={variant === "mobile"}
       onNavigate={onNavigate}
-      labels={messages.auth}
+      labels={
+        variant === "mobile"
+          ? {
+              register: messages.auth.register,
+              login: messages.auth.login,
+            }
+          : {
+              register: messages.auth.headerRegister,
+              login: messages.auth.headerLogin,
+            }
+      }
     />
   );
 }

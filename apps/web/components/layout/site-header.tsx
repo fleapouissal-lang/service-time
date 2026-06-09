@@ -105,25 +105,28 @@ export function SiteHeader() {
           />
         </Link>
 
-        <nav className="hidden items-center gap-2 lg:flex">
+        <nav className="hidden min-w-0 items-center gap-0.5 xl:flex xl:gap-1">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className={navLinkClass(pathname === link.href, isTransparent)}
+              className={cn(
+                navLinkClass(pathname === link.href, isTransparent),
+                "px-2 text-xs xl:px-3 xl:text-sm",
+              )}
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">
+        <div className="hidden shrink-0 items-center gap-1.5 lg:flex xl:gap-2">
           <LanguageSwitcher isTransparent={isTransparent} />
           <HeaderCartButton isTransparent={isTransparent} />
           <HeaderAuthSection isTransparent={isTransparent} variant="desktop" />
         </div>
 
-        <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 xl:hidden">
           <LanguageSwitcher isTransparent={isTransparent} />
           <HeaderCartButton isTransparent={isTransparent} />
           <button
@@ -145,7 +148,7 @@ export function SiteHeader() {
         <div
           ref={menuRef}
           className={cn(
-            "fixed inset-x-0 top-20 z-40 flex h-[calc(100dvh-5rem)] flex-col border-t px-4 lg:hidden",
+            "fixed inset-x-0 top-20 z-40 flex h-[calc(100dvh-5rem)] flex-col border-t px-4 xl:hidden",
             "border-[#94D4B9]/15 bg-[#050B10]",
           )}
         >
