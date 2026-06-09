@@ -93,6 +93,30 @@ export default async function ClientSparePartOrderDetailPage({
               {new Date(order.created_at).toLocaleString(intlLocale)}
             </span>
           </div>
+          {order.customer_full_name ? (
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-muted">{t.common.name}</span>
+              <span>{order.customer_full_name}</span>
+            </div>
+          ) : null}
+          {order.customer_phone ? (
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-muted">{t.common.phone}</span>
+              <span dir="ltr">{order.customer_phone}</span>
+            </div>
+          ) : null}
+          {order.customer_email ? (
+            <div className="flex items-center justify-between gap-3 text-sm">
+              <span className="text-muted">{t.common.email}</span>
+              <span dir="ltr">{order.customer_email}</span>
+            </div>
+          ) : null}
+          {order.delivery_address ? (
+            <div>
+              <p className="text-sm text-muted">{t.spareParts.deliveryAddress}</p>
+              <p className="mt-1 whitespace-pre-wrap text-sm">{order.delivery_address}</p>
+            </div>
+          ) : null}
           {order.notes ? (
             <div>
               <p className="text-sm font-medium text-muted">{t.common.notes}</p>

@@ -125,6 +125,10 @@ export interface SparePartOrder {
   payment_status: SparePartPaymentStatus;
   total_amount: number;
   payment_reference: string | null;
+  customer_full_name: string | null;
+  customer_phone: string | null;
+  customer_email: string | null;
+  delivery_address: string | null;
   created_at: string;
   updated_at: string;
 }

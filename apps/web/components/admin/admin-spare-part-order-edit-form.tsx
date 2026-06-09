@@ -53,13 +53,19 @@ export function AdminSparePartOrderEditForm({
         <div className="rounded-xl border border-border p-4">
           <p className="text-xs font-medium text-muted">{p.detail.client}</p>
           <p className="mt-1 font-semibold">
-            {order.client
-              ? getProfileDisplayName(order.client, locale)
-              : t.common.dash}
+            {order.customer_full_name ??
+              (order.client
+                ? getProfileDisplayName(order.client, locale)
+                : t.common.dash)}
           </p>
-          {order.client?.phone ? (
+          {(order.customer_phone ?? order.client?.phone) ? (
             <p className="mt-0.5 text-sm text-muted" dir="ltr">
-              {order.client.phone}
+              {order.customer_phone ?? order.client?.phone}
+            </p>
+          ) : null}
+          {order.customer_email ? (
+            <p className="mt-0.5 text-sm text-muted" dir="ltr">
+              {order.customer_email}
             </p>
           ) : null}
         </div>
@@ -77,6 +83,13 @@ export function AdminSparePartOrderEditForm({
           </p>
         </div>
       </div>
+
+      {order.delivery_address ? (
+        <div className="rounded-xl border border-border p-4">
+          <p className="text-xs font-medium text-muted">{p.detail.deliveryAddress}</p>
+          <p className="mt-1 whitespace-pre-wrap text-sm">{order.delivery_address}</p>
+        </div>
+      ) : null}
 
       <div className="grid gap-4 sm:grid-cols-3">
         <div className="rounded-xl border border-border p-4">

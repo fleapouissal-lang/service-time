@@ -6,6 +6,10 @@ import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createAuthServerClient } from "@/lib/auth";
 import {
+  contactValidationErrorMessage,
+  validateRequiredContact,
+} from "@/lib/contact-validation";
+import {
   buildPaymobCheckoutUrl,
   createPaymobIntention,
   getPaymobConfigurationError,
@@ -15,6 +19,7 @@ import {
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
+import { clampField, FIELD_LIMITS } from "@/lib/form-security";
 import type {
   SparePartOrderStatus,
   SparePartPaymentMethod,
@@ -24,6 +29,28 @@ export type SparePartOrderFormState = {
   error?: string;
 };
 
+export type SparePartsCheckoutPrefill = {
+  fullName: string;
+  phone: string;
+  email: string;
+};
+
+export async function getSparePartsCheckoutPrefillAction(): Promise<SparePartsCheckoutPrefill | null> {
+  const profile = await requireProfile(["client"]);
+  if (!profile) return null;
+
+  const supabase = await createAuthServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return {
+    fullName: profile.full_name,
+    phone: profile.phone ?? "",
+    email: user?.email ?? "",
+  };
+}
+
 async function mapOrderError(message: string): Promise<string> {
   const t = getDictionary(await getLocale());
   if (message.includes("الكمية غير كافية")) return message;
@@ -32,6 +59,18 @@ async function mapOrderError(message: string): Promise<string> {
   }
   if (message.includes("part_unavailable") || message.includes("قطعة غير متاحة")) {
     return t.errors.spareParts.partUnavailable;
+  }
+  if (message.includes("customer_name_required")) {
+    return t.checkout.errors.nameRequired;
+  }
+  if (message.includes("customer_phone_required")) {
+    return t.checkout.errors.phoneRequired;
+  }
+  if (message.includes("customer_email_required")) {
+    return t.checkout.errors.emailRequired;
+  }
+  if (message.includes("delivery_address_required")) {
+    return t.checkout.errors.addressRequired;
   }
   return message;
 }
@@ -51,6 +90,46 @@ export async function submitSparePartOrderAction(
     formData.get("payment_method") ?? "cash_on_delivery",
   ) as SparePartPaymentMethod;
 
+  const customerFullName = clampField(
+    String(formData.get("customer_full_name") ?? ""),
+    FIELD_LIMITS.name,
+  );
+  const customerPhoneRaw = clampField(
+    String(formData.get("customer_phone") ?? ""),
+    FIELD_LIMITS.phone,
+  );
+  const customerEmailRaw = clampField(
+    String(formData.get("customer_email") ?? ""),
+    FIELD_LIMITS.email,
+  );
+  const deliveryAddress = clampField(
+    String(formData.get("delivery_address") ?? ""),
+    FIELD_LIMITS.location,
+  );
+
+  const t = getDictionary(await getLocale());
+  const contactMessages = {
+    emailRequired: t.errors.contact.emailRequired,
+    invalidEmail: t.errors.contact.invalidEmail,
+    phoneRequired: t.errors.contact.phoneRequired,
+    invalidPhone: t.errors.contact.invalidPhone,
+  };
+
+  if (customerFullName.length < 2) {
+    return { error: t.checkout.errors.nameRequired };
+  }
+
+  const contact = validateRequiredContact(customerEmailRaw, customerPhoneRaw);
+  if (!contact.ok) {
+    return {
+      error: contactValidationErrorMessage(contact.error, contactMessages),
+    };
+  }
+
+  if (deliveryAddress.length < 5) {
+    return { error: t.checkout.errors.addressRequired };
+  }
+
   const payment_method: SparePartPaymentMethod =
     paymentMethodRaw === "online" ? "online" : "cash_on_delivery";
 
@@ -59,12 +138,10 @@ export async function submitSparePartOrderAction(
     const parsed = JSON.parse(itemsRaw) as { id: string; quantity: number }[];
     items = parsed;
   } catch {
-    const t = getDictionary(await getLocale());
     return { error: t.errors.spareParts.invalidCart };
   }
 
   if (!Array.isArray(items) || items.length === 0) {
-    const t = getDictionary(await getLocale());
     return { error: t.errors.spareParts.emptyCart };
   }
 
@@ -78,6 +155,10 @@ export async function submitSparePartOrderAction(
     p_notes: notes || null,
     p_items: payload,
     p_payment_method: payment_method,
+    p_customer_full_name: customerFullName,
+    p_customer_phone: contact.phone,
+    p_customer_email: contact.email,
+    p_delivery_address: deliveryAddress,
   });
 
   if (error) {
@@ -228,7 +309,11 @@ export async function startPaymobCheckoutAction(
   } = await supabase.auth.getUser();
 
   const appUrl = await getAppBaseUrl();
-  const { first_name, last_name } = splitFullName(profile.full_name);
+  const billingName = order.customer_full_name?.trim() || profile.full_name;
+  const { first_name, last_name } = splitFullName(billingName);
+  const billingPhone = order.customer_phone?.trim() || profile.phone;
+  const billingEmail =
+    order.customer_email?.trim() || user?.email || `client+${profile.id}@servicetime.local`;
 
   try {
     const intention = await createPaymobIntention({
@@ -238,8 +323,8 @@ export async function startPaymobCheckoutAction(
       billing: {
         first_name,
         last_name,
-        email: user?.email ?? `client+${profile.id}@servicetime.local`,
-        phone_number: normalizePaymobPhone(profile.phone),
+        email: billingEmail,
+        phone_number: normalizePaymobPhone(billingPhone),
       },
       redirectionUrl: `${appUrl}/spare-parts/checkout/pay/${orderId}`,
       notificationUrl: `${appUrl}/api/payments/paymob/webhook`,
