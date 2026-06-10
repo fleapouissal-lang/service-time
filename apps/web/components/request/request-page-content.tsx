@@ -10,7 +10,7 @@ import {
   type RequestMode,
 } from "@/components/request/request-mode-hub";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
-import { RequestWhatsAppFab } from "@/components/request/request-whatsapp-fab";
+import { RequestSparePartsFab } from "@/components/request/request-spare-parts-fab";
 import { WhatsAppQuickContact } from "@/components/request/whatsapp-quick-contact";
 import { PageHeader } from "@/components/layout/page-header";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -178,7 +178,7 @@ export function RequestPageContent(props: RequestPageContentProps) {
   return (
     <>
       <RequestHeader mode={mode} />
-      <RequestWhatsAppFab />
+      <RequestSparePartsFab />
       <div
         className={cn(
           centerOnMobile && cn(MOBILE_SCREEN_CENTER, "max-md:px-3"),
