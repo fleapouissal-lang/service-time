@@ -29,6 +29,14 @@ import { deleteClientRelatedData } from "@/lib/delete-client-related-data";
 import { notifyOrderCreated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
+import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS_AR } from "@/lib/password-policy";
+import {
+  getWorkshopBranchesAdmin,
+  parseWorkshopBranchFromForm,
+  persistWorkshopBranches,
+  validateWorkshopBranch,
+  workshopValidationMessage,
+} from "@/lib/workshop-locations-admin";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
 import { getLoginUrl } from "@/lib/quick-request-client";
@@ -464,6 +472,71 @@ export async function saveContentAction(formData: FormData) {
   revalidatePath("/admin/content");
 }
 
+function revalidateWorkshopLocationPaths() {
+  revalidatePath("/admin/locations");
+  revalidatePath("/locations");
+  revalidatePath("/");
+}
+
+export async function saveWorkshopLocationAction(formData: FormData) {
+  const t = getDictionary(await getLocale());
+  const p = t.dashboard.admin.locationsPage;
+  const supabase = await adminClient();
+
+  const existingId = String(formData.get("id") ?? "").trim();
+  const branch = parseWorkshopBranchFromForm(
+    formData,
+    existingId || undefined,
+  );
+  const issue = validateWorkshopBranch(branch);
+  if (issue) {
+    throw new Error(
+      workshopValidationMessage(issue, {
+        nameArRequired: p.nameArRequired,
+        addressArRequired: p.addressArRequired,
+        coordsInvalid: p.coordsInvalid,
+        minOneRequired: p.minOneRequired,
+      }),
+    );
+  }
+
+  const branches = await getWorkshopBranchesAdmin();
+  const index = branches.findIndex((item) => item.id === branch.id);
+
+  if (index >= 0) {
+    branches[index] = branch;
+  } else {
+    branches.push(branch);
+  }
+
+  await persistWorkshopBranches(supabase, branches);
+  revalidateWorkshopLocationPaths();
+}
+
+export async function deleteWorkshopLocationAction(formData: FormData) {
+  const t = getDictionary(await getLocale());
+  const p = t.dashboard.admin.locationsPage;
+  const supabase = await adminClient();
+
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) {
+    throw new Error(p.deleteFailed);
+  }
+
+  const branches = await getWorkshopBranchesAdmin();
+  if (branches.length <= 1) {
+    throw new Error(p.minOneRequired);
+  }
+
+  const next = branches.filter((branch) => branch.id !== id);
+  if (next.length === branches.length) {
+    throw new Error(p.notFound);
+  }
+
+  await persistWorkshopBranches(supabase, next);
+  revalidateWorkshopLocationPaths();
+}
+
 export async function togglePlatformUserAction(formData: FormData) {
   const supabase = await adminClient();
   const id = String(formData.get("id"));
@@ -611,8 +684,8 @@ export async function createPlatformUserAction(formData: FormData) {
   const email = contact.email;
   const phone = contact.phone;
 
-  if (password.length < 8) {
-    throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
+  if (!isStrongEnoughPassword(password)) {
+    throw new Error(PASSWORD_REQUIREMENTS_AR);
   }
 
   if (!["client", "technician", "admin"].includes(role)) {

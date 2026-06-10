@@ -43,6 +43,39 @@ export async function geocodeAddress(text: string): Promise<MapCoords | null> {
   return { lat: data.lat, lng: data.lng };
 }
 
+export async function geocodeWorkshopAddress(
+  addressAr: string,
+  addressEn = "",
+): Promise<{ coords: MapCoords; resolvedAddress?: string } | null> {
+  const params = new URLSearchParams();
+  if (addressAr.trim()) params.set("address_ar", addressAr.trim());
+  if (addressEn.trim()) params.set("address_en", addressEn.trim());
+  if (!addressAr.trim() && !addressEn.trim()) return null;
+
+  const response = await fetch(`/api/geocode/forward?${params.toString()}`);
+  if (!response.ok) return null;
+
+  const data = (await response.json()) as {
+    lat?: number;
+    lng?: number;
+    address?: string;
+  };
+
+  if (
+    data.lat == null ||
+    data.lng == null ||
+    !Number.isFinite(data.lat) ||
+    !Number.isFinite(data.lng)
+  ) {
+    return null;
+  }
+
+  return {
+    coords: { lat: data.lat, lng: data.lng },
+    resolvedAddress: data.address,
+  };
+}
+
 export function isValidMapCoords(
   coords: MapCoords | null | undefined,
 ): coords is MapCoords {

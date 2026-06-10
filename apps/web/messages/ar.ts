@@ -140,6 +140,8 @@ export const messages = {
     phone: "الهاتف",
     email: "البريد الإلكتروني",
     password: "كلمة المرور",
+    passwordRequirements:
+      "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حروف (a-z) وأرقام.",
     address: "العنوان",
     description: "الوصف",
     notes: "ملاحظات",
@@ -784,6 +786,14 @@ export const messages = {
       copyright: "جميع الحقوق محفوظة",
       location: "الرياض، المملكة العربية السعودية",
     },
+    activation: {
+      title: "تفعيل حسابك",
+      description:
+        "البريد وكلمة المرور صحيحان، لكن حسابك غير مفعّل بعد. أدخل رمز التحقق المكوّن من 6 أرقام المرسل إلى بريدك.",
+      backToLogin: "العودة لتسجيل الدخول",
+      pendingHint:
+        "حسابك بانتظار التفعيل. أدخل رمز التحقق أدناه أو أعد إرسال رمز جديد.",
+    },
   },
 
   register: {
@@ -883,7 +893,8 @@ export const messages = {
       profileSection: "الملف الشخصي",
       profileSectionHint: "غيّر الاسم ورقم الجوال وصورة الملف.",
       passwordSection: "كلمة المرور",
-      passwordSectionHint: "استخدم كلمة مرور قوية من 8 أحرف على الأقل.",
+      passwordSectionHint:
+        "استخدم كلمة مرور قوية: 8 أحرف على الأقل مع حروف (a-z) وأرقام.",
       fullName: "الاسم الكامل",
       fullNameAr: "الاسم الكامل (عربي)",
       fullNameEn: "الاسم الكامل (إنجليزي)",
@@ -936,7 +947,8 @@ export const messages = {
       nameArRequired: "أدخل الاسم بالعربية (حرفان على الأقل).",
       nameEnRequired: "أدخل الاسم بالإنجليزية (حرفان على الأقل).",
       currentPasswordRequired: "أدخل كلمة المرور الحالية.",
-      passwordTooShort: "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
+      passwordTooShort:
+        "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حروف (a-z) وأرقام.",
       passwordMismatch: "كلمتا المرور غير متطابقتين.",
       emailMissing: "لا يوجد بريد مرتبط بهذا الحساب.",
       wrongCurrentPassword: "كلمة المرور الحالية غير صحيحة.",
@@ -1067,6 +1079,7 @@ export const messages = {
       spareParts: "قطع الغيار",
       sparePartOrders: "طلبات القطع",
       quickRequests: "الطلبات السريعة",
+      locations: "المواقع",
       reports: "التقارير",
       reportsPage: {
         subtitle: "نظرة عامة على الأداء والإحصائيات حسب التصفية",
@@ -1381,6 +1394,39 @@ export const messages = {
           view: "عرض التفاصيل",
         },
       },
+      locationsPage: {
+        title: "مواقع الورش",
+        subtitle:
+          "أضف أو عدّل عناوين ورش Service Time. استخدم «توليد الإحداثيات» لتحديد الموقع على الخريطة من العنوان.",
+        addWorkshop: "إضافة ورشة",
+        editWorkshop: "تعديل ورشة",
+        newWorkshop: "ورشة جديدة",
+        saveChanges: "حفظ التعديلات",
+        saved: "تم حفظ الموقع بنجاح.",
+        saveFailed: "تعذّر حفظ الموقع.",
+        deleteFailed: "تعذّر حذف الموقع.",
+        notFound: "الورشة غير موجودة.",
+        nameAr: "اسم الورشة (عربي) *",
+        nameEn: "اسم الورشة (إنجليزي)",
+        addressAr: "العنوان (عربي) *",
+        addressEn: "العنوان (إنجليزي)",
+        latitude: "خط العرض *",
+        longitude: "خط الطول *",
+        coordinates: "الإحداثيات",
+        geocode: "توليد الإحداثيات من العنوان",
+        geocoding: "جاري تحديد الموقع…",
+        geocodeSuccess: "تم تحديد الإحداثيات من العنوان.",
+        geocodeFailed: "تعذّر تحديد الموقع من العنوان. أدخل الإحداثيات يدوياً.",
+        mapPreview: "معاينة الخريطة",
+        minOneRequired: "يجب الإبقاء على موقع واحد على الأقل.",
+        minOneHint: "لا يمكن حذف آخر موقع.",
+        nameArRequired: "أدخل اسم الورشة بالعربية.",
+        addressArRequired: "أدخل العنوان بالعربية.",
+        coordsInvalid: "أدخل إحداثيات صالحة (خط عرض وطول).",
+        deleteConfirmTitle: "حذف هذه الورشة؟",
+        deleteConfirmMessage: "سيتم حذف \"{name}\" من قائمة المواقع.",
+        empty: "لا توجد ورش مسجّلة.",
+      },
       content: {
         title: "محتوى الموقع (CMS)",
         key: "المفتاح",
@@ -1503,7 +1549,8 @@ export const messages = {
       phoneRequired: "أدخل رقم جوال صالح.",
       invalidPhone: "أدخل رقم جوال صالح (مثال: 05XXXXXXXX أو 06XXXXXXXX).",
       emailRequired: "البريد الإلكتروني مطلوب للتفعيل.",
-      passwordMinLength: "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      passwordMinLength:
+        "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حروف (a-z) وأرقام.",
       emailExists: "هذا البريد مسجّل بالفعل. سجّل الدخول.",
       rateLimit: "تم تجاوز حد الطلبات. انتظر ساعة وحاول مرة أخرى.",
       updateFailed: "تعذر تحديث الحساب.",
@@ -1605,7 +1652,8 @@ export const messages = {
       serverIncomplete: "إعدادات الخادم غير مكتملة.",
       fullNameRequired: "أدخل الاسم الكامل.",
       invalidEmail: "بريد إلكتروني غير صالح.",
-      passwordMinLength: "يجب أن تكون كلمة المرور 8 أحرف على الأقل.",
+      passwordMinLength:
+        "كلمة المرور يجب أن تكون 8 أحرف على الأقل وتحتوي على حروف (a-z) وأرقام.",
       invalidRole: "نوع حساب غير صالح.",
       technicianTypeRequired: "اختر نوع الفني.",
       createFailed: "تعذر إنشاء الحساب.",

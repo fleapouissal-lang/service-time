@@ -139,6 +139,8 @@ export const messages = {
     phone: "Phone",
     email: "Email",
     password: "Password",
+    passwordRequirements:
+      "Password must be at least 8 characters and include letters and numbers.",
     address: "Address",
     description: "Description",
     notes: "Notes",
@@ -783,6 +785,14 @@ export const messages = {
       copyright: "All rights reserved",
       location: "Riyadh, Saudi Arabia",
     },
+    activation: {
+      title: "Activate your account",
+      description:
+        "Your email and password are correct, but your account is not activated yet. Enter the 6-digit code sent to your email.",
+      backToLogin: "Back to sign in",
+      pendingHint:
+        "Your account is pending activation. Enter the verification code below or resend a new one.",
+    },
   },
 
   register: {
@@ -882,7 +892,8 @@ export const messages = {
       profileSection: "Profile",
       profileSectionHint: "Change your name, phone number, and profile photo.",
       passwordSection: "Password",
-      passwordSectionHint: "Use a strong password with at least 8 characters.",
+      passwordSectionHint:
+        "Use a strong password: at least 8 characters with letters and numbers.",
       fullName: "Full name",
       fullNameAr: "Full name (Arabic)",
       fullNameEn: "Full name (English)",
@@ -935,7 +946,8 @@ export const messages = {
       nameArRequired: "Enter your full name in Arabic (at least 2 characters).",
       nameEnRequired: "Enter your full name in English (at least 2 characters).",
       currentPasswordRequired: "Enter your current password.",
-      passwordTooShort: "Password must be at least 8 characters.",
+      passwordTooShort:
+        "Password must be at least 8 characters and include letters and numbers.",
       passwordMismatch: "Passwords do not match.",
       emailMissing: "No email is linked to this account.",
       wrongCurrentPassword: "Current password is incorrect.",
@@ -1066,6 +1078,7 @@ export const messages = {
       spareParts: "Spare parts",
       sparePartOrders: "Parts orders",
       quickRequests: "Quick requests",
+      locations: "Locations",
       reports: "Reports",
       reportsPage: {
         subtitle: "Performance overview and filtered analytics",
@@ -1381,6 +1394,39 @@ export const messages = {
           view: "View details",
         },
       },
+      locationsPage: {
+        title: "Workshop locations",
+        subtitle:
+          "Add or edit Service Time workshop addresses. Use “Generate coordinates” to resolve map position from the address.",
+        addWorkshop: "Add workshop",
+        editWorkshop: "Edit workshop",
+        newWorkshop: "New workshop",
+        saveChanges: "Save changes",
+        saved: "Location saved successfully.",
+        saveFailed: "Could not save location.",
+        deleteFailed: "Could not delete location.",
+        notFound: "Workshop not found.",
+        nameAr: "Workshop name (Arabic) *",
+        nameEn: "Workshop name (English)",
+        addressAr: "Address (Arabic) *",
+        addressEn: "Address (English)",
+        latitude: "Latitude *",
+        longitude: "Longitude *",
+        coordinates: "Coordinates",
+        geocode: "Generate coordinates from address",
+        geocoding: "Resolving location…",
+        geocodeSuccess: "Coordinates were generated from the address.",
+        geocodeFailed: "Could not resolve the address. Enter coordinates manually.",
+        mapPreview: "Map preview",
+        minOneRequired: "At least one location must remain.",
+        minOneHint: "The last location cannot be deleted.",
+        nameArRequired: "Enter the workshop name in Arabic.",
+        addressArRequired: "Enter the address in Arabic.",
+        coordsInvalid: "Enter valid latitude and longitude.",
+        deleteConfirmTitle: "Delete this workshop?",
+        deleteConfirmMessage: "\"{name}\" will be removed from the locations list.",
+        empty: "No workshops registered.",
+      },
       content: {
         title: "Site content (CMS)",
         key: "Key",
@@ -1503,7 +1549,8 @@ export const messages = {
       phoneRequired: "Enter a valid mobile number.",
       invalidPhone: "Enter a valid mobile number (e.g. 05XXXXXXXX or 06XXXXXXXX).",
       emailRequired: "Email is required for activation.",
-      passwordMinLength: "Password must be at least 8 characters.",
+      passwordMinLength:
+        "Password must be at least 8 characters and include letters and numbers.",
       emailExists: "This email is already registered. Sign in.",
       rateLimit: "Request limit exceeded. Wait an hour and try again.",
       updateFailed: "Could not update account.",
@@ -1605,7 +1652,8 @@ export const messages = {
       serverIncomplete: "Server configuration is incomplete.",
       fullNameRequired: "Enter full name.",
       invalidEmail: "Invalid email address.",
-      passwordMinLength: "Password must be at least 8 characters.",
+      passwordMinLength:
+        "Password must be at least 8 characters and include letters and numbers.",
       invalidRole: "Invalid account type.",
       technicianTypeRequired: "Select technician type.",
       createFailed: "Could not create account.",

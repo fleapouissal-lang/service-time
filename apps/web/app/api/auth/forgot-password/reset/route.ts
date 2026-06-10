@@ -1,8 +1,11 @@
 import { NextResponse } from "next/server";
 import {
+  isStrongEnoughPassword,
+  PASSWORD_REQUIREMENTS_AR,
+} from "@/lib/password-policy";
+import {
   RESET_VERIFY_WINDOW_MS,
   hashResetCode,
-  isStrongEnoughPassword,
   isValidResetCodeFormat,
   normalizeEmail,
 } from "@/lib/password-reset";
@@ -44,7 +47,7 @@ export async function POST(request: Request) {
 
   if (!isStrongEnoughPassword(password)) {
     return NextResponse.json(
-      { error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل." },
+      { error: PASSWORD_REQUIREMENTS_AR },
       { status: 400 },
     );
   }

@@ -5,6 +5,10 @@ import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  isStrongEnoughPassword,
+  PASSWORD_HTML_PATTERN,
+} from "@/lib/password-policy";
 
 type Step = "request" | "verify" | "reset";
 
@@ -99,6 +103,17 @@ export function ForgotPasswordFlow({
     e.preventDefault();
     setError("");
     setInfo("");
+
+    if (!isStrongEnoughPassword(password)) {
+      setError(t.common.passwordRequirements);
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setError(t.errors.auth.passwordMismatch);
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -241,6 +256,7 @@ export function ForgotPasswordFlow({
             <Label htmlFor="new-password" className="text-white">
               {t.forgotPassword.newPassword}
             </Label>
+            <p className="mt-1 text-xs text-white/55">{t.common.passwordRequirements}</p>
             <div className="relative mt-2">
               <Input
                 id="new-password"
@@ -250,6 +266,8 @@ export function ForgotPasswordFlow({
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
+                pattern={PASSWORD_HTML_PATTERN}
+                title={t.common.passwordRequirements}
                 placeholder="••••••••"
                 className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
               />
@@ -285,6 +303,8 @@ export function ForgotPasswordFlow({
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
+                pattern={PASSWORD_HTML_PATTERN}
+                title={t.common.passwordRequirements}
                 placeholder="••••••••"
                 className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
               />

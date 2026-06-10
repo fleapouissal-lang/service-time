@@ -19,6 +19,7 @@ import {
   contactValidationErrorMessage,
   validateRequiredContact,
 } from "@/lib/contact-validation";
+import { PASSWORD_HTML_PATTERN } from "@/lib/password-policy";
 import { Label } from "@/components/ui/label";
 import {
   buildRoleSelectOptions,
@@ -281,12 +282,15 @@ export function PlatformUserForm({
                 inputDir="ltr"
                 required={!isEdit}
                 minLength={isEdit ? undefined : 8}
+                pattern={PASSWORD_HTML_PATTERN}
+                title={t.common.passwordRequirements}
                 autoComplete="new-password"
                 className="mt-2"
                 showPasswordLabel={s.showPassword}
                 hidePasswordLabel={s.hidePassword}
                 resetToken={passwordResetToken}
               />
+              <p className="mt-1 text-xs text-muted">{t.common.passwordRequirements}</p>
             </div>
 
             <div>

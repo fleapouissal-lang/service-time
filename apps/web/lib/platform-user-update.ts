@@ -5,6 +5,7 @@ import {
   validateEmailField,
   validatePhoneField,
 } from "@/lib/contact-validation";
+import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS_AR } from "@/lib/password-policy";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import {
   getAvatarFromFormData,
@@ -76,8 +77,8 @@ export function validatePlatformUserUpdateInput(input: PlatformUserUpdateInput) 
     throw new Error(contactValidationErrorMessageAr(phoneResult.error));
   }
 
-  if (input.password && input.password.length < 8) {
-    throw new Error("كلمة المرور يجب أن تكون 8 أحرف على الأقل.");
+  if (input.password && !isStrongEnoughPassword(input.password)) {
+    throw new Error(PASSWORD_REQUIREMENTS_AR);
   }
 
   if (!["client", "technician", "admin"].includes(input.role)) {

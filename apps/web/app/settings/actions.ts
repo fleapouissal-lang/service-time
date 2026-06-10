@@ -10,7 +10,7 @@ import {
 } from "@/lib/contact-validation";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
-import { isStrongEnoughPassword } from "@/lib/password-reset";
+import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS_AR } from "@/lib/password-policy";
 import { getProfileHomePath } from "@/lib/profile-home";
 import {
   applyProfileContactPayload,

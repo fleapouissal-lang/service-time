@@ -39,9 +39,7 @@ export function isValidResetCodeFormat(code: string): boolean {
   return /^\d{6}$/.test(code.trim());
 }
 
-export function isStrongEnoughPassword(password: string): boolean {
-  return password.length >= 8;
-}
+export { isStrongEnoughPassword } from "@/lib/password-policy";
 
 /** Mot de passe aléatoire pour comptes créés automatiquement (طلب سريع). */
 export function generateSecurePassword(length = 12): string {

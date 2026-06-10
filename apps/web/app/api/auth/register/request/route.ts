@@ -1,11 +1,14 @@
 import { NextResponse } from "next/server";
 import { findAuthUserByEmail } from "@/lib/auth-users";
 import {
+  isStrongEnoughPassword,
+  PASSWORD_REQUIREMENTS_AR,
+} from "@/lib/password-policy";
+import {
   RESET_CODE_TTL_MS,
   RESET_REQUESTS_PER_HOUR,
   generateResetCode,
   hashResetCode,
-  isStrongEnoughPassword,
 } from "@/lib/password-reset";
 import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
@@ -111,7 +114,7 @@ export async function POST(request: Request) {
 
   if (!isStrongEnoughPassword(password)) {
     return NextResponse.json(
-      { error: "كلمة المرور يجب أن تكون 8 أحرف على الأقل." },
+      { error: PASSWORD_REQUIREMENTS_AR },
       { status: 400 },
     );
   }

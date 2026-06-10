@@ -46,6 +46,11 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       icon: Zap,
     },
     {
+      href: "/admin/locations",
+      label: messages.dashboard.admin.locations,
+      icon: MapPin,
+    },
+    {
       href: "/admin/users",
       label: messages.meta.adminUsers,
       icon: Users,

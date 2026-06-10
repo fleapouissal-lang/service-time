@@ -12,6 +12,10 @@ import {
   contactValidationErrorMessage,
   validateRequiredContact,
 } from "@/lib/contact-validation";
+import {
+  isStrongEnoughPassword,
+  PASSWORD_HTML_PATTERN,
+} from "@/lib/password-policy";
 
 type Step = "register" | "verify";
 
@@ -73,6 +77,11 @@ export function ClientRegisterForm() {
 
     if (fullNameEn.trim().length < 2) {
       setError(t.errors.register.fullNameEnRequired);
+      return;
+    }
+
+    if (!isStrongEnoughPassword(password)) {
+      setError(t.common.passwordRequirements);
       return;
     }
 
@@ -273,6 +282,7 @@ export function ClientRegisterForm() {
             <Label htmlFor="password" className="text-white">
               {t.register.password}
             </Label>
+            <p className="mt-1 text-xs text-white/55">{t.common.passwordRequirements}</p>
             <div className="relative mt-2">
               <Input
                 id="password"
@@ -282,6 +292,8 @@ export function ClientRegisterForm() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={8}
+                pattern={PASSWORD_HTML_PATTERN}
+                title={t.common.passwordRequirements}
                 className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] focus-visible:ring-[#94D4B9]"
               />
               <button
@@ -316,6 +328,8 @@ export function ClientRegisterForm() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
                 minLength={8}
+                pattern={PASSWORD_HTML_PATTERN}
+                title={t.common.passwordRequirements}
                 className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] focus-visible:ring-[#94D4B9]"
               />
               <button

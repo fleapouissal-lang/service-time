@@ -1,5 +1,14 @@
 import type { Messages } from "@/messages/types";
 
+/** Supabase — mot de passe OK mais e-mail non confirmé (confirmation custom). */
+export function isEmailNotConfirmedError(message: string): boolean {
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("email not confirmed") ||
+    normalized.includes("email_not_confirmed")
+  );
+}
+
 export function mapAuthError(message: string, t: Messages): string {
   const normalized = message.toLowerCase();
 

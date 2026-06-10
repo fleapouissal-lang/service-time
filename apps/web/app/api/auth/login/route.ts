@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import { clearSupabaseAuthCookies } from "@/lib/auth-cookies";
-import { isActivePlatformUser } from "@/lib/auth-users";
+import { findAuthUserByEmail, isActivePlatformUser } from "@/lib/auth-users";
+import { isEmailNotConfirmedError } from "@/lib/auth-errors";
 import { ensureServerEnv } from "@/lib/env-server";
 import { resolveLoginEmail } from "@/lib/resolve-login-email";
 import { checkLoginRateLimit } from "@/lib/form-security";
@@ -75,8 +76,20 @@ export async function POST(request: Request) {
   });
 
   if (authError || !data.user) {
+    const authMessage = authError?.message ?? "";
+
+    if (isEmailNotConfirmedError(authMessage)) {
+      const pendingUser = await findAuthUserByEmail(email);
+      if (pendingUser && !pendingUser.email_confirmed_at) {
+        return NextResponse.json(
+          { needsVerification: true, email },
+          { status: 403 },
+        );
+      }
+    }
+
     return NextResponse.json(
-      { error: authError?.message ?? "Invalid login credentials" },
+      { error: authMessage || "Invalid login credentials" },
       { status: 401 },
     );
   }
@@ -87,6 +100,14 @@ export async function POST(request: Request) {
   const active = await isActivePlatformUser(data.user.id);
   if (!active) {
     await supabase.auth.signOut();
+
+    if (!data.user.email_confirmed_at) {
+      return NextResponse.json(
+        { needsVerification: true, email: data.user.email ?? email },
+        { status: 403 },
+      );
+    }
+
     return NextResponse.json(
       { error: "account inactive" },
       { status: 403 },

@@ -24,6 +24,7 @@ import {
   contactValidationErrorMessage,
   validateRequiredContact,
 } from "@/lib/contact-validation";
+import { PASSWORD_HTML_PATTERN } from "@/lib/password-policy";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getProfileDisplayName, getProfileNameFields } from "@/lib/profile-display-name";
 import { getProfileRoleLabel, getTechnicianTypeLabels } from "@/lib/i18n/labels";
@@ -439,6 +440,8 @@ export function DashboardSettingsPanel({
                     type={showNewPassword ? "text" : "password"}
                     required
                     minLength={8}
+                    pattern={PASSWORD_HTML_PATTERN}
+                    title={t.common.passwordRequirements}
                     autoComplete="new-password"
                     className="pe-10"
                   />
@@ -465,6 +468,8 @@ export function DashboardSettingsPanel({
                     type={showConfirmPassword ? "text" : "password"}
                     required
                     minLength={8}
+                    pattern={PASSWORD_HTML_PATTERN}
+                    title={t.common.passwordRequirements}
                     autoComplete="new-password"
                     className="pe-10"
                   />

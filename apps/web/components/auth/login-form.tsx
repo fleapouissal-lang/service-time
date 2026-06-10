@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
+import { ClientActivationFlow } from "@/components/auth/client-activation-flow";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,8 @@ function LoginFormContent() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotFlow, setShowForgotFlow] = useState(false);
+  const [showActivationFlow, setShowActivationFlow] = useState(false);
+  const [activationEmail, setActivationEmail] = useState("");
   const [error, setError] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -54,7 +57,17 @@ function LoginFormContent() {
       const data = (await res.json()) as {
         error?: string;
         role?: ProfileRole;
+        needsVerification?: boolean;
+        email?: string;
       };
+
+      if (data.needsVerification && data.email) {
+        setActivationEmail(data.email);
+        setShowActivationFlow(true);
+        setError("");
+        setLoading(false);
+        return;
+      }
 
       if (!res.ok) {
         if (data.error === "account inactive") {
@@ -135,7 +148,19 @@ function LoginFormContent() {
           </Link>
 
           <div className="rounded-[20px] border border-white/10 bg-[#091014] p-8 shadow-[0_24px_80px_rgba(0,0,0,0.35)] sm:p-10">
-            {showForgotFlow ? (
+            {showActivationFlow ? (
+              <ClientActivationFlow
+                email={activationEmail}
+                password={password}
+                next={next}
+                onBack={() => {
+                  setShowActivationFlow(false);
+                  setActivationEmail("");
+                  setError("");
+                  setInfoMessage("");
+                }}
+              />
+            ) : showForgotFlow ? (
               <ForgotPasswordFlow
                 initialEmail={identifier.includes("@") ? identifier : ""}
                 onBack={() => {
