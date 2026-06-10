@@ -3,6 +3,7 @@
 import type { Profile } from "@service-time/types";
 import { revalidatePath } from "next/cache";
 import { createAuthServerClient, getCurrentProfile } from "@/lib/auth";
+import { verifyUserPassword } from "@/lib/verify-user-password";
 import {
   contactValidationErrorMessage,
   validateEmailField,
@@ -10,7 +11,7 @@ import {
 } from "@/lib/contact-validation";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
-import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS_AR } from "@/lib/password-policy";
+import { isStrongEnoughPassword } from "@/lib/password-policy";
 import { getProfileHomePath } from "@/lib/profile-home";
 import {
   applyProfileContactPayload,
@@ -280,55 +281,68 @@ export async function changePasswordSettingsAction(
   _prev: PasswordSettingsFormState,
   formData: FormData,
 ): Promise<PasswordSettingsFormState> {
-  const t = getDictionary(await getLocale());
-  const s = t.dashboard.settings;
-  const profile = await getCurrentProfile();
+  try {
+    const t = getDictionary(await getLocale());
+    const s = t.dashboard.settings;
+    const profile = await getCurrentProfile();
 
-  if (!profile?.is_active) {
-    return { error: s.notAuthenticated };
+    if (!profile?.is_active) {
+      return { error: s.notAuthenticated };
+    }
+
+    const currentPassword = String(formData.get("current_password") ?? "");
+    const newPassword = String(formData.get("new_password") ?? "");
+    const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+    if (!currentPassword) {
+      return { error: s.currentPasswordRequired };
+    }
+
+    if (!isStrongEnoughPassword(newPassword)) {
+      return { error: s.passwordTooShort };
+    }
+
+    if (newPassword !== confirmPassword) {
+      return { error: s.passwordMismatch };
+    }
+
+    if (currentPassword === newPassword) {
+      return { error: s.passwordSameAsCurrent };
+    }
+
+    const supabase = await createAuthServerClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (!user?.email) {
+      return { error: s.emailMissing };
+    }
+
+    const passwordOk = await verifyUserPassword(user.email, currentPassword);
+    if (!passwordOk) {
+      return { error: s.wrongCurrentPassword };
+    }
+
+    const admin = getAdminSupabaseClient();
+    if (!admin) {
+      return { error: s.serverIncomplete };
+    }
+
+    const { error: updateError } = await admin.auth.admin.updateUserById(
+      user.id,
+      { password: newPassword },
+    );
+
+    if (updateError) {
+      console.error("[settings/changePassword]", updateError);
+      return { error: s.passwordUpdateFailed };
+    }
+
+    return { success: true };
+  } catch (err) {
+    console.error("[settings/changePassword] unexpected:", err);
+    const t = getDictionary(await getLocale());
+    return { error: t.dashboard.settings.passwordUpdateFailed };
   }
-
-  const currentPassword = String(formData.get("current_password") ?? "");
-  const newPassword = String(formData.get("new_password") ?? "");
-  const confirmPassword = String(formData.get("confirm_password") ?? "");
-
-  if (!currentPassword) {
-    return { error: s.currentPasswordRequired };
-  }
-
-  if (!isStrongEnoughPassword(newPassword)) {
-    return { error: s.passwordTooShort };
-  }
-
-  if (newPassword !== confirmPassword) {
-    return { error: s.passwordMismatch };
-  }
-
-  const supabase = await createAuthServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user?.email) {
-    return { error: s.emailMissing };
-  }
-
-  const { error: signInError } = await supabase.auth.signInWithPassword({
-    email: user.email,
-    password: currentPassword,
-  });
-
-  if (signInError) {
-    return { error: s.wrongCurrentPassword };
-  }
-
-  const { error: updateError } = await supabase.auth.updateUser({
-    password: newPassword,
-  });
-
-  if (updateError) {
-    return { error: s.passwordUpdateFailed };
-  }
-
-  return { success: true };
 }

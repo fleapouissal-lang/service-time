@@ -21,6 +21,15 @@ async function getActiveProfileRole(
   return profile.role as ProfileRole;
 }
 
+function isServerActionRequest(request: NextRequest): boolean {
+  return (
+    request.method === "POST" &&
+    (request.headers.has("next-action") ||
+      request.headers.has("Next-Action") ||
+      request.headers.has("x-action"))
+  );
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -47,6 +56,7 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const path = request.nextUrl.pathname;
+  const serverAction = isServerActionRequest(request);
 
   const loginRedirect = (nextPath: string) => {
     const url = request.nextUrl.clone();
@@ -111,15 +121,18 @@ export async function middleware(request: NextRequest) {
     if (!path.startsWith(prefix)) continue;
 
     if (!user) {
+      if (serverAction) return response;
       return loginRedirect(path);
     }
 
     const role = await getActiveProfileRole(supabase, user.id);
     if (!role) {
+      if (serverAction) return response;
       return signOutAndLogin(path);
     }
 
     if (role !== gate.role) {
+      if (serverAction) return response;
       const url = request.nextUrl.clone();
       url.pathname = gate.redirectIfWrongRole(role);
       return NextResponse.redirect(url);
@@ -128,7 +141,7 @@ export async function middleware(request: NextRequest) {
     break;
   }
 
-  if (path === "/request" && user) {
+  if (path === "/request" && user && !serverAction) {
     const role = await getActiveProfileRole(supabase, user.id);
     if (role && role !== "client") {
       const url = request.nextUrl.clone();

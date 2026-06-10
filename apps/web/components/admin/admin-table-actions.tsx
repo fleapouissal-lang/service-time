@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, Circle, Eye, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const actionBtnClass =
@@ -12,6 +12,9 @@ type AdminTableActionsProps = {
   onEdit?: () => void;
   viewLabel: string;
   editLabel: string;
+  onToggleRead?: () => void;
+  toggleReadLabel?: string;
+  isRead?: boolean;
   deleteLabel?: string;
   onDelete?: () => void;
   className?: string;
@@ -24,6 +27,9 @@ export function AdminTableActions({
   onEdit,
   viewLabel,
   editLabel,
+  onToggleRead,
+  toggleReadLabel,
+  isRead,
   deleteLabel,
   onDelete,
   className,
@@ -49,6 +55,26 @@ export function AdminTableActions({
         >
           <Eye className="size-4" aria-hidden />
         </Link>
+      ) : null}
+      {onToggleRead && toggleReadLabel ? (
+        <button
+          type="button"
+          onClick={onToggleRead}
+          className={cn(
+            actionBtnClass,
+            isRead
+              ? "hover:border-amber-500/40 hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400"
+              : "hover:border-emerald-500/40 hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400",
+          )}
+          title={toggleReadLabel}
+          aria-label={toggleReadLabel}
+        >
+          {isRead ? (
+            <Circle className="size-4" aria-hidden />
+          ) : (
+            <CheckCircle2 className="size-4" aria-hidden />
+          )}
+        </button>
       ) : null}
       {onEdit ? (
         <button

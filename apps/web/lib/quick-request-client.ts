@@ -110,6 +110,8 @@ export async function resolveQuickRequestClient(input: {
   fullName: string;
   phone: string;
   email: string | null;
+  /** Client connecté — priorise son compte pour lier la demande. */
+  preferredClientId?: string | null;
 }): Promise<
   | { ok: true; result: QuickRequestClientResult }
   | { ok: false; error: string }
@@ -121,6 +123,42 @@ export async function resolveQuickRequestClient(input: {
 
   const normalizedPhone = normalizePhone(input.phone);
   const normalizedEmail = input.email ? normalizeEmail(input.email) : null;
+
+  if (input.preferredClientId) {
+    const linked = await getClientProfile(admin, input.preferredClientId);
+    if (linked) {
+      const { data: authData } = await admin.auth.admin.getUserById(
+        input.preferredClientId,
+      );
+      const localizedNames = await resolveLocalizedProfileNames(
+        input.fullName.trim(),
+      );
+
+      await admin
+        .from("profiles")
+        .update({
+          full_name: localizedNames.full_name,
+          full_name_ar: localizedNames.full_name_ar,
+          full_name_en: localizedNames.full_name_en,
+          phone: normalizedPhone,
+          is_active: true,
+        })
+        .eq("id", input.preferredClientId);
+
+      return {
+        ok: true,
+        result: {
+          clientId: input.preferredClientId,
+          createdNew: false,
+          loginEmail:
+            authData.user?.email ??
+            normalizedEmail ??
+            buildSyntheticEmail(normalizedPhone),
+          notifiedEmail: false,
+        },
+      };
+    }
+  }
 
   const existing = await findExistingQuickRequestClient(
     normalizedPhone,

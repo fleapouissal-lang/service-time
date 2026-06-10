@@ -65,6 +65,7 @@ export function AdminClientVehicleField({
       key={clientId}
       vehicles={vehicles}
       variant="dashboard"
+      clientId={clientId}
     />
   );
 }

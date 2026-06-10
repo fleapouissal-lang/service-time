@@ -230,6 +230,49 @@ export async function getQuickRequestPhotoSignedUrlAction(
   return { url };
 }
 
+export async function setQuickRequestAdminReadStatusAction(
+  id: string,
+  read: boolean,
+): Promise<{ ok: true; admin_read_at: string | null } | { error: string }> {
+  await requireProfileOrThrow(["admin"]);
+
+  const admin = getAdminSupabaseClient();
+  if (!admin) {
+    return { error: "إعدادات الخادم غير مكتملة." };
+  }
+
+  const requestId = String(id ?? "").trim();
+  if (!requestId) {
+    return { error: "معرّف الطلب مطلوب." };
+  }
+
+  const adminReadAt = read ? new Date().toISOString() : null;
+  const { error } = await admin
+    .from("quick_requests")
+    .update({ admin_read_at: adminReadAt })
+    .eq("id", requestId);
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  revalidatePath("/admin/quick-requests");
+  revalidatePath("/admin");
+  revalidatePath("/client/quick-requests");
+
+  return { ok: true, admin_read_at: adminReadAt };
+}
+
+export async function markQuickRequestReadAction(
+  id: string,
+): Promise<{ ok: true } | { error: string }> {
+  const result = await setQuickRequestAdminReadStatusAction(id, true);
+  if ("error" in result) {
+    return result;
+  }
+  return { ok: true };
+}
+
 export async function deleteQuickRequestAction(formData: FormData) {
   await requireProfileOrThrow(["admin"]);
   const admin = getAdminSupabaseClient();

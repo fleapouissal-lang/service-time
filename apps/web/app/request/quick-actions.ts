@@ -1,5 +1,7 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+import { getCurrentProfile } from "@/lib/auth";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { ensureServerEnv } from "@/lib/env-server";
@@ -10,7 +12,7 @@ import {
 import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
 import { sendQuickRequestAdminNotification } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import { uploadQuickRequestPhoto } from "@/lib/upload-quick-request-photo";
+import { uploadQuickRequestPhoto, isQuickRequestPhotoBucketMissingError } from "@/lib/upload-quick-request-photo";
 import {
   formHasPhotoField,
   getPhotoFromFormData,
@@ -37,6 +39,7 @@ export async function submitQuickServiceRequest(
   formData: FormData,
 ): Promise<QuickRequestFormState> {
   const t = getDictionary(await getLocale());
+  const profile = await getCurrentProfile();
   const guard = await checkPublicFormGuard(formData, "quickRequest");
 
   if (!guard.allowed) {
@@ -89,6 +92,8 @@ export async function submitQuickServiceRequest(
     fullName: name,
     phone: validatedPhone,
     email: validatedEmail,
+    preferredClientId:
+      profile?.is_active && profile.role === "client" ? profile.id : null,
   });
 
   if (!clientResolution.ok) {
@@ -121,6 +126,7 @@ export async function submitQuickServiceRequest(
     if (createdNew) {
       await admin.auth.admin.deleteUser(clientId).catch(() => undefined);
     }
+    console.error("[quick-request] insert:", insertError);
     const missingTable =
       insertError?.code === "PGRST205" ||
       insertError?.message?.includes("quick_requests");
@@ -136,19 +142,23 @@ export async function submitQuickServiceRequest(
   if (photo) {
     const upload = await uploadQuickRequestPhoto(row.id, photo);
     if ("error" in upload) {
-      await admin.from("quick_requests").delete().eq("id", row.id);
-      return { error: upload.error };
-    }
+      if (isQuickRequestPhotoBucketMissingError(upload.error)) {
+        console.error("[quick-request] photo bucket missing:", upload.error);
+      } else {
+        await admin.from("quick_requests").delete().eq("id", row.id);
+        return { error: upload.error };
+      }
+    } else {
+      photoStoragePath = upload.storagePath;
+      const { error: updateError } = await admin
+        .from("quick_requests")
+        .update({ photo_storage_path: photoStoragePath })
+        .eq("id", row.id);
 
-    photoStoragePath = upload.storagePath;
-    const { error: updateError } = await admin
-      .from("quick_requests")
-      .update({ photo_storage_path: photoStoragePath })
-      .eq("id", row.id);
-
-    if (updateError) {
-      await admin.from("quick_requests").delete().eq("id", row.id);
-      return { error: t.errors.contact.sendFailed };
+      if (updateError) {
+        await admin.from("quick_requests").delete().eq("id", row.id);
+        return { error: t.errors.contact.sendFailed };
+      }
     }
   }
 
@@ -173,7 +183,16 @@ export async function submitQuickServiceRequest(
 
   if (!mail.ok) {
     console.error("[quick-request] admin email:", mail.error);
+  } else if (mail.dev) {
+    console.info(
+      "[quick-request] admin notification skipped (CONTACT_NOTIFY_EMAIL / SMTP not configured)",
+    );
   }
+
+  revalidatePath("/admin/quick-requests");
+  revalidatePath("/admin");
+  revalidatePath("/client/quick-requests");
+  revalidatePath("/client");
 
   return {
     success: true,

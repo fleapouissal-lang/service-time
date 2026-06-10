@@ -27,3 +27,16 @@ CREATE POLICY "quick_request_photos_admin_delete"
     bucket_id = 'quick-request-photos'
     AND public.is_admin()
   );
+
+DROP POLICY IF EXISTS "quick_request_photos_service_insert" ON storage.objects;
+CREATE POLICY "quick_request_photos_service_insert"
+  ON storage.objects FOR INSERT
+  WITH CHECK (bucket_id = 'quick-request-photos');
+
+DROP POLICY IF EXISTS "quick_request_photos_service_update" ON storage.objects;
+CREATE POLICY "quick_request_photos_service_update"
+  ON storage.objects FOR UPDATE
+  USING (bucket_id = 'quick-request-photos')
+  WITH CHECK (bucket_id = 'quick-request-photos');
+
+NOTIFY pgrst, 'reload schema';

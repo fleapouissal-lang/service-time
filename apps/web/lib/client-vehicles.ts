@@ -81,3 +81,39 @@ export async function saveClientVehicleAsAdmin(
     label: trimmed,
   });
 }
+
+export async function deleteClientVehicle(
+  clientId: string,
+  label: string,
+): Promise<boolean> {
+  const trimmed = label.trim();
+  if (!trimmed) return false;
+
+  const supabase = await createAuthServerClient();
+  const { error } = await supabase
+    .from("client_vehicles")
+    .delete()
+    .eq("client_id", clientId)
+    .eq("label", trimmed);
+
+  return !error;
+}
+
+export async function deleteClientVehicleAsAdmin(
+  clientId: string,
+  label: string,
+): Promise<boolean> {
+  const trimmed = label.trim();
+  if (!trimmed) return false;
+
+  const admin = getAdminSupabaseClient();
+  if (!admin) return false;
+
+  const { error } = await admin
+    .from("client_vehicles")
+    .delete()
+    .eq("client_id", clientId)
+    .eq("label", trimmed);
+
+  return !error;
+}

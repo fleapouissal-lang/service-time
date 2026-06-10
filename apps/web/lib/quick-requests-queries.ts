@@ -8,6 +8,7 @@ export type QuickRequestRow = {
   message: string;
   photo_storage_path: string | null;
   client_id: string | null;
+  admin_read_at: string | null;
   created_at: string;
 };
 
@@ -21,7 +22,7 @@ export async function getAdminQuickRequests(): Promise<QuickRequestRow[]> {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[quick-requests] admin list:", error);
+    console.error("[quick-requests] admin list:", error.message, error.code);
     return [];
   }
 
@@ -41,7 +42,7 @@ export async function getClientQuickRequests(
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("[quick-requests] client list:", error);
+    console.error("[quick-requests] client list:", error.message, error.code);
     return [];
   }
 

@@ -55,7 +55,7 @@ async function checkFormGuardInternal(
   scope: RateScope,
   minFillMs = 1200,
 ): Promise<FormGuardResult> {
-  const honeypot = String(formData.get("website") ?? "").trim();
+  const honeypot = String(formData.get("_form_hp") ?? "").trim();
   if (honeypot) {
     return { allowed: false, honeypot: true };
   }

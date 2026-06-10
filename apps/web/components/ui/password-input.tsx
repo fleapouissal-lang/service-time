@@ -38,7 +38,11 @@ export function PasswordInput({
       <Input
         type={visible ? "text" : "password"}
         dir={inputDir}
-        className={cn("pe-10", className)}
+        className={cn(
+          "pe-10",
+          inputDir === "ltr" && "text-start",
+          className,
+        )}
         {...props}
       />
       <button

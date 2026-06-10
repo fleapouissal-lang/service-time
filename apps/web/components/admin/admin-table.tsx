@@ -64,11 +64,13 @@ export function AdminTableCell({
   className,
   align,
   ltr = false,
+  onClick,
 }: {
   children: React.ReactNode;
   className?: string;
   align?: "start" | "center" | "end";
   ltr?: boolean;
+  onClick?: React.MouseEventHandler<HTMLTableCellElement>;
 }) {
   const resolvedAlign = align ?? (ltr ? "center" : "start");
 
@@ -83,13 +85,14 @@ export function AdminTableCell({
         className,
       )}
       dir={ltr ? "ltr" : undefined}
+      onClick={onClick}
     >
       {children}
     </td>
   );
 }
 
-/** Colonne client : nom + lignes LTR (téléphone) sans mélange bidi en RTL */
+/** Colonne client : nom + téléphone / email alignés selon la langue (start logique) */
 export function AdminTableCustomerInfo({
   name,
   phone,
@@ -102,20 +105,25 @@ export function AdminTableCustomerInfo({
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-[11rem] max-w-[15rem] flex-col gap-1", className)}>
+    <div
+      className={cn(
+        "flex min-w-[11rem] max-w-[15rem] flex-col items-start gap-1 text-start",
+        className,
+      )}
+    >
       <span className="block font-semibold leading-snug">{name}</span>
       {phone ? (
         <span
           dir="ltr"
-          className="block w-full text-end text-xs tabular-nums text-muted [unicode-bidi:isolate]"
+          className="block max-w-full text-xs tabular-nums text-muted [unicode-bidi:isolate]"
         >
           {phone}
         </span>
       ) : null}
       {extra ? (
         <span
-          dir="auto"
-          className="block w-full text-xs text-muted [unicode-bidi:isolate]"
+          dir="ltr"
+          className="block max-w-full break-all text-xs text-muted [unicode-bidi:isolate]"
         >
           {extra}
         </span>

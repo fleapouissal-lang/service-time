@@ -9,7 +9,7 @@ import {
   type FormEvent,
 } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, CheckCircle2, Eye, EyeOff, X } from "lucide-react";
+import { Camera, CheckCircle2, X } from "lucide-react";
 import type { Profile } from "@service-time/types";
 import {
   changePasswordSettingsAction,
@@ -19,12 +19,13 @@ import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import {
   contactValidationErrorMessage,
   validateRequiredContact,
 } from "@/lib/contact-validation";
-import { PASSWORD_HTML_PATTERN } from "@/lib/password-policy";
+import { isStrongEnoughPassword } from "@/lib/password-policy";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getProfileDisplayName, getProfileNameFields } from "@/lib/profile-display-name";
 import { getProfileRoleLabel, getTechnicianTypeLabels } from "@/lib/i18n/labels";
@@ -153,10 +154,9 @@ export function DashboardSettingsPanel({
     changePasswordSettingsAction,
     {},
   );
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [, startPasswordTransition] = useTransition();
   const [clientError, setClientError] = useState("");
+  const [passwordClientError, setPasswordClientError] = useState("");
   const [contactVerification, setContactVerification] =
     useState<ContactVerificationStep | null>(null);
   const [verifyInfo, setVerifyInfo] = useState("");
@@ -176,6 +176,12 @@ export function DashboardSettingsPanel({
       setVerifyInfo(s.contactVerifySent);
     }
   }, [profileState.verificationRequired, s.contactVerifySent]);
+
+  useEffect(() => {
+    if (passwordState.success) {
+      setPasswordClientError("");
+    }
+  }, [passwordState.success]);
 
   function handleProfileSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -206,6 +212,41 @@ export function DashboardSettingsPanel({
 
     startProfileTransition(() => {
       profileAction(formData);
+    });
+  }
+
+  function handlePasswordSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setPasswordClientError("");
+
+    const form = e.currentTarget;
+    const formData = new FormData(form);
+    const currentPassword = String(formData.get("current_password") ?? "");
+    const newPassword = String(formData.get("new_password") ?? "");
+    const confirmPassword = String(formData.get("confirm_password") ?? "");
+
+    if (!currentPassword) {
+      setPasswordClientError(s.currentPasswordRequired);
+      return;
+    }
+
+    if (!isStrongEnoughPassword(newPassword)) {
+      setPasswordClientError(s.passwordTooShort);
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      setPasswordClientError(s.passwordMismatch);
+      return;
+    }
+
+    if (currentPassword === newPassword) {
+      setPasswordClientError(s.passwordSameAsCurrent);
+      return;
+    }
+
+    startPasswordTransition(() => {
+      passwordAction(formData);
     });
   }
 
@@ -401,99 +442,59 @@ export function DashboardSettingsPanel({
             <p className="text-sm text-muted">{s.passwordSectionHint}</p>
           </div>
 
-          <form action={passwordAction} className="space-y-4">
+          <form onSubmit={handlePasswordSubmit} className="space-y-4">
             <div>
               <Label htmlFor="current_password">{s.currentPassword}</Label>
-              <div className="relative mt-1">
-                <Input
-                  id="current_password"
-                  name="current_password"
-                  type={showCurrentPassword ? "text" : "password"}
-                  required
-                  autoComplete="current-password"
-                  className="pe-10"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowCurrentPassword((value) => !value)}
-                  className="absolute top-1/2 end-2 -translate-y-1/2 rounded p-1 text-muted hover:text-foreground"
-                  aria-label={
-                    showCurrentPassword ? s.hidePassword : s.showPassword
-                  }
-                >
-                  {showCurrentPassword ? (
-                    <EyeOff className="size-4" aria-hidden />
-                  ) : (
-                    <Eye className="size-4" aria-hidden />
-                  )}
-                </button>
-              </div>
+              <PasswordInput
+                id="current_password"
+                name="current_password"
+                inputDir="ltr"
+                required
+                autoComplete="current-password"
+                className="mt-1"
+                showPasswordLabel={s.showPassword}
+                hidePasswordLabel={s.hidePassword}
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
               <div>
                 <Label htmlFor="new_password">{s.newPassword}</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="new_password"
-                    name="new_password"
-                    type={showNewPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    pattern={PASSWORD_HTML_PATTERN}
-                    title={t.common.passwordRequirements}
-                    autoComplete="new-password"
-                    className="pe-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowNewPassword((value) => !value)}
-                    className="absolute top-1/2 end-2 -translate-y-1/2 rounded p-1 text-muted hover:text-foreground"
-                    aria-label={showNewPassword ? s.hidePassword : s.showPassword}
-                  >
-                    {showNewPassword ? (
-                      <EyeOff className="size-4" aria-hidden />
-                    ) : (
-                      <Eye className="size-4" aria-hidden />
-                    )}
-                  </button>
-                </div>
+                <PasswordInput
+                  id="new_password"
+                  name="new_password"
+                  inputDir="ltr"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="mt-1"
+                  showPasswordLabel={s.showPassword}
+                  hidePasswordLabel={s.hidePassword}
+                />
               </div>
               <div>
                 <Label htmlFor="confirm_password">{s.confirmPassword}</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="confirm_password"
-                    name="confirm_password"
-                    type={showConfirmPassword ? "text" : "password"}
-                    required
-                    minLength={8}
-                    pattern={PASSWORD_HTML_PATTERN}
-                    title={t.common.passwordRequirements}
-                    autoComplete="new-password"
-                    className="pe-10"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowConfirmPassword((value) => !value)}
-                    className="absolute top-1/2 end-2 -translate-y-1/2 rounded p-1 text-muted hover:text-foreground"
-                    aria-label={
-                      showConfirmPassword ? s.hidePassword : s.showPassword
-                    }
-                  >
-                    {showConfirmPassword ? (
-                      <EyeOff className="size-4" aria-hidden />
-                    ) : (
-                      <Eye className="size-4" aria-hidden />
-                    )}
-                  </button>
-                </div>
+                <PasswordInput
+                  id="confirm_password"
+                  name="confirm_password"
+                  inputDir="ltr"
+                  required
+                  minLength={8}
+                  autoComplete="new-password"
+                  className="mt-1"
+                  showPasswordLabel={s.showPassword}
+                  hidePasswordLabel={s.hidePassword}
+                />
               </div>
             </div>
 
             {passwordState.error ? (
               <p className="rounded-lg border border-red-400/30 bg-red-950/20 px-3 py-2 text-sm text-red-400">
                 {passwordState.error}
+              </p>
+            ) : passwordClientError ? (
+              <p className="rounded-lg border border-red-400/30 bg-red-950/20 px-3 py-2 text-sm text-red-400">
+                {passwordClientError}
               </p>
             ) : null}
 

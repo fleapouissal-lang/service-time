@@ -12,13 +12,15 @@ export function FormSecurityFields() {
         className="pointer-events-none absolute -left-[9999px] h-0 w-0 overflow-hidden opacity-0"
         aria-hidden
       >
-        <label htmlFor="website">Website</label>
+        <label htmlFor="_form_hp">Leave empty</label>
         <input
-          id="website"
-          name="website"
+          id="_form_hp"
+          name="_form_hp"
           type="text"
           tabIndex={-1}
           autoComplete="off"
+          data-1p-ignore
+          data-lpignore="true"
         />
       </div>
       <input
