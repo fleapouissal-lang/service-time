@@ -29,6 +29,7 @@ import { deleteClientRelatedData } from "@/lib/delete-client-related-data";
 import { notifyOrderCreated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
+import { resolveOrderStatusOnAdminUpdate } from "@/lib/service-request-status";
 import { isStrongEnoughPassword, PASSWORD_REQUIREMENTS_AR } from "@/lib/password-policy";
 import {
   getWorkshopBranchesAdmin,
@@ -102,6 +103,7 @@ export async function updateOrderAction(
     const status = String(formData.get("status")) as ServiceRequestStatus;
     const priority = String(formData.get("priority")) as RequestPriority;
     const assigned = String(formData.get("assigned_technician_id") ?? "");
+    const assignedTechnicianId = assigned || null;
     const location = parseOrderLocation(formData);
 
     const { data: existing } = await supabase
@@ -113,7 +115,7 @@ export async function updateOrderAction(
       .maybeSingle();
 
     if (existing && isQuotePending(existing)) {
-      if (assigned) {
+      if (assignedTechnicianId) {
         return { error: t.errors.quote.notAccepted };
       }
       if (
@@ -125,7 +127,7 @@ export async function updateOrderAction(
     }
 
     if (existing && isPaymentBlockingAssignment(existing)) {
-      if (assigned) {
+      if (assignedTechnicianId) {
         return { error: t.errors.servicePayment.assignBlocked };
       }
       if (
@@ -136,12 +138,17 @@ export async function updateOrderAction(
       }
     }
 
+    const finalStatus = resolveOrderStatusOnAdminUpdate(
+      status,
+      assignedTechnicianId,
+    );
+
     const { error } = await supabase
       .from("service_requests")
       .update({
-        status,
+        status: finalStatus,
         priority,
-        assigned_technician_id: assigned || null,
+        assigned_technician_id: assignedTechnicianId,
         ...location,
       })
       .eq("id", id);
@@ -1391,7 +1398,7 @@ export async function createAdminOrderAction(
       description,
       service_type: serviceType,
       execution_method: executionMethod,
-      status: "received",
+      status: assignedTechnicianId ? "assigned" : "received",
       priority,
       assigned_technician_id: assignedTechnicianId,
       client_proposed_price: agreedPrice,

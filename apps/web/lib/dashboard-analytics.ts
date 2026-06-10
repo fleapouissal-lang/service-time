@@ -34,6 +34,7 @@ export type DashboardKpis = {
 
 const ACTIVE_STATUSES = new Set([
   "received",
+  "assigned",
   "in_progress",
   "on_the_way",
   "arrived",
@@ -164,7 +165,9 @@ export function buildDashboardKpis(requests: ServiceRequest[]): DashboardKpis {
     highPriority: requests.filter((r) => r.priority === "high").length,
     active: requests.filter((r) => ACTIVE_STATUSES.has(r.status)).length,
     unassigned: requests.filter(
-      (r) => r.status === "received" && !r.assigned_technician_id,
+      (r) =>
+        (r.status === "received" || r.status === "assigned") &&
+        !r.assigned_technician_id,
     ).length,
     completed: byStatus.completed ?? 0,
     cancelled: byStatus.cancelled ?? 0,

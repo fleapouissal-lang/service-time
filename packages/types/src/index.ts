@@ -15,6 +15,7 @@ export type ExecutionMethod = "workshop_visit" | "mobile_workshop";
 
 export enum ServiceRequestStatus {
   RECEIVED = "received",
+  ASSIGNED = "assigned",
   IN_PROGRESS = "in_progress",
   ON_THE_WAY = "on_the_way",
   ARRIVED = "arrived",

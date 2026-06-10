@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { CheckCircle2 } from "lucide-react";
 import { updateOrderAction } from "@/app/admin/actions";
 import { LocationField } from "@/components/request/location-field";
@@ -43,9 +43,12 @@ export function AdminOrderUpdateForm({
   const p = t.dashboard.admin.ordersPage;
   const q = p.quote;
   const pay = p.payment;
-  const [state, action, pending] = useActionState(updateOrderAction, {});
-
   const assignmentBlocked = quotePending || paymentBlocking;
+  const [state, action, pending] = useActionState(updateOrderAction, {});
+  const [statusValue, setStatusValue] = useState(status);
+  const [technicianValue, setTechnicianValue] = useState(
+    assignmentBlocked ? "" : assignedTechnicianId,
+  );
 
   const filteredStatusOptions = assignmentBlocked
     ? statusOptions.filter(
@@ -56,6 +59,17 @@ export function AdminOrderUpdateForm({
   const filteredTechnicianOptions = assignmentBlocked
     ? technicianOptions.filter((option) => option.value === "")
     : technicianOptions;
+
+  const handleTechnicianChange = (value: string) => {
+    setTechnicianValue(value);
+    if (value && (statusValue === "received" || statusValue === "assigned")) {
+      setStatusValue("assigned");
+      return;
+    }
+    if (!value && statusValue === "assigned") {
+      setStatusValue("received");
+    }
+  };
 
   return (
     <div>
@@ -72,7 +86,8 @@ export function AdminOrderUpdateForm({
           <IconSelect
             name="status"
             options={filteredStatusOptions}
-            defaultValue={status}
+            value={statusValue}
+            onValueChange={setStatusValue}
           />
           <IconSelect
             name="priority"
@@ -82,7 +97,8 @@ export function AdminOrderUpdateForm({
           <IconSelect
             name="assigned_technician_id"
             options={filteredTechnicianOptions}
-            defaultValue={assignmentBlocked ? "" : assignedTechnicianId}
+            value={technicianValue}
+            onValueChange={handleTechnicianChange}
           />
           <Button type="submit" variant="default" className="h-11" disabled={pending}>
             {pending ? t.common.saving : t.common.save}

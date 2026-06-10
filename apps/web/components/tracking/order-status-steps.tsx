@@ -88,7 +88,7 @@ export function OrderStatusSteps({
   return (
     <ol
       className={cn(
-        "grid grid-cols-5 gap-1 sm:gap-2",
+        "grid grid-cols-2 gap-1 sm:grid-cols-3 sm:gap-2 lg:grid-cols-6",
         className,
       )}
       aria-label={t.tracking.timelineTitle}
