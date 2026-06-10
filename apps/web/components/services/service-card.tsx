@@ -31,7 +31,6 @@ type ServiceCardProps = {
   ctaLabel?: string;
   showCtaAlways?: boolean;
   variant?: "default" | "grid";
-  fitViewport?: boolean;
 };
 
 export function ServiceCard({
@@ -40,7 +39,6 @@ export function ServiceCard({
   ctaLabel,
   showCtaAlways = false,
   variant = "default",
-  fitViewport = false,
 }: ServiceCardProps) {
   const { messages: t, locale } = useLocale();
   const label = ctaLabel ?? t.services.startRequest;
@@ -49,7 +47,6 @@ export function ServiceCard({
   const category = getServiceCategory(service);
   const isArabic = locale === "ar";
   const isGrid = variant === "grid";
-  const compactMobile = isGrid && fitViewport;
 
   return (
     <Card
@@ -63,10 +60,7 @@ export function ServiceCard({
         className={cn(
           "text-start",
           isGrid
-            ? cn(
-                "flex h-full min-h-0 flex-col justify-between",
-                compactMobile ? "gap-1.5 p-3" : "gap-3 p-4 sm:gap-4 sm:p-6",
-              )
+            ? "flex h-full min-h-0 flex-col gap-3 p-4 sm:gap-4 sm:p-6"
             : "p-6",
         )}
         dir={isArabic ? "rtl" : "ltr"}
@@ -74,8 +68,7 @@ export function ServiceCard({
         <div
           className={cn(
             "flex shrink-0 items-center justify-between gap-1.5",
-            isGrid &&
-              (compactMobile ? "h-8" : "max-sm:h-9 sm:items-start"),
+            isGrid && "max-sm:h-9 sm:items-start",
           )}
         >
           <span
@@ -84,18 +77,13 @@ export function ServiceCard({
               isArabic ? "origin-right" : "origin-left",
             )}
           >
-            <ServiceIcon
-              type={service.service_type}
-              large={isGrid && !compactMobile}
-            />
+            <ServiceIcon type={service.service_type} large={isGrid} />
           </span>
           {category ? (
             <span
               className={cn(
                 "shrink-0 rounded-[20px] bg-[#94D4B9] font-semibold text-[#050B10]",
-                compactMobile
-                  ? "px-2 py-0.5 text-[10px]"
-                  : "px-2.5 py-0.5 text-[11px] sm:px-3 sm:py-1 sm:text-xs",
+                "px-2.5 py-0.5 text-[11px] sm:px-3 sm:py-1 sm:text-xs",
               )}
             >
               {category}
@@ -106,20 +94,14 @@ export function ServiceCard({
         <div
           className={cn(
             "flex min-h-0 flex-1 flex-col justify-start",
-            isGrid && (compactMobile ? "mt-1" : "mt-1 max-sm:mt-1.5"),
-            isGrid ? (compactMobile ? "gap-1.5" : "gap-1.5 max-sm:gap-2") : "gap-1.5",
+            isGrid ? "mt-1.5 gap-2 max-sm:mt-1" : "gap-1.5",
           )}
         >
           <h3
             className={cn(
               "font-semibold transition-colors duration-300 group-hover:text-[#94D4B9]",
               isGrid
-                ? cn(
-                    "line-clamp-2",
-                    compactMobile
-                      ? "min-h-[2.625rem] text-[0.9375rem] leading-[1.3125rem]"
-                      : "text-[0.95rem] leading-6 max-sm:min-h-[2.75rem] sm:text-lg sm:leading-7",
-                  )
+                ? "line-clamp-2 text-[0.95rem] leading-6 sm:text-lg sm:leading-7"
                 : "text-lg",
             )}
           >
@@ -129,12 +111,7 @@ export function ServiceCard({
             className={cn(
               "text-muted",
               isGrid
-                ? cn(
-                    "line-clamp-3",
-                    compactMobile
-                      ? "min-h-[3.875rem] text-[0.8125rem] leading-[1.35]"
-                      : "text-[0.8125rem] leading-5 max-sm:min-h-[4rem] sm:line-clamp-2 sm:text-sm sm:leading-7",
-                  )
+                ? "line-clamp-3 text-[0.8125rem] leading-5 sm:line-clamp-2 sm:text-sm sm:leading-7"
                 : "mt-2 text-sm leading-7",
             )}
           >
@@ -146,11 +123,7 @@ export function ServiceCard({
           href={ctaHref}
           className={cn(
             "inline-flex w-full shrink-0 items-center justify-center rounded-[20px] bg-[#94D4B9] font-semibold text-[#050B10] transition-all duration-300 hover:opacity-90",
-            isGrid
-              ? compactMobile
-                ? "h-10 px-3 text-xs leading-snug"
-                : "h-10 text-sm max-sm:h-11 sm:h-11"
-              : "h-10 text-sm sm:h-11",
+            isGrid ? "h-10 text-sm max-sm:h-11 sm:h-11" : "mt-4 h-10 text-sm sm:h-11",
             !isGrid && "mt-4",
             showCtaAlways
               ? "translate-y-0 opacity-100"
