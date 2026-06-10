@@ -12,6 +12,7 @@ export function getDir(locale: Locale): "rtl" | "ltr" {
   return locale === "ar" ? "rtl" : "ltr";
 }
 
+/** Locale Intl — arabe avec chiffres latins (0–9), comme en Arabie saoudite. */
 export function getIntlLocale(locale: Locale): string {
-  return locale === "ar" ? "ar-SA" : "en-SA";
+  return locale === "ar" ? "ar-SA-u-nu-latn" : "en-SA";
 }

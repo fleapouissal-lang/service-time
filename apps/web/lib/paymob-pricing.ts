@@ -3,6 +3,9 @@
  * Frais de transaction et services marchands ; pas les prix des pièces ou services atelier.
  */
 
+import type { Locale } from "@/lib/i18n/config";
+import { getIntlLocale } from "@/lib/i18n/config";
+
 export type PaymobPercentFee = {
   id: string;
   percent: number;
@@ -63,8 +66,8 @@ export const PAYMOB_FREE_CHECKOUT_FEATURES = [
   "invoice_checkout",
 ] as const;
 
-export function formatPercentFee(percent: number, locale: string): string {
-  const formatted = new Intl.NumberFormat(locale, {
+export function formatPercentFee(percent: number, locale: Locale): string {
+  const formatted = new Intl.NumberFormat(getIntlLocale(locale), {
     minimumFractionDigits: percent % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(percent);
@@ -73,22 +76,22 @@ export function formatPercentFee(percent: number, locale: string): string {
 
 export function formatBnplFee(
   fee: PaymobBnplFee,
-  locale: string,
+  locale: Locale,
 ): string {
   const percent = formatPercentFee(fee.percent, locale);
-  const fixed = new Intl.NumberFormat(locale, {
+  const fixed = new Intl.NumberFormat(getIntlLocale(locale), {
     minimumFractionDigits: fee.fixedSar % 1 === 0 ? 0 : 2,
     maximumFractionDigits: 2,
   }).format(fee.fixedSar);
   return `${percent} + ${fixed} SAR`;
 }
 
-export function formatMerchantFee(amountSar: number, locale: string): string {
-  return `${new Intl.NumberFormat(locale).format(amountSar)} SAR`;
+export function formatMerchantFee(amountSar: number, locale: Locale): string {
+  return `${new Intl.NumberFormat(getIntlLocale(locale)).format(amountSar)} SAR`;
 }
 
 /** Liste des méthodes affichées au client sur la page de paiement */
-export function getPaymobCheckoutMethods(locale: string) {
+export function getPaymobCheckoutMethods(locale: Locale) {
   return [
     {
       id: PAYMOB_ONLINE_CARD_FEES.mada.id,
