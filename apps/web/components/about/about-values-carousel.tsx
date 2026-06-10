@@ -25,12 +25,16 @@ const VISIBLE_MOBILE = 1;
 const DESKTOP_MQ = "(min-width: 768px)";
 
 const arrowClass = cn(
-  "inline-flex size-8 shrink-0 items-center justify-center self-center rounded-full bg-[#94D4B9] text-[#050B10]",
-  "shadow-[0_0_14px_rgba(148,212,185,0.35)] transition-all duration-300",
-  "hover:scale-105 hover:shadow-[0_0_18px_rgba(148,212,185,0.5)] active:scale-95",
+  "inline-flex shrink-0 items-center justify-center rounded-full transition-all duration-300",
   "disabled:pointer-events-none disabled:opacity-40",
-  "md:size-10 md:border md:border-[#94D4B9]/30 md:bg-transparent md:text-[#94D4B9] md:shadow-none",
-  "md:hover:scale-100 md:hover:border-[#94D4B9]/50 md:hover:bg-[#94D4B9]/10 md:active:scale-100",
+  "md:size-10 md:border md:border-[#94D4B9]/30 md:bg-transparent md:text-[#94D4B9]",
+  "md:shadow-none md:hover:border-[#94D4B9]/50 md:hover:bg-[#94D4B9]/10",
+);
+
+const mobileOverlayArrowClass = cn(
+  arrowClass,
+  "absolute top-1/2 z-10 size-9 -translate-y-1/2 border border-[#94D4B9]/25 bg-[#050B10]/85 text-[#94D4B9] backdrop-blur-sm",
+  "shadow-[0_4px_16px_rgba(0,0,0,0.45)] active:scale-95 md:hidden",
 );
 
 type CarouselMetrics = {
@@ -138,7 +142,7 @@ export function AboutValuesCarousel() {
       />
 
       <div
-        className="flex items-center gap-1.5 md:gap-4"
+        className="relative md:flex md:items-center md:gap-4"
         onMouseEnter={() => setPaused(true)}
         onMouseLeave={() => setPaused(false)}
         onFocusCapture={() => setPaused(true)}
@@ -154,13 +158,36 @@ export function AboutValuesCarousel() {
           type="button"
           onClick={goPrev}
           disabled={maxIndex === 0}
-          className={arrowClass}
+          className={cn(arrowClass, "hidden md:inline-flex self-center")}
           aria-label={values.prevAria}
         >
-          <LocaleCarouselPrev className="size-4 md:size-5" />
+          <LocaleCarouselPrev className="size-5" />
         </button>
 
-        <div ref={viewportRef} className="min-w-0 flex-1 overflow-hidden">
+        <div
+          ref={viewportRef}
+          className="relative min-w-0 flex-1 overflow-hidden"
+        >
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={maxIndex === 0}
+            className={cn(mobileOverlayArrowClass, "start-2")}
+            aria-label={values.prevAria}
+          >
+            <LocaleCarouselPrev className="size-4" />
+          </button>
+
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={maxIndex === 0}
+            className={cn(mobileOverlayArrowClass, "end-2")}
+            aria-label={values.nextAria}
+          >
+            <LocaleCarouselNext className="size-4" />
+          </button>
+
           <div
             className="flex gap-0 transition-transform duration-500 ease-out md:gap-5"
             dir="ltr"
@@ -185,7 +212,7 @@ export function AboutValuesCarousel() {
                   }}
                   aria-hidden={!isVisible}
                 >
-                  <div className="flex min-h-[220px] flex-col rounded-2xl border border-[#94D4B9]/10 bg-[#091014] p-4 shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:rounded-[20px] md:p-6">
+                  <div className="flex min-h-[220px] flex-col rounded-2xl border border-[#94D4B9]/10 bg-[#091014] p-4 px-12 shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:rounded-[20px] md:p-6 md:px-6">
                     <span className="mb-4 flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#94D4B9]/10">
                       <Icon className="size-5 text-[#94D4B9]" aria-hidden />
                     </span>
@@ -206,16 +233,16 @@ export function AboutValuesCarousel() {
           type="button"
           onClick={goNext}
           disabled={maxIndex === 0}
-          className={arrowClass}
+          className={cn(arrowClass, "hidden md:inline-flex self-center")}
           aria-label={values.nextAria}
         >
-          <LocaleCarouselNext className="size-4 md:size-5" />
+          <LocaleCarouselNext className="size-5" />
         </button>
       </div>
 
       {maxIndex > 0 ? (
         <div
-          className="flex items-center justify-center gap-2"
+          className="hidden items-center justify-center gap-2 md:flex"
           role="tablist"
           aria-label={values.indicatorsAria}
         >

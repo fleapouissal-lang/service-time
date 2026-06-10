@@ -207,18 +207,15 @@ export function getQuickRequestAdminReadFilterOptions(
   t: Messages,
   variant: "client" | "admin" = "client",
 ) {
-  const labels =
-    variant === "admin"
-      ? t.dashboard.admin.quickRequestsPage.table
-      : t.dashboard.client.quickRequestsPage.table;
-
   if (variant === "admin") {
+    const labels = t.dashboard.admin.quickRequestsPage.table;
     return [
       { value: "read", label: labels.read },
       { value: "unread", label: labels.unread },
     ];
   }
 
+  const labels = t.dashboard.client.quickRequestsPage.table;
   return [
     { value: "read", label: labels.adminRead },
     { value: "unread", label: labels.adminPending },

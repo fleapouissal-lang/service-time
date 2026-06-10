@@ -144,7 +144,7 @@ html[lang="ar"] {
     font-family: var(--font-heading);
   }
 
-  /* Scrollbar sombre — panneaux déroulants, listes, sidebar */
+  /* Scrollbar sombre — panneaux déroulants, listes, sidebar, pages desktop */
   .scrollbar-theme {
     scrollbar-width: thin;
     scrollbar-color: rgba(148, 212, 185, 0.42) #0a1218;
@@ -171,6 +171,37 @@ html[lang="ar"] {
   }
 
   .scrollbar-theme::-webkit-scrollbar-corner {
+    background: #0a1218;
+  }
+}
+
+@media (min-width: 768px) {
+  html {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(148, 212, 185, 0.42) #0a1218;
+  }
+
+  html::-webkit-scrollbar {
+    width: 7px;
+    height: 7px;
+  }
+
+  html::-webkit-scrollbar-track {
+    background: #0a1218;
+    border-radius: 999px;
+  }
+
+  html::-webkit-scrollbar-thumb {
+    background: rgba(148, 212, 185, 0.32);
+    border-radius: 999px;
+    border: 2px solid #0a1218;
+  }
+
+  html::-webkit-scrollbar-thumb:hover {
+    background: rgba(148, 212, 185, 0.52);
+  }
+
+  html::-webkit-scrollbar-corner {
     background: #0a1218;
   }
 }

@@ -74,7 +74,9 @@ export default async function AboutPage() {
         <AboutValuesCarousel />
       </div>
 
-      <AboutCtaSection />
+      <div className="hidden md:block">
+        <AboutCtaSection />
+      </div>
     </>
   );
 }
