@@ -1785,4 +1785,13 @@ export const messages = {
       invalidAmount: "Order amount is invalid for payment.",
     },
   },
+
+  pwa: {
+    offline: {
+      title: "You are offline",
+      description:
+        "Check your internet connection. Some cached pages may still be available.",
+      retry: "Back to home",
+    },
+  },
 } as const;

@@ -6,7 +6,6 @@ dist
 *.log
 .DS_Store
 
-
-
-
-
+# Serwist (PWA)
+public/sw*
+public/swe-worker*

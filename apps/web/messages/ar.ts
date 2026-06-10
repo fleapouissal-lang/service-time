@@ -1781,4 +1781,13 @@ export const messages = {
       invalidAmount: "مبلغ الطلب غير صالح للدفع.",
     },
   },
+
+  pwa: {
+    offline: {
+      title: "أنت غير متصل",
+      description:
+        "تحقق من اتصال الإنترنت. قد تظل بعض الصفحات المحفوظة متاحة.",
+      retry: "العودة للرئيسية",
+    },
+  },
 } as const;

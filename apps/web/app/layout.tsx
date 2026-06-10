@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
+import { PwaProvider } from "@/components/pwa/pwa-provider";
 import { AuthSessionGuard } from "@/components/auth/auth-session-guard";
 import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
@@ -23,6 +24,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  colorScheme: "dark",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -50,15 +52,17 @@ export default async function RootLayout({
       className={`${poppins.variable} h-full scroll-smooth`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
-        <LocaleProvider locale={locale}>
-          <AuthSessionGuard />
-          <SparePartsCartRoot>
-            <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
-              {children}
-            </PublicShell>
-            <MobileBottomNav />
-          </SparePartsCartRoot>
-        </LocaleProvider>
+        <PwaProvider>
+          <LocaleProvider locale={locale}>
+            <AuthSessionGuard />
+            <SparePartsCartRoot>
+              <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
+                {children}
+              </PublicShell>
+              <MobileBottomNav />
+            </SparePartsCartRoot>
+          </LocaleProvider>
+        </PwaProvider>
       </body>
     </html>
   );

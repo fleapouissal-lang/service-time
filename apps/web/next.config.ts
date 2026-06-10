@@ -1,6 +1,7 @@
+import type { NextConfig } from "next";
+import { withSerwist } from "@serwist/turbopack";
 import path from "path";
 import { loadEnvConfig } from "@next/env";
-import type { NextConfig } from "next";
 
 const webDir = __dirname;
 const rootDir = path.join(__dirname, "../..");
@@ -84,4 +85,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSerwist(nextConfig);

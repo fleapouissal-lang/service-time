@@ -139,6 +139,11 @@ export function buildSiteMetadata({
       telephone: true,
       email: true,
     },
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "black-translucent",
+      title: SITE_NAME,
+    },
     icons: {
       icon: "/logos/icon.png",
       shortcut: "/logos/icon.png",
