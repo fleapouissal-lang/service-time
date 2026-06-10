@@ -30,6 +30,7 @@
     "db:technician-location": "node scripts/apply-technician-location-tracking.mjs",
     "db:client-vehicles": "node scripts/apply-client-vehicles.mjs",
     "db:profile-names": "node scripts/apply-profile-localized-names.mjs",
+    "db:request-status-assigned": "node scripts/apply-request-status-assigned.mjs",
     "db:push": "npx supabase db push"
   },
   "devDependencies": {

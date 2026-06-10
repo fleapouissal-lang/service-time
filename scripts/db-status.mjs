@@ -34,4 +34,21 @@ const applied = await client.query(`
 `).catch(() => ({ rows: [] }));
 console.log("Tracked migrations:", applied.rows.length);
 
+const enumValues = await client.query(`
+  SELECT e.enumlabel AS value
+  FROM pg_enum e
+  INNER JOIN pg_type t ON e.enumtypid = t.oid
+  INNER JOIN pg_namespace n ON t.typnamespace = n.oid
+  WHERE n.nspname = 'public' AND t.typname = 'request_status'
+  ORDER BY e.enumsortorder
+`).catch(() => ({ rows: [] }));
+console.log(
+  "request_status:",
+  enumValues.rows.map((r) => r.value).join(", ") || "(type introuvable)",
+);
+console.log(
+  'request_status.assigned:',
+  enumValues.rows.some((r) => r.value === "assigned") ? "OK" : "MANQUANT",
+);
+
 await client.end();
