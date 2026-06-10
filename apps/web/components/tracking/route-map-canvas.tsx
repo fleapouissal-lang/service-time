@@ -125,7 +125,7 @@ export function RouteMapCanvas({
   return (
     <div
       ref={containerRef}
-      className="h-72 w-full rounded-2xl border border-border bg-muted/20 [&_.leaflet-container]:rounded-2xl"
+      className="relative isolate z-0 h-72 w-full rounded-2xl border border-border bg-muted/20 [&_.leaflet-container]:z-0 [&_.leaflet-container]:rounded-2xl"
     />
   );
 }

@@ -51,12 +51,12 @@ export default async function TechnicianOrderPage({
         </Badge>
       </div>
 
-      <Card>
-        <CardContent className="p-6">
+      <Card className="relative z-20">
+        <CardContent className="overflow-visible p-6">
           <h2 className="mb-4 font-semibold">{t.common.status}</h2>
           <form action={updateTechnicianOrderStatus} className="flex flex-wrap gap-3">
             <input type="hidden" name="id" value={order.id} />
-            <div className="min-w-[220px] flex-1">
+            <div className="relative z-20 min-w-[220px] flex-1">
               <IconSelect
                 name="status"
                 options={statusOptions}
@@ -71,7 +71,7 @@ export default async function TechnicianOrderPage({
       </Card>
 
       {showLocation && (
-        <Card>
+        <Card className="relative z-0">
           <CardContent className="p-6">
             <h2 className="mb-2 font-semibold">{t.dashboard.technician.location}</h2>
             <p className="mb-4 text-xs text-muted">
