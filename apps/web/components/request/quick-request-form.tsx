@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useRef, useState, useTransition, type FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { Mail, MessageSquare, Phone, User } from "lucide-react";
 import { submitQuickServiceRequest } from "@/app/request/quick-actions";
 import { RequestFormShell } from "@/components/request/request-form-shell";
@@ -15,24 +16,44 @@ import {
   validateQuickRequestContact,
 } from "@/lib/contact-validation";
 
-export function QuickRequestForm() {
+type QuickRequestFormProps = {
+  bare?: boolean;
+  defaultName?: string;
+  defaultPhone?: string;
+  defaultEmail?: string;
+  onSuccess?: () => void;
+};
+
+export function QuickRequestForm({
+  bare = false,
+  defaultName = "",
+  defaultPhone = "",
+  defaultEmail = "",
+  onSuccess,
+}: QuickRequestFormProps) {
+  const router = useRouter();
   const { messages: t } = useLocale();
   const form = t.request.quickForm;
   const [state, action, pending] = useActionState(submitQuickServiceRequest, {});
   const [, startSubmitTransition] = useTransition();
   const formRef = useRef<HTMLFormElement>(null);
   const [clientError, setClientError] = useState("");
+  const handledSuccessRef = useRef(false);
 
   useEffect(() => {
-    if (state.success) {
-      formRef.current?.reset();
-      setClientError("");
-    }
-  }, [state.success]);
+    if (!state.success) return;
+    if (handledSuccessRef.current) return;
+    handledSuccessRef.current = true;
+    formRef.current?.reset();
+    setClientError("");
+    router.refresh();
+    onSuccess?.();
+  }, [state.success, router, onSuccess]);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setClientError("");
+    handledSuccessRef.current = false;
 
     const formData = new FormData(e.currentTarget);
     const contact = validateQuickRequestContact(
@@ -58,7 +79,7 @@ export function QuickRequestForm() {
   }
 
   return (
-    <RequestFormShell>
+    <RequestFormShell bare={bare}>
       <form ref={formRef} onSubmit={handleSubmit} className="relative space-y-5">
         <FormSecurityFields />
         {state.success ? (
@@ -82,70 +103,77 @@ export function QuickRequestForm() {
           </div>
         ) : null}
 
-        <div>
-          <Label htmlFor="quick_name">{form.name}</Label>
-          <IconInput
-            id="quick_name"
-            name="name"
-            icon={User}
-            required
-            placeholder={t.common.placeholderName}
-          />
-        </div>
+        {!state.success ? (
+          <>
+            <div>
+              <Label htmlFor="quick_name">{form.name}</Label>
+              <IconInput
+                id="quick_name"
+                name="name"
+                icon={User}
+                required
+                defaultValue={defaultName}
+                placeholder={t.common.placeholderName}
+              />
+            </div>
 
-        <div>
-          <Label htmlFor="quick_phone">{form.phone}</Label>
-          <IconInput
-            id="quick_phone"
-            name="phone"
-            icon={Phone}
-            required
-            dir="ltr"
-            placeholder={t.common.placeholderPhone}
-          />
-        </div>
+            <div>
+              <Label htmlFor="quick_phone">{form.phone}</Label>
+              <IconInput
+                id="quick_phone"
+                name="phone"
+                icon={Phone}
+                required
+                dir="ltr"
+                defaultValue={defaultPhone}
+                placeholder={t.common.placeholderPhone}
+              />
+            </div>
 
-        <div>
-          <Label htmlFor="quick_email">{form.email}</Label>
-          <IconInput
-            id="quick_email"
-            name="email"
-            icon={Mail}
-            type="email"
-            dir="ltr"
-            placeholder={t.common.placeholderEmail}
-          />
-          <p className="mt-1.5 text-xs text-muted">{form.emailHint}</p>
-        </div>
+            <div>
+              <Label htmlFor="quick_email">{form.email}</Label>
+              <IconInput
+                id="quick_email"
+                name="email"
+                icon={Mail}
+                type="email"
+                dir="ltr"
+                defaultValue={defaultEmail}
+                placeholder={t.common.placeholderEmail}
+              />
+              <p className="mt-1.5 text-xs text-muted">{form.emailHint}</p>
+            </div>
 
-        <div>
-          <Label htmlFor="quick_message">{form.message}</Label>
-          <IconTextarea
-            id="quick_message"
-            name="message"
-            icon={MessageSquare}
-            required
-            placeholder={t.common.placeholderMessage}
-          />
-        </div>
+            <div>
+              <Label htmlFor="quick_message">{form.message}</Label>
+              <IconTextarea
+                id="quick_message"
+                name="message"
+                icon={MessageSquare}
+                required
+                placeholder={t.common.placeholderMessage}
+              />
+            </div>
 
-        <div>
-          <PhotoUploadField
-            id="quick_photo"
-            name="photo"
-            accept="image/jpeg,image/png,image/webp"
-          />
-        </div>
+            <div>
+              <PhotoUploadField
+                id="quick_photo"
+                name="photo"
+                accept="image/jpeg,image/png,image/webp"
+              />
+            </div>
 
-        <Button
-          type="submit"
-          variant="accent"
-          size="lg"
-          className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
-          disabled={pending}
-        >
-          {pending ? t.common.sending : form.submit}
-        </Button>
+            <Button
+              type="submit"
+              variant="accent"
+              size="lg"
+              className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+              disabled={pending}
+            >
+              {pending ? t.common.sending : form.submit}
+            </Button>
+          </>
+        ) : null}
       </form>
     </RequestFormShell>
   );

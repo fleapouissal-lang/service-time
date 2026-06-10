@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminUsersWorkspace } from "@/components/admin/admin-users-workspace";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { StatCard } from "@/components/dashboard/stat-card";
@@ -34,12 +35,11 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{t.meta.adminUsers}</h1>
+      <DashboardPageHeader title={t.meta.adminUsers}>
         <p className="text-muted">{p.subtitle}</p>
-      </div>
+      </DashboardPageHeader>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-2 items-stretch gap-3 sm:gap-4">
         <StatCard
           label={t.dashboard.admin.users.total}
           value={stats.total}

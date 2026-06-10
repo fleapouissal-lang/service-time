@@ -21,7 +21,10 @@ export function RequestFormShell({
 
   return (
     <section
-      className={cn("mx-auto w-[90%] max-w-2xl pb-16", containerClassName)}
+      className={cn(
+        "mx-auto w-[90%] max-w-2xl pb-16",
+        containerClassName,
+      )}
     >
       <div
         className={cn(

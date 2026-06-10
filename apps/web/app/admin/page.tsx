@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminOverviewOrdersTable } from "@/components/admin/admin-overview-orders-table";
 import {
   AlertTriangle,
@@ -101,12 +102,11 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{t.dashboard.admin.overview}</h1>
+      <DashboardPageHeader title={t.dashboard.admin.overview}>
         <p className="text-muted">
           {t.dashboard.admin.title} — {periodLabel}
         </p>
-      </div>
+      </DashboardPageHeader>
 
       <div>
         <h2 className="mb-3 text-sm font-semibold text-muted">

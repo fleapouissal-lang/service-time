@@ -27,6 +27,7 @@ export function MobileFilterPanel({
   return (
     <div className={className}>
       <div
+        key="filter-toggle"
         className={cn(
           "flex justify-end lg:hidden",
           open && "mb-3",
@@ -42,7 +43,10 @@ export function MobileFilterPanel({
         />
       </div>
 
-      <div className={cn(!open && "hidden lg:block", panelClassName)}>
+      <div
+        key="filter-panel"
+        className={cn(!open && "hidden lg:block", panelClassName)}
+      >
         {children}
       </div>
     </div>

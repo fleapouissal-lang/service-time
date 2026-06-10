@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -43,12 +44,11 @@ export default async function TechnicianOrdersPage({ searchParams }: PageProps) 
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t.meta.technicianOrders}</h1>
+      <DashboardPageHeader title={t.meta.technicianOrders}>
         <p className="text-muted">
           {t.dashboard.technician.myOrdersPeriod} — {periodLabel}
         </p>
-      </div>
+      </DashboardPageHeader>
 
       <DashboardFilterBar
         pathname="/technician/orders"

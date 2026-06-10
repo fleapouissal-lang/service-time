@@ -41,6 +41,80 @@ type AdminCreateOrderFormProps = {
 };
 
 type ClientMode = "existing" | "new";
+type WizardStep = 1 | 2 | 3;
+
+const STEPS: { id: WizardStep; labelKey: "stepClient" | "stepService" | "stepFinish" }[] = [
+  { id: 1, labelKey: "stepClient" },
+  { id: 2, labelKey: "stepService" },
+  { id: 3, labelKey: "stepFinish" },
+];
+
+function StepIndicator({
+  step,
+  labels,
+}: {
+  step: WizardStep;
+  labels: { stepClient: string; stepService: string; stepFinish: string };
+}) {
+  return (
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-2 text-sm">
+      {STEPS.map((item, index) => (
+        <div key={item.id} className="flex items-center gap-2">
+          {index > 0 ? (
+            <span className="text-muted" aria-hidden>
+              —
+            </span>
+          ) : null}
+          <span
+            className={cn(
+              "flex size-7 shrink-0 items-center justify-center rounded-full font-semibold",
+              step === item.id
+                ? "bg-primary text-primary-foreground"
+                : "bg-muted/30 text-muted",
+            )}
+          >
+            {item.id}
+          </span>
+          <span className={step === item.id ? "font-semibold" : "text-muted"}>
+            {labels[item.labelKey]}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ClientSummary({
+  clientMode,
+  selectedClient,
+  locale,
+  labels,
+}: {
+  clientMode: ClientMode;
+  selectedClient?: Profile;
+  locale: string;
+  labels: {
+    step1Title: string;
+    newClient: string;
+    dash: string;
+  };
+}) {
+  return (
+    <div className="rounded-xl border border-border bg-muted/10 px-4 py-3 text-sm">
+      <p className="font-semibold">{labels.step1Title}</p>
+      {clientMode === "existing" && selectedClient ? (
+        <p className="mt-1 text-muted">
+          {getProfileDisplayName(selectedClient, locale)}
+          <span dir="ltr" className="mx-2">
+            {selectedClient.phone}
+          </span>
+        </p>
+      ) : (
+        <p className="mt-1 text-muted">{labels.newClient}</p>
+      )}
+    </div>
+  );
+}
 
 export function AdminCreateOrderForm({
   clients,
@@ -53,7 +127,7 @@ export function AdminCreateOrderForm({
   const router = useRouter();
   const p = t.dashboard.admin.ordersPage;
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState<WizardStep>(1);
   const [clientMode, setClientMode] = useState<ClientMode>("existing");
   const [selectedClientId, setSelectedClientId] = useState("");
   const [clientSearch, setClientSearch] = useState("");
@@ -71,14 +145,7 @@ export function AdminCreateOrderForm({
     handledSuccessRef.current = true;
     router.refresh();
     setOpen(false);
-    setStep(1);
-    setClientMode("existing");
-    setSelectedClientId("");
-    setClientSearch("");
-    setStepError("");
-    setServiceType("periodic_maintenance");
-    setExecutionMethod("mobile_workshop");
-    setPaymentMethod("cash_on_delivery");
+    resetWizard();
   }, [state.success, router]);
 
   const filteredClients = useMemo(() => {
@@ -108,6 +175,10 @@ export function AdminCreateOrderForm({
     resetWizard();
   }
 
+  function getForm() {
+    return document.getElementById("admin-create-order-form") as HTMLFormElement | null;
+  }
+
   function validateStep1(): boolean {
     if (clientMode === "existing") {
       if (!selectedClientId) {
@@ -119,9 +190,7 @@ export function AdminCreateOrderForm({
         return false;
       }
     } else {
-      const form = document.getElementById("admin-create-order-form") as
-        | HTMLFormElement
-        | null;
+      const form = getForm();
       const name = (
         form?.elements.namedItem("customer_name") as HTMLInputElement | null
       )?.value.trim();
@@ -141,9 +210,53 @@ export function AdminCreateOrderForm({
     return true;
   }
 
+  function validateStep2(): boolean {
+    const form = getForm();
+    const location = form?.elements.namedItem("location_text") as HTMLInputElement | null;
+    const car = form?.elements.namedItem("car_type") as HTMLInputElement | null;
+
+    if (location && location.required && !location.value.trim()) {
+      setStepError(t.request.form.location);
+      location.focus();
+      return false;
+    }
+
+    if (car && car.required && !car.value.trim()) {
+      setStepError(t.request.form.car);
+      car.focus();
+      return false;
+    }
+
+    for (const el of [location, car]) {
+      if (el && !el.checkValidity()) {
+        el.reportValidity();
+        return false;
+      }
+    }
+
+    setStepError("");
+    return true;
+  }
+
   function goToStep2() {
     if (validateStep1()) setStep(2);
   }
+
+  function goToStep3() {
+    if (validateStep2()) setStep(3);
+  }
+
+  const stepLabels = {
+    stepClient: p.stepClient,
+    stepService: p.stepService,
+    stepFinish: p.stepFinish,
+  };
+
+  const clientSummaryLabels = {
+    step1Title: p.step1Title,
+    newClient: p.newClient,
+    dash: t.common.dash,
+  };
 
   return (
     <Card>
@@ -190,37 +303,7 @@ export function AdminCreateOrderForm({
               <input type="hidden" name="client_id" value={selectedClientId} />
             ) : null}
 
-            <div className="flex items-center gap-3 text-sm">
-              <span
-                className={cn(
-                  "flex size-7 items-center justify-center rounded-full font-semibold",
-                  step === 1
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted/30 text-muted",
-                )}
-              >
-                1
-              </span>
-              <span className={step === 1 ? "font-semibold" : "text-muted"}>
-                {p.stepClient}
-              </span>
-              <span className="text-muted" aria-hidden>
-                —
-              </span>
-              <span
-                className={cn(
-                  "flex size-7 items-center justify-center rounded-full font-semibold",
-                  step === 2
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted/30 text-muted",
-                )}
-              >
-                2
-              </span>
-              <span className={step === 2 ? "font-semibold" : "text-muted"}>
-                {p.stepOrder}
-              </span>
-            </div>
+            <StepIndicator step={step} labels={stepLabels} />
 
             <div className={cn("space-y-5", step !== 1 && "hidden")}>
               <div className="flex flex-wrap gap-2">
@@ -361,127 +444,160 @@ export function AdminCreateOrderForm({
             </div>
 
             <div className={cn("space-y-5", step !== 2 && "hidden")}>
-                <div className="rounded-xl border border-border bg-muted/10 px-4 py-3 text-sm">
-                  <p className="font-semibold">{p.step1Title}</p>
-                  {clientMode === "existing" && selectedClient ? (
-                    <p className="mt-1 text-muted">
-                      {getProfileDisplayName(selectedClient, locale)}
-                      <span dir="ltr" className="mx-2">
-                        {selectedClient.phone}
-                      </span>
-                    </p>
-                  ) : (
-                    <p className="mt-1 text-muted">{p.newClient}</p>
-                  )}
-                </div>
+              <ClientSummary
+                clientMode={clientMode}
+                selectedClient={selectedClient}
+                locale={locale}
+                labels={clientSummaryLabels}
+              />
 
-                <div className="grid gap-4 md:grid-cols-2">
-                  <div>
-                    <Label htmlFor="service_type">{t.request.form.serviceType}</Label>
-                    <IconSelect
-                      id="service_type"
-                      name="service_type"
-                      options={serviceTypeOptions}
-                      value={serviceType}
-                      onValueChange={setServiceType}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="execution_method">
-                      {t.request.form.executionMethod}
-                    </Label>
-                    <IconSelect
-                      id="execution_method"
-                      name="execution_method"
-                      options={executionMethodOptions}
-                      value={executionMethod}
-                      onValueChange={setExecutionMethod}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="priority">{t.common.priority}</Label>
-                    <IconSelect
-                      id="priority"
-                      name="priority"
-                      options={priorityOptions}
-                      defaultValue="normal"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="assigned_technician_id">{p.assignTechnician}</Label>
-                    <IconSelect
-                      id="assigned_technician_id"
-                      name="assigned_technician_id"
-                      options={technicianOptions}
-                      defaultValue=""
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <AdminOrderPricePaymentFields
-                      serviceType={serviceType}
-                      executionMethod={executionMethod}
-                      paymentMethod={paymentMethod}
-                      onPaymentMethodChange={setPaymentMethod}
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <AdminClientVehicleField
-                      clientId={
-                        clientMode === "existing" ? selectedClientId : null
-                      }
-                    />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="location_text">{t.request.form.location}</Label>
-                    <LocationField variant="dashboard" />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label htmlFor="description">
-                      {t.request.form.problemDescription}
-                    </Label>
-                    <IconTextarea
-                      id="description"
-                      name="description"
-                      icon={FileText}
-                      placeholder={t.common.placeholderNotes}
-                    />
-                  </div>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div>
+                  <Label htmlFor="service_type">{t.request.form.serviceType}</Label>
+                  <IconSelect
+                    id="service_type"
+                    name="service_type"
+                    options={serviceTypeOptions}
+                    value={serviceType}
+                    onValueChange={setServiceType}
+                    required
+                  />
                 </div>
-
-                {state.error ? (
-                  <div
-                    className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
-                    role="alert"
-                  >
-                    {state.error}
-                  </div>
-                ) : null}
-
-                <div className="flex flex-wrap gap-2">
-                  <Button type="submit" disabled={pending}>
-                    {pending ? t.common.saving : p.createOrder}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    disabled={pending}
-                  >
-                    <ArrowRight className="size-4" aria-hidden />
-                    {p.prevStep}
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={closeForm}
-                    disabled={pending}
-                  >
-                    {t.common.cancel}
-                  </Button>
+                <div>
+                  <Label htmlFor="execution_method">
+                    {t.request.form.executionMethod}
+                  </Label>
+                  <IconSelect
+                    id="execution_method"
+                    name="execution_method"
+                    options={executionMethodOptions}
+                    value={executionMethod}
+                    onValueChange={setExecutionMethod}
+                    required
+                  />
                 </div>
+                <div>
+                  <Label htmlFor="priority">{t.common.priority}</Label>
+                  <IconSelect
+                    id="priority"
+                    name="priority"
+                    options={priorityOptions}
+                    defaultValue="normal"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="assigned_technician_id">{p.assignTechnician}</Label>
+                  <IconSelect
+                    id="assigned_technician_id"
+                    name="assigned_technician_id"
+                    options={technicianOptions}
+                    defaultValue=""
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <AdminClientVehicleField
+                    clientId={clientMode === "existing" ? selectedClientId : null}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="location_text">{t.request.form.location}</Label>
+                  <LocationField variant="dashboard" />
+                </div>
+              </div>
+
+              {stepError ? (
+                <p className="text-sm text-red-400" role="alert">
+                  {stepError}
+                </p>
+              ) : null}
+
+              <div className="flex flex-wrap gap-2">
+                <Button type="button" onClick={goToStep3}>
+                  {p.nextStep}
+                  <ArrowLeft className="size-4" aria-hidden />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setStep(1);
+                    setStepError("");
+                  }}
+                >
+                  <ArrowRight className="size-4" aria-hidden />
+                  {p.prevStep}
+                </Button>
+                <Button type="button" variant="outline" onClick={closeForm}>
+                  {t.common.cancel}
+                </Button>
+              </div>
+            </div>
+
+            <div className={cn("space-y-5", step !== 3 && "hidden")}>
+              <ClientSummary
+                clientMode={clientMode}
+                selectedClient={selectedClient}
+                locale={locale}
+                labels={clientSummaryLabels}
+              />
+
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="md:col-span-2">
+                  <AdminOrderPricePaymentFields
+                    serviceType={serviceType}
+                    executionMethod={executionMethod}
+                    paymentMethod={paymentMethod}
+                    onPaymentMethodChange={setPaymentMethod}
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <Label htmlFor="description">
+                    {t.request.form.problemDescription}
+                  </Label>
+                  <IconTextarea
+                    id="description"
+                    name="description"
+                    icon={FileText}
+                    placeholder={t.common.placeholderNotes}
+                  />
+                </div>
+              </div>
+
+              {state.error ? (
+                <div
+                  className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+                  role="alert"
+                >
+                  {state.error}
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap gap-2">
+                <Button type="submit" disabled={pending}>
+                  {pending ? t.common.saving : p.createOrder}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setStep(2);
+                    setStepError("");
+                  }}
+                  disabled={pending}
+                >
+                  <ArrowRight className="size-4" aria-hidden />
+                  {p.prevStep}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={closeForm}
+                  disabled={pending}
+                >
+                  {t.common.cancel}
+                </Button>
+              </div>
             </div>
 
             {state.success ? (

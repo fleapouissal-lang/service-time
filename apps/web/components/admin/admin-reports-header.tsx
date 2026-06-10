@@ -31,10 +31,12 @@ export function AdminReportsHeader({
           <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20">
             <BarChart3 className="size-6" aria-hidden />
           </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
-            <p className="mt-1 max-w-2xl text-sm text-muted md:text-base">{subtitle}</p>
-            <div className="mt-4 flex flex-wrap gap-2">
+          <div className="min-w-0">
+            <div className="hidden md:block">
+              <h1 className="text-2xl font-bold tracking-tight md:text-3xl">{title}</h1>
+              <p className="mt-1 max-w-2xl text-sm text-muted md:text-base">{subtitle}</p>
+            </div>
+            <div className="mt-0 flex flex-wrap gap-2 md:mt-4">
               <Badge variant="secondary" className="rounded-lg px-3 py-1">
                 {periodCaption}: {periodLabel}
               </Badge>
@@ -47,7 +49,7 @@ export function AdminReportsHeader({
             </div>
           </div>
         </div>
-        <p className="text-xs text-muted">{updatedCaption}</p>
+        <p className="hidden text-xs text-muted md:block">{updatedCaption}</p>
       </div>
     </div>
   );

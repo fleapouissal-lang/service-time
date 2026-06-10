@@ -35,9 +35,12 @@ export function useSparePartsPageSizeSync() {
       router.replace(`${pathname}?${params.toString()}`);
     }
 
-    sync();
+    const frame = window.requestAnimationFrame(sync);
     const media = window.matchMedia("(max-width: 639px)");
     media.addEventListener("change", sync);
-    return () => media.removeEventListener("change", sync);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      media.removeEventListener("change", sync);
+    };
   }, [pathname, router, searchParams]);
 }

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Profile } from "@service-time/types";
 import {
   DashboardSidebar,
@@ -20,6 +20,8 @@ import {
 } from "@/lib/i18n/dashboard-nav";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { signOutAndRedirect } from "@/lib/sign-out-client";
+import { MOBILE_BOTTOM_BAR_PADDING } from "@/lib/mobile-nav-layout";
+import { cn } from "@/lib/utils";
 
 const STORAGE_KEY = "service-time-sidebar-open";
 
@@ -53,12 +55,9 @@ function DashboardLayout({
   items: DashboardNavItem[];
   onSignOut: () => void;
 }) {
-  const pathname = usePathname();
-  const { open, toggle } = useSidebarOpen();
   const { locale } = useLocale();
+  const { open, toggle } = useSidebarOpen();
   const displayName = getProfileDisplayName(profile, locale);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
 
   const sidebarUser = {
     fullName: displayName,
@@ -68,55 +67,9 @@ function DashboardLayout({
     homeHref: getProfileHomePath(profile.role),
   };
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
-
-  useEffect(() => {
-    closeMobileMenu();
-  }, [pathname]);
-
-  useEffect(() => {
-    if (!mobileMenuOpen) {
-      document.body.style.overflow = "";
-      return;
-    }
-
-    document.body.style.overflow = "hidden";
-
-    const handleMenuScroll = () => closeMobileMenu();
-    const menuEl = menuRef.current;
-    menuEl?.addEventListener("scroll", handleMenuScroll, { passive: true });
-    window.addEventListener("wheel", handleMenuScroll, { passive: true });
-
-    return () => {
-      document.body.style.overflow = "";
-      menuEl?.removeEventListener("scroll", handleMenuScroll);
-      window.removeEventListener("wheel", handleMenuScroll);
-    };
-  }, [mobileMenuOpen]);
-
   return (
     <div className="flex h-dvh flex-col overflow-hidden bg-background lg:flex-row">
-      <DashboardMobileHeader
-        open={mobileMenuOpen}
-        onToggle={() => setMobileMenuOpen((value) => !value)}
-      />
-
-      {mobileMenuOpen ? (
-        <div
-          ref={menuRef}
-          className="fixed inset-x-0 top-20 z-40 flex h-[calc(100dvh-5rem)] flex-col lg:hidden"
-        >
-          <DashboardSidebar
-            user={sidebarUser}
-            items={items}
-            open
-            onToggle={closeMobileMenu}
-            onSignOut={onSignOut}
-            mobileMenu
-            onNavigate={closeMobileMenu}
-          />
-        </div>
-      ) : null}
+      <DashboardMobileHeader />
 
       <div className="hidden h-full shrink-0 lg:block">
         <DashboardSidebar
@@ -128,7 +81,13 @@ function DashboardLayout({
         />
       </div>
 
-      <main className="scrollbar-theme min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8">
+      <main
+        className={cn(
+          "scrollbar-theme min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8",
+          MOBILE_BOTTOM_BAR_PADDING,
+          "lg:pb-8",
+        )}
+      >
         <div className="mx-auto w-full max-w-[1200px]">{children}</div>
       </main>
     </div>

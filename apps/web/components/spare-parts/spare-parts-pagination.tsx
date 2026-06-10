@@ -13,12 +13,14 @@ type SparePartsPaginationProps = {
   currentPage: number;
   totalPages: number;
   pageSize: number;
+  filters?: { q?: string; category?: string };
 };
 
 export function SparePartsPagination({
   currentPage,
   totalPages,
   pageSize,
+  filters = {},
 }: SparePartsPaginationProps) {
   const { messages: t } = useLocale();
   if (totalPages <= 1) return null;
@@ -32,7 +34,7 @@ export function SparePartsPagination({
     >
       {currentPage > 1 ? (
         <Link
-          href={sparePartsPageHref(currentPage - 1, pageSize)}
+          href={sparePartsPageHref(currentPage - 1, pageSize, filters)}
           className="inline-flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10 sm:size-10"
           aria-label={t.spareParts.prevPage}
         >
@@ -51,7 +53,7 @@ export function SparePartsPagination({
         {pages.map((page) => (
           <Link
             key={page}
-            href={sparePartsPageHref(page, pageSize)}
+            href={sparePartsPageHref(page, pageSize, filters)}
             aria-current={page === currentPage ? "page" : undefined}
             className={cn(
               "inline-flex size-9 items-center justify-center rounded-full text-sm font-semibold transition-all duration-200 sm:size-10",
@@ -67,7 +69,7 @@ export function SparePartsPagination({
 
       {currentPage < totalPages ? (
         <Link
-          href={sparePartsPageHref(currentPage + 1, pageSize)}
+          href={sparePartsPageHref(currentPage + 1, pageSize, filters)}
           className="inline-flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10 sm:size-10"
           aria-label={t.spareParts.nextPage}
         >

@@ -36,7 +36,7 @@ export default async function ClientTrackPage({ searchParams }: PageProps) {
 
   return (
     <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-2xl font-bold">{t.dashboard.client.track}</h1>
         <p className="text-muted">{t.tracking.description}</p>
       </div>

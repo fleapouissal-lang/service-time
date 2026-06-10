@@ -35,10 +35,16 @@ export function ContactInfoCard({
       <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#94D4B9]/10">
         <Icon className="size-5 text-[#94D4B9]" aria-hidden />
       </span>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 text-start">
         <p className="font-semibold text-white">{title}</p>
-        <p className="mt-1 text-sm leading-7 text-muted" dir={valueDir}>
-          {value}
+        <p className="mt-1 text-start text-sm leading-7 text-muted">
+          {valueDir ? (
+            <span dir={valueDir} className="inline-block max-w-full">
+              {value}
+            </span>
+          ) : (
+            value
+          )}
         </p>
       </div>
     </a>

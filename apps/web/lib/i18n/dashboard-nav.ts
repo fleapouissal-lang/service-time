@@ -4,6 +4,7 @@ import {
   BarChart3,
   ClipboardList,
   LayoutDashboard,
+  Mail,
   MapPin,
   Package,
   Settings,
@@ -89,6 +90,11 @@ export function getTechnicianNav(messages: Messages): DashboardNavItem[] {
       href: "/technician/settings",
       label: messages.dashboard.settings.nav,
       icon: Settings,
+    },
+    {
+      href: "/contact",
+      label: messages.nav.contact,
+      icon: Mail,
     },
   ];
 }

@@ -23,6 +23,9 @@ type SparePartsCartContextValue = {
   totalCount: number;
   totalAmount: number;
   isReady: boolean;
+  drawerOpen: boolean;
+  openCartDrawer: () => void;
+  closeCartDrawer: () => void;
   addItem: (part: SparePart, quantity?: number) => void;
   removeItem: (id: string) => void;
   updateQuantity: (id: string, quantity: number) => void;
@@ -42,6 +45,10 @@ export function SparePartsCartProvider({
 }) {
   const [items, setItems] = useState<SparePartCartItem[]>([]);
   const [isReady, setIsReady] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const openCartDrawer = useCallback(() => setDrawerOpen(true), []);
+  const closeCartDrawer = useCallback(() => setDrawerOpen(false), []);
 
   useEffect(() => {
     setItems(readCartFromStorage());
@@ -131,6 +138,9 @@ export function SparePartsCartProvider({
       totalCount: getCartTotalCount(items),
       totalAmount: getCartTotalAmount(items),
       isReady,
+      drawerOpen,
+      openCartDrawer,
+      closeCartDrawer,
       addItem,
       removeItem,
       updateQuantity,
@@ -141,6 +151,9 @@ export function SparePartsCartProvider({
     [
       items,
       isReady,
+      drawerOpen,
+      openCartDrawer,
+      closeCartDrawer,
       addItem,
       removeItem,
       updateQuantity,

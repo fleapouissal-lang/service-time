@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { DashboardSettingsPanel } from "@/components/settings/dashboard-settings-panel";
 import { getDashboardSettingsPageData } from "@/lib/settings-page-data";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -16,10 +17,9 @@ export default async function AdminSettingsPage() {
 
   return (
     <div className="mx-auto w-full max-w-[900px] space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{t.dashboard.settings.title}</h1>
+      <DashboardPageHeader title={t.dashboard.settings.title}>
         <p className="text-muted">{t.dashboard.settings.subtitle}</p>
-      </div>
+      </DashboardPageHeader>
       <DashboardSettingsPanel profile={data.profile} email={data.email} />
     </div>
   );

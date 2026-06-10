@@ -91,7 +91,7 @@ function LoginFormContent() {
   }
 
   return (
-    <section className="grid min-h-screen h-screen w-full grid-cols-1 lg:grid-cols-2">
+    <section className="grid w-full grid-cols-1 max-lg:min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] lg:min-h-screen lg:h-screen lg:grid-cols-2">
       <div
         className="relative hidden overflow-hidden bg-[#050B10] bg-cover bg-center bg-no-repeat lg:flex lg:flex-col"
         style={{ backgroundImage: "url('/hero-bg.png')" }}
@@ -125,7 +125,7 @@ function LoginFormContent() {
         </div>
       </div>
 
-      <div className="relative flex items-center justify-center bg-[#060709] px-6 py-12 sm:px-10 lg:px-12">
+      <div className="relative flex min-h-full flex-col items-center justify-center bg-[#060709] px-6 py-8 max-lg:py-4 sm:px-10 lg:min-h-screen lg:px-12 lg:py-12">
         <div className="absolute end-6 top-6 z-20 sm:end-10 sm:top-8">
           <LanguageSwitcher tone="light" />
         </div>
@@ -134,8 +134,8 @@ function LoginFormContent() {
           aria-hidden
         />
 
-        <div className="relative z-10 w-full max-w-[420px]">
-          <Link href="/" className="mb-8 inline-flex lg:hidden">
+        <div className="relative z-10 w-full max-w-[420px] max-lg:mx-auto">
+          <Link href="/" className="mb-6 inline-flex max-lg:mx-auto max-lg:flex lg:mb-8 lg:hidden">
             <Image
               src="/logos/logo-ar.png"
               alt={t.common.brandNameAr}
@@ -295,7 +295,7 @@ function LoginFormContent() {
             )}
           </div>
 
-          <div className="mt-8 space-y-2 text-center text-xs leading-6 text-white/45">
+          <div className="mt-8 hidden space-y-2 text-center text-xs leading-6 text-white/45 lg:block">
             <div className="flex items-center justify-center gap-2">
               <Image
                 src="/logos/icon.png"

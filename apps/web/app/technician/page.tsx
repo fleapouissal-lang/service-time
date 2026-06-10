@@ -6,6 +6,7 @@ import {
   Wrench,
 } from "lucide-react";
 import { ChartPeriodTabs } from "@/components/dashboard/chart-period-tabs";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import {
   KpiInsightsCard,
   StatusDonutChart,
@@ -89,12 +90,11 @@ export default async function TechnicianHomePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{t.dashboard.technician.title}</h1>
+      <DashboardPageHeader title={t.dashboard.technician.title}>
         <p className="text-muted">
           {t.dashboard.technician.subtitle} — {periodLabel}
         </p>
-      </div>
+      </DashboardPageHeader>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <StatCard

@@ -51,15 +51,13 @@ export default async function HomePage() {
         ctaHref="/request"
       />
 
-      <TrustMarquee />
-
-      <HomeServicesSection services={featured} />
-
-      <HomeSparePartsSection parts={latestParts} />
-
-      <HomeLocationsSection workshops={workshops} />
-
-      <HomeCtaSection />
+      <div className="hidden md:block">
+        <TrustMarquee />
+        <HomeServicesSection services={featured} />
+        <HomeSparePartsSection parts={latestParts} />
+        <HomeLocationsSection workshops={workshops} />
+        <HomeCtaSection />
+      </div>
     </>
   );
 }

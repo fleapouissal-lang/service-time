@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminUserToggleForm } from "@/components/admin/admin-user-toggle-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
@@ -33,8 +34,9 @@ export default async function AdminUserDetailPage({ params }: PageProps) {
           <ArrowRight className="size-4 rotate-180" aria-hidden />
           {p.backToList}
         </Link>
-        <h1 className="text-2xl font-bold">{p.editUser}</h1>
-        <p className="text-muted">{getProfileDisplayName(user, locale)}</p>
+        <DashboardPageHeader title={p.editUser}>
+          <p className="text-muted">{getProfileDisplayName(user, locale)}</p>
+        </DashboardPageHeader>
       </div>
 
       <Card>

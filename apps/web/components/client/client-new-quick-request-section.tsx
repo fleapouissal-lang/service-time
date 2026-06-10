@@ -2,28 +2,28 @@
 
 import { useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
-import { ServiceRequestForm } from "@/components/request/service-request-form";
+import { QuickRequestForm } from "@/components/request/quick-request-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocale } from "@/lib/i18n/locale-context";
 
-type ClientNewOrderSectionProps = {
+type ClientNewQuickRequestSectionProps = {
   defaultName: string;
   defaultPhone: string;
-  savedVehicles?: string[];
+  defaultEmail?: string;
 };
 
-export function ClientNewOrderSection({
+export function ClientNewQuickRequestSection({
   defaultName,
   defaultPhone,
-  savedVehicles = [],
-}: ClientNewOrderSectionProps) {
+  defaultEmail = "",
+}: ClientNewQuickRequestSectionProps) {
   const { messages: t } = useLocale();
-  const p = t.dashboard.client.ordersPage;
+  const p = t.dashboard.client.quickRequestsPage;
   const [open, setOpen] = useState(false);
   const [formKey, setFormKey] = useState(0);
 
-  function handleOrderCreated() {
+  function handleRequestCreated() {
     setOpen(false);
     setFormKey((value) => value + 1);
   }
@@ -57,19 +57,14 @@ export function ClientNewOrderSection({
         </div>
 
         {open ? (
-          <div className="mt-6">
-            <ServiceRequestForm
+          <QuickRequestForm
             key={formKey}
-            embedded
             bare
-            twoSteps
-            refreshDashboard
             defaultName={defaultName}
             defaultPhone={defaultPhone}
-            savedVehicles={savedVehicles}
-            onSuccess={handleOrderCreated}
+            defaultEmail={defaultEmail}
+            onSuccess={handleRequestCreated}
           />
-          </div>
         ) : null}
       </CardContent>
     </Card>

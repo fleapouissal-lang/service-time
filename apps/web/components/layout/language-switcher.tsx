@@ -15,6 +15,8 @@ type LanguageSwitcherProps = {
   isTransparent?: boolean;
   /** Sidebar / light surfaces */
   tone?: "dark" | "light";
+  /** Compact pill for mobile header */
+  compact?: boolean;
   className?: string;
   onLocaleChange?: () => void;
 };
@@ -22,6 +24,7 @@ type LanguageSwitcherProps = {
 export function LanguageSwitcher({
   isTransparent = false,
   tone = "dark",
+  compact = false,
   className,
   onLocaleChange,
 }: LanguageSwitcherProps) {
@@ -33,11 +36,12 @@ export function LanguageSwitcher({
       role="group"
       aria-label={messages.language.label}
       className={cn(
-        "inline-flex h-10 items-center rounded-full border p-1 transition-all duration-300",
+        "relative z-20 inline-flex shrink-0 items-center rounded-full border p-1 transition-all duration-300",
+        compact ? "h-9" : "h-10",
         isLight
           ? "border-[#94D4B9]/35 bg-white/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.6)]"
           : isTransparent
-            ? "border-white/20 bg-white/5 backdrop-blur-md"
+            ? "border-white/25 bg-white/10 backdrop-blur-md"
             : "border-[#94D4B9]/20 bg-[#94D4B9]/[0.06] shadow-[inset_0_1px_0_rgba(148,212,185,0.08)]",
         isPending && "pointer-events-none opacity-60",
         className?.includes("w-full") && "mx-auto w-full max-w-[9.25rem]",
@@ -50,7 +54,8 @@ export function LanguageSwitcher({
           <button
             key={code}
             type="button"
-            onClick={() => {
+            onClick={(event) => {
+              event.stopPropagation();
               if (!active) {
                 setLocale(code);
                 onLocaleChange?.();
@@ -61,7 +66,8 @@ export function LanguageSwitcher({
             aria-label={messages.language[code]}
             title={messages.language[code]}
             className={cn(
-              "relative flex h-8 min-w-[2.85rem] flex-1 items-center justify-center rounded-full px-3 text-[11px] font-semibold tracking-[0.14em] transition-all duration-300",
+              "relative flex flex-1 items-center justify-center rounded-full font-semibold tracking-[0.14em] transition-all duration-300",
+              compact ? "h-7 min-w-[2.5rem] px-2 text-[10px]" : "h-8 min-w-[2.85rem] px-3 text-[11px]",
               active
                 ? "bg-[#94D4B9] text-[#050B10] shadow-[0_0_18px_rgba(148,212,185,0.4)]"
                 : isLight

@@ -6,6 +6,7 @@ import {
   MapPin,
   PlusCircle,
 } from "lucide-react";
+import { ClientAccountLinks } from "@/components/client/client-account-links";
 import { ClientLatestTrackingSection } from "@/components/client/client-latest-tracking-section";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { buildDashboardKpis } from "@/lib/dashboard-analytics";
@@ -50,7 +51,7 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-2xl font-bold">{t.dashboard.client.title}</h1>
         <p className="text-muted">
           {`${t.dashboard.client.subtitle} — ${periodLabel}`}
@@ -101,7 +102,7 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
         </Link>
         <Link
           href="/client/track"
-          className="inline-flex h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-semibold hover:bg-primary/5"
+          className="hidden h-11 items-center justify-center rounded-xl border border-border px-5 text-sm font-semibold hover:bg-primary/5 md:inline-flex"
         >
           {t.dashboard.client.trackOrder}
         </Link>
@@ -118,6 +119,11 @@ export default async function ClientHomePage({ searchParams }: PageProps) {
               }
             : null
         }
+      />
+
+      <ClientAccountLinks
+        items={["track", "settings"]}
+        className="md:hidden"
       />
     </div>
   );

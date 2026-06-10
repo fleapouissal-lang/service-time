@@ -20,6 +20,7 @@ type AdminWorkshopFormProps = {
   branch?: WorkshopBranch;
   canDelete?: boolean;
   className?: string;
+  embedded?: boolean;
   onSaved?: () => void;
 };
 
@@ -27,6 +28,7 @@ export function AdminWorkshopForm({
   branch,
   canDelete = false,
   className,
+  embedded = false,
   onSaved,
 }: AdminWorkshopFormProps) {
   const { messages: t, locale } = useLocale();
@@ -157,9 +159,11 @@ export function AdminWorkshopForm({
       >
         <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
           <div>
-            <p className="text-sm font-semibold text-primary">
-              {isEdit ? p.editWorkshop : p.addWorkshop}
-            </p>
+            {!embedded || isEdit ? (
+              <p className="text-sm font-semibold text-primary">
+                {isEdit ? p.editWorkshop : p.addWorkshop}
+              </p>
+            ) : null}
             {isEdit ? (
               <h3 className="mt-1 text-lg font-bold">{displayName}</h3>
             ) : null}

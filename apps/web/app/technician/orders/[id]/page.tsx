@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { updateTechnicianOrderStatus } from "@/app/technician/actions";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { LocationTracker } from "@/components/technician/location-tracker";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -43,13 +44,12 @@ export default async function TechnicianOrderPage({
         ← {t.common.back}
       </Link>
 
-      <div>
-        <h1 className="text-2xl font-bold">{order.customer_name}</h1>
+      <DashboardPageHeader title={order.customer_name}>
         <p className="text-muted">{order.location_text}</p>
         <Badge className="mt-2" variant="secondary">
           {statusLabels[order.status as keyof typeof statusLabels]}
         </Badge>
-      </div>
+      </DashboardPageHeader>
 
       <Card className="relative z-20">
         <CardContent className="overflow-visible p-6">

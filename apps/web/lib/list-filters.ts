@@ -12,6 +12,7 @@ export type ListFilterParams = {
   category?: string;
   role?: string;
   period?: string;
+  admin_read?: string;
 };
 
 export function parseListFilters(
@@ -28,6 +29,7 @@ export function parseListFilters(
     category: searchParams.category?.trim() || undefined,
     role: searchParams.role?.trim() || undefined,
     period: searchParams.period?.trim() || undefined,
+    admin_read: searchParams.admin_read?.trim() || undefined,
   };
 }
 
@@ -132,6 +134,12 @@ export function filterSparePartOrders<
     order_token: string;
     notes: string | null;
     created_at: string;
+    client?: {
+      full_name?: string | null;
+      full_name_ar?: string | null;
+      full_name_en?: string | null;
+      phone?: string | null;
+    } | null;
   },
 >(items: T[], params: ListFilterParams): T[] {
   return items.filter((item) => {
@@ -139,9 +147,14 @@ export function filterSparePartOrders<
 
     if (params.q) {
       const q = params.q.toLowerCase();
+      const client = item.client;
       const hit =
         matchesQuery(item.order_token, q) ||
-        matchesQuery(item.notes, q);
+        matchesQuery(item.notes, q) ||
+        matchesQuery(client?.full_name, q) ||
+        matchesQuery(client?.full_name_ar, q) ||
+        matchesQuery(client?.full_name_en, q) ||
+        matchesQuery(client?.phone, q);
       if (!hit) return false;
     }
 
@@ -248,6 +261,36 @@ export function filterSiteContentKeys<
   if (!params.q) return items;
   const q = params.q.toLowerCase();
   return items.filter((item) => item.key.toLowerCase().includes(q));
+}
+
+export function filterQuickRequests<
+  T extends {
+    name: string;
+    phone: string;
+    email: string | null;
+    message: string;
+    admin_read_at: string | null;
+    created_at: string;
+  },
+>(items: T[], params: ListFilterParams): T[] {
+  return items.filter((item) => {
+    if (!filterByPeriod(item.created_at, params.period)) return false;
+
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      const hit =
+        matchesQuery(item.message, q) ||
+        matchesQuery(item.name, q) ||
+        matchesQuery(item.phone, q) ||
+        matchesQuery(item.email, q);
+      if (!hit) return false;
+    }
+
+    if (params.admin_read === "read" && !item.admin_read_at) return false;
+    if (params.admin_read === "unread" && item.admin_read_at) return false;
+
+    return true;
+  });
 }
 
 export function uniqueCategories(items: SparePart[]): string[] {

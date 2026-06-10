@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { LocationTracker } from "@/components/technician/location-tracker";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -39,7 +40,7 @@ export default async function TechnicianLocationPage({
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
-      <h1 className="text-2xl font-bold">{t.dashboard.technician.locationPage.title}</h1>
+      <DashboardPageHeader title={t.dashboard.technician.locationPage.title} />
 
       <DashboardFilterBar
         pathname="/technician/location"

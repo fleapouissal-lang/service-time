@@ -37,9 +37,15 @@ export async function getSpareParts(): Promise<SparePart[]> {
   return (data ?? []) as SparePart[];
 }
 
+export type SparePartsListFilters = {
+  q?: string;
+  category?: string;
+};
+
 export async function getSparePartsPage(
   page: number,
   pageSize: number = SPARE_PARTS_PAGE_SIZE,
+  filters: SparePartsListFilters = {},
 ): Promise<{
   parts: SparePart[];
   total: number;
@@ -49,15 +55,57 @@ export async function getSparePartsPage(
   const to = from + pageSize - 1;
 
   const supabase = createWebSupabaseClient();
-  const { data, error, count } = await supabase
+  let query = supabase
     .from("spare_parts")
     .select("*", { count: "exact" })
-    .eq("is_active", true)
+    .eq("is_active", true);
+
+  if (filters.category && filters.category !== "all") {
+    query = query.eq("category", filters.category);
+  }
+
+  if (filters.q) {
+    const q = filters.q.replace(/[%_,]/g, " ").trim();
+    if (q) {
+      query = query.or(
+        [
+          `name_ar.ilike.%${q}%`,
+          `name_en.ilike.%${q}%`,
+          `description_ar.ilike.%${q}%`,
+          `description_en.ilike.%${q}%`,
+          `category.ilike.%${q}%`,
+          `category_en.ilike.%${q}%`,
+          `details.ilike.%${q}%`,
+          `details_en.ilike.%${q}%`,
+        ].join(","),
+      );
+    }
+  }
+
+  const { data, error, count } = await query
     .order("name_ar", { ascending: true })
     .range(from, to);
 
   if (error) return { parts: [], total: 0 };
   return { parts: (data ?? []) as SparePart[], total: count ?? 0 };
+}
+
+export async function getSparePartCategories(): Promise<string[]> {
+  const supabase = createWebSupabaseClient();
+  const { data, error } = await supabase
+    .from("spare_parts")
+    .select("category")
+    .eq("is_active", true)
+    .not("category", "is", null);
+
+  if (error) return [];
+  return [
+    ...new Set(
+      (data ?? [])
+        .map((row) => row.category)
+        .filter((c): c is string => Boolean(c)),
+    ),
+  ].sort((a, b) => a.localeCompare(b, "ar"));
 }
 
 export async function getLatestSpareParts(limit = 6): Promise<SparePart[]> {

@@ -64,10 +64,22 @@ export const messages = {
     home: "Home",
     services: "Services",
     request: "Request Service",
+    mobileRequest: "Request",
     spareParts: "Spare Parts",
+    sparePartsShort: "Parts",
     locations: "Locations",
     about: "About",
     contact: "Contact",
+    more: "More",
+    profile: "Account",
+    mobileNavLabel: "Main navigation",
+  },
+
+  mobileNav: {
+    dashboard: "Dashboard",
+    trackOrder: "Track order",
+    accountSettings: "Account settings",
+    profileMenu: "My account",
   },
 
   auth: {
@@ -284,6 +296,42 @@ export const messages = {
       subtitle:
         "Forget the hassle of maintenance and waiting — at Service Time we come to you in Riyadh with a certified technical team, whether you need periodic maintenance, emergency help, or spare parts. Request service in minutes, track your order in real time, and leave the rest to us — speed, transparency, and service worthy of your car.",
       cta: "Get started",
+      slidesAriaLabel: "Home hero slides",
+      slideAriaLabel: "Slide",
+      slides: [
+        {
+          titleBefore: "Your car deserves the best,",
+          titleHighlight: "and we deliver it.",
+          subtitle:
+            "Certified technicians in Riyadh — periodic maintenance, emergency help, and spare parts at your doorstep.",
+          cta: "Get started",
+          ctaHref: "/request",
+        },
+        {
+          titleBefore: "Emergency service",
+          titleHighlight: "on the road",
+          subtitle:
+            "Car broke down? Our mobile workshop reaches you quickly anywhere in Riyadh — 24/7.",
+          cta: "Request now",
+          ctaHref: "/request",
+        },
+        {
+          titleBefore: "Live tracking",
+          titleHighlight: "every step",
+          subtitle:
+            "Follow your order in real time via WhatsApp or SMS — transparent pricing from start to finish.",
+          cta: "Track order",
+          ctaHref: "/login",
+        },
+        {
+          titleBefore: "Genuine spare parts",
+          titleHighlight: "fast delivery",
+          subtitle:
+            "Order the right parts for your car from our catalog and get them delivered to you.",
+          cta: "Browse parts",
+          ctaHref: "/spare-parts",
+        },
+      ],
     },
     services: {
       eyebrow: "Our services",
@@ -831,6 +879,11 @@ export const messages = {
     avatarChoose: "Choose photo",
     avatarRemove: "Remove photo",
     showPassword: "Show password",
+    mobileStep1Title: "Your details",
+    mobileStep2Title: "Password & security",
+    mobileStepOf: "Step {current} of {total}",
+    nextStep: "Next",
+    backStep: "Back",
   },
 
   forgotPassword: {
@@ -883,10 +936,13 @@ export const messages = {
       orderSearch: "Customer name, phone, car, location, tracking code...",
       clientOrderSearch: "Car type, location, tracking code...",
       clientSparePartOrderSearch: "Order code, notes...",
+      adminSparePartOrderSearch: "Client name, phone, order code, notes...",
       sparePartSearch: "Part name, category, details...",
       serviceSearch: "Service name, category, description...",
       contentSearch: "Search by key...",
       userSearch: "Name, mobile number...",
+      quickRequestSearch: "Name, phone, email, message...",
+      clientQuickRequestSearch: "Search in message...",
     },
     settings: {
       nav: "Settings",
@@ -1069,6 +1125,11 @@ export const messages = {
       quickRequestsPage: {
         subtitle: "Your quick requests sent from the quick request form",
         newRequest: "New quick request",
+        createOrder: "New quick request",
+        createOrderHint:
+          "Send a short message with an optional photo — we will review it and contact you.",
+        showAddForm: "Create quick request",
+        hideAddForm: "Hide form",
         detailTitle: "Quick request details",
         detailClose: "Close",
         detailMessage: "Message",
@@ -1205,6 +1266,8 @@ export const messages = {
         showCreateForm: "Create new order",
         hideCreateForm: "Hide form",
         stepClient: "Client",
+        stepService: "Service details",
+        stepFinish: "Price & confirmation",
         stepOrder: "Order",
         step1Title: "Selected client",
         existingClient: "Existing client",
@@ -1424,6 +1487,10 @@ export const messages = {
         subtitle:
           "Add or edit Service Time workshop addresses. Use “Generate coordinates” to resolve map position from the address.",
         addWorkshop: "Add workshop",
+        showAddForm: "Add workshop",
+        hideAddForm: "Hide form",
+        addWorkshopHint:
+          "Register a new workshop address and generate map coordinates from the address.",
         editWorkshop: "Edit workshop",
         newWorkshop: "New workshop",
         saveChanges: "Save changes",

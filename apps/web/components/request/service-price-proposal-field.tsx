@@ -13,12 +13,14 @@ type ServicePriceProposalFieldProps = {
   serviceType: string;
   executionMethod: string;
   compact?: boolean;
+  hideNegotiationHint?: boolean;
 };
 
 export function ServicePriceProposalField({
   serviceType,
   executionMethod,
   compact = false,
+  hideNegotiationHint = false,
 }: ServicePriceProposalFieldProps) {
   const { messages: t, locale } = useLocale();
   const f = t.request.form;
@@ -55,9 +57,9 @@ export function ServicePriceProposalField({
           "{price}",
           formatSparePartPrice(suggested, locale),
         )}
-        {compact ? ` · ${f.priceNegotiationHint}` : null}
+        {compact && !hideNegotiationHint ? ` · ${f.priceNegotiationHint}` : null}
       </p>
-      {!compact ? (
+      {!compact && !hideNegotiationHint ? (
         <p className="text-xs text-muted">{f.priceNegotiationHint}</p>
       ) : null}
     </div>

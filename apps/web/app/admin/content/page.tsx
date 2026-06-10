@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { saveContentAction } from "@/app/admin/actions";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { Button } from "@/components/ui/button";
@@ -21,7 +22,7 @@ export default async function AdminContentPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold">{c.title}</h1>
+      <DashboardPageHeader title={c.title} />
 
       <DashboardFilterBar
         pathname="/admin/content"

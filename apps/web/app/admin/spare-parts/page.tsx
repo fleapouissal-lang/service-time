@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminSparePartAddForm } from "@/components/admin/admin-spare-part-add-form";
 import { AdminSparePartsTable } from "@/components/admin/admin-spare-parts-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
@@ -29,7 +30,7 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">{p.title}</h1>
+      <DashboardPageHeader title={p.title} />
 
       <DashboardFilterBar
         pathname="/admin/spare-parts"

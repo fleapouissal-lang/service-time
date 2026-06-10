@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminSparePartEditForm } from "@/components/admin/admin-spare-part-edit-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { getSparePartById } from "@/lib/dashboard-queries";
@@ -28,8 +29,9 @@ export default async function AdminSparePartDetailPage({ params }: PageProps) {
           <ArrowRight className="size-4 rotate-180" aria-hidden />
           {p.backToList}
         </Link>
-        <h1 className="text-2xl font-bold">{p.editPart}</h1>
-        <p className="text-muted">{part.name_ar}</p>
+        <DashboardPageHeader title={p.editPart}>
+          <p className="text-muted">{part.name_ar}</p>
+        </DashboardPageHeader>
       </div>
 
       <Card>

@@ -394,3 +394,112 @@ html[lang="ar"] {
     inset 0 -1px 2px rgba(255, 255, 255, 0.03),
     0 0 0 1px rgba(148, 212, 185, 0.1);
 }
+
+@keyframes mobile-sheet-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.mobile-bottom-sheet {
+  animation: mobile-sheet-up 0.28s ease-out;
+}
+
+@media (max-width: 767px) {
+  html {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+}
+
+/* Hero mobile slider — transitions luxe */
+@keyframes hero-mobile-exit {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.97);
+    filter: blur(8px);
+  }
+}
+
+@keyframes hero-mobile-enter {
+  from {
+    opacity: 0;
+    transform: translateY(32px) scale(0.92);
+    filter: blur(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes hero-mobile-line-rise {
+  from {
+    opacity: 0;
+    transform: translateY(26px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-mobile-highlight-glow {
+  from {
+    opacity: 0;
+    filter: brightness(1.4);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+@keyframes hero-mobile-bg-drift {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1.12);
+  }
+}
+
+.hero-mobile-slide-out {
+  animation: hero-mobile-exit 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.hero-mobile-slide-in {
+  animation: hero-mobile-enter 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.hero-mobile-slide-in .hero-mobile-line-1 {
+  animation: hero-mobile-line-rise 1s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+}
+
+.hero-mobile-slide-in .hero-mobile-line-2 {
+  animation: hero-mobile-line-rise 1s cubic-bezier(0.16, 1, 0.3, 1) 0.22s both;
+}
+
+.hero-mobile-slide-in .hero-mobile-line-3 {
+  animation: hero-mobile-line-rise 1s cubic-bezier(0.16, 1, 0.3, 1) 0.34s both;
+}
+
+.hero-mobile-slide-in .hero-mobile-highlight {
+  animation: hero-mobile-highlight-glow 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.18s both;
+}
+
+.hero-mobile-bg-drift {
+  animation: hero-mobile-bg-drift 8s ease-out forwards;
+}

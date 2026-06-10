@@ -33,6 +33,8 @@ type DashboardFilterBarProps = {
   className?: string;
   preserveParams?: Record<string, string | undefined>;
   hiddenFields?: string[];
+  /** When true, the filter bar is only visible below the `lg` breakpoint. */
+  mobileOnly?: boolean;
 };
 
 export function DashboardFilterBar({
@@ -46,6 +48,7 @@ export function DashboardFilterBar({
   className,
   preserveParams,
   hiddenFields = [],
+  mobileOnly = false,
 }: DashboardFilterBarProps) {
   const { messages: t } = useLocale();
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -64,9 +67,13 @@ export function DashboardFilterBar({
   return (
     <Card
       className={cn(
+        mobileOnly && "lg:hidden",
         className,
         !mobileOpen &&
           "border-0 bg-transparent shadow-none lg:border lg:bg-card lg:shadow-sm",
+        mobileOnly &&
+          !mobileOpen &&
+          "border-0 bg-transparent shadow-none",
       )}
     >
       <CardContent className={cn("lg:p-4", mobileOpen ? "p-4" : "p-0 lg:p-4")}>
@@ -89,7 +96,12 @@ export function DashboardFilterBar({
           />
         </div>
 
-        <div className={cn(!mobileOpen && "hidden lg:block")}>
+        <div
+          className={cn(
+            !mobileOpen &&
+              (mobileOnly ? "hidden" : "hidden lg:block"),
+          )}
+        >
           <form
             method="get"
             action={pathname}

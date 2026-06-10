@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminServiceAddForm } from "@/components/admin/admin-service-add-form";
 import { AdminServicesTable } from "@/components/admin/admin-services-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
@@ -27,7 +28,7 @@ export default async function AdminServicesPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <h1 className="text-2xl font-bold">{p.title}</h1>
+      <DashboardPageHeader title={p.title} />
 
       <DashboardFilterBar
         pathname="/admin/services"

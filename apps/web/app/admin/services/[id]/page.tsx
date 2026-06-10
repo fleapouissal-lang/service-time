@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminServiceEditForm } from "@/components/admin/admin-service-edit-form";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServiceById } from "@/lib/dashboard-queries";
@@ -28,8 +29,9 @@ export default async function AdminServiceDetailPage({ params }: PageProps) {
           <ArrowRight className="size-4 rotate-180" aria-hidden />
           {p.backToList}
         </Link>
-        <h1 className="text-2xl font-bold">{p.editService}</h1>
-        <p className="text-muted">{service.name_ar}</p>
+        <DashboardPageHeader title={p.editService}>
+          <p className="text-muted">{service.name_ar}</p>
+        </DashboardPageHeader>
       </div>
 
       <Card>

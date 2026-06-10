@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight } from "lucide-react";
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminOrderDeleteButton } from "@/components/admin/admin-order-delete-button";
 import { AdminOrderUpdateForm } from "@/components/admin/admin-order-update-form";
 import { AdminQuotePanel } from "@/components/admin/admin-quote-panel";
@@ -65,10 +66,11 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
           <ArrowRight className="size-4 rotate-180" aria-hidden />
           {p.backToList}
         </Link>
-        <h1 className="text-2xl font-bold">{p.editOrder}</h1>
-        <p className="font-mono text-sm text-muted" dir="ltr">
-          {order.tracking_token}
-        </p>
+        <DashboardPageHeader title={p.editOrder}>
+          <p className="font-mono text-sm text-muted" dir="ltr">
+            {order.tracking_token}
+          </p>
+        </DashboardPageHeader>
       </div>
 
       <Card>

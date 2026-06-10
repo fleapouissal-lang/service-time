@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminWorkshopsManager } from "@/components/admin/admin-workshops-manager";
 import { getWorkshopBranchesAdmin } from "@/lib/workshop-locations-admin";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -22,12 +23,11 @@ export default async function AdminLocationsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">{p.title}</h1>
+      <DashboardPageHeader title={p.title}>
         <p className="mt-2 max-w-2xl text-sm leading-7 text-muted">
           {p.subtitle}
         </p>
-      </div>
+      </DashboardPageHeader>
 
       <AdminWorkshopsManager workshops={workshops} />
     </div>

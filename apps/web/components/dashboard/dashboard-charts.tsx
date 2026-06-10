@@ -61,7 +61,9 @@ function ChartCard({ title, children, className, headerAction }: ChartCardProps)
       <CardHeader className="pb-2">
         <div className="flex flex-wrap items-start justify-between gap-2">
           <CardTitle className="text-base">{title}</CardTitle>
-          {headerAction}
+          {headerAction ? (
+            <div className="shrink-0">{headerAction}</div>
+          ) : null}
         </div>
       </CardHeader>
       <CardContent className="pb-4">{children}</CardContent>
@@ -91,46 +93,48 @@ export function StatusDonutChart({
 
   return (
     <ChartCard title={resolvedTitle} headerAction={headerAction}>
-      <div className="h-[260px] w-full" dir="ltr">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart>
-            <Pie
-              data={data}
-              dataKey="value"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={56}
-              outerRadius={88}
-              paddingAngle={3}
-            >
-              {data.map((entry, i) => (
-                <Cell
-                  key={entry.key}
-                  fill={CHART_COLORS[i % CHART_COLORS.length]}
+      <div className="space-y-2">
+        <div className="h-[260px] w-full" dir="ltr">
+          <ResponsiveContainer width="100%" height="100%">
+            <PieChart>
+              <Pie
+                data={data}
+                dataKey="value"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={56}
+                outerRadius={88}
+                paddingAngle={3}
+              >
+                {data.map((entry, i) => (
+                  <Cell
+                    key={entry.key}
+                    fill={CHART_COLORS[i % CHART_COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<ChartTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+        <ul className="space-y-1.5 text-sm">
+          {data.map((item, i) => (
+            <li key={item.key} className="flex items-center justify-between gap-2">
+              <span className="flex items-center gap-2 text-muted">
+                <span
+                  className="size-2.5 shrink-0 rounded-full"
+                  style={{
+                    backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
+                  }}
                 />
-              ))}
-            </Pie>
-            <Tooltip content={<ChartTooltip />} />
-          </PieChart>
-        </ResponsiveContainer>
+                {item.name}
+              </span>
+              <span className="font-semibold">{item.value}</span>
+            </li>
+          ))}
+        </ul>
       </div>
-      <ul className="mt-2 space-y-1.5 text-sm">
-        {data.map((item, i) => (
-          <li key={item.key} className="flex items-center justify-between gap-2">
-            <span className="flex items-center gap-2 text-muted">
-              <span
-                className="size-2.5 shrink-0 rounded-full"
-                style={{
-                  backgroundColor: CHART_COLORS[i % CHART_COLORS.length],
-                }}
-              />
-              {item.name}
-            </span>
-            <span className="font-semibold">{item.value}</span>
-          </li>
-        ))}
-      </ul>
     </ChartCard>
   );
 }
@@ -291,7 +295,7 @@ export function KpiInsightsCard({
       <dl className="space-y-4">
         {items.map((item) => (
           <div
-            key={item.label}
+            key={`${item.label}-${item.value}`}
             className="flex items-center justify-between gap-4 border-b border-border pb-3 last:border-0 last:pb-0"
           >
             <dt className="text-sm text-muted">{item.label}</dt>

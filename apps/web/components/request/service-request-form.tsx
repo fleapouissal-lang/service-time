@@ -29,6 +29,10 @@ export function ServiceRequestForm({
   fullWidth = false,
   compact = false,
   bare = false,
+  mobileSteps = false,
+  /** Wizard 2 étapes sur tous les écrans (dashboard client / admin). */
+  twoSteps = false,
+  hidePriceNegotiationHint = false,
   defaultName = "",
   defaultPhone = "",
   savedVehicles = [],
@@ -40,6 +44,11 @@ export function ServiceRequestForm({
   /** Force la mise en page compacte (auto si embedded sans fullWidth). */
   compact?: boolean;
   bare?: boolean;
+  /** Active le wizard 2 étapes sur mobile (page /request mode full). */
+  mobileSteps?: boolean;
+  twoSteps?: boolean;
+  /** Masque le hint négociation prix (page /request full). */
+  hidePriceNegotiationHint?: boolean;
   defaultName?: string;
   defaultPhone?: string;
   savedVehicles?: string[];
@@ -97,7 +106,7 @@ export function ServiceRequestForm({
     const nameEl = form.querySelector<HTMLInputElement>("#customer_name");
     const phoneEl = form.querySelector<HTMLInputElement>("#customer_phone");
     const carEl = form.querySelector<HTMLInputElement>('[name="car_type"]');
-    const priceEl = form.querySelector<HTMLInputElement>("#client_proposed_price");
+    const locationEl = form.querySelector<HTMLInputElement>("#location_text");
 
     if (!nameEl?.value.trim() || !phoneEl?.value.trim()) {
       setStepError(t.errors.request.namePhoneRequired);
@@ -111,17 +120,17 @@ export function ServiceRequestForm({
       return;
     }
 
-    for (const el of [nameEl, phoneEl, carEl, priceEl]) {
+    if (locationEl && locationEl.required && !locationEl.value.trim()) {
+      setStepError(f.location);
+      locationEl.focus();
+      return;
+    }
+
+    for (const el of [nameEl, phoneEl, carEl, locationEl]) {
       if (el && !el.checkValidity()) {
         el.reportValidity();
         return;
       }
-    }
-
-    if (priceEl && Number(priceEl.value) <= 0) {
-      setStepError(f.proposedPrice);
-      priceEl.focus();
-      return;
     }
 
     setStepError("");
@@ -129,8 +138,17 @@ export function ServiceRequestForm({
   }
 
   const showFormFields = !state.success || !state.trackingToken;
-  const isCompact = compact || (embedded && !fullWidth);
-  const useMobileSteps = !isCompact;
+  const isCompact =
+    compact || (embedded && !fullWidth && !mobileSteps && !twoSteps);
+  const useWizard = twoSteps || mobileSteps || !isCompact;
+  const wizardMobileOnly = useWizard && !twoSteps;
+
+  function wizardStepClass(activeStep: 1 | 2) {
+    if (!useWizard || step === activeStep) return "space-y-5";
+    return wizardMobileOnly
+      ? cn("space-y-5", "hidden lg:block")
+      : "hidden space-y-5";
+  }
 
   return (
     <>
@@ -146,9 +164,10 @@ export function ServiceRequestForm({
 
       <RequestFormShell
         bare={bare}
-        containerClassName={
-          fullWidth && !bare ? "w-full max-w-none pb-0" : undefined
-        }
+        containerClassName={cn(
+          fullWidth && !bare ? "w-full max-w-none pb-0" : undefined,
+          mobileSteps && "max-md:w-full max-md:max-w-[480px] max-md:pb-4",
+        )}
       >
         <form
           ref={formRef}
@@ -209,14 +228,48 @@ export function ServiceRequestForm({
 
           {showFormFields ? (
             <>
-              <div
-                className={cn(
-                  "space-y-5",
-                  useMobileSteps && step !== 1 && "hidden lg:block",
-                )}
-              >
-                {useMobileSteps ? (
-                  <div className="flex items-center justify-between gap-3 lg:hidden">
+              {useWizard && twoSteps ? (
+                <div className="flex items-center gap-3 text-sm">
+                  <span
+                    className={cn(
+                      "flex size-7 shrink-0 items-center justify-center rounded-full font-semibold",
+                      step === 1
+                        ? "bg-[#94D4B9] text-[#050B10]"
+                        : "bg-white/10 text-white/55",
+                    )}
+                  >
+                    1
+                  </span>
+                  <span className={step === 1 ? "font-semibold text-[#94D4B9]" : "text-muted"}>
+                    {f.step1Title}
+                  </span>
+                  <span className="text-muted" aria-hidden>
+                    —
+                  </span>
+                  <span
+                    className={cn(
+                      "flex size-7 shrink-0 items-center justify-center rounded-full font-semibold",
+                      step === 2
+                        ? "bg-[#94D4B9] text-[#050B10]"
+                        : "bg-white/10 text-white/55",
+                    )}
+                  >
+                    2
+                  </span>
+                  <span className={step === 2 ? "font-semibold text-[#94D4B9]" : "text-muted"}>
+                    {f.step2Title}
+                  </span>
+                </div>
+              ) : null}
+
+              <div className={wizardStepClass(1)}>
+                {useWizard ? (
+                  <div
+                    className={cn(
+                      "flex items-center justify-between gap-3",
+                      twoSteps ? "hidden" : "lg:hidden",
+                    )}
+                  >
                     <p className="text-sm font-semibold text-[#94D4B9]">
                       {f.step1Title}
                     </p>
@@ -257,22 +310,6 @@ export function ServiceRequestForm({
                   <Label htmlFor="location_text">{f.location}</Label>
                   <LocationField compact={isCompact} />
                 </div>
-              </div>
-
-              <div
-                className={cn(
-                  "space-y-5",
-                  useMobileSteps && step !== 2 && "hidden lg:block",
-                )}
-              >
-                {useMobileSteps ? (
-                  <div className="flex items-center justify-between gap-3 lg:hidden">
-                    <p className="text-sm font-semibold text-[#94D4B9]">
-                      {f.step2Title}
-                    </p>
-                    <span className="text-xs tabular-nums text-muted">2 / 2</span>
-                  </div>
-                ) : null}
 
                 <div>
                   <Label htmlFor="service_type">{f.serviceType}</Label>
@@ -297,11 +334,28 @@ export function ServiceRequestForm({
                     required
                   />
                 </div>
+              </div>
+
+              <div className={wizardStepClass(2)}>
+                {useWizard ? (
+                  <div
+                    className={cn(
+                      "flex items-center justify-between gap-3",
+                      twoSteps ? "hidden" : "lg:hidden",
+                    )}
+                  >
+                    <p className="text-sm font-semibold text-[#94D4B9]">
+                      {f.step2Title}
+                    </p>
+                    <span className="text-xs tabular-nums text-muted">2 / 2</span>
+                  </div>
+                ) : null}
 
                 <ServicePriceProposalField
                   serviceType={serviceType}
                   executionMethod={executionMethod}
                   compact={isCompact}
+                  hideNegotiationHint={hidePriceNegotiationHint}
                 />
 
                 <div>
@@ -324,14 +378,22 @@ export function ServiceRequestForm({
                 </div>
               </div>
 
-              {stepError && useMobileSteps ? (
-                <p className="text-sm text-red-600 lg:hidden" role="alert">
+              {stepError && useWizard ? (
+                <p
+                  className={cn("text-sm text-red-600", wizardMobileOnly && "lg:hidden")}
+                  role="alert"
+                >
                   {stepError}
                 </p>
               ) : null}
 
-              {useMobileSteps ? (
-                <div className="flex flex-col gap-3 lg:hidden">
+              {useWizard ? (
+                <div
+                  className={cn(
+                    "flex flex-col gap-3",
+                    wizardMobileOnly && "lg:hidden",
+                  )}
+                >
                   {step === 1 ? (
                     <Button
                       type="button"
@@ -378,7 +440,7 @@ export function ServiceRequestForm({
                 size="lg"
                 className={cn(
                   "h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90",
-                  useMobileSteps ? "hidden lg:flex" : "flex",
+                  useWizard ? "hidden" : "flex",
                 )}
                 disabled={pending}
               >

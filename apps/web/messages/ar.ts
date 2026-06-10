@@ -65,10 +65,22 @@ export const messages = {
     home: "الرئيسية",
     services: "الخدمات",
     request: "طلب خدمة",
+    mobileRequest: "طلب",
     spareParts: "قطع الغيار",
+    sparePartsShort: "القطع",
     locations: "مواقعنا",
     about: "من نحن",
     contact: "تواصل",
+    more: "المزيد",
+    profile: "حسابي",
+    mobileNavLabel: "التنقل الرئيسي",
+  },
+
+  mobileNav: {
+    dashboard: "لوحة التحكم",
+    trackOrder: "تتبع الطلب",
+    accountSettings: "إعدادات الحساب",
+    profileMenu: "حسابي",
   },
 
   auth: {
@@ -285,6 +297,42 @@ export const messages = {
       subtitle:
         "ودّع همّ الصيانة والانتظار — في Service Time نصل إليك في الرياض بفريق فني معتمد، سواء احتجت صيانة دورية، مساعدة طارئة، أو قطع غيار. اطلب الخدمة في دقائق، تابع طلبك لحظة بلحظة، واترك الباقي علينا — سرعة، شفافية، وخدمة تليق بسيارتك.",
       cta: "ابدأ الآن",
+      slidesAriaLabel: "شرائح الصفحة الرئيسية",
+      slideAriaLabel: "الشريحة",
+      slides: [
+        {
+          titleBefore: "سيارتك تستحق الأفضل،",
+          titleHighlight: "ونحن نقدّمه.",
+          subtitle:
+            "فنيون معتمدون في الرياض — صيانة دورية، طوارئ، وقطع غيار إلى بابك.",
+          cta: "ابدأ الآن",
+          ctaHref: "/request",
+        },
+        {
+          titleBefore: "خدمة طوارئ",
+          titleHighlight: "على الطريق",
+          subtitle:
+            "تعطلت سيارتك؟ ورشتنا المتنقلة تصل إليك بسرعة في أي مكان بالرياض — على مدار الساعة.",
+          cta: "اطلب الآن",
+          ctaHref: "/request",
+        },
+        {
+          titleBefore: "تتبع مباشر",
+          titleHighlight: "في كل خطوة",
+          subtitle:
+            "تابع طلبك لحظة بلحظة عبر واتساب أو SMS — أسعار شفافة من البداية للنهاية.",
+          cta: "تتبع الطلب",
+          ctaHref: "/login",
+        },
+        {
+          titleBefore: "قطع غيار أصلية",
+          titleHighlight: "توصيل سريع",
+          subtitle:
+            "اطلب القطعة المناسبة لسيارتك من متجرنا ونوصلها إليك بسرعة.",
+          cta: "تصفح القطع",
+          ctaHref: "/spare-parts",
+        },
+      ],
     },
     services: {
       eyebrow: "خدماتنا",
@@ -832,6 +880,11 @@ export const messages = {
     avatarChoose: "اختر صورة",
     avatarRemove: "إزالة الصورة",
     showPassword: "إظهار كلمة المرور",
+    mobileStep1Title: "بياناتك",
+    mobileStep2Title: "كلمة المرور",
+    mobileStepOf: "الخطوة {current} من {total}",
+    nextStep: "التالي",
+    backStep: "رجوع",
   },
 
   forgotPassword: {
@@ -884,10 +937,13 @@ export const messages = {
       orderSearch: "اسم العميل، الهاتف، السيارة، الموقع، رمز التتبع...",
       clientOrderSearch: "نوع السيارة، الموقع، رمز التتبع...",
       clientSparePartOrderSearch: "رمز الطلب، ملاحظات...",
+      adminSparePartOrderSearch: "اسم العميل، الهاتف، رمز الطلب، ملاحظات...",
       sparePartSearch: "اسم القطعة، الفئة، التفاصيل...",
       serviceSearch: "اسم الخدمة، الفئة، الوصف...",
       contentSearch: "بحث بالمفتاح...",
       userSearch: "الاسم، رقم الجوال...",
+      quickRequestSearch: "الاسم، الهاتف، البريد، الرسالة...",
+      clientQuickRequestSearch: "بحث في الرسالة...",
     },
     settings: {
       nav: "الإعدادات",
@@ -1069,6 +1125,11 @@ export const messages = {
       quickRequestsPage: {
         subtitle: "طلباتك السريعة المرسلة من صفحة طلب سريع",
         newRequest: "طلب سريع جديد",
+        createOrder: "طلب سريع جديد",
+        createOrderHint:
+          "أرسل رسالة قصيرة مع صورة اختيارية — سنراجعها ونتواصل معك.",
+        showAddForm: "إنشاء طلب سريع",
+        hideAddForm: "إخفاء النموذج",
         detailTitle: "تفاصيل الطلب السريع",
         detailClose: "إغلاق",
         detailMessage: "الرسالة",
@@ -1204,6 +1265,8 @@ export const messages = {
         showCreateForm: "إنشاء طلب جديد",
         hideCreateForm: "إخفاء النموذج",
         stepClient: "العميل",
+        stepService: "تفاصيل الخدمة",
+        stepFinish: "السعر والتأكيد",
         stepOrder: "الطلب",
         step1Title: "العميل المحدد",
         existingClient: "عميل مسجّل",
@@ -1423,6 +1486,10 @@ export const messages = {
         subtitle:
           "أضف أو عدّل عناوين ورش Service Time. استخدم «توليد الإحداثيات» لتحديد الموقع على الخريطة من العنوان.",
         addWorkshop: "إضافة ورشة",
+        showAddForm: "إضافة ورشة",
+        hideAddForm: "إخفاء النموذج",
+        addWorkshopHint:
+          "سجّل عنوان ورشة جديدة وولّد إحداثيات الخريطة من العنوان.",
         editWorkshop: "تعديل ورشة",
         newWorkshop: "ورشة جديدة",
         saveChanges: "حفظ التعديلات",

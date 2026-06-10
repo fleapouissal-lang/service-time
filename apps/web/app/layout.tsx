@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Poppins } from "next/font/google";
 import { AuthSessionGuard } from "@/components/auth/auth-session-guard";
+import { MobileBottomNav } from "@/components/layout/mobile-bottom-nav";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { PublicShell } from "@/components/layout/public-shell";
@@ -21,6 +22,7 @@ export const viewport: Viewport = {
   themeColor: "#94D4B9",
   width: "device-width",
   initialScale: 1,
+  viewportFit: "cover",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -54,6 +56,7 @@ export default async function RootLayout({
             <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
               {children}
             </PublicShell>
+            <MobileBottomNav />
           </SparePartsCartRoot>
         </LocaleProvider>
       </body>

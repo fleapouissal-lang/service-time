@@ -20,7 +20,7 @@ export default async function ClientRequestPage() {
 
   return (
     <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
-      <div>
+      <div className="hidden md:block">
         <h1 className="text-2xl font-bold">{t.request.title}</h1>
         <p className="text-muted">{t.request.description}</p>
       </div>
@@ -29,6 +29,7 @@ export default async function ClientRequestPage() {
         <div className="mx-auto w-full max-w-2xl">
           <ServiceRequestForm
             embedded
+            twoSteps
             defaultName={
               profile ? getProfileDisplayName(profile, locale) : ""
             }

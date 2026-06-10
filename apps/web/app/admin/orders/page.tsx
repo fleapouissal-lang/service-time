@@ -1,3 +1,4 @@
+import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminCreateOrderForm } from "@/components/admin/admin-create-order-form";
 import { AdminOrdersTable } from "@/components/admin/admin-orders-table";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
@@ -54,10 +55,9 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">{t.dashboard.admin.orders}</h1>
+      <DashboardPageHeader title={t.dashboard.admin.orders}>
         <p className="text-muted">{p.subtitle}</p>
-      </div>
+      </DashboardPageHeader>
 
       <DashboardFilterBar
         pathname="/admin/orders"
