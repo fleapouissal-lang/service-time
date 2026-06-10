@@ -81,6 +81,11 @@ export function getServiceDescription(
   return text || null;
 }
 
+export function getServiceCategory(service: Service): string | null {
+  const text = service.category?.trim() ?? "";
+  return text || null;
+}
+
 export function getSparePartName(part: SparePart, locale: Locale): string {
   return pickLocalized(locale, part.name_ar, part.name_en);
 }

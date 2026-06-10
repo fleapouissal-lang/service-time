@@ -5,6 +5,7 @@ import { Car, Truck, Wrench } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
+  getServiceCategory,
   getServiceDescription,
   getServiceName,
 } from "@/lib/localized-content";
@@ -36,6 +37,7 @@ export function ServiceCard({
   const label = ctaLabel ?? t.services.startRequest;
   const name = getServiceName(service, locale);
   const description = getServiceDescription(service, locale);
+  const category = getServiceCategory(service);
   const isArabic = locale === "ar";
   const isGrid = variant === "grid";
 
@@ -56,7 +58,8 @@ export function ServiceCard({
       >
         <div
           className={cn(
-            isGrid ? "mb-2 h-6 shrink-0 sm:mb-4" : "mb-4",
+            "flex items-start justify-between gap-2",
+            isGrid ? "mb-2 shrink-0 sm:mb-4" : "mb-4",
           )}
         >
           <span
@@ -67,6 +70,11 @@ export function ServiceCard({
           >
             <ServiceIcon type={service.service_type} />
           </span>
+          {category ? (
+            <span className="shrink-0 rounded-[20px] bg-[#94D4B9] px-2 py-0.5 text-[10px] font-semibold text-[#050B10] sm:px-3 sm:py-1 sm:text-xs">
+              {category}
+            </span>
+          ) : null}
         </div>
         <h3
           className={cn(
