@@ -29,10 +29,9 @@ export function QuickRequestDetailDialog({
   onReadStatusChange,
 }: QuickRequestDetailDialogProps) {
   const { locale, messages: t } = useLocale();
-  const p =
-    variant === "admin"
-      ? t.dashboard.admin.quickRequestsPage
-      : t.dashboard.client.quickRequestsPage;
+  const adminP = t.dashboard.admin.quickRequestsPage;
+  const clientP = t.dashboard.client.quickRequestsPage;
+  const labels = variant === "admin" ? adminP : clientP;
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [photoLoading, setPhotoLoading] = useState(false);
   const [photoError, setPhotoError] = useState(false);
@@ -126,7 +125,7 @@ export function QuickRequestDetailDialog({
       <button
         type="button"
         className="absolute inset-0 bg-black/50"
-        aria-label={p.detailClose}
+        aria-label={labels.detailClose}
         onClick={onClose}
       />
 
@@ -135,19 +134,19 @@ export function QuickRequestDetailDialog({
           type="button"
           onClick={onClose}
           className="absolute top-4 end-4 flex size-9 items-center justify-center rounded-lg border border-border text-muted transition-colors hover:bg-muted/10"
-          aria-label={p.detailClose}
+          aria-label={labels.detailClose}
         >
           <X className="size-4" aria-hidden />
         </button>
 
         <h2 id="quick-request-detail-title" className="pe-10 text-lg font-semibold">
-          {p.detailTitle}
+          {labels.detailTitle}
         </h2>
 
         <dl className="mt-5 space-y-4 text-sm">
           {variant === "admin" ? (
             <div>
-              <dt className="font-medium text-muted">{p.detailContact}</dt>
+              <dt className="font-medium text-muted">{adminP.detailContact}</dt>
               <dd className="mt-1 space-y-0.5">
                 <p className="font-semibold">{request.name}</p>
                 <p dir="ltr" className="tabular-nums">
@@ -163,14 +162,14 @@ export function QuickRequestDetailDialog({
           ) : null}
 
           <div>
-            <dt className="font-medium text-muted">{p.detailMessage}</dt>
+            <dt className="font-medium text-muted">{labels.detailMessage}</dt>
             <dd className="mt-1 whitespace-pre-wrap leading-relaxed">
               {request.message}
             </dd>
           </div>
 
           <div>
-            <dt className="font-medium text-muted">{p.detailDate}</dt>
+            <dt className="font-medium text-muted">{labels.detailDate}</dt>
             <dd className="mt-1 tabular-nums" dir="ltr">
               {formatDateTime(request.created_at, locale, {
                 dateStyle: "medium",
@@ -182,18 +181,18 @@ export function QuickRequestDetailDialog({
           {variant === "client" || variant === "admin" ? (
             <div>
               <dt className="font-medium text-muted">
-                {variant === "admin" ? p.detailStatus : p.detailAdminStatus}
+                {variant === "admin" ? adminP.detailStatus : clientP.detailAdminStatus}
               </dt>
               <dd className="mt-1 flex flex-wrap items-center gap-3">
                 {resolvedRead ? (
                   <span className="inline-flex items-center gap-1.5 font-medium text-emerald-600 dark:text-emerald-400">
                     <CheckCircle2 className="size-4 shrink-0" aria-hidden />
-                    {variant === "admin" ? p.table.read : p.table.adminRead}
+                    {variant === "admin" ? adminP.table.read : clientP.table.adminRead}
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 font-medium text-amber-600 dark:text-amber-400">
                     <Clock className="size-4 shrink-0" aria-hidden />
-                    {variant === "admin" ? p.table.unread : p.table.adminPending}
+                    {variant === "admin" ? adminP.table.unread : clientP.table.adminPending}
                   </span>
                 )}
                 {variant === "admin" ? (
@@ -207,8 +206,8 @@ export function QuickRequestDetailDialog({
                     {readPending
                       ? t.common.loading
                       : resolvedRead
-                        ? p.markUnread
-                        : p.markRead}
+                        ? adminP.markUnread
+                        : adminP.markRead}
                   </Button>
                 ) : null}
               </dd>
@@ -217,14 +216,14 @@ export function QuickRequestDetailDialog({
 
           {variant === "admin" ? (
             <div>
-              <dt className="font-medium text-muted">{p.detailAccount}</dt>
+              <dt className="font-medium text-muted">{adminP.detailAccount}</dt>
               <dd className="mt-1">
                 {request.client_id ? (
                   <Link
                     href={`/admin/users/${request.client_id}`}
                     className="font-semibold text-primary hover:underline"
                   >
-                    {p.table.viewClient}
+                    {adminP.table.viewClient}
                   </Link>
                 ) : (
                   <span className="text-muted">—</span>
@@ -234,19 +233,19 @@ export function QuickRequestDetailDialog({
           ) : null}
 
           <div>
-            <dt className="font-medium text-muted">{p.detailPhoto}</dt>
+            <dt className="font-medium text-muted">{labels.detailPhoto}</dt>
             <dd className="mt-2">
               {!request.photo_storage_path ? (
-                <span className="text-muted">{p.detailNoPhoto}</span>
+                <span className="text-muted">{labels.detailNoPhoto}</span>
               ) : photoLoading ? (
                 <span className="text-muted">{t.common.loading}</span>
               ) : photoError || !photoUrl ? (
-                <span className="text-red-400">{p.detailPhotoError}</span>
+                <span className="text-red-400">{labels.detailPhotoError}</span>
               ) : (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img
                   src={photoUrl}
-                  alt={p.detailPhoto}
+                  alt={labels.detailPhoto}
                   className="max-h-72 w-full rounded-xl border border-border object-contain"
                 />
               )}
