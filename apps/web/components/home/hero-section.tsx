@@ -72,7 +72,7 @@ function MobileHeroSlide({
       dir={isRtl ? "rtl" : "ltr"}
       lang={locale}
       className={cn(
-        "flex w-[min(100%,22rem)] shrink-0 flex-col items-start space-y-5 text-start",
+        "flex w-[min(100%,22rem)] shrink-0 flex-col items-center space-y-5 text-center",
         motion === "exit" && "hero-mobile-slide-out",
         motion === "enter" && "hero-mobile-slide-in",
       )}
@@ -182,7 +182,7 @@ export function HeroSection({
 
   return (
     <>
-      {/* Mobile — plein écran, contenu aligné à droite (ar) / gauche (en) */}
+      {/* Mobile — plein écran, texte centré */}
       <section className="relative flex min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full items-center overflow-hidden bg-[#050B10] md:hidden">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <Image
@@ -213,7 +213,7 @@ export function HeroSection({
           />
         </div>
 
-        <div className="relative z-10 flex w-full items-center justify-start px-6 py-8">
+        <div className="relative z-10 flex w-full items-center justify-center px-6 py-8">
           <MobileHeroSlide slide={mobileSlide} motion={motion} locale={locale} />
           <p className="sr-only" aria-live="polite" aria-atomic="true">
             {messages.home.hero.slideAriaLabel} {activeIndex + 1}
