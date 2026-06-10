@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, Suspense, useState } from "react";
 import { ArrowLeft, Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
@@ -11,13 +11,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth-errors";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { cn } from "@/lib/utils";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import { markAuthSessionActive } from "@/lib/sign-out-client";
 import type { ProfileRole } from "@service-time/types";
+import { LoginFormFallback } from "@/components/auth/login-form-fallback";
 
 export function LoginForm() {
-  const { messages: t, locale } = useLocale();
+  return (
+    <Suspense fallback={<LoginFormFallback />}>
+      <LoginFormContent />
+    </Suspense>
+  );
+}
+
+function LoginFormContent() {
+  const { messages: t } = useLocale();
   const searchParams = useSearchParams();
   const next = searchParams.get("next") ?? "";
   const registered = searchParams.get("registered") === "1";
@@ -76,16 +84,7 @@ export function LoginForm() {
         style={{ backgroundImage: "url('/hero-bg.png')" }}
       >
         <div
-          className="pointer-events-none absolute inset-0 bg-[#050B10]/70"
-          aria-hidden
-        />
-        <div
-          className={cn(
-            "pointer-events-none absolute inset-y-0 w-[58%] from-[#0E1312] to-transparent",
-            locale === "ar"
-              ? "start-0 bg-gradient-to-r"
-              : "end-0 bg-gradient-to-l",
-          )}
+          className="pointer-events-none absolute inset-0 bg-black/60"
           aria-hidden
         />
 
@@ -95,7 +94,7 @@ export function LoginForm() {
             alt={t.common.brandNameAr}
             width={280}
             height={72}
-            className="h-14 w-auto max-w-[240px] object-contain brightness-[1.12] contrast-[1.05] xl:h-16"
+            className="h-14 w-auto max-w-[240px] object-contain xl:h-16"
             priority
             unoptimized
           />
@@ -129,7 +128,7 @@ export function LoginForm() {
               alt={t.common.brandNameAr}
               width={180}
               height={64}
-              className="h-12 w-auto object-contain brightness-[1.15]"
+              className="h-12 w-auto object-contain"
               priority
               unoptimized
             />
@@ -278,7 +277,7 @@ export function LoginForm() {
                 alt=""
                 width={28}
                 height={28}
-                className="size-7 object-contain opacity-80"
+                className="size-7 object-contain"
                 aria-hidden
                 unoptimized
               />

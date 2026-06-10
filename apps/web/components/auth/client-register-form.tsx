@@ -27,6 +27,7 @@ export function ClientRegisterForm() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [code, setCode] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [whatsappUrl, setWhatsappUrl] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
@@ -286,13 +287,17 @@ export function ClientRegisterForm() {
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55"
-                aria-label={t.register.showPassword}
+                className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 transition-colors hover:text-[#050B10]"
+                aria-label={
+                  showPassword
+                    ? t.login.form.hidePassword
+                    : t.login.form.showPassword
+                }
               >
                 {showPassword ? (
-                  <EyeOff className="size-5" />
+                  <EyeOff className="size-5" aria-hidden />
                 ) : (
-                  <Eye className="size-5" />
+                  <Eye className="size-5" aria-hidden />
                 )}
               </button>
             </div>
@@ -302,16 +307,34 @@ export function ClientRegisterForm() {
             <Label htmlFor="confirm_password" className="text-white">
               {t.register.confirmPassword}
             </Label>
-            <Input
-              id="confirm_password"
-              type={showPassword ? "text" : "password"}
-              dir="ltr"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              minLength={8}
-              className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] focus-visible:ring-[#94D4B9]"
-            />
+            <div className="relative mt-2">
+              <Input
+                id="confirm_password"
+                type={showConfirmPassword ? "text" : "password"}
+                dir="ltr"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+                minLength={8}
+                className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] focus-visible:ring-[#94D4B9]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((v) => !v)}
+                className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 transition-colors hover:text-[#050B10]"
+                aria-label={
+                  showConfirmPassword
+                    ? t.login.form.hidePassword
+                    : t.login.form.showPassword
+                }
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="size-5" aria-hidden />
+                ) : (
+                  <Eye className="size-5" aria-hidden />
+                )}
+              </button>
+            </div>
           </div>
 
           <button

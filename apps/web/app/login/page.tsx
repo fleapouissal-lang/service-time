@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import { LoginForm } from "@/components/auth/login-form";
+import { LoginPageClient } from "@/components/auth/login-page-client";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 
@@ -16,9 +15,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function LoginPage() {
-  return (
-    <Suspense>
-      <LoginForm />
-    </Suspense>
-  );
+  return <LoginPageClient />;
 }
