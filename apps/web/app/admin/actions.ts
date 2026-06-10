@@ -25,6 +25,7 @@ import {
 } from "@/lib/upload-profile-avatar";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
 import { resolveQuickRequestClient } from "@/lib/quick-request-client";
+import { deleteClientRelatedData } from "@/lib/delete-client-related-data";
 import { notifyOrderCreated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
@@ -503,7 +504,7 @@ export async function deletePlatformUserAction(formData: FormData) {
 
   const { data: target, error: fetchError } = await admin
     .from("profiles")
-    .select("id, role, full_name")
+    .select("id, role, full_name, phone")
     .eq("id", id)
     .maybeSingle();
 
@@ -530,6 +531,22 @@ export async function deletePlatformUserAction(formData: FormData) {
     }
   }
 
+  if (target.role === "client") {
+    const { data: authUserData, error: authUserError } =
+      await admin.auth.admin.getUserById(id);
+
+    if (authUserError) {
+      throw new Error(authUserError.message);
+    }
+
+    await deleteClientRelatedData(
+      admin,
+      id,
+      target.phone,
+      authUserData.user?.email ?? null,
+    );
+  }
+
   try {
     const { data: files } = await admin.storage
       .from(PROFILE_AVATAR_BUCKET)
@@ -551,7 +568,14 @@ export async function deletePlatformUserAction(formData: FormData) {
 
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
+  revalidatePath("/admin/orders");
+  revalidatePath("/admin/quick-requests");
+  revalidatePath("/admin/spare-part-orders");
+  revalidatePath("/admin/reports");
   revalidatePath("/admin");
+  revalidatePath("/client/orders");
+  revalidatePath("/client/quick-requests");
+  revalidatePath("/client/spare-part-orders");
 }
 
 export async function createPlatformUserAction(formData: FormData) {
