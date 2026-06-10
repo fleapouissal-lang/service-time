@@ -27,10 +27,36 @@ dotenv.config({ path: join(rootDir, ".env") });
 const DATABASE_URL =
   process.env.DATABASE_URL ?? process.env.SUPABASE_DB_URL ?? "";
 
+function describeDatabaseUrl(url) {
+  try {
+    const parsed = new URL(url);
+    return `${parsed.protocol}//${parsed.username ? `${parsed.username}@` : ""}${parsed.hostname}:${parsed.port || "5432"}${parsed.pathname}`;
+  } catch {
+    return "(URL invalide)";
+  }
+}
+
+function isPlaceholderDatabaseUrl(url) {
+  return (
+    /\[PASSWORD\]|\[PROJECT_REF\]|\[REGION\]|XX-XX|YOUR-PASSWORD/i.test(url) ||
+    /example\.com|changeme/i.test(url)
+  );
+}
+
 if (!DATABASE_URL) {
   console.error(
     "❌ DATABASE_URL (ou SUPABASE_DB_URL) manquant dans .env\n" +
       "   Supabase → Project Settings → Database → Connection string (Session pooler, URI)",
+  );
+  process.exit(1);
+}
+
+if (isPlaceholderDatabaseUrl(DATABASE_URL)) {
+  console.error(
+    "❌ DATABASE_URL contient encore un exemple / placeholder (ex. aws-0-XX-XX).\n" +
+      "   Copiez la vraie URI depuis Supabase → Project Settings → Database.\n" +
+      "   Host détecté : " +
+      describeDatabaseUrl(DATABASE_URL),
   );
   process.exit(1);
 }
@@ -49,14 +75,27 @@ function migrationHint(error) {
   const msg = error?.message ?? "";
   if (!msg.includes("ENOTFOUND") && !msg.includes("EAI_AGAIN")) return "";
 
+  let hint =
+    "\n\n💡 Host utilisé : " +
+    describeDatabaseUrl(DATABASE_URL) +
+    "\n   Vérifiez que DATABASE_URL dans .env (racine du projet) est la vraie URI Supabase.";
+
   if (/db\.[a-z0-9]+\.supabase\.co/i.test(DATABASE_URL)) {
-    return (
-      "\n\n💡 Le host direct db.*.supabase.co ne résout souvent qu'en IPv6 sur Windows.\n" +
-      "   Remplacez DATABASE_URL par la chaîne « Session pooler » (port 5432) du dashboard Supabase.\n" +
-      "   Exemple : postgresql://postgres.[REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres"
-    );
+    hint +=
+      "\n   Sur Windows, db.*.supabase.co peut échouer (IPv6). Utilisez plutôt :\n" +
+      "   Supabase → Database → Connection string → Mode « Session » → URI\n" +
+      "   Format : postgresql://postgres.VOTRE_REF:motdepasse@aws-0-REGION.pooler.supabase.com:5432/postgres";
+  } else if (/pooler\.supabase\.com/i.test(DATABASE_URL)) {
+    hint +=
+      "\n   Pour le pooler, le user doit être postgres.VOTRE_REF (pas seulement postgres).";
+    if (msg.includes("tenant/user")) {
+      hint +=
+        "\n   Si le host est aws-0-… et que le tenant est introuvable, copiez le host exact" +
+        "\n   depuis Supabase → Connect (souvent aws-1-REGION.pooler.supabase.com).";
+    }
   }
-  return "";
+
+  return hint;
 }
 
 function listMigrationFiles() {
@@ -72,6 +111,7 @@ const client = new pg.Client({
 
 try {
   console.log("🔌 Connexion à Supabase Postgres...");
+  console.log("   → " + describeDatabaseUrl(DATABASE_URL));
   await client.connect();
 
   await client.query(`

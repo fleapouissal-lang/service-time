@@ -3,19 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/web",
+    "packages/types"
   ],
   "scripts": {
-    "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && turbo dev --filter=web --filter=mobile",
+    "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && npm run dev -w web",
     "sync-env": "node scripts/sync-env.mjs",
     "check:email": "node scripts/check-email-env.mjs",
     "test:smtp": "node scripts/test-smtp.mjs",
-    "build": "turbo build",
-    "build:web": "node scripts/sync-env.mjs && turbo build --filter=web",
+    "build": "npm run build -w web",
+    "build:web": "node scripts/sync-env.mjs && npm run build -w web",
     "start:web": "node scripts/sync-env.mjs && node scripts/ensure-web-build.mjs && npm run start -w web -- --port 3000",
     "pm2:prod": "pm2 start ecosystem.config.cjs",
-    "lint": "turbo lint",
+    "lint": "npm run lint -w web",
     "db:migrate": "node scripts/migrate-database.mjs",
     "db:seed": "node scripts/seed-database.mjs",
     "db:seed-profiles": "node scripts/seed-profiles.mjs",
@@ -35,8 +35,7 @@
   },
   "devDependencies": {
     "dotenv": "^16.5.0",
-    "pg": "^8.16.0",
-    "turbo": "^2.5.4"
+    "pg": "^8.16.0"
   },
   "engines": {
     "node": ">=18"

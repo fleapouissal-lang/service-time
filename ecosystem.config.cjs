@@ -1,4 +1,4 @@
-/** PM2 — production web uniquement (pas mobile, pas turbo dev). */
+/** PM2 — production web (Next.js). */
 module.exports = {
   apps: [
     {

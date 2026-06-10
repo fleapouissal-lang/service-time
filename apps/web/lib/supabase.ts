@@ -1,4 +1,9 @@
-import { createSupabaseClient, type SupabaseConfig } from "@service-time/lib";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+
+export type SupabaseConfig = {
+  url: string;
+  anonKey: string;
+};
 
 export function getWebSupabaseConfig(): SupabaseConfig {
   return {
@@ -7,6 +12,14 @@ export function getWebSupabaseConfig(): SupabaseConfig {
   };
 }
 
-export function createWebSupabaseClient() {
-  return createSupabaseClient(getWebSupabaseConfig());
+export function createWebSupabaseClient(): SupabaseClient {
+  const { url, anonKey } = getWebSupabaseConfig();
+
+  if (!url || !anonKey) {
+    throw new Error(
+      "Missing Supabase configuration. Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.",
+    );
+  }
+
+  return createClient(url, anonKey);
 }

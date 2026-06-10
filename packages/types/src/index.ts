@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Enums (alignés sur supabase/migrations/20260603150000_initial_schema.sql)
+// Enums (alignés sur supabase/migrations)
 // ---------------------------------------------------------------------------
 
 export type ProfileRole = "admin" | "technician" | "client";

@@ -25,12 +25,7 @@ function allowedDevOriginsFromEnv(): string[] {
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: allowedDevOriginsFromEnv(),
-  transpilePackages: [
-    "@service-time/ui",
-    "@service-time/lib",
-    "@service-time/types",
-    "@imgly/background-removal",
-  ],
+  transpilePackages: ["@service-time/types", "@imgly/background-removal"],
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     NEXT_PUBLIC_SUPABASE_ANON_KEY:

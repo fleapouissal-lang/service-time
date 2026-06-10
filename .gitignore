@@ -1,9 +1,12 @@
 node_modules
-.turbo
-dist
 .next
+dist
 .env
 .env.local
 *.log
-.expo
 .DS_Store
+
+
+
+
+
