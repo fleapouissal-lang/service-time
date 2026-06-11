@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
+import {
+  buildWhatsAppQuickContactUrl,
+  getPublicWhatsAppDigits,
+} from "@/lib/whatsapp-utils";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -23,31 +28,53 @@ export function RequestModeTabs({ active }: { active: RequestMode }) {
   const { messages: t } = useLocale();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
+  const whatsappHref = useMemo(
+    () => buildWhatsAppQuickContactUrl(getPublicWhatsAppDigits(), {}),
+    [],
+  );
 
   const tabs: {
     mode: RequestMode;
     label: string;
     href?: string;
+    external?: string;
   }[] = [
     { mode: "full", label: t.request.modes.full },
     { mode: "quick", label: t.request.modes.quick },
     {
       mode: "whatsapp",
-      label: t.nav.sparePartsShort,
-      href: "/spare-parts",
+      label: t.request.modes.whatsapp,
+      external: whatsappHref,
     },
   ];
 
   return (
     <div className="mx-auto flex w-[90%] max-w-3xl flex-wrap justify-center gap-2">
-      {tabs.map(({ mode, label, href }) => {
+      {tabs.map(({ mode, label, href, external }) => {
         const isActive = active === mode;
         const className = cn(
           "inline-flex h-11 items-center rounded-full px-5 text-sm font-semibold transition-colors",
           isActive
             ? "bg-[#94D4B9] text-[#050B10]"
             : "border border-[#94D4B9]/20 bg-[#091014] text-foreground hover:border-[#94D4B9]/40",
+          mode === "whatsapp" &&
+            !isActive &&
+            "border-[#25D366]/30 hover:border-[#25D366]/50",
         );
+
+        if (external) {
+          return (
+            <a
+              key={mode}
+              href={external}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(className, "max-md:hidden")}
+            >
+              {label}
+            </a>
+          );
+        }
 
         if (href) {
           return (
@@ -73,6 +100,8 @@ type HubCardProps = {
   badge: string;
   href: string;
   actionLabel: string;
+  external?: boolean;
+  accent?: "primary" | "whatsapp";
 };
 
 function HubCard({
@@ -81,17 +110,20 @@ function HubCard({
   badge,
   href,
   actionLabel,
+  external = false,
+  accent = "primary",
 }: HubCardProps) {
-  return (
-    <Link
-      href={href}
-      className={cn(
-        "group flex min-h-0 flex-col rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] transition-all",
-        "hover:border-[#94D4B9]/30 hover:shadow-[0_8px_32px_rgba(148,212,185,0.08)]",
-        "max-md:min-h-[11rem] max-md:p-5",
-        "md:h-full md:p-6",
-      )}
-    >
+  const className = cn(
+    "group flex min-h-0 flex-col rounded-[20px] border bg-[#091014] transition-all",
+    "max-md:min-h-[11rem] max-md:p-5",
+    "md:h-full md:p-6",
+    accent === "whatsapp"
+      ? "border-[#25D366]/30 hover:border-[#25D366]/60 hover:shadow-[0_8px_32px_rgba(37,211,102,0.12)]"
+      : "border-[#94D4B9]/10 hover:border-[#94D4B9]/30 hover:shadow-[0_8px_32px_rgba(148,212,185,0.08)]",
+  );
+
+  const inner = (
+    <>
       <div className="flex shrink-0 justify-end">
         <span className="rounded-full border border-[#94D4B9]/15 bg-[#050B10] px-2.5 py-1 text-[11px] font-medium text-muted-foreground max-md:leading-tight md:text-xs">
           {badge}
@@ -117,6 +149,25 @@ function HubCard({
         {actionLabel}
         <LocaleForwardArrow className="size-4 shrink-0" />
       </span>
+    </>
+  );
+
+  if (external) {
+    return (
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        className={className}
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return (
+    <Link href={href} className={className}>
+      {inner}
     </Link>
   );
 }
@@ -125,6 +176,10 @@ export function RequestModeHub() {
   const { messages: t } = useLocale();
   const searchParams = useSearchParams();
   const params = new URLSearchParams(searchParams.toString());
+  const whatsappHref = useMemo(
+    () => buildWhatsAppQuickContactUrl(getPublicWhatsAppDigits(), {}),
+    [],
+  );
 
   const cards: HubCardProps[] = [
     {
@@ -142,11 +197,13 @@ export function RequestModeHub() {
       actionLabel: t.request.modes.choose,
     },
     {
-      title: t.spareParts.title,
-      description: t.spareParts.description,
-      badge: t.nav.sparePartsShort,
-      href: "/spare-parts",
-      actionLabel: t.spareParts.browseParts,
+      title: t.request.modes.whatsappTitle,
+      description: t.request.modes.whatsappDescription,
+      badge: t.request.modes.instant,
+      href: whatsappHref,
+      actionLabel: t.request.modes.openWhatsApp,
+      external: true,
+      accent: "whatsapp",
     },
   ];
 
