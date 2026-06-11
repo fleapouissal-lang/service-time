@@ -9,3 +9,8 @@ dist
 # Serwist (PWA)
 public/sw*
 public/swe-worker*
+
+# IMG.LY background-removal (~50MB, run npm run setup:imgly-assets in apps/web)
+apps/web/public/imgly-background-removal/*
+!apps/web/public/imgly-background-removal/.gitkeep
+apps/web/public/imgly-bg-removal.mjs

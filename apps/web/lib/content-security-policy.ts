@@ -16,7 +16,13 @@ function supabaseOrigins(): { https: string; wss: string } | null {
 /** Build Content-Security-Policy for Next.js (report-only in dev if needed). */
 export function buildContentSecurityPolicy(isDev: boolean): string {
   const supabase = supabaseOrigins();
-  const scriptSrc = ["'self'", "'unsafe-inline'"];
+  const scriptSrc = [
+    "'self'",
+    "'unsafe-inline'",
+    "'wasm-unsafe-eval'",
+    "blob:",
+    "https://cdn.jsdelivr.net",
+  ];
   if (isDev) {
     scriptSrc.push("'unsafe-eval'");
   }
@@ -31,7 +37,12 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     imgSrc.push(supabase.https);
   }
 
-  const connectSrc = ["'self'", "https://ksa.paymob.com"];
+  const connectSrc = [
+    "'self'",
+    "https://ksa.paymob.com",
+    "https://staticimgly.com",
+    "https://cdn.jsdelivr.net",
+  ];
   if (supabase) {
     connectSrc.push(supabase.https, supabase.wss);
   }

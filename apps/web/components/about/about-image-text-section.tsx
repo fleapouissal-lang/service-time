@@ -38,7 +38,6 @@ export function AboutImageTextSection({
           fill
           className="object-cover"
           sizes="(max-width: 1024px) 100vw, 50vw"
-          unoptimized
         />
         <div
           className={cn("pointer-events-none absolute inset-0", overlayClassName)}

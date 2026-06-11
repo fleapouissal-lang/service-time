@@ -27,7 +27,6 @@ export function DashboardMobileHeader() {
             height={98}
             className="h-10 w-auto object-contain brightness-[1.15] contrast-[1.08]"
             priority
-            unoptimized
           />
         </Link>
 

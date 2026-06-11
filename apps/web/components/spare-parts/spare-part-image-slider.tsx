@@ -51,7 +51,6 @@ export function SparePartImageSlider({
         fill
         className={cn("object-cover", imageClassName)}
         sizes={sizes}
-        unoptimized
       />
 
       {overlay}

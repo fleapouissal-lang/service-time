@@ -7,6 +7,16 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import type { ProductImageStudioSettings } from "@/lib/product-image-studio";
 import { cn } from "@/lib/utils";
 
+const EMPTY_DEFAULT_IMAGES: string[] = [];
+
+function defaultImagesKey(images: readonly string[]): string {
+  return JSON.stringify(images);
+}
+
+function sameImageList(a: readonly string[], b: readonly string[]): boolean {
+  return a.length === b.length && a.every((url, index) => url === b[index]);
+}
+
 export type MultiPhotoUploadFieldProps = {
   id: string;
   defaultImages?: string[];
@@ -35,7 +45,7 @@ type PendingFile = {
 
 export function MultiPhotoUploadField({
   id,
-  defaultImages = [],
+  defaultImages = EMPTY_DEFAULT_IMAGES,
   accept = "image/jpeg,image/png,image/webp",
   title,
   subtitle,
@@ -54,7 +64,7 @@ export function MultiPhotoUploadField({
   const resolvedAddMore = addMoreLabel ?? p.addMorePhotos;
   const resolvedRemove = removeLabel ?? p.removePhoto;
 
-  const [keptUrls, setKeptUrls] = useState<string[]>(defaultImages);
+  const [keptUrls, setKeptUrls] = useState<string[]>(() => [...defaultImages]);
   const [pendingFiles, setPendingFiles] = useState<PendingFile[]>([]);
   const [inputKey, setInputKey] = useState(0);
   const [studioQueue, setStudioQueue] = useState<File[]>([]);
@@ -68,14 +78,25 @@ export function MultiPhotoUploadField({
   const [editingPendingId, setEditingPendingId] = useState<string | null>(null);
   const studioOpen = studioFile !== null;
 
+  const syncedDefaultImagesKey = useMemo(
+    () => defaultImagesKey(defaultImages),
+    [defaultImages],
+  );
+
   const existingImagesJson = useMemo(
     () => JSON.stringify(keptUrls),
     [keptUrls],
   );
 
   useEffect(() => {
-    setKeptUrls(defaultImages);
-  }, [defaultImages]);
+    const nextImages = JSON.parse(syncedDefaultImagesKey) as string[];
+    setKeptUrls((current) => {
+      if (sameImageList(current, nextImages)) {
+        return current;
+      }
+      return nextImages;
+    });
+  }, [syncedDefaultImagesKey]);
 
   useEffect(() => {
     return () => {

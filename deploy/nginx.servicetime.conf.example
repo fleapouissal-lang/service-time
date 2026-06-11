@@ -1,0 +1,53 @@
+# Exemple Nginx — https://servicetime.com.sa
+# Copier vers : /etc/nginx/sites-available/servicetime.com.sa
+# Puis : sudo ln -sf /etc/nginx/sites-available/servicetime.com.sa /etc/nginx/sites-enabled/
+#        sudo nginx -t && sudo systemctl reload nginx
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name servicetime.com.sa www.servicetime.com.sa;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://servicetime.com.sa$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2 ipv6only=on;
+    server_name servicetime.com.sa www.servicetime.com.sa;
+
+    ssl_certificate     /etc/letsencrypt/live/servicetime.com.sa/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/servicetime.com.sa/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+
+    client_max_body_size 10M;
+
+    access_log /var/log/nginx/servicetime.access.log;
+    error_log  /var/log/nginx/servicetime.error.log;
+
+    gzip on;
+    gzip_vary on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml image/svg+xml;
+
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        proxy_pass http://127.0.0.1:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host              $host;
+        proxy_set_header X-Real-IP         $remote_addr;
+        proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Upgrade           $http_upgrade;
+        proxy_set_header Connection       "upgrade";
+    }
+}

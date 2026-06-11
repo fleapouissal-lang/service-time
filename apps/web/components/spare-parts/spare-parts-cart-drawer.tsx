@@ -106,7 +106,6 @@ export function SparePartsCartDrawer({
                         fill
                         className="object-cover"
                         sizes="64px"
-                        unoptimized
                       />
                     ) : (
                       <div className="flex size-full items-center justify-center text-[#94D4B9]/40">

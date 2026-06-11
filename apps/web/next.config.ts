@@ -42,7 +42,7 @@ const supabaseImagePattern = supabaseImageRemotePattern();
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: allowedDevOriginsFromEnv(),
-  transpilePackages: ["@service-time/types", "@imgly/background-removal"],
+  transpilePackages: ["@service-time/types"],
   env: {
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? "",
     NEXT_PUBLIC_SUPABASE_ANON_KEY:
@@ -90,10 +90,76 @@ const nextConfig: NextConfig = {
     const isDev = process.env.NODE_ENV !== "production";
     const csp = buildContentSecurityPolicy(isDev);
 
+    const immutableCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=31536000, immutable",
+      },
+    ];
+
+    const publicAssetCache = [
+      {
+        key: "Cache-Control",
+        value: "public, max-age=604800, stale-while-revalidate=86400",
+      },
+    ];
+
+    // Cache-Control sur /_next/static casse le dev — Next gère déjà le cache en prod.
+    const productionAssetHeaders = isDev
+      ? []
+      : [
+          {
+            source: "/fonts/:path*",
+            headers: immutableCache,
+          },
+          {
+            source: "/logos/:path*",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/hero-bg.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/hero-bg-mobile-car.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/cta-bg.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/about-workshop.png",
+            headers: publicAssetCache,
+          },
+        ];
+
     return [
+      ...productionAssetHeaders,
       {
-        source: "/_next/static/:path*",
+        source: "/imgly-bg-removal.mjs",
         headers: [
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin",
+          },
+          {
+            key: "Content-Type",
+            value: "text/javascript; charset=utf-8",
+          },
+          {
+            key: "Cache-Control",
+            value: "public, max-age=604800, stale-while-revalidate=86400",
+          },
+        ],
+      },
+      {
+        source: "/imgly-background-removal/:path*",
+        headers: [
+          {
+            key: "Cross-Origin-Resource-Policy",
+            value: "cross-origin",
+          },
           {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
@@ -101,38 +167,15 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/fonts/:path*",
+        source: "/admin/:path*",
         headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=31536000, immutable",
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin",
           },
-        ],
-      },
-      {
-        source: "/logos/:path*",
-        headers: [
           {
-            key: "Cache-Control",
-            value: "public, max-age=604800, stale-while-revalidate=86400",
-          },
-        ],
-      },
-      {
-        source: "/hero-bg:path*",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=604800, stale-while-revalidate=86400",
-          },
-        ],
-      },
-      {
-        source: "/cta-bg.png",
-        headers: [
-          {
-            key: "Cache-Control",
-            value: "public, max-age=604800, stale-while-revalidate=86400",
+            key: "Cross-Origin-Embedder-Policy",
+            value: "credentialless",
           },
         ],
       },

@@ -1,3 +1,5 @@
+import Image from "next/image";
+
 export function LoginFormFallback() {
   return (
     <section
@@ -5,10 +7,15 @@ export function LoginFormFallback() {
       aria-busy="true"
       aria-label="Loading login"
     >
-      <div
-        className="relative hidden overflow-hidden bg-[#050B10] bg-cover bg-center bg-no-repeat lg:flex lg:flex-col"
-        style={{ backgroundImage: "url('/hero-bg.png')" }}
-      >
+      <div className="relative hidden overflow-hidden bg-[#050B10] lg:flex lg:flex-col">
+        <Image
+          src="/hero-bg.png"
+          alt=""
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover object-center"
+        />
         <div className="pointer-events-none absolute inset-0 bg-black/60" aria-hidden />
       </div>
       <div className="relative flex min-h-full items-center justify-center bg-[#060709] px-6 py-12">

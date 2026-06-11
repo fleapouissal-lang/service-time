@@ -138,7 +138,6 @@ export function DashboardSidebar({
                   width={280}
                   height={72}
                   className="h-[4.25rem] w-full max-w-full object-contain object-center brightness-[1.08] contrast-[1.05]"
-                  unoptimized
                   priority
                 />
               ) : (
@@ -148,7 +147,6 @@ export function DashboardSidebar({
                   width={52}
                   height={52}
                   className="size-[3.25rem] object-contain"
-                  unoptimized
                 />
               )}
             </Link>

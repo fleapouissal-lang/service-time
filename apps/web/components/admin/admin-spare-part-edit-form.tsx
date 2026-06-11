@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useMemo } from "react";
 import { CheckCircle2 } from "lucide-react";
 import type { SparePart } from "@service-time/types";
 import {
@@ -23,7 +23,7 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [state, action, pending] = useActionState(saveSparePartEditAction, {});
-  const existingImages = getSparePartImages(part);
+  const existingImages = useMemo(() => getSparePartImages(part), [part]);
 
   return (
     <div className="space-y-4">

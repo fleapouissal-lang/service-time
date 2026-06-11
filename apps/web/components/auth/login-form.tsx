@@ -92,10 +92,15 @@ function LoginFormContent() {
 
   return (
     <section className="grid w-full grid-cols-1 max-lg:min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] lg:min-h-screen lg:h-screen lg:grid-cols-2">
-      <div
-        className="relative hidden overflow-hidden bg-[#050B10] bg-cover bg-center bg-no-repeat lg:flex lg:flex-col"
-        style={{ backgroundImage: "url('/hero-bg.png')" }}
-      >
+      <div className="relative hidden overflow-hidden bg-[#050B10] lg:flex lg:flex-col">
+        <Image
+          src="/hero-bg.png"
+          alt=""
+          fill
+          priority
+          sizes="50vw"
+          className="object-cover object-center"
+        />
         <div
           className="pointer-events-none absolute inset-0 bg-black/60"
           aria-hidden
@@ -109,7 +114,6 @@ function LoginFormContent() {
             height={72}
             className="h-14 w-auto max-w-[240px] object-contain xl:h-16"
             priority
-            unoptimized
           />
         </Link>
 
@@ -143,7 +147,6 @@ function LoginFormContent() {
               height={64}
               className="h-12 w-auto object-contain"
               priority
-              unoptimized
             />
           </Link>
 
@@ -304,7 +307,6 @@ function LoginFormContent() {
                 height={28}
                 className="size-7 object-contain"
                 aria-hidden
-                unoptimized
               />
               <p>
                 © {new Date().getFullYear()} Service Time · {t.login.footer.copyright}

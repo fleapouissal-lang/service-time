@@ -6,7 +6,11 @@
     "dev": "next dev --port 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup:imgly-assets": "node scripts/setup-imgly-background-removal.mjs",
+    "setup:imgly-assets:force": "node scripts/setup-imgly-background-removal.mjs --force",
+    "bundle:imgly-bg": "node scripts/bundle-imgly-background-removal.mjs",
+    "postinstall": "node scripts/patch-imgly-onnx-threads.mjs && node scripts/bundle-imgly-background-removal.mjs"
   },
   "dependencies": {
     "@imgly/background-removal": "^1.7.0",

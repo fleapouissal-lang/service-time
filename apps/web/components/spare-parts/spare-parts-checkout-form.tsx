@@ -261,7 +261,6 @@ export function SparePartsCheckoutForm() {
                             alt={itemName}
                             fill
                             className="object-cover"
-                            unoptimized
                           />
                         ) : null}
                       </div>

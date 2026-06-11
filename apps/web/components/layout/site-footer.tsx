@@ -22,7 +22,6 @@ export function SiteFooter() {
               width={280}
               height={72}
               className="h-14 w-auto max-w-full object-contain brightness-[1.12] contrast-[1.05]"
-              unoptimized
             />
           </Link>
           <p className="mt-4 text-sm leading-7 text-white/85">

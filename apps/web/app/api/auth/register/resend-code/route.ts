@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { findAuthUserByEmail } from "@/lib/auth-users";
+import { checkRegisterRateLimit } from "@/lib/form-security";
 import {
   RESET_CODE_TTL_MS,
   RESET_REQUESTS_PER_HOUR,
@@ -9,11 +10,12 @@ import {
 } from "@/lib/password-reset";
 import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import {
-  buildWhatsAppRegistrationHelpUrl,
-} from "@/lib/whatsapp";
+import { buildWhatsAppRegistrationHelpUrl } from "@/lib/whatsapp";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import { normalizePhone } from "@/lib/whatsapp-utils";
+
+const GENERIC_OK_MESSAGE =
+  "إذا كان البريد غير مسجّل لدينا، ستتلقى رمز التحقق على بريدك.";
 
 export async function POST(request: Request) {
   const admin = getAdminSupabaseClient();
@@ -39,19 +41,23 @@ export async function POST(request: Request) {
     );
   }
 
-  const existing = await findAuthUserByEmail(email);
-  if (!existing) {
+  if (!(await checkRegisterRateLimit())) {
     return NextResponse.json(
-      { error: "الحساب غير موجود." },
-      { status: 404 },
+      { error: "تم تجاوز حد الطلبات. انتظر ساعة ثم حاول مجدداً." },
+      { status: 429 },
     );
   }
 
-  if (existing.email_confirmed_at) {
-    return NextResponse.json(
-      { error: "الحساب مفعّل بالفعل. سجّل الدخول." },
-      { status: 409 },
-    );
+  const genericOk = () =>
+    NextResponse.json({
+      ok: true,
+      message: GENERIC_OK_MESSAGE,
+      expiresInSeconds: RESET_CODE_TTL_MS / 1000,
+    });
+
+  const existing = await findAuthUserByEmail(email);
+  if (!existing || existing.email_confirmed_at) {
+    return genericOk();
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -96,10 +102,7 @@ export async function POST(request: Request) {
   const phone = phoneRaw ? normalizePhone(phoneRaw) : "";
 
   if (!phone) {
-    return NextResponse.json(
-      { error: "تعذّر إرسال رمز التحقق. أكمل التسجيل من صفحة إنشاء الحساب." },
-      { status: 400 },
-    );
+    return genericOk();
   }
 
   const code = generateResetCode();
