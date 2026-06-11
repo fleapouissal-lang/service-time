@@ -3,7 +3,7 @@
  * Crée / met à jour la RPC create_service_request (+ lat/lng).
  *
  * Usage : node scripts/apply-create-service-request-rpc.mjs
- * Ou SQL Editor : supabase/migrations/20260610120000_create_service_request_rpc.sql
+ * Ou SQL Editor : supabase/migrations/20260630200000_fix_create_service_request_raise.sql
  */
 
 import { readFileSync } from "node:fs";
@@ -22,7 +22,7 @@ const sqlPath = join(
   rootDir,
   "supabase",
   "migrations",
-  "20260610120000_create_service_request_rpc.sql",
+  "20260630200000_fix_create_service_request_raise.sql",
 );
 
 async function main() {

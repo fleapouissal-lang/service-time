@@ -35,7 +35,7 @@ export async function getClientQuickRequestPhotoUrlAction(
     return { error: "Unauthorized." };
   }
 
-  const url = await getQuickRequestPhotoSignedUrl(path);
+  const url = await getQuickRequestPhotoSignedUrl(path, 3600, id);
   if (!url) {
     return { error: "Could not load photo." };
   }

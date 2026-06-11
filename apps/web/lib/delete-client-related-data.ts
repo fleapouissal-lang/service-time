@@ -59,7 +59,7 @@ async function deleteQuickRequestsForClient(
 
   for (const row of rows) {
     if (row.photo_storage_path) {
-      await removeQuickRequestPhoto(row.photo_storage_path);
+      await removeQuickRequestPhoto(row.photo_storage_path, row.id);
     }
   }
 

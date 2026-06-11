@@ -1138,6 +1138,7 @@ export const messages = {
         detailPhoto: "الصورة المرفقة",
         detailNoPhoto: "بدون صورة",
         detailPhotoError: "تعذّر تحميل الصورة",
+        detailPhotoDownload: "تحميل الصورة",
         table: {
           message: "الرسالة",
           photo: "صورة",
@@ -1461,6 +1462,7 @@ export const messages = {
         detailPhoto: "الصورة المرفقة",
         detailNoPhoto: "بدون صورة",
         detailPhotoError: "تعذّر تحميل الصورة",
+        detailPhotoDownload: "تحميل الصورة",
         detailStatus: "حالة المراجعة",
         markRead: "تعليم كمقروء",
         markUnread: "تعليم كغير مقروء",
@@ -1696,6 +1698,8 @@ export const messages = {
       createFailed: "فشل إنشاء الطلب",
       quickDbMissing:
         "جدول الطلبات السريعة غير موجود. شغّل migration quick_requests في Supabase.",
+      quickPhotoStorageMissing:
+        "تعذّر حفظ الصورة (bucket quick-request-photos). شغّل migration 20260701120000 في Supabase.",
       quickEmailUsed:
         "هذا البريد مستخدم بحساب غير عميل. استخدم بريداً آخر أو سجّل الدخول.",
       quickAccountFailed: "تعذّر إنشاء حساب العميل. حاول مجدداً.",

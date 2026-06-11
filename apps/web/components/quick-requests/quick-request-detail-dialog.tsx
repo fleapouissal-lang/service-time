@@ -1,13 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { CheckCircle2, Clock, X } from "lucide-react";
+import { CheckCircle2, Clock, Download, X } from "lucide-react";
 import { useEffect, useState, useTransition } from "react";
-import {
-  getQuickRequestPhotoSignedUrlAction,
-  setQuickRequestAdminReadStatusAction,
-} from "@/app/admin/actions";
-import { getClientQuickRequestPhotoUrlAction } from "@/app/client/quick-request-actions";
+import { setQuickRequestAdminReadStatusAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import type { QuickRequestRow } from "@/lib/quick-requests-queries";
 import { formatDateTime } from "@/lib/format-datetime";
@@ -21,6 +17,14 @@ type QuickRequestDetailDialogProps = {
   onReadStatusChange?: (read: boolean, adminReadAt: string | null) => void;
 };
 
+function quickRequestPhotoApiUrl(requestId: string, download = false): string {
+  const params = new URLSearchParams({ requestId });
+  if (download) {
+    params.set("download", "1");
+  }
+  return `/api/quick-request-photo?${params.toString()}`;
+}
+
 export function QuickRequestDetailDialog({
   request,
   onClose,
@@ -32,8 +36,6 @@ export function QuickRequestDetailDialog({
   const adminP = t.dashboard.admin.quickRequestsPage;
   const clientP = t.dashboard.client.quickRequestsPage;
   const labels = variant === "admin" ? adminP : clientP;
-  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
-  const [photoLoading, setPhotoLoading] = useState(false);
   const [photoError, setPhotoError] = useState(false);
   const [readPending, startReadTransition] = useTransition();
 
@@ -41,6 +43,10 @@ export function QuickRequestDetailDialog({
     variant === "admin"
       ? (isRead ?? Boolean(request?.admin_read_at))
       : Boolean(request?.admin_read_at);
+
+  const photoApiUrl = request?.photo_storage_path
+    ? quickRequestPhotoApiUrl(request.id)
+    : null;
 
   const handleToggleReadStatus = () => {
     if (!request || variant !== "admin") return;
@@ -59,10 +65,11 @@ export function QuickRequestDetailDialog({
 
   useEffect(() => {
     if (!request) {
-      setPhotoUrl(null);
       setPhotoError(false);
       return;
     }
+
+    setPhotoError(false);
 
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
@@ -76,42 +83,6 @@ export function QuickRequestDetailDialog({
       document.removeEventListener("keydown", onKeyDown);
     };
   }, [request, onClose]);
-
-  useEffect(() => {
-    if (!request?.photo_storage_path) {
-      setPhotoUrl(null);
-      setPhotoError(false);
-      setPhotoLoading(false);
-      return;
-    }
-
-    let cancelled = false;
-    setPhotoLoading(true);
-    setPhotoError(false);
-    setPhotoUrl(null);
-
-    const loadPhoto =
-      variant === "admin"
-        ? getQuickRequestPhotoSignedUrlAction(request.photo_storage_path)
-        : getClientQuickRequestPhotoUrlAction(
-            request.id,
-            request.photo_storage_path,
-          );
-
-    void loadPhoto.then((result) => {
-      if (cancelled) return;
-      if ("url" in result) {
-        setPhotoUrl(result.url);
-      } else {
-        setPhotoError(true);
-      }
-      setPhotoLoading(false);
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [request?.id, request?.photo_storage_path, variant]);
 
   if (!request) return null;
 
@@ -234,20 +205,28 @@ export function QuickRequestDetailDialog({
 
           <div>
             <dt className="font-medium text-muted">{labels.detailPhoto}</dt>
-            <dd className="mt-2">
+            <dd className="mt-2 space-y-3">
               {!request.photo_storage_path ? (
                 <span className="text-muted">{labels.detailNoPhoto}</span>
-              ) : photoLoading ? (
-                <span className="text-muted">{t.common.loading}</span>
-              ) : photoError || !photoUrl ? (
+              ) : photoError || !photoApiUrl ? (
                 <span className="text-red-400">{labels.detailPhotoError}</span>
               ) : (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={photoUrl}
-                  alt={labels.detailPhoto}
-                  className="max-h-72 w-full rounded-xl border border-border object-contain"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={photoApiUrl}
+                    alt={labels.detailPhoto}
+                    className="max-h-72 w-full rounded-xl border border-border object-contain"
+                    onError={() => setPhotoError(true)}
+                  />
+                  <a
+                    href={quickRequestPhotoApiUrl(request.id, true)}
+                    className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+                  >
+                    <Download className="size-4 shrink-0" aria-hidden />
+                    {labels.detailPhotoDownload}
+                  </a>
+                </>
               )}
             </dd>
           </div>

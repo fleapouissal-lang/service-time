@@ -300,7 +300,7 @@ export async function deleteQuickRequestAction(formData: FormData) {
 
   if (row.photo_storage_path) {
     const { removeQuickRequestPhoto } = await import("@/lib/quick-request-photo");
-    await removeQuickRequestPhoto(row.photo_storage_path);
+    await removeQuickRequestPhoto(row.photo_storage_path, id);
   }
 
   const { error } = await admin.from("quick_requests").delete().eq("id", id);

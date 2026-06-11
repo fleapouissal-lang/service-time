@@ -142,12 +142,15 @@ export async function submitQuickServiceRequest(
   if (photo) {
     const upload = await uploadQuickRequestPhoto(row.id, photo);
     if ("error" in upload) {
+      await admin.from("quick_requests").delete().eq("id", row.id);
+      if (createdNew) {
+        await admin.auth.admin.deleteUser(clientId).catch(() => undefined);
+      }
       if (isQuickRequestPhotoBucketMissingError(upload.error)) {
         console.error("[quick-request] photo bucket missing:", upload.error);
-      } else {
-        await admin.from("quick_requests").delete().eq("id", row.id);
-        return { error: upload.error };
+        return { error: t.errors.request.quickPhotoStorageMissing };
       }
+      return { error: upload.error };
     } else {
       photoStoragePath = upload.storagePath;
       const { error: updateError } = await admin

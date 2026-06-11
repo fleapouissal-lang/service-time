@@ -1138,6 +1138,7 @@ export const messages = {
         detailPhoto: "Attached photo",
         detailNoPhoto: "No photo",
         detailPhotoError: "Could not load photo",
+        detailPhotoDownload: "Download photo",
         table: {
           message: "Message",
           photo: "Photo",
@@ -1462,6 +1463,7 @@ export const messages = {
         detailPhoto: "Attached photo",
         detailNoPhoto: "No photo",
         detailPhotoError: "Could not load photo",
+        detailPhotoDownload: "Download photo",
         detailStatus: "Review status",
         markRead: "Mark as read",
         markUnread: "Mark as unread",
@@ -1696,6 +1698,8 @@ export const messages = {
       createFailed: "Failed to create request",
       quickDbMissing:
         "Quick requests table is missing. Run migration quick_requests in Supabase.",
+      quickPhotoStorageMissing:
+        "Could not save the photo (quick-request-photos bucket). Run migration 20260701120000 in Supabase.",
       quickEmailUsed:
         "This email is already used by a non-client account. Use another email or sign in.",
       quickAccountFailed: "Could not create your client account. Please try again.",

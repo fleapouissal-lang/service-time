@@ -141,7 +141,8 @@ export async function submitServiceRequest(
     }
     if (
       error.message.includes("create_service_request") ||
-      error.message.includes("schema cache")
+      error.message.includes("schema cache") ||
+      error.message.includes("RAISE option already specified")
     ) {
       return {
         error: t.errors.request.dbIncomplete,
