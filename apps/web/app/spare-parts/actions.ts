@@ -1,10 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { requireProfile } from "@/lib/auth";
 import { createAuthServerClient } from "@/lib/auth";
+import { getAppBaseUrl } from "@/lib/app-base-url";
 import {
   contactValidationErrorMessage,
   validateRequiredContact,
@@ -258,27 +258,6 @@ export async function updateSparePartOrderStatusAction(formData: FormData) {
   revalidatePath("/admin/spare-parts");
   revalidatePath("/admin/spare-part-orders");
   revalidatePath(`/client/spare-part-orders/${id}`);
-}
-
-async function getAppBaseUrl(): Promise<string> {
-  const headersList = await headers();
-  const host = headersList.get("host");
-  const protocol = headersList.get("x-forwarded-proto") ?? "http";
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-
-  if (
-    envUrl &&
-    !envUrl.includes("votre-domaine") &&
-    !envUrl.includes("localhost")
-  ) {
-    return envUrl.replace(/\/$/, "");
-  }
-
-  if (host) {
-    return `${protocol}://${host}`;
-  }
-
-  return envUrl?.replace(/\/$/, "") ?? "http://localhost:3000";
 }
 
 export async function startPaymobCheckoutAction(

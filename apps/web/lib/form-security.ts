@@ -19,6 +19,7 @@ const RATE_LIMITS = {
   forgotPassword: { max: 5, windowMs: 60 * 60 * 1000 },
   geocode: { max: 60, windowMs: 15 * 60 * 1000 },
   geocodePublic: { max: 25, windowMs: 15 * 60 * 1000 },
+  register: { max: 8, windowMs: 60 * 60 * 1000 },
 } as const;
 
 type RateScope = keyof typeof RATE_LIMITS;
@@ -125,6 +126,10 @@ export async function checkLoginRateLimit(identifier: string): Promise<boolean> 
   if (bucket.count >= limit.max) return false;
   bucket.count += 1;
   return true;
+}
+
+export async function checkRegisterRateLimit(): Promise<boolean> {
+  return checkApiRateLimit("register", "ip");
 }
 
 export async function checkForgotPasswordRateLimit(

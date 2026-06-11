@@ -74,9 +74,8 @@ export function SiteHeader() {
             alt="Service Time — سيرفيس تايم"
             width={280}
             height={98}
+            sizes="(max-width: 640px) 160px, 280px"
             className="h-10 w-auto bg-transparent object-contain brightness-[1.15] contrast-[1.08] sm:h-16 md:h-[4.75rem]"
-            priority
-            unoptimized
           />
         </Link>
 

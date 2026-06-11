@@ -49,6 +49,9 @@ export default async function HomePage() {
         subtitle={subtitle}
         cta={cta}
         ctaHref="/request"
+        slides={t.home.hero.slides}
+        slideAriaLabel={t.home.hero.slideAriaLabel}
+        locale={locale}
       />
 
       <div className="hidden md:block">

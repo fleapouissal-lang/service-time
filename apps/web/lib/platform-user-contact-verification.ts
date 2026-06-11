@@ -1,6 +1,7 @@
 import { createHash, randomInt } from "node:crypto";
 import { ensureServerEnv } from "@/lib/env-server";
 import { normalizeEmail } from "@/lib/password-reset";
+import { secureCompareStrings } from "@/lib/secure-compare";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
 export const CONTACT_VERIFY_TTL_MS = 10 * 60 * 1000;
@@ -40,6 +41,18 @@ export function hashContactVerifyCode(
   return createHash("sha256")
     .update(`${channel}:${normalized}:${code.trim()}:${getVerifySecret()}`)
     .digest("hex");
+}
+
+export function matchesContactVerifyCodeHash(
+  storedHash: string,
+  channel: ContactVerifyChannel,
+  target: string,
+  code: string,
+): boolean {
+  return secureCompareStrings(
+    storedHash,
+    hashContactVerifyCode(channel, target, code),
+  );
 }
 
 export function isValidContactVerifyCode(code: string): boolean {

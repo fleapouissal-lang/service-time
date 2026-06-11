@@ -1,5 +1,6 @@
 import { createHash, randomBytes, randomInt } from "node:crypto";
 import { ensureServerEnv } from "@/lib/env-server";
+import { secureCompareStrings } from "@/lib/secure-compare";
 
 export const RESET_CODE_TTL_MS = 10 * 60 * 1000;
 export const RESET_CODE_MAX_ATTEMPTS = 5;
@@ -33,6 +34,14 @@ export function hashResetCode(email: string, code: string): string {
   return createHash("sha256")
     .update(`${normalizeEmail(email)}:${code}:${getResetSecret()}`)
     .digest("hex");
+}
+
+export function matchesResetCodeHash(
+  storedHash: string,
+  email: string,
+  code: string,
+): boolean {
+  return secureCompareStrings(storedHash, hashResetCode(email, code));
 }
 
 export function isValidResetCodeFormat(code: string): boolean {

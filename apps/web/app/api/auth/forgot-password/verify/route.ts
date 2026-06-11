@@ -3,6 +3,7 @@ import {
   RESET_CODE_MAX_ATTEMPTS,
   hashResetCode,
   isValidResetCodeFormat,
+  matchesResetCodeHash,
   normalizeEmail,
 } from "@/lib/password-reset";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
@@ -70,7 +71,7 @@ export async function POST(request: Request) {
     );
   }
 
-  const isMatch = record.code_hash === hashResetCode(email, code);
+  const isMatch = matchesResetCodeHash(record.code_hash, email, code);
 
   if (!isMatch) {
     await admin

@@ -1,15 +1,25 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { Suspense, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { SparePartsCartDrawer } from "@/components/spare-parts/spare-parts-cart-drawer";
 import {
   SparePartsCartProvider,
   useSparePartsCart,
 } from "@/components/spare-parts/spare-parts-cart-context";
 
+const SparePartsCartDrawer = dynamic(
+  () =>
+    import("@/components/spare-parts/spare-parts-cart-drawer").then(
+      (mod) => mod.SparePartsCartDrawer,
+    ),
+  { ssr: false, loading: () => null },
+);
+
 function GlobalCartDrawer() {
   const { drawerOpen, closeCartDrawer } = useSparePartsCart();
+  if (!drawerOpen) return null;
+
   return (
     <SparePartsCartDrawer open={drawerOpen} onClose={closeCartDrawer} />
   );

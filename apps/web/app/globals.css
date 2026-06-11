@@ -454,12 +454,10 @@ html[lang="ar"] {
   from {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
   to {
     opacity: 0;
     transform: translateY(-20px) scale(0.97);
-    filter: blur(8px);
   }
 }
 
@@ -467,12 +465,10 @@ html[lang="ar"] {
   from {
     opacity: 0;
     transform: translateY(32px) scale(0.92);
-    filter: blur(12px);
   }
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
   }
 }
 
@@ -489,12 +485,10 @@ html[lang="ar"] {
 
 @keyframes hero-mobile-highlight-glow {
   from {
-    opacity: 0;
-    filter: brightness(1.4);
+    opacity: 0.35;
   }
   to {
     opacity: 1;
-    filter: brightness(1);
   }
 }
 
@@ -533,4 +527,18 @@ html[lang="ar"] {
 
 .hero-mobile-bg-drift {
   animation: hero-mobile-bg-drift 8s ease-out forwards;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-mobile-bg-drift,
+  .hero-mobile-slide-in,
+  .hero-mobile-slide-out,
+  .hero-mobile-slide-in .hero-mobile-line-1,
+  .hero-mobile-slide-in .hero-mobile-line-2,
+  .hero-mobile-slide-in .hero-mobile-line-3,
+  .hero-mobile-slide-in .hero-mobile-highlight,
+  .animate-fade-up {
+    animation: none !important;
+  }
 }

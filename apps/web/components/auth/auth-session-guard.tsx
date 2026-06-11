@@ -24,7 +24,10 @@ export function AuthSessionGuard() {
   useEffect(() => {
     if (PUBLIC_AUTH_PATHS.has(pathname)) return;
 
-    async function enforce() {
+    let cancelled = false;
+
+    const enforce = async () => {
+      if (cancelled) return;
       if (hasAuthTabSession() || isWithinLoginGracePeriod()) return;
 
       const supabase = createAuthBrowserClient();
@@ -32,14 +35,34 @@ export function AuthSessionGuard() {
         data: { user },
       } = await supabase.auth.getUser();
 
-      if (!user) return;
+      if (!user || cancelled) return;
 
       clearLegacySupabaseStorage();
       clearAuthTabSession();
       await signOutAndRedirect(router);
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+      const id = window.requestIdleCallback(
+        () => {
+          void enforce();
+        },
+        { timeout: 3000 },
+      );
+      return () => {
+        cancelled = true;
+        window.cancelIdleCallback(id);
+      };
     }
 
-    void enforce();
+    const timer = globalThis.setTimeout(() => {
+      void enforce();
+    }, 1500);
+
+    return () => {
+      cancelled = true;
+      globalThis.clearTimeout(timer);
+    };
   }, [pathname, router]);
 
   return null;

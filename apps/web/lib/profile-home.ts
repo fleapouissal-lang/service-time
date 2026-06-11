@@ -8,27 +8,49 @@ const ROLE_PREFIX: Record<ProfileRole, string> = {
   client: "/client",
 };
 
+/** Reject open redirects and path traversal in ?next= */
+export function normalizeInternalPath(raw: string): string | null {
+  const trimmed = raw.trim();
+  if (!trimmed || !trimmed.startsWith("/") || trimmed.startsWith("//")) {
+    return null;
+  }
+  if (trimmed.includes("\\")) return null;
+
+  try {
+    const url = new URL(trimmed, "http://localhost");
+    if (url.hostname !== "localhost") return null;
+    const pathname = url.pathname;
+    if (!pathname.startsWith("/") || pathname.startsWith("//")) return null;
+    return pathname + url.search;
+  } catch {
+    return null;
+  }
+}
+
 export function getProfileHomePath(role: ProfileRole): string {
   return ROLE_PREFIX[role] ?? "/";
 }
 
 /** Redirection après connexion selon le rôle */
 export function isPathAllowedForRole(path: string, role: ProfileRole): boolean {
-  const pathname = path.split("?")[0] ?? path;
+  const normalized = normalizeInternalPath(path);
+  if (!normalized) return false;
+
+  const pathname = normalized.split("?")[0] ?? normalized;
 
   if (role === "client" && (pathname === "/request" || pathname === "/spare-parts/checkout")) {
     return true;
   }
 
   const prefix = ROLE_PREFIX[role];
-  return !!prefix && path.startsWith(prefix);
+  return !!prefix && pathname.startsWith(prefix);
 }
 
 /** Redirection après connexion selon le rôle */
 export function resolvePostLoginPath(role: ProfileRole, next: string): string {
-  const trimmed = next.trim();
-  if (trimmed && isPathAllowedForRole(trimmed, role)) {
-    return trimmed;
+  const normalized = normalizeInternalPath(next);
+  if (normalized && isPathAllowedForRole(normalized, role)) {
+    return normalized;
   }
   return getProfileHomePath(role);
 }

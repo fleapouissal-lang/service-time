@@ -1,9 +1,9 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
+import { getAppBaseUrl } from "@/lib/app-base-url";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import {
@@ -24,27 +24,6 @@ import type { QuoteActionState } from "@/lib/service-quote-actions";
 export type PaymentActionState = QuoteActionState & {
   redirectTo?: string;
 };
-
-async function getAppBaseUrl(): Promise<string> {
-  const headersList = await headers();
-  const host = headersList.get("host");
-  const protocol = headersList.get("x-forwarded-proto") ?? "http";
-  const envUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
-
-  if (
-    envUrl &&
-    !envUrl.includes("votre-domaine") &&
-    !envUrl.includes("localhost")
-  ) {
-    return envUrl.replace(/\/$/, "");
-  }
-
-  if (host) {
-    return `${protocol}://${host}`;
-  }
-
-  return envUrl?.replace(/\/$/, "") ?? "http://localhost:3000";
-}
 
 export async function clientSetServicePaymentMethodAction(
   _prev: PaymentActionState,

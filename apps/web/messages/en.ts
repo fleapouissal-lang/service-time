@@ -867,7 +867,7 @@ export const messages = {
     sendCode: "Send verification code",
     resendCode: "Didn't receive the email? Resend code",
     resendHint: "Verification code resent to your email.",
-    whatsappCode: "Send code via WhatsApp",
+    whatsappCode: "WhatsApp support",
     activate: "Activate account",
     backToRegister: "Back to registration",
     hasAccount: "Already have an account?",

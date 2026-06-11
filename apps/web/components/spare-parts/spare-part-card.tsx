@@ -93,7 +93,6 @@ export function SparePartCard({
               inStock ? "group-hover:scale-105" : "grayscale saturate-50",
             )}
             sizes="(max-width: 640px) 50vw, 33vw"
-            unoptimized
           />
         ) : null}
         {!inStock ? <SparePartOutOfStockOverlay /> : null}

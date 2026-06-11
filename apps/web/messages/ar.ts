@@ -868,7 +868,7 @@ export const messages = {
     sendCode: "إرسال رمز التحقق",
     resendCode: "لم يصل البريد؟ إعادة إرسال الرمز",
     resendHint: "تم إعادة إرسال رمز التحقق إلى بريدك.",
-    whatsappCode: "إرسال الرمز عبر واتساب",
+    whatsappCode: "مساعدة عبر واتساب",
     activate: "تفعيل الحساب",
     backToRegister: "العودة للتسجيل",
     hasAccount: "لديك حساب بالفعل؟",

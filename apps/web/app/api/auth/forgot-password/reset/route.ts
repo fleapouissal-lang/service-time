@@ -7,6 +7,7 @@ import {
   RESET_VERIFY_WINDOW_MS,
   hashResetCode,
   isValidResetCodeFormat,
+  matchesResetCodeHash,
   normalizeEmail,
 } from "@/lib/password-reset";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
@@ -91,7 +92,7 @@ export async function POST(request: Request) {
 
   if (
     new Date(record.expires_at).getTime() < Date.now() ||
-    record.code_hash !== hashResetCode(email, code)
+    !matchesResetCodeHash(record.code_hash, email, code)
   ) {
     return NextResponse.json(
       { error: "الرمز غير صالح أو منتهي الصلاحية." },

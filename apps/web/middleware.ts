@@ -30,6 +30,13 @@ function isServerActionRequest(request: NextRequest): boolean {
   );
 }
 
+function denyServerAction(status: 401 | 403): NextResponse {
+  return NextResponse.json(
+    { error: status === 401 ? "Unauthorized" : "Forbidden" },
+    { status },
+  );
+}
+
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
 
@@ -121,18 +128,18 @@ export async function middleware(request: NextRequest) {
     if (!path.startsWith(prefix)) continue;
 
     if (!user) {
-      if (serverAction) return response;
+      if (serverAction) return denyServerAction(401);
       return loginRedirect(path);
     }
 
     const role = await getActiveProfileRole(supabase, user.id);
     if (!role) {
-      if (serverAction) return response;
+      if (serverAction) return denyServerAction(401);
       return signOutAndLogin(path);
     }
 
     if (role !== gate.role) {
-      if (serverAction) return response;
+      if (serverAction) return denyServerAction(403);
       const url = request.nextUrl.clone();
       url.pathname = gate.redirectIfWrongRole(role);
       return NextResponse.redirect(url);

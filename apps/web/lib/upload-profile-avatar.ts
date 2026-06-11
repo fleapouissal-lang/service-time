@@ -1,33 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { ensureServerEnv } from "@/lib/env-server";
+import {
+  extensionForMime,
+  validateImageUpload,
+} from "@/lib/image-upload-validation";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 
 export const PROFILE_AVATAR_BUCKET = "profile-avatars";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_BYTES = 5 * 1024 * 1024;
-
-const EXT_TO_MIME: Record<string, string> = {
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  png: "image/png",
-  webp: "image/webp",
-};
-
-function extensionForMime(mime: string): string {
-  if (mime === "image/jpeg") return "jpg";
-  if (mime === "image/png") return "png";
-  return "webp";
-}
-
-function resolveMimeType(file: File): string | null {
-  if (ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
-    return file.type;
-  }
-
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-  return EXT_TO_MIME[ext] ?? null;
-}
 
 export function getAvatarFromFormData(formData: FormData): File | null {
   const value = formData.get("avatar");
@@ -51,13 +32,14 @@ export async function uploadProfileAvatar(
 ): Promise<{ storagePath: string; publicUrl: string } | { error: string }> {
   ensureServerEnv();
 
-  const mime = resolveMimeType(file);
-  if (!mime) {
-    return { error: "نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WebP." };
-  }
-
   if (file.size > MAX_BYTES) {
     return { error: "حجم الصورة يجب أن لا يتجاوز 5 MB." };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const validated = validateImageUpload(file, buffer);
+  if ("error" in validated) {
+    return { error: validated.error };
   }
 
   const admin = getAdminSupabaseClient();
@@ -65,8 +47,8 @@ export async function uploadProfileAvatar(
     return { error: "إعدادات التخزين غير مكتملة." };
   }
 
+  const mime = validated.mime;
   const storagePath = `${userId}/avatar.${extensionForMime(mime)}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error: uploadError } = await admin.storage
     .from(PROFILE_AVATAR_BUCKET)

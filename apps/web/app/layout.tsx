@@ -16,7 +16,8 @@ import "./globals.css";
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["600", "700"],
+  display: "swap",
 });
 
 export const viewport: Viewport = {
@@ -44,6 +45,7 @@ export default async function RootLayout({
 }>) {
   const { locale } = await getServerI18n();
   const dir = getDir(locale);
+  const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
   return (
     <html
@@ -51,6 +53,14 @@ export default async function RootLayout({
       dir={dir}
       className={`${poppins.variable} h-full scroll-smooth`}
     >
+      <head>
+        {supabaseOrigin ? (
+          <>
+            <link rel="preconnect" href={supabaseOrigin} crossOrigin="anonymous" />
+            <link rel="dns-prefetch" href={supabaseOrigin} />
+          </>
+        ) : null}
+      </head>
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <PwaProvider>
           <LocaleProvider locale={locale}>

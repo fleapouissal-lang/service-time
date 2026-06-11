@@ -59,6 +59,7 @@ import {
   emailsEqual,
   generateContactVerifyCode,
   hashContactVerifyCode,
+  matchesContactVerifyCodeHash,
   isValidContactVerifyCode,
   phonesEqual,
 } from "@/lib/platform-user-contact-verification";
@@ -992,9 +993,16 @@ async function confirmPlatformUserContactVerification(
     }
 
     const expectedEmail = record.new_email ?? input.email;
-    const emailHash = hashContactVerifyCode("email", expectedEmail, emailCode);
 
-    if (emailHash !== record.email_code_hash) {
+    if (
+      !record.email_code_hash ||
+      !matchesContactVerifyCodeHash(
+        record.email_code_hash,
+        "email",
+        expectedEmail,
+        emailCode,
+      )
+    ) {
       const nextAttempts = record.email_attempts + 1;
       if (nextAttempts >= CONTACT_VERIFY_MAX_ATTEMPTS) {
         await admin
@@ -1018,9 +1026,16 @@ async function confirmPlatformUserContactVerification(
     }
 
     const phoneTarget = record.new_phone ?? record.old_phone ?? "";
-    const phoneHash = hashContactVerifyCode("phone", phoneTarget, phoneCode);
 
-    if (phoneHash !== record.phone_code_hash) {
+    if (
+      !record.phone_code_hash ||
+      !matchesContactVerifyCodeHash(
+        record.phone_code_hash,
+        "phone",
+        phoneTarget,
+        phoneCode,
+      )
+    ) {
       const nextAttempts = record.phone_attempts + 1;
       if (nextAttempts >= CONTACT_VERIFY_MAX_ATTEMPTS) {
         await admin

@@ -10,7 +10,7 @@ import {
 import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import {
-  buildWhatsAppSendCodeToClientUrl,
+  buildWhatsAppRegistrationHelpUrl,
 } from "@/lib/whatsapp";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import { normalizePhone } from "@/lib/whatsapp-utils";
@@ -149,7 +149,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     message: "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
-    whatsappUrl: buildWhatsAppSendCodeToClientUrl(phone, code, displayNameAr),
+    whatsappUrl: buildWhatsAppRegistrationHelpUrl(phone, displayNameAr),
     expiresInSeconds: RESET_CODE_TTL_MS / 1000,
     devMode: mail.dev === true,
   });

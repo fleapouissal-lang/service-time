@@ -6,7 +6,7 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const { t, locale } = await getServerI18n();
 
   return {
-    id: "/",
+    id: "servicetime-pwa",
     name: t.meta.siteTitle,
     short_name: SITE_NAME,
     description: t.meta.siteDescription,

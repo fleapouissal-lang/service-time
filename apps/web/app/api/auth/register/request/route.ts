@@ -13,14 +13,18 @@ import {
 import { sendClientVerificationCode } from "@/lib/send-email";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { uploadProfileAvatar } from "@/lib/upload-profile-avatar";
+import { checkRegisterRateLimit } from "@/lib/form-security";
 import {
-  buildWhatsAppSendCodeToClientUrl,
+  buildWhatsAppRegistrationHelpUrl,
 } from "@/lib/whatsapp";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import {
   contactValidationErrorMessageAr,
   validateRequiredContact,
 } from "@/lib/contact-validation";
+
+const GENERIC_OK_MESSAGE =
+  "إذا كان البريد غير مسجّل لدينا، ستتلقى رمز التحقق على بريدك.";
 
 async function parseRegisterPayload(request: Request): Promise<{
   fullNameAr: string;
@@ -112,6 +116,13 @@ export async function POST(request: Request) {
   const phone = contact.phone;
   const email = contact.email;
 
+  if (!(await checkRegisterRateLimit())) {
+    return NextResponse.json(
+      { error: "تم تجاوز حد الطلبات. انتظر ساعة ثم حاول مجدداً." },
+      { status: 429 },
+    );
+  }
+
   if (!isStrongEnoughPassword(password)) {
     return NextResponse.json(
       { error: PASSWORD_REQUIREMENTS_AR },
@@ -121,10 +132,11 @@ export async function POST(request: Request) {
 
   const existing = await findAuthUserByEmail(email);
   if (existing?.email_confirmed_at) {
-    return NextResponse.json(
-      { error: "هذا البريد مسجّل مسبقاً. سجّل الدخول." },
-      { status: 409 },
-    );
+    return NextResponse.json({
+      ok: true,
+      message: GENERIC_OK_MESSAGE,
+      expiresInSeconds: RESET_CODE_TTL_MS / 1000,
+    });
   }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
@@ -261,7 +273,7 @@ export async function POST(request: Request) {
   return NextResponse.json({
     ok: true,
     message: "تم إرسال رمز التحقق إلى بريدك الإلكتروني.",
-    whatsappUrl: buildWhatsAppSendCodeToClientUrl(phone, code, displayNameAr),
+    whatsappUrl: buildWhatsAppRegistrationHelpUrl(phone, displayNameAr),
     expiresInSeconds: RESET_CODE_TTL_MS / 1000,
     devMode: mail.dev === true,
   });

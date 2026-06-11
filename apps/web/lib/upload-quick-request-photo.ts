@@ -1,8 +1,11 @@
 import { ensureServerEnv } from "@/lib/env-server";
+import {
+  extensionForMime,
+  validateImageUpload,
+} from "@/lib/image-upload-validation";
 import { QUICK_REQUEST_PHOTO_BUCKET } from "@/lib/quick-request-photo";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"] as const;
 const MAX_BYTES = 5 * 1024 * 1024;
 
 export function isQuickRequestPhotoBucketMissingError(message: string): boolean {
@@ -13,39 +16,20 @@ export function isQuickRequestPhotoBucketMissingError(message: string): boolean 
   );
 }
 
-function extensionForMime(mime: string): string {
-  if (mime === "image/jpeg") return "jpg";
-  if (mime === "image/png") return "png";
-  return "webp";
-}
-
-function resolveMimeType(file: File): string | null {
-  if (ALLOWED_TYPES.includes(file.type as (typeof ALLOWED_TYPES)[number])) {
-    return file.type;
-  }
-  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
-  const map: Record<string, string> = {
-    jpg: "image/jpeg",
-    jpeg: "image/jpeg",
-    png: "image/png",
-    webp: "image/webp",
-  };
-  return map[ext] ?? null;
-}
-
 export async function uploadQuickRequestPhoto(
   quickRequestId: string,
   file: File,
 ): Promise<{ storagePath: string } | { error: string }> {
   ensureServerEnv();
 
-  const mime = resolveMimeType(file);
-  if (!mime) {
-    return { error: "نوع الصورة غير مدعوم. استخدم JPG أو PNG أو WebP." };
-  }
-
   if (file.size > MAX_BYTES) {
     return { error: "حجم الصورة يجب أن لا يتجاوز 5 MB." };
+  }
+
+  const buffer = Buffer.from(await file.arrayBuffer());
+  const validated = validateImageUpload(file, buffer);
+  if ("error" in validated) {
+    return { error: validated.error };
   }
 
   const admin = getAdminSupabaseClient();
@@ -53,8 +37,8 @@ export async function uploadQuickRequestPhoto(
     return { error: "إعدادات التخزين غير مكتملة (SUPABASE_SERVICE_ROLE_KEY)." };
   }
 
+  const mime = validated.mime;
   const storagePath = `${quickRequestId}/${crypto.randomUUID()}.${extensionForMime(mime)}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
 
   const { error: uploadError } = await admin.storage
     .from(QUICK_REQUEST_PHOTO_BUCKET)

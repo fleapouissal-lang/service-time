@@ -1,6 +1,7 @@
 import { createHmac } from "crypto";
 import { NextResponse } from "next/server";
 import { amountToHalalas } from "@/lib/paymob";
+import { secureCompareStrings } from "@/lib/secure-compare";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 
 type PaymobTransactionPayload = {
@@ -58,7 +59,7 @@ function verifyPaymobHmac(obj: Record<string, unknown>, receivedHmac: string): b
     .update(parts.map((value) => String(value ?? "")).join(""))
     .digest("hex");
 
-  return digest === receivedHmac;
+  return secureCompareStrings(digest, receivedHmac);
 }
 
 function extractOrderId(payload: PaymobTransactionPayload): string | null {
