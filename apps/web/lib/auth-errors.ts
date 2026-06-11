@@ -23,6 +23,17 @@ export function mapAuthError(message: string, t: Messages): string {
     return t.errors.auth.accountInactive;
   }
 
+  if (
+    normalized.includes("account profile missing") ||
+    normalized.includes("could not load user profile")
+  ) {
+    return t.errors.auth.profileIncomplete;
+  }
+
+  if (normalized.includes("server error during login")) {
+    return t.errors.auth.serverConnection;
+  }
+
   if (normalized.includes("invalid login credentials")) {
     return t.errors.auth.invalidCredentials;
   }

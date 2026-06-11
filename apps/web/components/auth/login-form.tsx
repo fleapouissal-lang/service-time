@@ -54,12 +54,24 @@ function LoginFormContent() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ identifier, password }),
       });
-      const data = (await res.json()) as {
+
+      const raw = await res.text();
+      let data: {
         error?: string;
         role?: ProfileRole;
         needsVerification?: boolean;
         email?: string;
-      };
+      } = {};
+
+      if (raw) {
+        try {
+          data = JSON.parse(raw) as typeof data;
+        } catch {
+          setError(t.errors.auth.serverConnection);
+          setLoading(false);
+          return;
+        }
+      }
 
       if (data.needsVerification && data.email) {
         setActivationEmail(data.email);

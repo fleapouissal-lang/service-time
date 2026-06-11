@@ -1623,6 +1623,8 @@ export const messages = {
     auth: {
       loginFailed: "Sign in failed",
       accountInactive: "Account is not activated. Contact the administrator.",
+      profileIncomplete:
+        "Your profile is incomplete. Finish registration or contact support.",
       rateLimit:
         "Email rate limit exceeded. Wait an hour and try again, or change your password from the Supabase Dashboard.",
       invalidCredentials: "Email, phone, or password is incorrect.",
