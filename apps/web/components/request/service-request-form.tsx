@@ -440,7 +440,9 @@ export function ServiceRequestForm({
                 size="lg"
                 className={cn(
                   "h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90",
-                  useWizard ? "hidden" : "flex",
+                  !useWizard && "flex",
+                  twoSteps && useWizard && "hidden",
+                  wizardMobileOnly && "hidden lg:flex",
                 )}
                 disabled={pending}
               >
