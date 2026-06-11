@@ -11,6 +11,7 @@ import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { mapAuthError } from "@/lib/auth-errors";
+import { clearLegacySupabaseStorage } from "@/lib/auth-cookies";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import { markAuthSessionActive } from "@/lib/sign-out-client";
@@ -46,6 +47,7 @@ function LoginFormContent() {
     setLoading(true);
     setError("");
     setInfoMessage("");
+    clearLegacySupabaseStorage();
 
     try {
       const res = await fetch("/api/auth/login", {

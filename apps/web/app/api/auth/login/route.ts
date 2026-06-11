@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
-import { clearSupabaseAuthCookies } from "@/lib/auth-cookies";
+import type { CookieOptions } from "@supabase/ssr";
+import { purgeSupabaseAuthCookieChunks } from "@/lib/auth-cookies";
 import { findAuthUserByEmail, getLoginProfile } from "@/lib/auth-users";
 import { isEmailNotConfirmedError } from "@/lib/auth-errors";
 import { ensureServerEnv } from "@/lib/env-server";
@@ -11,6 +12,8 @@ import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
 async function safeSignOut(supabase: SupabaseClient): Promise<void> {
   try {
@@ -65,10 +68,10 @@ export async function POST(request: Request) {
     }
 
     const cookieStore = await cookies();
+    const setAuthCookie = (name: string, value: string, options: CookieOptions) =>
+      cookieStore.set(name, value, options);
 
-    clearSupabaseAuthCookies(cookieStore.getAll(), (name, value, options) =>
-      cookieStore.set(name, value, options),
-    );
+    purgeSupabaseAuthCookieChunks(cookieStore.getAll(), setAuthCookie);
 
     const supabase = createSupabaseServerClient({
       getAll() {
@@ -104,8 +107,6 @@ export async function POST(request: Request) {
         { status: 401 },
       );
     }
-
-    await supabase.auth.getSession();
 
     const profile = await getLoginProfile(data.user.id);
     if (profile === "lookup_failed") {

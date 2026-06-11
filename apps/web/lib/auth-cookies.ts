@@ -111,3 +111,45 @@ export function clearSupabaseAuthCookies(
     }
   }
 }
+
+/** Ref Supabase (ex. `abcd1234` depuis `https://abcd1234.supabase.co`). */
+export function getSupabaseProjectRef(): string | null {
+  const raw = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
+  if (!raw) return null;
+
+  try {
+    return new URL(raw).hostname.split(".")[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
+/** Efface les cookies auth présents + leurs chunks (.0…9) associés. */
+export function purgeSupabaseAuthCookieChunks(
+  cookies: Array<{ name: string; value: string }>,
+  setCookie: (name: string, value: string, options: CookieOptions) => void,
+): void {
+  const authCookies = cookies.filter((cookie) =>
+    isSupabaseAuthCookieName(cookie.name),
+  );
+  if (authCookies.length === 0) return;
+
+  clearSupabaseAuthCookies(authCookies, setCookie);
+
+  const bases = new Set<string>();
+  for (const cookie of authCookies) {
+    const base = cookie.name.replace(/(\.\d+|-code-verifier)$/, "");
+    if (base.startsWith("sb-")) bases.add(base);
+  }
+
+  const ref = getSupabaseProjectRef();
+  if (ref) bases.add(`sb-${ref}-auth-token`);
+
+  for (const base of bases) {
+    setCookie(base, "", { path: "/", maxAge: 0 });
+    setCookie(`${base}-code-verifier`, "", { path: "/", maxAge: 0 });
+    for (let i = 0; i < 10; i += 1) {
+      setCookie(`${base}.${i}`, "", { path: "/", maxAge: 0 });
+    }
+  }
+}

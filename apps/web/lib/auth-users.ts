@@ -1,4 +1,6 @@
 import type { User } from "@supabase/supabase-js";
+import { getServiceRoleKey, getSupabaseUrl } from "@/lib/env-server";
+import { fetchWithTimeout } from "@/lib/fetch-with-timeout";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { normalizeEmail } from "@/lib/password-reset";
 import type { ProfileRole } from "@service-time/types";
@@ -8,34 +10,71 @@ export type LoginProfileRow = {
   is_active: boolean;
 };
 
+async function findAuthUserByEmailViaGoTrue(
+  email: string,
+): Promise<User | null> {
+  const supabaseUrl = getSupabaseUrl();
+  const serviceKey = getServiceRoleKey();
+  if (!supabaseUrl || !serviceKey) return null;
+
+  const target = normalizeEmail(email);
+  const filter = encodeURIComponent(`email.eq.${target}`);
+  const url = `${supabaseUrl.replace(/\/$/, "")}/auth/v1/admin/users?filter=${filter}&page=1&per_page=1`;
+
+  try {
+    const response = await fetchWithTimeout(url, {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${serviceKey}`,
+        apikey: serviceKey,
+      },
+      timeoutMs: 8_000,
+      cache: "no-store",
+    });
+
+    if (!response.ok) {
+      console.error(
+        "[auth-users] getUserByEmail filter:",
+        response.status,
+        await response.text().catch(() => ""),
+      );
+      return null;
+    }
+
+    const payload = (await response.json()) as { users?: User[] };
+    const user = payload.users?.[0];
+    if (user?.email?.toLowerCase() === target) {
+      return user;
+    }
+  } catch (error) {
+    console.error("[auth-users] getUserByEmail filter:", error);
+  }
+
+  return null;
+}
+
 export async function findAuthUserByEmail(email: string): Promise<User | null> {
+  const fast = await findAuthUserByEmailViaGoTrue(email);
+  if (fast) return fast;
+
   const admin = getAdminSupabaseClient();
   if (!admin) return null;
 
   const target = normalizeEmail(email);
-  let page = 1;
 
-  while (page <= 3) {
-    const { data, error } = await admin.auth.admin.listUsers({
-      page,
-      perPage: 200,
-    });
+  const { data, error } = await admin.auth.admin.listUsers({
+    page: 1,
+    perPage: 200,
+  });
 
-    if (error) {
-      console.error("[auth-users] listUsers:", error.message);
-      return null;
-    }
-
-    const match = data.users.find(
-      (user) => user.email?.toLowerCase() === target,
-    );
-    if (match) return match;
-
-    if (data.users.length < 200) break;
-    page += 1;
+  if (error) {
+    console.error("[auth-users] listUsers:", error.message);
+    return null;
   }
 
-  return null;
+  return (
+    data.users.find((user) => user.email?.toLowerCase() === target) ?? null
+  );
 }
 
 export async function getLoginProfile(

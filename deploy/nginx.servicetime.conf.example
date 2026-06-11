@@ -2,6 +2,9 @@
 # Copier vers : /etc/nginx/sites-available/servicetime.com.sa
 # Puis : sudo ln -sf /etc/nginx/sites-available/servicetime.com.sa /etc/nginx/sites-enabled/
 #        sudo nginx -t && sudo systemctl reload nginx
+#
+# Important : les cookies Supabase (session JWT) peuvent produire de gros en-têtes
+# Set-Cookie. Sans les buffers ci-dessous, Nginx renvoie 502 Bad Gateway sur /api/auth/login.
 
 server {
     listen 80;
@@ -49,5 +52,14 @@ server {
         proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header Upgrade           $http_upgrade;
         proxy_set_header Connection       "upgrade";
+
+        # Évite 502 "upstream sent too big header" (login Supabase / Set-Cookie)
+        large_client_header_buffers 8 64k;
+        proxy_buffer_size 128k;
+        proxy_buffers 8 256k;
+        proxy_busy_buffers_size 256k;
+        proxy_connect_timeout 60s;
+        proxy_send_timeout 120s;
+        proxy_read_timeout 120s;
     }
 }
