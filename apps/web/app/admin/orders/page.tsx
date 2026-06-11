@@ -8,6 +8,7 @@ import {
   getAllServiceRequests,
   getTechnicians,
 } from "@/lib/dashboard-queries";
+import { getRequestPhotoCounts } from "@/lib/request-photos-queries";
 import {
   getOrderSearchPlaceholder,
   getPriorityFilterOptionsForDashboard,
@@ -45,6 +46,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     getTechnicians(),
   ]);
   const orders = filterServiceRequests(allOrders, params);
+  const photoCounts = await getRequestPhotoCounts(orders.map((order) => order.id));
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const priorityLabels = getPriorityLabels(t);
@@ -103,6 +105,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           ) : (
             <AdminOrdersTable
               orders={orders}
+              photoCounts={photoCounts}
               statusLabels={statusLabels}
               serviceTypeLabels={serviceTypeLabels}
               priorityLabels={priorityLabels}

@@ -23,6 +23,7 @@ import { cn } from "@/lib/utils";
 
 type ClientOrdersTableProps = {
   orders: ServiceRequest[];
+  photoCounts: Record<string, number>;
   statusLabels: Record<ServiceRequestStatus, string>;
   serviceTypeLabels: Record<ServiceType, string>;
   executionMethodLabels: Record<ExecutionMethod, string>;
@@ -33,6 +34,7 @@ const actionBtnClass =
 
 export function ClientOrdersTable({
   orders,
+  photoCounts,
   statusLabels,
   serviceTypeLabels,
   executionMethodLabels,
@@ -61,6 +63,7 @@ export function ClientOrdersTable({
           <AdminTableHeadCell align="center" className="min-w-[7rem]">
             {p.table.tracking}
           </AdminTableHeadCell>
+          <AdminTableHeadCell align="center">{p.table.photo}</AdminTableHeadCell>
           <AdminTableHeadCell align="center" className="min-w-[9rem]">
             {p.table.date}
           </AdminTableHeadCell>
@@ -100,6 +103,13 @@ export function ClientOrdersTable({
                   >
                     {order.tracking_token}
                   </span>
+                </AdminTableCell>
+                <AdminTableCell align="center">
+                  {(photoCounts[order.id] ?? 0) > 0 ? (
+                    <Badge variant="secondary">{t.common.yes}</Badge>
+                  ) : (
+                    <span className="text-muted">—</span>
+                  )}
                 </AdminTableCell>
                 <AdminTableCell ltr className="min-w-[9rem]">
                   {new Date(order.created_at).toLocaleString(intlLocale, {

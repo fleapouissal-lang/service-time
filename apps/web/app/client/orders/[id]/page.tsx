@@ -15,6 +15,8 @@ import {
   getRequestById,
   getRequestStatusHistory,
 } from "@/lib/dashboard-queries";
+import { getRequestPhotos } from "@/lib/request-photos-queries";
+import { ServiceRequestPhotosPanel } from "@/components/service-requests/service-request-photos-panel";
 import { ClientQuotePanel } from "@/components/request/client-quote-panel";
 import { ClientServicePaymentPanel } from "@/components/request/client-service-payment-panel";
 
@@ -29,7 +31,10 @@ export default async function ClientOrderDetailPage({
 
   if (!order) notFound();
 
-  const history = await getRequestStatusHistory(id);
+  const [history, photos] = await Promise.all([
+    getRequestStatusHistory(id),
+    getRequestPhotos(id),
+  ]);
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const executionMethodLabels = getExecutionMethodLabels(t);
@@ -87,6 +92,8 @@ export default async function ClientOrderDetailPage({
               <p className="mt-1 whitespace-pre-wrap">{order.description}</p>
             </div>
           ) : null}
+
+          <ServiceRequestPhotosPanel requestId={order.id} photos={photos} />
 
           <ClientQuotePanel order={order} />
 

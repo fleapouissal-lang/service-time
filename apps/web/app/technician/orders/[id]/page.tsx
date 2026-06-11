@@ -10,6 +10,8 @@ import { IconSelect } from "@/components/ui/icon-select";
 import { STATUS_ORDER } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
 import { getRequestById } from "@/lib/dashboard-queries";
+import { getRequestPhotos } from "@/lib/request-photos-queries";
+import { ServiceRequestPhotosPanel } from "@/components/service-requests/service-request-photos-panel";
 import { getStatusLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildStatusSubsetOptions } from "@/lib/select-option-builders";
@@ -30,6 +32,8 @@ export default async function TechnicianOrderPage({
     notFound();
   }
 
+  const photos = await getRequestPhotos(id);
+
   const showLocation =
     order.status === "on_the_way" || order.status === "arrived";
   const statusOptions = buildStatusSubsetOptions(t, [
@@ -46,10 +50,15 @@ export default async function TechnicianOrderPage({
 
       <DashboardPageHeader title={order.customer_name}>
         <p className="text-muted">{order.location_text}</p>
+        {order.description ? (
+          <p className="mt-2 whitespace-pre-wrap text-sm">{order.description}</p>
+        ) : null}
         <Badge className="mt-2" variant="secondary">
           {statusLabels[order.status as keyof typeof statusLabels]}
         </Badge>
       </DashboardPageHeader>
+
+      <ServiceRequestPhotosPanel requestId={order.id} photos={photos} />
 
       <Card className="relative z-20">
         <CardContent className="overflow-visible p-6">

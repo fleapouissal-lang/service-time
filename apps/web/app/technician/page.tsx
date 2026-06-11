@@ -23,6 +23,7 @@ import {
   getRequestStatusHistoryBatch,
   getTechnicianRequests,
 } from "@/lib/dashboard-queries";
+import { getRequestPhotoCounts } from "@/lib/request-photos-queries";
 import {
   getOverviewPeriodLabel,
   getOverviewTrendTitle,
@@ -73,6 +74,9 @@ export default async function TechnicianHomePage({ searchParams }: PageProps) {
     )
     .slice(0, 6);
   const historyByOrderId = await getRequestStatusHistoryBatch(
+    latestOrders.map((order) => order.id),
+  );
+  const photoCounts = await getRequestPhotoCounts(
     latestOrders.map((order) => order.id),
   );
 
@@ -138,6 +142,7 @@ export default async function TechnicianHomePage({ searchParams }: PageProps) {
       <TechnicianLatestOrdersSection
         orders={latestOrders}
         historyByOrderId={historyByOrderId}
+        photoCounts={photoCounts}
       />
 
       <div className="grid gap-4 lg:grid-cols-3">

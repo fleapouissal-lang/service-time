@@ -10,6 +10,7 @@ import {
 } from "@/lib/dashboard-filter-options";
 import { requireProfile } from "@/lib/auth";
 import { getTechnicianRequests } from "@/lib/dashboard-queries";
+import { getRequestPhotoCounts } from "@/lib/request-photos-queries";
 import {
   getExecutionMethodLabels,
   getOverviewPeriodLabel,
@@ -37,6 +38,7 @@ export default async function TechnicianOrdersPage({ searchParams }: PageProps) 
   const allOrders = await getTechnicianRequests(profile.id);
   const periodOrders = filterByOverviewPeriod(allOrders, params.period);
   const orders = filterOverviewOrders(allOrders, params);
+  const photoCounts = await getRequestPhotoCounts(orders.map((order) => order.id));
   const periodLabel = getOverviewPeriodLabel(t, params.period);
   const statusLabels = getStatusLabels(t);
   const serviceTypeLabels = getServiceTypeLabels(t);
@@ -105,6 +107,9 @@ export default async function TechnicianOrdersPage({ searchParams }: PageProps) 
                     </p>
                   </div>
                   <div className="flex items-center gap-3">
+                    {(photoCounts[order.id] ?? 0) > 0 ? (
+                      <Badge variant="outline">{t.common.photo}</Badge>
+                    ) : null}
                     <Badge variant="secondary">
                       {
                         statusLabels[

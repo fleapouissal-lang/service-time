@@ -12,6 +12,8 @@ import {
   getRequestById,
   getTechnicians,
 } from "@/lib/dashboard-queries";
+import { getRequestPhotos } from "@/lib/request-photos-queries";
+import { ServiceRequestPhotosPanel } from "@/components/service-requests/service-request-photos-panel";
 import {
   getServiceTypeLabels,
   getStatusLabels,
@@ -36,9 +38,10 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   const { t, locale } = await getServerI18n();
   const p = t.dashboard.admin.ordersPage;
   const { id } = await params;
-  const [order, technicians] = await Promise.all([
+  const [order, technicians, photos] = await Promise.all([
     getRequestById(id),
     getTechnicians(),
+    getRequestPhotos(id),
   ]);
 
   if (!order) notFound();
@@ -140,6 +143,8 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               <p className="mt-1 text-sm">{order.description}</p>
             </div>
           ) : null}
+
+          <ServiceRequestPhotosPanel requestId={order.id} photos={photos} />
 
           <AdminQuotePanel order={order} />
 

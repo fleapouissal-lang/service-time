@@ -18,11 +18,13 @@ import { formatDateTime } from "@/lib/format-datetime";
 type TechnicianLatestOrdersSectionProps = {
   orders: ServiceRequest[];
   historyByOrderId: Record<string, RequestStatusHistory[]>;
+  photoCounts: Record<string, number>;
 };
 
 export function TechnicianLatestOrdersSection({
   orders,
   historyByOrderId,
+  photoCounts,
 }: TechnicianLatestOrdersSectionProps) {
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.technician.latestOrders;
@@ -85,6 +87,9 @@ export function TechnicianLatestOrdersSection({
                       {priorityLabels.high}
                     </Badge>
                   ) : null}
+                  {(photoCounts[featured.id] ?? 0) > 0 ? (
+                    <Badge variant="outline">{t.common.photo}</Badge>
+                  ) : null}
                 </div>
                 <h3 className="text-xl font-bold">{featured.customer_name}</h3>
                 <p className="text-sm text-muted">
@@ -141,6 +146,9 @@ export function TechnicianLatestOrdersSection({
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
+                    {(photoCounts[order.id] ?? 0) > 0 ? (
+                      <Badge variant="outline">{t.common.photo}</Badge>
+                    ) : null}
                     <Badge variant="secondary">
                       {statusLabels[order.status as keyof typeof statusLabels]}
                     </Badge>
