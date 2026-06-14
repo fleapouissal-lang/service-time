@@ -383,6 +383,7 @@ export function ServiceRequestForm({
                 </div>
 
                 <div>
+                  <Label htmlFor="photo">{f.photoTitle}</Label>
                   <PhotoUploadField
                     id="photo"
                     name="photo"

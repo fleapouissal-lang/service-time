@@ -71,6 +71,7 @@ export function PhotoUploadField({
         htmlFor={id}
         className={cn(
           "group flex cursor-pointer flex-col items-center justify-center rounded-xl",
+          "border-2 border-dashed border-[var(--photo-upload-border)] bg-[var(--photo-upload-bg)]",
           photoUploadDropzoneClass,
           compact
             ? "gap-3 px-4 py-6"

@@ -760,62 +760,6 @@ html[lang="ar"] {
     box-shadow: 0 0 0 2px var(--request-field-focus-ring);
   }
 
-  .photo-upload-dropzone {
-    border: 2px dashed var(--photo-upload-border);
-    background-color: var(--photo-upload-bg);
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .photo-upload-dropzone:hover {
-    border-color: var(--photo-upload-border-hover);
-    background-color: var(--photo-upload-hover-bg);
-    box-shadow: var(--photo-upload-shadow);
-  }
-
-  .photo-upload-dropzone--preview {
-    border-style: solid;
-    border-width: 1px;
-    border-color: var(--photo-upload-border-active);
-  }
-
-  .photo-upload-preview-frame {
-    border: 1px solid var(--photo-upload-preview-border);
-    background-color: var(--photo-upload-preview-bg);
-  }
-
-  .photo-upload-icon-ring {
-    border: 1px solid var(--photo-upload-icon-ring);
-  }
-
-  .photo-upload-icon-bg {
-    border: 1px solid var(--photo-upload-border);
-    background-color: var(--photo-upload-icon-bg);
-    box-shadow: var(--photo-upload-icon-inset);
-  }
-
-  .photo-upload-title {
-    color: var(--photo-upload-text);
-  }
-
-  .photo-upload-subtitle {
-    color: var(--photo-upload-text-muted);
-  }
-
-  .photo-upload-file-name {
-    color: var(--photo-upload-text);
-  }
-
-  .photo-upload-action {
-    border: 1px solid var(--photo-upload-text);
-    color: var(--photo-upload-text);
-    transition: background-color 0.2s ease, color 0.2s ease;
-  }
-
-  .photo-upload-dropzone:hover .photo-upload-action {
-    background-color: var(--photo-upload-action-hover-bg);
-  }
-
   .request-accent-text {
     color: var(--request-accent);
   }
@@ -2011,4 +1955,61 @@ html.light .dashboard-content .request-field-shell {
 html.light .dashboard-content .request-field-shell:hover,
 html.light .dashboard-content .request-field-shell:focus-within {
   border-color: #94d4b9;
+}
+
+/* Photo upload — unlayered so dashed border wins on /request full & quick */
+.photo-upload-dropzone {
+  border: 2px dashed var(--photo-upload-border);
+  background-color: var(--photo-upload-bg);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.photo-upload-dropzone:hover {
+  border-color: var(--photo-upload-border-hover);
+  background-color: var(--photo-upload-hover-bg);
+  box-shadow: var(--photo-upload-shadow);
+}
+
+.photo-upload-dropzone--preview {
+  border-style: solid;
+  border-width: 1px;
+  border-color: var(--photo-upload-border-active);
+}
+
+.photo-upload-preview-frame {
+  border: 1px solid var(--photo-upload-preview-border);
+  background-color: var(--photo-upload-preview-bg);
+}
+
+.photo-upload-icon-ring {
+  border: 1px solid var(--photo-upload-icon-ring);
+}
+
+.photo-upload-icon-bg {
+  border: 1px solid var(--photo-upload-border);
+  background-color: var(--photo-upload-icon-bg);
+  box-shadow: var(--photo-upload-icon-inset);
+}
+
+.photo-upload-title {
+  color: var(--photo-upload-text);
+}
+
+.photo-upload-subtitle {
+  color: var(--photo-upload-text-muted);
+}
+
+.photo-upload-file-name {
+  color: var(--photo-upload-text);
+}
+
+.photo-upload-action {
+  border: 1px solid var(--photo-upload-text);
+  color: var(--photo-upload-text);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.photo-upload-dropzone:hover .photo-upload-action {
+  background-color: var(--photo-upload-action-hover-bg);
 }
