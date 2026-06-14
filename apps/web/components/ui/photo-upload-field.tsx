@@ -4,6 +4,16 @@ import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
 import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  photoUploadActionClass,
+  photoUploadDropzoneClass,
+  photoUploadFileNameClass,
+  photoUploadIconBgClass,
+  photoUploadIconRingClass,
+  photoUploadPreviewFrameClass,
+  photoUploadSubtitleClass,
+  photoUploadTitleClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 export type PhotoUploadFieldProps = {
@@ -60,19 +70,23 @@ export function PhotoUploadField({
       <label
         htmlFor={id}
         className={cn(
-          "group flex cursor-pointer flex-col items-center justify-center rounded-[20px] border-2 border-dashed border-[#94D4B9]/45 bg-[#050B10] transition-all duration-300",
+          "group flex cursor-pointer flex-col items-center justify-center rounded-xl",
+          photoUploadDropzoneClass,
           compact
-            ? "gap-3 px-4 py-6 hover:border-[#94D4B9]/70 hover:bg-[#091014]"
-            : "gap-5 px-6 py-10 hover:border-[#94D4B9]/70 hover:bg-[#091014] hover:shadow-[0_8px_32px_rgba(148,212,185,0.12)]",
-          previewUrl &&
-            (compact
-              ? "border-solid border-[#94D4B9]/35 py-5"
-              : "border-solid border-[#94D4B9]/35 py-8"),
+            ? "gap-3 px-4 py-6"
+            : "gap-5 px-6 py-10",
+          previewUrl && "photo-upload-dropzone--preview",
+          previewUrl && (compact ? "py-5" : "py-8"),
         )}
       >
         {previewUrl ? (
           <>
-            <div className="relative w-full max-w-xs overflow-hidden rounded-[16px] border border-[#94D4B9]/20 bg-[#091014]">
+            <div
+              className={cn(
+                "relative w-full max-w-xs overflow-hidden rounded-xl",
+                photoUploadPreviewFrameClass,
+              )}
+            >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={previewUrl}
@@ -83,12 +97,18 @@ export function PhotoUploadField({
                 )}
               />
             </div>
-            <p className="max-w-xs truncate text-center text-sm font-medium text-[#94D4B9]">
+            <p
+              className={cn(
+                "max-w-xs truncate text-center text-sm font-medium",
+                photoUploadFileNameClass,
+              )}
+            >
               {fileName}
             </p>
             <span
               className={cn(
-                "rounded-full border border-[#94D4B9] text-xs font-semibold tracking-wide text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10",
+                "rounded-full text-xs font-semibold tracking-wide",
+                photoUploadActionClass,
                 compact ? "px-6 py-2" : "px-8 py-2.5",
               )}
             >
@@ -104,12 +124,13 @@ export function PhotoUploadField({
               )}
             >
               <span
-                className="absolute inset-0 rounded-full border border-[#94D4B9]/20"
+                className={cn("absolute inset-0 rounded-full", photoUploadIconRingClass)}
                 aria-hidden
               />
               <span
                 className={cn(
-                  "flex items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#091014] shadow-[inset_0_0_24px_rgba(148,212,185,0.06)]",
+                  "flex items-center justify-center rounded-full",
+                  photoUploadIconBgClass,
                   compact ? "size-10" : "size-14",
                 )}
               >
@@ -124,20 +145,24 @@ export function PhotoUploadField({
             <div className="space-y-1 text-center">
               <p
                 className={cn(
-                  "font-semibold text-[#94D4B9]",
+                  "font-semibold",
+                  photoUploadTitleClass,
                   compact ? "text-base" : "text-lg",
                 )}
               >
                 {resolvedTitle}
               </p>
               {!compact ? (
-                <p className="text-sm text-[#94D4B9]/75">{resolvedSubtitle}</p>
+                <p className={cn("text-sm", photoUploadSubtitleClass)}>
+                  {resolvedSubtitle}
+                </p>
               ) : null}
             </div>
 
             <span
               className={cn(
-                "rounded-full border border-[#94D4B9] text-xs font-semibold text-[#94D4B9] transition-colors group-hover:bg-[#94D4B9]/10",
+                "rounded-full text-xs font-semibold",
+                photoUploadActionClass,
                 compact
                   ? "px-6 py-2 tracking-wide"
                   : "px-8 py-2.5 uppercase tracking-[0.12em]",

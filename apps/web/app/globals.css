@@ -146,10 +146,10 @@ html.dark {
   --request-tab-bg: #091014;
   --request-tab-border: rgba(148, 212, 185, 0.2);
   --request-tab-text: var(--foreground);
-  --request-field-border: rgba(148, 212, 185, 0.15);
+  --request-field-border: rgba(148, 212, 185, 0.4);
   --request-field-bg: #091014;
-  --request-field-hover-border: rgba(148, 212, 185, 0.3);
-  --request-field-focus-border: rgba(148, 212, 185, 0.4);
+  --request-field-hover-border: rgba(148, 212, 185, 0.55);
+  --request-field-focus-border: #94d4b9;
   --request-field-focus-ring: rgba(148, 212, 185, 0.25);
   --request-accent: #94d4b9;
   --request-step-active-bg: #94d4b9;
@@ -176,6 +176,20 @@ html.dark {
   --request-choice-active-border: #94d4b9;
   --request-choice-active-bg: rgba(148, 212, 185, 0.1);
   --request-choice-hover-border: rgba(148, 212, 185, 0.4);
+  --photo-upload-bg: #050b10;
+  --photo-upload-hover-bg: #091014;
+  --photo-upload-preview-bg: #091014;
+  --photo-upload-border: var(--request-field-border);
+  --photo-upload-border-hover: var(--request-field-hover-border);
+  --photo-upload-border-active: var(--request-field-focus-border);
+  --photo-upload-preview-border: rgba(148, 212, 185, 0.2);
+  --photo-upload-icon-ring: rgba(148, 212, 185, 0.2);
+  --photo-upload-icon-bg: #091014;
+  --photo-upload-text: var(--request-accent);
+  --photo-upload-text-muted: rgba(148, 212, 185, 0.75);
+  --photo-upload-shadow: 0 8px 32px rgba(148, 212, 185, 0.12);
+  --photo-upload-icon-inset: inset 0 0 24px rgba(148, 212, 185, 0.06);
+  --photo-upload-action-hover-bg: rgba(148, 212, 185, 0.1);
   --login-panel-bg: #050b10;
   --login-panel-eyebrow: #94d4b9;
   --login-panel-title: #ffffff;
@@ -328,10 +342,10 @@ html.light {
   --request-tab-bg: #ffffff;
   --request-tab-border: rgba(148, 212, 185, 0.16);
   --request-tab-text: var(--foreground);
-  --request-field-border: rgba(148, 212, 185, 0.16);
+  --request-field-border: #94d4b9;
   --request-field-bg: #ffffff;
-  --request-field-hover-border: rgba(148, 212, 185, 0.28);
-  --request-field-focus-border: rgba(148, 212, 185, 0.4);
+  --request-field-hover-border: #94d4b9;
+  --request-field-focus-border: #94d4b9;
   --request-field-focus-ring: rgba(148, 212, 185, 0.18);
   --request-accent: #94d4b9;
   --request-step-active-bg: #94d4b9;
@@ -358,6 +372,20 @@ html.light {
   --request-choice-active-border: #94d4b9;
   --request-choice-active-bg: rgba(148, 212, 185, 0.08);
   --request-choice-hover-border: rgba(148, 212, 185, 0.28);
+  --photo-upload-bg: #ffffff;
+  --photo-upload-hover-bg: rgba(148, 212, 185, 0.06);
+  --photo-upload-preview-bg: var(--card-media-bg);
+  --photo-upload-border: var(--request-field-border);
+  --photo-upload-border-hover: var(--request-field-hover-border);
+  --photo-upload-border-active: var(--request-field-focus-border);
+  --photo-upload-preview-border: rgba(148, 212, 185, 0.25);
+  --photo-upload-icon-ring: rgba(148, 212, 185, 0.25);
+  --photo-upload-icon-bg: #ffffff;
+  --photo-upload-text: var(--request-accent);
+  --photo-upload-text-muted: var(--muted);
+  --photo-upload-shadow: 0 8px 32px rgba(148, 212, 185, 0.12);
+  --photo-upload-icon-inset: inset 0 0 24px rgba(148, 212, 185, 0.08);
+  --photo-upload-action-hover-bg: rgba(148, 212, 185, 0.1);
   --login-panel-bg: #94d4b9;
   --login-panel-eyebrow: #000000;
   --login-panel-title: #000000;
@@ -730,6 +758,62 @@ html[lang="ar"] {
   .request-field-shell:focus-within {
     border-color: var(--request-field-focus-border);
     box-shadow: 0 0 0 2px var(--request-field-focus-ring);
+  }
+
+  .photo-upload-dropzone {
+    border: 2px dashed var(--photo-upload-border);
+    background-color: var(--photo-upload-bg);
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .photo-upload-dropzone:hover {
+    border-color: var(--photo-upload-border-hover);
+    background-color: var(--photo-upload-hover-bg);
+    box-shadow: var(--photo-upload-shadow);
+  }
+
+  .photo-upload-dropzone--preview {
+    border-style: solid;
+    border-width: 1px;
+    border-color: var(--photo-upload-border-active);
+  }
+
+  .photo-upload-preview-frame {
+    border: 1px solid var(--photo-upload-preview-border);
+    background-color: var(--photo-upload-preview-bg);
+  }
+
+  .photo-upload-icon-ring {
+    border: 1px solid var(--photo-upload-icon-ring);
+  }
+
+  .photo-upload-icon-bg {
+    border: 1px solid var(--photo-upload-border);
+    background-color: var(--photo-upload-icon-bg);
+    box-shadow: var(--photo-upload-icon-inset);
+  }
+
+  .photo-upload-title {
+    color: var(--photo-upload-text);
+  }
+
+  .photo-upload-subtitle {
+    color: var(--photo-upload-text-muted);
+  }
+
+  .photo-upload-file-name {
+    color: var(--photo-upload-text);
+  }
+
+  .photo-upload-action {
+    border: 1px solid var(--photo-upload-text);
+    color: var(--photo-upload-text);
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  .photo-upload-dropzone:hover .photo-upload-action {
+    background-color: var(--photo-upload-action-hover-bg);
   }
 
   .request-accent-text {

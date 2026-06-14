@@ -35,6 +35,22 @@ export const requestBtnOutlineClass =
 
 export const requestFieldShellClass = "request-field-shell";
 
+export const photoUploadDropzoneClass = "photo-upload-dropzone";
+
+export const photoUploadPreviewFrameClass = "photo-upload-preview-frame";
+
+export const photoUploadIconRingClass = "photo-upload-icon-ring";
+
+export const photoUploadIconBgClass = "photo-upload-icon-bg";
+
+export const photoUploadTitleClass = "photo-upload-title";
+
+export const photoUploadSubtitleClass = "photo-upload-subtitle";
+
+export const photoUploadFileNameClass = "photo-upload-file-name";
+
+export const photoUploadActionClass = "photo-upload-action";
+
 export const requestAccentTextClass = "request-accent-text";
 
 export const requestStepDotClass = "request-step-dot flex size-7 shrink-0 items-center justify-center rounded-full font-semibold";
