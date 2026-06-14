@@ -7,6 +7,7 @@ import {
   saveWorkshopLocationAction,
 } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
+import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -292,12 +293,10 @@ export function AdminWorkshopForm({
 
         {hasCoords ? (
           <div className="mt-5 overflow-hidden rounded-xl border border-border">
-            <iframe
-              title={p.mapPreview}
-              src={`https://maps.google.com/maps?q=${latNum},${lngNum}&z=15&output=embed`}
-              className="h-48 w-full border-0 sm:h-56"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+            <StaticPinMap
+              lat={latNum}
+              lng={lngNum}
+              query={addressAr.trim() || addressEn.trim() || undefined}
             />
           </div>
         ) : null}

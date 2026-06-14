@@ -32,6 +32,14 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
     "data:",
     "blob:",
     "https://images.unsplash.com",
+    "https://a.tile.openstreetmap.org",
+    "https://b.tile.openstreetmap.org",
+    "https://c.tile.openstreetmap.org",
+    "https://tile.openstreetmap.org",
+    "https://a.basemaps.cartocdn.com",
+    "https://b.basemaps.cartocdn.com",
+    "https://c.basemaps.cartocdn.com",
+    "https://d.basemaps.cartocdn.com",
   ];
   if (supabase) {
     imgSrc.push(supabase.https);
@@ -58,6 +66,7 @@ export function buildContentSecurityPolicy(isDev: boolean): string {
       "'self'",
       "https://maps.google.com",
       "https://www.google.com",
+      "https://*.google.com",
       "https://ksa.paymob.com",
     ],
     "object-src": ["'none'"],

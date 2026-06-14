@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Navigation } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
+import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
@@ -45,12 +46,16 @@ export default async function LocationsPage() {
       >
         <div className="max-md:flex max-md:min-h-0 max-md:flex-1 max-md:flex-col max-md:gap-2">
           <div className="relative min-h-0 overflow-hidden rounded-2xl border border-border shadow-sm max-md:flex-[1.15]">
-            <iframe
-              title={t.locations.mapTitle}
-              src={`https://maps.google.com/maps?q=${mapLat},${mapLng}&z=11&output=embed`}
-              className="h-[360px] w-full border-0 sm:h-[420px] max-md:h-full max-md:min-h-[11rem]"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
+            <StaticPinMap
+              lat={mapLat}
+              lng={mapLng}
+              zoom={11}
+              query={
+                workshops[0]
+                  ? getWorkshopAddress(workshops[0], locale)
+                  : undefined
+              }
+              className="h-[360px] w-full sm:h-[420px] max-md:h-full max-md:min-h-[11rem]"
             />
             <div
               className="pointer-events-none absolute inset-0 bg-black/50 max-md:bg-black/35"

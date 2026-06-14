@@ -2,6 +2,8 @@
 
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { useState } from "react";
+import { StaticPinMap } from "@/components/maps/static-pin-map";
+import { buildGoogleMapsOpenUrl } from "@/lib/google-maps-embed";
 import { iconAccentBgClass, iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
@@ -160,26 +162,31 @@ export function LocationField({
       {error ? <p className="text-xs text-red-400">{error}</p> : null}
 
       {lat !== null && lng !== null && !compact ? (
-        <div
-          className={cn(
-            isDashboard ? "overflow-hidden rounded-2xl border border-border shadow-sm" : requestMapFrameClass,
-          )}
-        >
-          <iframe
-            title={loc.mapTitle}
-            src={`https://maps.google.com/maps?q=${lat},${lng}&z=15&output=embed`}
-            className="h-48 w-full border-0 sm:h-56"
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
+        <div className={requestMapFrameClass}>
+          <StaticPinMap
+            lat={lat}
+            lng={lng}
+            query={text || undefined}
+            deferUntilVisible={isDashboard}
           />
           <p
             className={cn(
-              "px-3 py-2 text-center text-xs text-muted",
-              isDashboard ? "bg-muted/20" : requestMapCaptionClass,
+              "flex flex-wrap items-center justify-center gap-x-2 gap-y-1 px-3 py-2 text-center text-xs text-muted",
+              requestMapCaptionClass,
             )}
             dir="ltr"
           >
-            {lat.toFixed(5)}, {lng.toFixed(5)}
+            <span>
+              {lat.toFixed(5)}, {lng.toFixed(5)}
+            </span>
+            <a
+              href={buildGoogleMapsOpenUrl(lat, lng, text || undefined)}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-primary hover:underline"
+            >
+              Google Maps
+            </a>
           </p>
         </div>
       ) : null}

@@ -3,17 +3,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { getLegalLinks } from "@/lib/i18n/legal-nav";
 import { getNavLinks } from "@/lib/i18n/nav";
 
 export function SiteFooter() {
   const { messages } = useLocale();
   const navLinks = getNavLinks(messages);
+  const legalLinks = getLegalLinks(messages);
   const phone = "+966500000001";
   const email = "info@servicetime.sa";
+  const footer = messages.footer;
 
   return (
     <footer className="site-footer relative rounded-t-[20px] bg-site-footer text-[var(--site-chrome-text)]">
-      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
+      <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="text-start">
           <Link href="/" className="inline-block">
             <Image
@@ -25,15 +28,15 @@ export function SiteFooter() {
             />
           </Link>
           <p className="mt-4 text-sm leading-7 text-[var(--site-chrome-text-muted)]">
-            {messages.footer.tagline}
+            {footer.tagline}
           </p>
         </div>
 
         <div className="text-start">
           <p className="font-semibold text-[var(--site-chrome-accent)]">
-            {messages.footer.quickLinks}
+            {footer.quickLinks}
           </p>
-          <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-1 md:space-y-2">
+          <ul className="mt-3 space-y-2 text-sm">
             {navLinks.map((link) => (
               <li key={link.href}>
                 <Link
@@ -49,7 +52,25 @@ export function SiteFooter() {
 
         <div className="text-start">
           <p className="font-semibold text-[var(--site-chrome-accent)]">
-            {messages.footer.contact}
+            {footer.legal}
+          </p>
+          <ul className="mt-3 space-y-2 text-sm">
+            {legalLinks.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="font-normal text-[var(--site-chrome-text)] transition-all duration-200 hover:font-bold"
+                >
+                  {link.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        <div className="text-start">
+          <p className="font-semibold text-[var(--site-chrome-accent)]">
+            {footer.contact}
           </p>
           <ul className="mt-3 grid grid-cols-3 gap-x-3 gap-y-2 text-xs leading-snug sm:text-sm md:grid-cols-1 md:space-y-2.5">
             <li>
@@ -71,14 +92,30 @@ export function SiteFooter() {
               </a>
             </li>
             <li className="text-[var(--site-chrome-text-muted)] md:leading-7">
-              {messages.footer.location}
+              {footer.location}
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="relative border-t border-[var(--site-chrome-border)] py-4 text-center text-xs text-[var(--site-chrome-text-muted)]">
-        © {new Date().getFullYear()} Service Time. {messages.footer.rights}
+      <div className="relative border-t border-[var(--site-chrome-border)] px-4 py-4 text-center text-xs text-[var(--site-chrome-text-muted)]">
+        <p>
+          © {new Date().getFullYear()} Service Time. {footer.rights}
+        </p>
+        <nav
+          className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2"
+          aria-label={footer.legal}
+        >
+          {legalLinks.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-[var(--site-chrome-text)] transition-all duration-200 hover:font-bold"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </nav>
       </div>
     </footer>
   );

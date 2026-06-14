@@ -15,6 +15,9 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/about",
   "/contact",
   "/locations",
+  "/legal/privacy",
+  "/legal/terms",
+  "/legal/notice",
 ] as const;
 
 export function getSiteUrl(): string {

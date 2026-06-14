@@ -1,3 +1,5 @@
+import { legal } from "./legal/ar";
+
 export const messages = {
   meta: {
     siteTitle: "Service Time | صيانة السيارات في الرياض",
@@ -24,6 +26,12 @@ export const messages = {
         "سجّل الدخول إلى حساب Service Time لتتبع الطلبات وإدارة طلبات الصيانة وقطع الغيار.",
       register:
         "أنشئ حساب عميل في Service Time لطلب الصيانة وتتبع الطلبات وشراء قطع الغيار في الرياض.",
+      legalPrivacy:
+        "كيف تجمع Service Time بياناتك الشخصية وتستخدمها وتحميها على منصة صيانة السيارات.",
+      legalTerms:
+        "شروط استخدام Service Time — الحسابات وطلبات الخدمة والمدفوعات والمسؤولية.",
+      legalNotice:
+        "معلومات الناشر وبيانات التواصل القانونية لموقع Service Time.",
     },
     home: "الرئيسية",
     services: "الخدمات",
@@ -36,6 +44,9 @@ export const messages = {
     contact: "تواصل معنا",
     about: "من نحن",
     locations: "مواقعنا",
+    legalPrivacy: "سياسة الخصوصية",
+    legalTerms: "شروط الاستخدام",
+    legalNotice: "إشعار قانوني",
     notFound: "الصفحة غير موجودة",
     clientRequest: "طلب خدمة جديد",
     clientTrack: "تتبع الطلب",
@@ -111,10 +122,16 @@ export const messages = {
     tagline:
       "منصة سعودية لصيانة السيارات وطلب قطع الغيار في الرياض — ورشة ثابتة أو فني متنقل مع تتبع مباشر.",
     quickLinks: "روابط سريعة",
+    legal: "قانوني",
+    privacy: "سياسة الخصوصية",
+    terms: "شروط الاستخدام",
+    legalNotice: "إشعار قانوني",
     contact: "تواصل",
     location: "الرياض، المملكة العربية السعودية",
     rights: "جميع الحقوق محفوظة.",
   },
+
+  legal,
 
   roles: {
     admin: "مدير",

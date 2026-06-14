@@ -54,7 +54,6 @@ async function sendViaSmtp(
   });
 
   try {
-    await transporter.verify();
     const info = await transporter.sendMail({
       from,
       to,

@@ -1,3 +1,5 @@
+import { legal } from "./legal/en";
+
 export const messages = {
   meta: {
     siteTitle: "Service Time | Car Maintenance in Riyadh",
@@ -23,6 +25,12 @@ export const messages = {
       login: "Sign in to your Service Time account to track orders, manage requests, and shop spare parts.",
       register:
         "Create a Service Time client account to request maintenance, track orders, and order spare parts in Riyadh.",
+      legalPrivacy:
+        "How Service Time collects, uses, and protects your personal data on our car maintenance platform.",
+      legalTerms:
+        "Terms and conditions for using Service Time — accounts, service requests, payments, and liability.",
+      legalNotice:
+        "Publisher information and legal contact details for the Service Time website.",
     },
     home: "Home",
     services: "Services",
@@ -35,6 +43,9 @@ export const messages = {
     contact: "Contact Us",
     about: "About Us",
     locations: "Locations",
+    legalPrivacy: "Privacy Policy",
+    legalTerms: "Terms of Service",
+    legalNotice: "Legal Notice",
     notFound: "Page Not Found",
     clientRequest: "New Service Request",
     clientTrack: "Track Order",
@@ -110,10 +121,16 @@ export const messages = {
     tagline:
       "Saudi platform for car maintenance and spare parts in Riyadh — fixed workshop or mobile technician with live tracking.",
     quickLinks: "Quick links",
+    legal: "Legal",
+    privacy: "Privacy Policy",
+    terms: "Terms of Service",
+    legalNotice: "Legal Notice",
     contact: "Contact",
     location: "Riyadh, Saudi Arabia",
     rights: "All rights reserved.",
   },
+
+  legal,
 
   roles: {
     admin: "Admin",

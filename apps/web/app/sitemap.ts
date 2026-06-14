@@ -9,6 +9,9 @@ const PRIORITY: Record<(typeof PUBLIC_SITEMAP_PATHS)[number], number> = {
   "/about": 0.7,
   "/contact": 0.7,
   "/locations": 0.75,
+  "/legal/privacy": 0.4,
+  "/legal/terms": 0.4,
+  "/legal/notice": 0.4,
 };
 
 const CHANGE_FREQ: Record<
@@ -22,6 +25,9 @@ const CHANGE_FREQ: Record<
   "/about": "monthly",
   "/contact": "monthly",
   "/locations": "monthly",
+  "/legal/privacy": "yearly",
+  "/legal/terms": "yearly",
+  "/legal/notice": "yearly",
 };
 
 export default function sitemap(): MetadataRoute.Sitemap {

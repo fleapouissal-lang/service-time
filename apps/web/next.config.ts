@@ -187,7 +187,7 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/admin/:path*",
+        source: "/admin/spare-parts/:path*",
         headers: [
           {
             key: "Cross-Origin-Opener-Policy",

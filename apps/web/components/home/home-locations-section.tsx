@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { MapPin, Navigation } from "lucide-react";
+import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
@@ -53,12 +54,16 @@ export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
       </div>
 
       <div className={cn("relative overflow-hidden", surfaceCardClass)}>
-        <iframe
-          title={loc.mapTitle}
-          src={`https://maps.google.com/maps?q=${mapLat},${mapLng}&z=11&output=embed`}
-          className="h-[280px] w-full border-0 sm:h-[340px]"
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
+        <StaticPinMap
+          lat={mapLat}
+          lng={mapLng}
+          zoom={11}
+          query={
+            workshops[0]
+              ? getWorkshopAddress(workshops[0], locale)
+              : undefined
+          }
+          className="h-[280px] w-full sm:h-[340px]"
         />
         <div
           className="pointer-events-none absolute inset-0 bg-black/50"

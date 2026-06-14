@@ -4,12 +4,12 @@ import {
   generateSecurePassword,
   normalizeEmail,
 } from "@/lib/password-reset";
+import type { LocalizedProfileNames } from "@/lib/profile-names";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import {
   normalizePhone,
   phoneToWhatsAppDigits,
 } from "@/lib/whatsapp-utils";
-import { resolveLocalizedProfileNames } from "@/lib/profile-names";
 
 export type QuickRequestClientResult = {
   clientId: string;
@@ -21,6 +21,33 @@ export type QuickRequestClientResult = {
 
 function buildSyntheticEmail(phone: string): string {
   return `${phoneToWhatsAppDigits(phone)}@quick.servicetime.sa`;
+}
+
+function buildPhoneLookupValues(phone: string): string[] {
+  const normalized = normalizePhone(phone);
+  const digits = phoneToWhatsAppDigits(phone);
+  const values = new Set<string>([normalized, digits]);
+
+  if (normalized.startsWith("+")) {
+    values.add(normalized.slice(1));
+  }
+
+  if (digits.startsWith("966") && digits.length >= 11) {
+    const local = `0${digits.slice(3)}`;
+    values.add(local);
+    values.add(`+966${digits.slice(3)}`);
+  }
+
+  return [...values].filter(Boolean);
+}
+
+function quickRequestProfileNames(fullName: string): LocalizedProfileNames {
+  const trimmed = fullName.trim();
+  return {
+    full_name: trimmed,
+    full_name_ar: trimmed,
+    full_name_en: trimmed,
+  };
 }
 
 export function isSyntheticLoginEmail(email: string): boolean {
@@ -59,19 +86,19 @@ async function findClientByPhone(
   admin: SupabaseClient,
   phone: string,
 ): Promise<{ id: string; full_name: string; phone: string | null } | null> {
-  const digits = phoneToWhatsAppDigits(phone);
-  const { data: profiles } = await admin
-    .from("profiles")
-    .select("id, full_name, phone")
-    .eq("role", "client");
+  for (const candidate of buildPhoneLookupValues(phone)) {
+    const { data } = await admin
+      .from("profiles")
+      .select("id, full_name, phone")
+      .eq("role", "client")
+      .eq("phone", candidate)
+      .limit(1)
+      .maybeSingle();
 
-  if (!profiles?.length) return null;
+    if (data) return data;
+  }
 
-  const match = profiles.find(
-    (profile) =>
-      profile.phone && phoneToWhatsAppDigits(profile.phone) === digits,
-  );
-  return match ?? null;
+  return null;
 }
 
 /** Cherche un client existant par email puis par téléphone. */
@@ -130,9 +157,7 @@ export async function resolveQuickRequestClient(input: {
       const { data: authData } = await admin.auth.admin.getUserById(
         input.preferredClientId,
       );
-      const localizedNames = await resolveLocalizedProfileNames(
-        input.fullName.trim(),
-      );
+      const localizedNames = quickRequestProfileNames(input.fullName.trim());
 
       await admin
         .from("profiles")
@@ -214,7 +239,7 @@ export async function resolveQuickRequestClient(input: {
   }
 
   const userId = created.user.id;
-  const localizedNames = await resolveLocalizedProfileNames(input.fullName.trim());
+  const localizedNames = quickRequestProfileNames(input.fullName.trim());
 
   const { error: profileError } = await admin.from("profiles").upsert(
     {

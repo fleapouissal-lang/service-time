@@ -176,21 +176,23 @@ export async function submitQuickServiceRequest(
     }).catch((err) => console.error("[quick-request] welcome notify:", err));
   }
 
-  const mail = await sendQuickRequestAdminNotification({
+  void sendQuickRequestAdminNotification({
     name,
     phone: validatedPhone,
     email: validatedEmail,
     message,
     hasPhoto: Boolean(photoStoragePath),
-  });
-
-  if (!mail.ok) {
-    console.error("[quick-request] admin email:", mail.error);
-  } else if (mail.dev) {
-    console.info(
-      "[quick-request] admin notification skipped (CONTACT_NOTIFY_EMAIL / SMTP not configured)",
-    );
-  }
+  }).then((mail) => {
+    if (!mail.ok) {
+      console.error("[quick-request] admin email:", mail.error);
+      return;
+    }
+    if (mail.dev) {
+      console.info(
+        "[quick-request] admin notification skipped (CONTACT_NOTIFY_EMAIL / SMTP not configured)",
+      );
+    }
+  }).catch((err) => console.error("[quick-request] admin email:", err));
 
   revalidatePath("/admin/quick-requests");
   revalidatePath("/admin");
