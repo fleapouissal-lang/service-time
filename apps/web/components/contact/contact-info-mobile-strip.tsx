@@ -3,6 +3,14 @@
 import { ChevronLeft, Mail, MapPin, Phone } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  iconAccentBgClass,
+  iconAccentClass,
+  iconAccentMutedClass,
+  surfaceCardClass,
+  surfaceCardIconClass,
+  surfaceCardIconWrapClass,
+} from "@/lib/card-surface";
 
 export type ContactInfoMobileItem = {
   href: string;
@@ -25,7 +33,7 @@ export function ContactInfoMobileStrip({
   items: ContactInfoMobileItem[];
 }) {
   return (
-    <div className="overflow-hidden rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:hidden">
+    <div className={cn("overflow-hidden md:hidden", surfaceCardClass)}>
       {items.map((item, index) => {
         const Icon = ICONS[item.kind];
 
@@ -36,18 +44,18 @@ export function ContactInfoMobileStrip({
             target={item.external ? "_blank" : undefined}
             rel={item.external ? "noopener noreferrer" : undefined}
             className={cn(
-              "flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-[#94D4B9]/8",
-              index > 0 && "border-t border-[#94D4B9]/10",
+              "flex items-center gap-3 px-4 py-3.5 transition-colors active:bg-primary/5",
+              index > 0 && "border-t border-border",
             )}
           >
-            <span className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-[#94D4B9]/10">
-              <Icon className="size-5 text-[#94D4B9]" aria-hidden />
+            <span className={cn("size-11 rounded-2xl", surfaceCardIconWrapClass)}>
+              <Icon className={cn("size-5", surfaceCardIconClass)} aria-hidden />
             </span>
             <div className="min-w-0 flex-1 text-start">
-              <p className="text-[11px] font-semibold uppercase tracking-wide text-[#94D4B9]/90">
+              <p className="text-[11px] font-semibold uppercase tracking-wide text-primary">
                 {item.title}
               </p>
-              <p className="mt-0.5 truncate text-start text-sm font-medium text-white">
+              <p className="mt-0.5 truncate text-start text-sm font-medium text-card-foreground">
                 {item.valueDir ? (
                   <span
                     dir={item.valueDir}
@@ -61,7 +69,7 @@ export function ContactInfoMobileStrip({
               </p>
             </div>
             <ChevronLeft
-              className="size-4 shrink-0 text-[#94D4B9]/70 rtl:rotate-180"
+              className={cn("size-4 shrink-0 rtl:rotate-180", iconAccentMutedClass)}
               aria-hidden
             />
           </a>

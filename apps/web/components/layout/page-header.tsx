@@ -1,4 +1,8 @@
 import { cn } from "@/lib/utils";
+import {
+  sectionEyebrowClass,
+  sectionTitleH1Class,
+} from "@/lib/section-styles";
 
 const PLAIN_WIDTH = {
   sm: "max-w-lg",
@@ -37,16 +41,9 @@ export function PageHeader({
         )}
       >
         {eyebrow && (
-          <p
-            className={cn(
-              "text-sm font-semibold",
-              plain ? "text-[#94D4B9]" : "text-primary",
-            )}
-          >
-            {eyebrow}
-          </p>
+          <p className={sectionEyebrowClass}>{eyebrow}</p>
         )}
-        <h1 className="mt-2 text-3xl font-bold sm:text-4xl">{title}</h1>
+        <h1 className={sectionTitleH1Class}>{title}</h1>
         {description && (
           <p className="mt-3 max-w-3xl text-base leading-8 text-muted">
             {description}

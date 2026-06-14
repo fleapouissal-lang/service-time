@@ -9,6 +9,7 @@ import {
 import type { ProfileRole } from "@service-time/types";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { SidebarDateTime } from "@/components/dashboard/sidebar-datetime";
 import { SidebarEdgeToggle } from "@/components/dashboard/sidebar-edge-toggle";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -21,9 +22,11 @@ export type DashboardNavItem = {
 };
 
 export type DashboardUser = {
+  userId: string;
   fullName: string;
   role: ProfileRole;
   avatarUrl: string | null;
+  avatarVersion?: string | null;
   profileHref: string;
   homeHref: string;
 };
@@ -68,8 +71,10 @@ export function DashboardSidebar({
         )}
       >
         <ProfileAvatar
+          userId={user.userId}
           fullName={user.fullName}
           avatarUrl={user.avatarUrl}
+          avatarVersion={user.avatarVersion}
           size="lg"
           className="!bg-[#050B10]/10 !text-[#050B10] ring-[#050B10]/20"
         />
@@ -92,6 +97,7 @@ export function DashboardSidebar({
     <div
       className={cn(
         "relative h-full shrink-0 overflow-visible transition-[width] duration-300 ease-in-out",
+        !mobileMenu && "bg-[var(--dashboard-content-bg)]",
         mobileMenu && "w-full",
       )}
       style={mobileMenu ? undefined : { width: open ? SIDEBAR_EXPANDED : SIDEBAR_COLLAPSED }}
@@ -99,12 +105,12 @@ export function DashboardSidebar({
       <aside
         className={cn(
           "flex h-full flex-col overflow-hidden transition-[width] duration-300 ease-in-out",
-          "border-[#050B10]/10 text-[#050B10]",
+          "text-[#050B10]",
           mobileMenu
-            ? "w-full rounded-none border-0"
+            ? "w-full rounded-none"
             : locale === "ar"
-              ? "rounded-tl-[20px] rounded-bl-[20px] border-l"
-              : "rounded-tr-[20px] rounded-br-[20px] border-r",
+              ? "rounded-tl-[20px] rounded-bl-[20px]"
+              : "rounded-tr-[20px] rounded-br-[20px]",
         )}
         style={{
           width: mobileMenu
@@ -154,11 +160,17 @@ export function DashboardSidebar({
 
           {isExpanded ? profileBlock(false) : null}
           {isExpanded ? (
-            <div className="flex justify-center">
+            <div className="flex items-center justify-center gap-2">
+              <ThemeToggle tone="light" compact />
               <LanguageSwitcher tone="light" />
             </div>
           ) : (
-            !mobileMenu ? <LanguageSwitcher tone="light" /> : null
+            !mobileMenu ? (
+              <div className="flex flex-col items-center gap-2">
+                <ThemeToggle tone="light" compact />
+                <LanguageSwitcher tone="light" />
+              </div>
+            ) : null
           )}
         </div>
 

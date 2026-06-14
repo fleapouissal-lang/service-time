@@ -45,8 +45,10 @@ export default async function ClientProfilePage({ searchParams }: PageProps) {
       <Card>
         <CardContent className="flex flex-wrap items-center gap-6 p-6">
           <ProfileAvatar
+            userId={profile.id}
             fullName={displayName}
             avatarUrl={profile.avatar_url}
+            avatarVersion={profile.updated_at}
             size="md"
             className="!size-20 !text-2xl"
           />

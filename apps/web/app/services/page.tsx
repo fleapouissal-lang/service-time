@@ -5,6 +5,10 @@ import { ServicesHeroSection } from "@/components/services/services-hero-section
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getServices } from "@/lib/queries";
+import {
+  sectionEyebrowClass,
+  sectionTitleH2MdClass,
+} from "@/lib/section-styles";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getServerI18n();
@@ -26,12 +30,12 @@ export default async function ServicesPage() {
         <ServicesHeroSection />
       </div>
 
-      <section className="mx-auto w-full max-w-[1200px] bg-[#060709] px-3 pb-8 pt-14 md:w-[90%] md:px-0 md:py-16">
+      <section className="mx-auto w-full max-w-[1200px] bg-site-main px-3 pb-8 pt-14 md:w-[90%] md:px-0 md:py-16">
         <div className="mb-6 md:mb-10">
-          <p className="text-sm font-semibold text-[#94D4B9]">
+          <p className={sectionEyebrowClass}>
             {t.services.allServices}
           </p>
-          <h1 className="mt-2 text-2xl font-bold md:text-3xl">
+          <h1 className={sectionTitleH2MdClass}>
             {t.services.chooseService}
           </h1>
           <p className="mt-3 max-w-2xl text-sm leading-7 text-muted md:text-base">

@@ -11,9 +11,10 @@ import {
   AdminTableHeadCell,
 } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
-import { getServiceName } from "@/lib/localized-content";
+import { getServiceDescription, getServiceName } from "@/lib/localized-content";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -29,6 +30,7 @@ export function AdminServicesTable({
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.servicesPage;
   const [deleteTarget, setDeleteTarget] = useState<Service | null>(null);
+  const [viewTarget, setViewTarget] = useState<Service | null>(null);
   const [pending, startTransition] = useTransition();
   const {
     pageItems,
@@ -91,7 +93,7 @@ export function AdminServicesTable({
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
-                    viewHref={`/admin/services/${service.id}`}
+                    onView={() => setViewTarget(service)}
                     editHref={`/admin/services/${service.id}`}
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
@@ -113,6 +115,58 @@ export function AdminServicesTable({
         from={from}
         to={to}
         onPageChange={setPage}
+      />
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={viewTarget ? getServiceName(viewTarget, locale) : ""}
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.table.name,
+                  value: getServiceName(viewTarget, locale),
+                  fullWidth: true,
+                },
+                {
+                  label: t.common.category,
+                  value: viewTarget.category ?? t.common.dash,
+                },
+                {
+                  label: p.table.serviceType,
+                  value: (
+                    <Badge variant="secondary">
+                      {serviceTypeLabels[viewTarget.service_type]}
+                    </Badge>
+                  ),
+                },
+                {
+                  label: p.table.sortOrder,
+                  value: viewTarget.sort_order,
+                  ltr: true,
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant={viewTarget.is_active ? "success" : "outline"}>
+                      {viewTarget.is_active ? t.common.active : t.common.inactive}
+                    </Badge>
+                  ),
+                },
+                ...(getServiceDescription(viewTarget, locale)
+                  ? [
+                      {
+                        label: t.common.description,
+                        value: getServiceDescription(viewTarget, locale),
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
       />
 
       <AdminConfirmDialog

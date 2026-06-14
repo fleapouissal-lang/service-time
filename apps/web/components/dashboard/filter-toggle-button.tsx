@@ -1,6 +1,7 @@
 "use client";
 
 import { SlidersHorizontal, X } from "lucide-react";
+import { iconAccentClass } from "@/lib/card-surface";
 import { cn } from "@/lib/utils";
 
 type FilterToggleButtonProps = {
@@ -31,7 +32,8 @@ export function FilterToggleButton({
       aria-expanded={open}
       aria-label={open ? hideLabel : showLabel}
       className={cn(
-        "relative inline-flex shrink-0 items-center gap-1.5 p-2 text-[#94D4B9] transition-opacity hover:opacity-80 active:opacity-70",
+        "relative inline-flex shrink-0 items-center gap-1.5 p-2 transition-opacity hover:opacity-80 active:opacity-70",
+        iconAccentClass,
         className,
       )}
     >

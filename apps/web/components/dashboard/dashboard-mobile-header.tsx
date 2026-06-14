@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MobileAccountButton } from "@/components/layout/mobile-account-button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { getDashboardRoleFromPath } from "@/lib/i18n/mobile-dashboard-nav";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -15,7 +16,8 @@ export function DashboardMobileHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 shrink-0 border-b border-[#94D4B9]/15 bg-[#050B10] lg:hidden",
+        "sticky top-0 z-50 shrink-0 border-b border-[var(--site-chrome-border)] bg-site-header lg:hidden",
+        "rounded-b-[20px]",
       )}
     >
       <div className="flex h-14 items-center justify-between px-4">
@@ -31,7 +33,8 @@ export function DashboardMobileHeader() {
         </Link>
 
         <div className="flex items-center gap-1.5">
-          <LanguageSwitcher compact />
+          <ThemeToggle compact />
+          <LanguageSwitcher compact isTransparent />
           <MobileAccountButton dashboardRole={dashboardRole} />
         </div>
       </div>

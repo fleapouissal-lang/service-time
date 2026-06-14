@@ -99,6 +99,14 @@ export const messages = {
     switchToAr: "عر",
   },
 
+  theme: {
+    label: "المظهر",
+    dark: "داكن",
+    light: "فاتح",
+    switchToLight: "التبديل إلى الوضع الفاتح",
+    switchToDark: "التبديل إلى الوضع الداكن",
+  },
+
   footer: {
     tagline:
       "منصة سعودية لصيانة السيارات وطلب قطع الغيار في الرياض — ورشة ثابتة أو فني متنقل مع تتبع مباشر.",

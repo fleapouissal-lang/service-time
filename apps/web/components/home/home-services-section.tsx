@@ -9,6 +9,10 @@ import {
 } from "@/components/ui/locale-arrows";
 import type { Service } from "@service-time/types";
 import { ServiceCard } from "@/components/services/service-card";
+import {
+  sectionEyebrowClass,
+  sectionTitleH2Class,
+} from "@/lib/section-styles";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -88,8 +92,8 @@ export function HomeServicesSection({ services }: HomeServicesSectionProps) {
     <section className="mx-auto w-[90%] max-w-[1200px] py-16">
       <div className="mb-8 flex items-end justify-between gap-4 sm:mb-10">
         <div>
-          <p className="text-sm font-semibold text-primary">{t.home.ourServices}</p>
-          <h2 className="mt-2 text-3xl font-bold">{copy.title}</h2>
+          <p className={sectionEyebrowClass}>{t.home.ourServices}</p>
+          <h2 className={sectionTitleH2Class}>{copy.title}</h2>
         </div>
         <Link
           href="/services"

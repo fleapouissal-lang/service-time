@@ -1,9 +1,11 @@
 "use client";
 
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
+import { useState } from "react";
 import { AdminSparePartOrderDeleteButton } from "@/components/admin/admin-spare-part-order-delete-button";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
@@ -33,6 +35,7 @@ export function AdminSparePartOrdersTable({
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartOrdersPage;
   const intlLocale = getIntlLocale(locale);
+  const [viewTarget, setViewTarget] = useState<SparePartOrderWithItems | null>(null);
   const {
     pageItems,
     setPage,
@@ -124,7 +127,7 @@ export function AdminSparePartOrdersTable({
               <AdminTableCell align="center" className="w-36">
                 <div className="flex items-center justify-center gap-1.5">
                   <AdminTableActions
-                    viewHref={detailHref}
+                    onView={() => setViewTarget(order)}
                     editHref={detailHref}
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
@@ -142,6 +145,116 @@ export function AdminSparePartOrdersTable({
         })}
       </tbody>
       </AdminTable>
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={
+          viewTarget
+            ? (viewTarget.client
+                ? getProfileDisplayName(viewTarget.client, locale)
+                : viewTarget.order_token)
+            : ""
+        }
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.detail.orderToken,
+                  value: viewTarget.order_token,
+                  ltr: true,
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant="secondary">{statusLabels[viewTarget.status]}</Badge>
+                  ),
+                },
+                {
+                  label: p.detail.paymentMethod,
+                  value: paymentMethodLabels[viewTarget.payment_method],
+                },
+                {
+                  label: p.detail.paymentStatus,
+                  value: paymentStatusLabels[viewTarget.payment_status],
+                },
+                {
+                  label: p.table.total,
+                  value: formatSparePartPrice(
+                    viewTarget.items.reduce(
+                      (sum, item) =>
+                        sum +
+                        getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
+                      0,
+                    ),
+                    locale,
+                  ),
+                  ltr: true,
+                },
+                {
+                  label: p.detail.date,
+                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }),
+                  ltr: true,
+                },
+                ...(viewTarget.client?.phone
+                  ? [
+                      {
+                        label: t.common.phone,
+                        value: viewTarget.client.phone,
+                        ltr: true,
+                      },
+                    ]
+                  : []),
+                ...(viewTarget.customer_email
+                  ? [
+                      {
+                        label: p.detail.contactEmail,
+                        value: viewTarget.customer_email,
+                        ltr: true,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+                ...(viewTarget.delivery_address
+                  ? [
+                      {
+                        label: p.detail.deliveryAddress,
+                        value: viewTarget.delivery_address,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
+      >
+        {viewTarget && viewTarget.items.length > 0 ? (
+          <div className="mt-4">
+            <p className="mb-2 text-sm font-semibold">{p.detail.items}</p>
+            <ul className="space-y-2">
+              {viewTarget.items.map((item) => (
+                <li
+                  key={item.id}
+                  className="rounded-xl border border-border p-3 text-sm"
+                >
+                  <p className="font-medium">{item.name_snapshot}</p>
+                  {item.category_snapshot ? (
+                    <p className="text-muted">{item.category_snapshot}</p>
+                  ) : null}
+                  <p className="mt-1 text-muted" dir="ltr">
+                    {formatSparePartPrice(Number(item.price_snapshot) || 0, locale)} ×{" "}
+                    {item.quantity}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </DashboardDetailDialog>
 
       <DashboardTablePagination
         page={page}

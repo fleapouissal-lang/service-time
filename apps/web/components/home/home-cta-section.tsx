@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { useTheme } from "@/lib/theme/theme-context";
+import { cn } from "@/lib/utils";
 
 type CtaSectionProps = {
   title?: string;
@@ -17,31 +19,39 @@ export function CtaSection({
   ctaLabel,
   ctaHref = "/request",
 }: CtaSectionProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   return (
-    <section className="bg-[#060709] px-[5%] py-16">
+    <section className="cta-section px-[5%] py-16">
       <div
-        className="relative mx-auto flex min-h-[320px] w-[90%] max-w-[1220px] items-center overflow-hidden rounded-[20px] border border-[#94D4B9]/10 bg-[#050B10] bg-cover bg-center shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:min-h-[360px]"
-        style={{ backgroundImage: "url('/cta-bg.png')" }}
+        className={cn(
+          "cta-section__panel relative mx-auto flex min-h-[320px] w-[90%] max-w-[1220px] items-center overflow-hidden rounded-[20px] bg-cover sm:min-h-[360px]",
+          isLight ? "bg-[center_right]" : "bg-center",
+        )}
+        style={{
+          backgroundImage: `url('${isLight ? "/cta-bg-light.png" : "/cta-bg.png"}')`,
+        }}
       >
         <div
-          className="pointer-events-none absolute inset-0 bg-black/92"
+          className="cta-section__overlay pointer-events-none absolute inset-0"
           aria-hidden
         />
 
         <div className="relative z-10 flex w-full flex-col items-start gap-6 px-6 py-14 text-start sm:px-10 sm:py-16">
           {title && (
-            <h2 className="font-poppins text-2xl font-bold leading-tight text-white sm:text-3xl">
+            <h2 className="cta-section__title font-poppins text-2xl font-bold leading-tight sm:text-3xl">
               {title}
             </h2>
           )}
 
-          <p className="max-w-xl text-base leading-8 text-white/90 sm:text-lg">
+          <p className="cta-section__desc max-w-xl text-base leading-8 sm:text-lg">
             {description}
           </p>
 
           <Link
             href={ctaHref}
-            className="inline-flex h-12 items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] px-8 text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
+            className="cta-section__btn inline-flex h-12 items-center justify-center gap-2 rounded-[20px] px-8 text-sm font-semibold transition-opacity"
           >
             {ctaLabel}
             <LocaleForwardArrow />

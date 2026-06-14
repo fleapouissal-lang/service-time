@@ -135,12 +135,14 @@ export async function applyPlatformUserUpdate(
   }
 
   let avatarUrl: string | undefined;
+  let avatarStoragePath: string | undefined;
   if (input.avatarFile) {
     const uploaded = await uploadProfileAvatar(input.id, input.avatarFile);
     if ("error" in uploaded) {
       throw new Error(uploaded.error);
     }
     avatarUrl = uploaded.publicUrl;
+    avatarStoragePath = uploaded.storagePath;
   }
 
   const profilePayload: Record<string, unknown> = {
@@ -154,6 +156,7 @@ export async function applyPlatformUserUpdate(
 
   if (avatarUrl) {
     profilePayload.avatar_url = avatarUrl;
+    profilePayload.avatar_storage_path = avatarStoragePath;
   }
 
   const { error: profileError } = await admin

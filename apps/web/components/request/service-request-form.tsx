@@ -22,6 +22,12 @@ import {
   buildExecutionMethodSelectOptions,
   buildServiceRequestTypeOptions,
 } from "@/lib/i18n/labels";
+import {
+  requestAccentTextClass,
+  requestBtnFilledClass,
+  requestStepDotClass,
+  requestStepLabelClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 export function ServiceRequestForm({
@@ -232,15 +238,19 @@ export function ServiceRequestForm({
                 <div className="flex items-center gap-3 text-sm">
                   <span
                     className={cn(
-                      "flex size-7 shrink-0 items-center justify-center rounded-full font-semibold",
-                      step === 1
-                        ? "bg-[#94D4B9] text-[#050B10]"
-                        : "bg-white/10 text-white/55",
+                      requestStepDotClass,
+                      step === 1 ? "request-step-dot--active" : "request-step-dot--inactive",
                     )}
                   >
                     1
                   </span>
-                  <span className={step === 1 ? "font-semibold text-[#94D4B9]" : "text-muted"}>
+                  <span
+                    className={cn(
+                      requestStepLabelClass,
+                      step === 1 && "request-step-label--active",
+                      step !== 1 && "text-muted",
+                    )}
+                  >
                     {f.step1Title}
                   </span>
                   <span className="text-muted" aria-hidden>
@@ -248,15 +258,19 @@ export function ServiceRequestForm({
                   </span>
                   <span
                     className={cn(
-                      "flex size-7 shrink-0 items-center justify-center rounded-full font-semibold",
-                      step === 2
-                        ? "bg-[#94D4B9] text-[#050B10]"
-                        : "bg-white/10 text-white/55",
+                      requestStepDotClass,
+                      step === 2 ? "request-step-dot--active" : "request-step-dot--inactive",
                     )}
                   >
                     2
                   </span>
-                  <span className={step === 2 ? "font-semibold text-[#94D4B9]" : "text-muted"}>
+                  <span
+                    className={cn(
+                      requestStepLabelClass,
+                      step === 2 && "request-step-label--active",
+                      step !== 2 && "text-muted",
+                    )}
+                  >
                     {f.step2Title}
                   </span>
                 </div>
@@ -270,7 +284,7 @@ export function ServiceRequestForm({
                       twoSteps ? "hidden" : "lg:hidden",
                     )}
                   >
-                    <p className="text-sm font-semibold text-[#94D4B9]">
+                    <p className={cn("text-sm font-semibold", requestAccentTextClass)}>
                       {f.step1Title}
                     </p>
                     <span className="text-xs tabular-nums text-muted">1 / 2</span>
@@ -344,7 +358,7 @@ export function ServiceRequestForm({
                       twoSteps ? "hidden" : "lg:hidden",
                     )}
                   >
-                    <p className="text-sm font-semibold text-[#94D4B9]">
+                    <p className={cn("text-sm font-semibold", requestAccentTextClass)}>
                       {f.step2Title}
                     </p>
                     <span className="text-xs tabular-nums text-muted">2 / 2</span>
@@ -399,7 +413,7 @@ export function ServiceRequestForm({
                       type="button"
                       variant="accent"
                       size="lg"
-                      className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                      className={cn(requestBtnFilledClass, "h-12 w-full")}
                       onClick={goToStep2}
                     >
                       {f.nextStep}
@@ -424,7 +438,7 @@ export function ServiceRequestForm({
                         type="submit"
                         variant="accent"
                         size="lg"
-                        className="h-12 flex-1 rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                        className={cn(requestBtnFilledClass, "h-12 flex-1")}
                         disabled={pending}
                       >
                         {pending ? t.common.sending : f.submit}
@@ -439,7 +453,8 @@ export function ServiceRequestForm({
                 variant="accent"
                 size="lg"
                 className={cn(
-                  "h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90",
+                  requestBtnFilledClass,
+                  "h-12 w-full",
                   !useWizard && "flex",
                   twoSteps && useWizard && "hidden",
                   wizardMobileOnly && "hidden lg:flex",

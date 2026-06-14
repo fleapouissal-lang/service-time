@@ -11,11 +11,16 @@ import {
 } from "lucide-react";
 import { AboutSectionHeader } from "@/components/about/about-section-header";
 import {
+  surfaceCardClass,
+  surfaceCardIconClass,
+  surfaceCardIconWrapClass,
+} from "@/lib/card-surface";
+import { cn } from "@/lib/utils";
+import {
   LocaleCarouselNext,
   LocaleCarouselPrev,
 } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { cn } from "@/lib/utils";
 
 const VALUE_ICONS: LucideIcon[] = [Award, Zap, Eye, ShieldCheck, Smartphone];
 
@@ -27,13 +32,13 @@ const DESKTOP_MQ = "(min-width: 768px)";
 const arrowClass = cn(
   "inline-flex shrink-0 items-center justify-center rounded-full transition-all duration-300",
   "disabled:pointer-events-none disabled:opacity-40",
-  "md:size-10 md:border md:border-[#94D4B9]/30 md:bg-transparent md:text-[#94D4B9]",
-  "md:shadow-none md:hover:border-[#94D4B9]/50 md:hover:bg-[#94D4B9]/10",
+  "md:size-10 md:border md:border-[color-mix(in_srgb,var(--icon-accent)_30%,transparent)] md:bg-transparent md:text-[var(--icon-accent)]",
+  "md:shadow-none md:hover:border-[color-mix(in_srgb,var(--icon-accent)_50%,transparent)] md:hover:bg-[var(--icon-accent-bg)]",
 );
 
 const mobileOverlayArrowClass = cn(
   arrowClass,
-  "absolute top-1/2 z-10 size-9 -translate-y-1/2 border border-[#94D4B9]/25 bg-[#050B10]/85 text-[#94D4B9] backdrop-blur-sm",
+  "absolute top-1/2 z-10 size-9 -translate-y-1/2 border border-[color-mix(in_srgb,var(--icon-accent)_25%,transparent)] bg-[#050B10]/85 text-[var(--icon-accent)] backdrop-blur-sm",
   "shadow-[0_4px_16px_rgba(0,0,0,0.45)] active:scale-95 md:hidden",
 );
 
@@ -212,11 +217,16 @@ export function AboutValuesCarousel() {
                   }}
                   aria-hidden={!isVisible}
                 >
-                  <div className="flex min-h-[220px] flex-col rounded-2xl border border-[#94D4B9]/10 bg-[#091014] p-4 px-12 shadow-[0_4px_24px_rgba(148,212,185,0.06)] md:rounded-[20px] md:p-6 md:px-6">
-                    <span className="mb-4 flex size-11 shrink-0 items-center justify-center rounded-xl bg-[#94D4B9]/10">
-                      <Icon className="size-5 text-[#94D4B9]" aria-hidden />
+                  <div
+                    className={cn(
+                      "flex min-h-[220px] flex-col p-4 px-12 md:rounded-[20px] md:p-6 md:px-6",
+                      surfaceCardClass,
+                    )}
+                  >
+                    <span className={cn("mb-4 size-11 rounded-xl", surfaceCardIconWrapClass)}>
+                      <Icon className={cn("size-5", surfaceCardIconClass)} aria-hidden />
                     </span>
-                    <h3 className="text-lg font-semibold text-[#94D4B9]">
+                    <h3 className="text-lg font-semibold text-primary">
                       {item.title}
                     </h3>
                     <p className="mt-3 line-clamp-3 min-h-[5.25rem] text-sm leading-7 text-muted">

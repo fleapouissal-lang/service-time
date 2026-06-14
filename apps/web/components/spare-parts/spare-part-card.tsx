@@ -17,6 +17,8 @@ import {
 } from "@/lib/localized-content";
 import { getSparePartCoverImage, getSparePartImages } from "@/lib/spare-part-images";
 import { cn } from "@/lib/utils";
+import { serviceTagPillSmClass } from "@/lib/section-styles";
+import { surfaceCardInteractiveClass } from "@/lib/card-surface";
 
 type SparePartCardProps = {
   part: SparePart;
@@ -48,7 +50,7 @@ export function SparePartCard({
   }
 
   const viewMoreButtonClass =
-    "inline-flex h-11 w-full items-center justify-center rounded-[20px] border border-[#94D4B9] bg-transparent text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:bg-[#94D4B9]/10";
+    "spare-part-card__btn-outline inline-flex h-11 w-full items-center justify-center rounded-[20px] text-sm font-semibold transition-all duration-200";
 
   return (
     <Card
@@ -66,12 +68,13 @@ export function SparePartCard({
           : undefined
       }
       className={cn(
-        "group flex h-full flex-col overflow-hidden rounded-[20px] border bg-[#091014] transition-all duration-300 ease-out",
+        "spare-part-card group flex h-full flex-col overflow-hidden rounded-[20px] transition-all duration-300 ease-out",
+        surfaceCardInteractiveClass,
         isHome && "rounded-2xl sm:rounded-[20px]",
         inStock
           ? isClickable
-            ? "cursor-pointer border-[#94D4B9]/10 shadow-[0_4px_24px_rgba(148,212,185,0.06)] hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]"
-            : "border-[#94D4B9]/10 shadow-[0_4px_24px_rgba(148,212,185,0.06)] hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)]"
+            ? "cursor-pointer hover:-translate-y-1.5"
+            : "hover:-translate-y-1.5"
           : isClickable
             ? "cursor-pointer border-red-500/20 opacity-90 shadow-none hover:border-red-500/35"
             : "cursor-default border-red-500/20 opacity-90 shadow-none",
@@ -79,7 +82,7 @@ export function SparePartCard({
     >
       <div
         className={cn(
-          "relative w-full shrink-0 overflow-hidden bg-[#060709]",
+          "relative w-full shrink-0 overflow-hidden bg-[var(--card-media-bg)]",
           isHome ? "aspect-square sm:aspect-[4/3]" : "aspect-[4/3]",
         )}
       >
@@ -104,10 +107,8 @@ export function SparePartCard({
         {category ? (
           <span
             className={cn(
-              "absolute top-2 end-2 z-20 hidden rounded-[20px] px-2 py-0.5 text-[10px] font-semibold sm:top-3 sm:end-3 sm:inline-flex sm:px-3 sm:py-1 sm:text-xs",
-              inStock
-                ? "bg-[#94D4B9] text-[#050B10]"
-                : "bg-[#050B10]/80 text-red-300",
+              "absolute top-2 end-2 z-20 hidden rounded-[20px] px-2 py-0.5 text-[10px] sm:top-3 sm:end-3 sm:inline-flex",
+              inStock ? serviceTagPillSmClass : "bg-[#050B10]/80 text-red-300",
             )}
           >
             {category}
@@ -138,13 +139,11 @@ export function SparePartCard({
       >
         <h3
           className={cn(
-            "line-clamp-2 font-semibold transition-colors duration-300",
+            "spare-part-card__title line-clamp-2 font-bold transition-colors duration-300",
             isHome
-              ? "text-sm leading-6 sm:min-h-14 sm:text-lg sm:leading-7"
-              : "min-h-14 text-lg leading-7",
-            inStock
-              ? "group-hover:text-[#94D4B9]"
-              : "text-muted line-through decoration-red-400/50",
+              ? "text-base leading-6 sm:min-h-14 sm:text-xl sm:leading-8"
+              : "min-h-14 text-xl leading-8",
+            !inStock && "text-muted line-through decoration-red-400/50",
           )}
         >
           {name}
@@ -155,6 +154,7 @@ export function SparePartCard({
             price={Number(part.price) || 0}
             size={isHome ? "sm" : "md"}
             className={cn(
+              "spare-part-card__price",
               !inStock && "text-muted line-through opacity-70",
               isHome && "sm:text-base",
             )}
@@ -187,14 +187,18 @@ export function SparePartCard({
               >
                 {t.spareParts.viewMore}
               </button>
-              <AddToCartButton part={part} variant="card" className="sm:flex-1" />
+              <AddToCartButton
+                part={part}
+                variant="card"
+                className={cn("spare-part-card__btn-filled", "sm:flex-1")}
+              />
             </div>
           ) : variant === "grid" ? (
-            <AddToCartButton part={part} variant="card" />
+            <AddToCartButton part={part} variant="card" className="spare-part-card__btn-filled" />
           ) : inStock ? (
             <Link
               href="/spare-parts"
-              className="inline-flex h-11 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90"
+              className="spare-part-card__btn-filled inline-flex h-11 w-full items-center justify-center rounded-[20px] text-sm font-semibold transition-opacity hover:opacity-90"
             >
               {t.home.viewInStore}
             </Link>

@@ -112,15 +112,15 @@ export function AdminSparePartOrderEditForm({
       <div>
         <h2 className="mb-3 text-sm font-semibold">{p.detail.items}</h2>
         <div className="overflow-x-auto rounded-xl border border-border">
-          <table className="w-full min-w-[520px] border-collapse text-sm [&_td]:align-middle [&_th]:align-middle">
+          <table className="admin-table w-full min-w-[520px] border-separate border-spacing-0 text-sm [&_td]:align-middle [&_th]:align-middle">
             <thead>
-              <tr className="border-b border-border bg-muted/30 text-start">
-                <th className="px-4 py-3 font-medium text-muted">{p.detail.product}</th>
-                <th className="px-4 py-3 text-center font-medium text-muted">
+              <tr className="admin-table-head text-start">
+                <th className="admin-table-head-cell px-4 py-3 font-medium">{p.detail.product}</th>
+                <th className="admin-table-head-cell px-4 py-3 text-center font-medium">
                   {t.common.quantity}
                 </th>
-                <th className="px-4 py-3 font-medium text-muted">{p.detail.unitPrice}</th>
-                <th className="px-4 py-3 font-medium text-muted">{p.detail.lineTotal}</th>
+                <th className="admin-table-head-cell px-4 py-3 font-medium">{p.detail.unitPrice}</th>
+                <th className="admin-table-head-cell px-4 py-3 font-medium">{p.detail.lineTotal}</th>
               </tr>
             </thead>
             <tbody>

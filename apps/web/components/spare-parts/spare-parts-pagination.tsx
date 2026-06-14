@@ -5,6 +5,7 @@ import {
   LocalePaginationNext,
   LocalePaginationPrev,
 } from "@/components/ui/locale-arrows";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { sparePartsPageHref } from "@/lib/spare-parts-pagination";
 import { cn } from "@/lib/utils";
@@ -35,7 +36,10 @@ export function SparePartsPagination({
       {currentPage > 1 ? (
         <Link
           href={sparePartsPageHref(currentPage - 1, pageSize, filters)}
-          className="inline-flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10 sm:size-10"
+          className={cn(
+            "inline-flex size-9 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_30%,transparent)] transition-colors hover:border-[color-mix(in_srgb,var(--icon-accent)_50%,transparent)] hover:bg-[var(--icon-accent-bg)] sm:size-10",
+            iconAccentClass,
+          )}
           aria-label={t.spareParts.prevPage}
         >
           <LocalePaginationPrev />
@@ -70,7 +74,10 @@ export function SparePartsPagination({
       {currentPage < totalPages ? (
         <Link
           href={sparePartsPageHref(currentPage + 1, pageSize, filters)}
-          className="inline-flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/30 text-[#94D4B9] transition-colors hover:border-[#94D4B9]/50 hover:bg-[#94D4B9]/10 sm:size-10"
+          className={cn(
+            "inline-flex size-9 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_30%,transparent)] transition-colors hover:border-[color-mix(in_srgb,var(--icon-accent)_50%,transparent)] hover:bg-[var(--icon-accent-bg)] sm:size-10",
+            iconAccentClass,
+          )}
           aria-label={t.spareParts.nextPage}
         >
           <LocalePaginationNext />

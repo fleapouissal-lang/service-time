@@ -2,6 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  sectionEyebrowClass,
+  sectionTitleH1Class,
+} from "@/lib/section-styles";
 import { cn } from "@/lib/utils";
 
 const INTERVAL_MS = 5000;
@@ -36,7 +40,7 @@ export function ServicesHeroSection() {
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] py-16 pt-28 sm:pt-32">
       <div className="max-w-2xl space-y-5 text-start">
-        <p className="text-sm font-semibold text-[#94D4B9]">{t.services.hero.eyebrow}</p>
+        <p className={sectionEyebrowClass}>{t.services.hero.eyebrow}</p>
 
         <div
           className={cn(
@@ -46,9 +50,9 @@ export function ServicesHeroSection() {
               : "translate-y-2 opacity-0",
           )}
         >
-          <h1 className="font-poppins text-4xl font-bold leading-tight tracking-tight text-white sm:text-5xl">
+          <h1 className="font-poppins text-4xl font-bold leading-tight tracking-tight text-[var(--section-title)] sm:text-5xl">
             {slide.title}{" "}
-            <span className="text-[#94D4B9]">{slide.highlight}</span>
+            <span className="text-[var(--section-eyebrow)]">{slide.highlight}</span>
           </h1>
           <p className="text-base leading-7 text-muted sm:text-lg">
             {slide.description}

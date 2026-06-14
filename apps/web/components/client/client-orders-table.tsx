@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Eye, MapPin } from "lucide-react";
+import { useState } from "react";
 import type {
   ExecutionMethod,
   ServiceRequest,
@@ -14,16 +15,20 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
 } from "@/components/admin/admin-table";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
+import { ServiceRequestPhotosGallery } from "@/components/service-requests/service-request-photos-panel";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import { cn } from "@/lib/utils";
 
 type ClientOrdersTableProps = {
   orders: ServiceRequest[];
   photoCounts: Record<string, number>;
+  photosByRequestId: Record<string, RequestPhotoRow[]>;
   statusLabels: Record<ServiceRequestStatus, string>;
   serviceTypeLabels: Record<ServiceType, string>;
   executionMethodLabels: Record<ExecutionMethod, string>;
@@ -35,6 +40,7 @@ const actionBtnClass =
 export function ClientOrdersTable({
   orders,
   photoCounts,
+  photosByRequestId,
   statusLabels,
   serviceTypeLabels,
   executionMethodLabels,
@@ -51,6 +57,7 @@ export function ClientOrdersTable({
     from,
     to,
   } = useDashboardTablePagination(orders);
+  const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
 
   return (
     <>
@@ -73,7 +80,6 @@ export function ClientOrdersTable({
         </AdminTableHead>
         <tbody>
           {pageItems.map((order) => {
-            const detailHref = `/client/orders/${order.id}`;
             const trackHref = `/client/track/${order.tracking_token}`;
 
             return (
@@ -119,14 +125,15 @@ export function ClientOrdersTable({
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-28">
                   <div className="flex items-center justify-center gap-1.5">
-                    <Link
-                      href={detailHref}
+                    <button
+                      type="button"
+                      onClick={() => setViewTarget(order)}
                       className={actionBtnClass}
                       title={p.table.view}
                       aria-label={p.table.view}
                     >
                       <Eye className="size-4" aria-hidden />
-                    </Link>
+                    </button>
                     <Link
                       href={trackHref}
                       className={cn(actionBtnClass)}
@@ -142,6 +149,85 @@ export function ClientOrdersTable({
           })}
         </tbody>
       </AdminTable>
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={
+          viewTarget ? serviceTypeLabels[viewTarget.service_type] : ""
+        }
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.table.service,
+                  value: serviceTypeLabels[viewTarget.service_type],
+                },
+                {
+                  label: p.table.execution,
+                  value: executionMethodLabels[viewTarget.execution_method],
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant="secondary">
+                      {statusLabels[viewTarget.status as ServiceRequestStatus]}
+                    </Badge>
+                  ),
+                },
+                {
+                  label: p.table.tracking,
+                  value: viewTarget.tracking_token,
+                  ltr: true,
+                },
+                {
+                  label: p.table.date,
+                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }),
+                  ltr: true,
+                },
+                ...(viewTarget.location_text
+                  ? [
+                      {
+                        label: p.table.location,
+                        value: viewTarget.location_text,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+                ...(viewTarget.car_type
+                  ? [{ label: t.common.car, value: viewTarget.car_type }]
+                  : []),
+                ...(viewTarget.description
+                  ? [
+                      {
+                        label: t.common.description,
+                        value: viewTarget.description,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+                ...((photosByRequestId[viewTarget.id] ?? []).length > 0
+                  ? [
+                      {
+                        label: p.table.photo,
+                        value: (
+                          <ServiceRequestPhotosGallery
+                            requestId={viewTarget.id}
+                            photos={photosByRequestId[viewTarget.id] ?? []}
+                          />
+                        ),
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
+      />
 
       <DashboardTablePagination
         page={page}

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -63,7 +64,10 @@ export function SparePartImageSlider({
               event.stopPropagation();
               goPrev();
             }}
-            className="absolute top-1/2 right-3 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#94D4B9]/35 bg-[#050B10]/85 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
+            className={cn(
+              "absolute top-1/2 right-3 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_35%,transparent)] bg-[#050B10]/85 transition-colors hover:bg-[var(--icon-accent-bg)]",
+              iconAccentClass,
+            )}
             aria-label={t.spareParts.photoPrev}
           >
             <ChevronRight className="size-5" aria-hidden />
@@ -74,7 +78,10 @@ export function SparePartImageSlider({
               event.stopPropagation();
               goNext();
             }}
-            className="absolute top-1/2 left-3 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[#94D4B9]/35 bg-[#050B10]/85 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
+            className={cn(
+              "absolute top-1/2 left-3 z-30 flex size-9 -translate-y-1/2 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_35%,transparent)] bg-[#050B10]/85 transition-colors hover:bg-[var(--icon-accent-bg)]",
+              iconAccentClass,
+            )}
             aria-label={t.spareParts.photoNext}
           >
             <ChevronLeft className="size-5" aria-hidden />

@@ -1,7 +1,19 @@
 "use client";
 
-import type { ServiceRequest, ServiceRequestStatus } from "@service-time/types";
+import type {
+  RequestPriority,
+  ServiceRequest,
+  ServiceRequestStatus,
+} from "@service-time/types";
+import {
+  AdminTable,
+  AdminTableCell,
+  AdminTableCustomerInfo,
+  AdminTableHead,
+  AdminTableHeadCell,
+} from "@/components/admin/admin-table";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
+import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -9,11 +21,13 @@ import { useLocale } from "@/lib/i18n/locale-context";
 type AdminOverviewOrdersTableProps = {
   orders: ServiceRequest[];
   statusLabels: Record<ServiceRequestStatus, string>;
+  priorityLabels: Record<RequestPriority, string>;
 };
 
 export function AdminOverviewOrdersTable({
   orders,
   statusLabels,
+  priorityLabels,
 }: AdminOverviewOrdersTableProps) {
   const { locale, messages: t } = useLocale();
   const intlLocale = getIntlLocale(locale);
@@ -29,40 +43,49 @@ export function AdminOverviewOrdersTable({
 
   return (
     <>
-      <div className="overflow-x-auto">
-        <table className="w-full min-w-[640px] text-sm">
-          <thead>
-            <tr className="border-b text-right text-muted">
-              <th className="pb-2 font-medium">
-                {t.dashboard.admin.ordersTable.customer}
-              </th>
-              <th className="pb-2 font-medium">
-                {t.dashboard.admin.ordersTable.status}
-              </th>
-              <th className="pb-2 font-medium">
-                {t.dashboard.admin.ordersTable.priority}
-              </th>
-              <th className="pb-2 font-medium">
-                {t.dashboard.admin.ordersTable.date}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {pageItems.map((order) => (
-              <tr key={order.id} className="border-b border-border">
-                <td className="py-3 font-medium">{order.customer_name}</td>
-                <td className="py-3">
+      <AdminTable className="min-w-[640px]">
+        <AdminTableHead>
+          <AdminTableHeadCell className="min-w-[11rem]">
+            {t.dashboard.admin.ordersTable.customer}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center">
+            {t.dashboard.admin.ordersTable.status}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center">
+            {t.dashboard.admin.ordersTable.priority}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center" className="min-w-[9rem]">
+            {t.dashboard.admin.ordersTable.date}
+          </AdminTableHeadCell>
+        </AdminTableHead>
+        <tbody>
+          {pageItems.map((order) => (
+            <tr key={order.id} className="border-b border-border">
+              <AdminTableCell className="min-w-[11rem]">
+                <AdminTableCustomerInfo
+                  name={order.customer_name}
+                  phone={order.customer_phone}
+                />
+              </AdminTableCell>
+              <AdminTableCell align="center">
+                <Badge variant="secondary" className="whitespace-nowrap">
                   {statusLabels[order.status as ServiceRequestStatus]}
-                </td>
-                <td className="py-3 text-muted">{order.priority}</td>
-                <td className="py-3 text-muted">
-                  {new Date(order.created_at).toLocaleDateString(intlLocale)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                </Badge>
+              </AdminTableCell>
+              <AdminTableCell align="center">
+                <Badge variant="outline" className="whitespace-nowrap">
+                  {priorityLabels[order.priority as RequestPriority]}
+                </Badge>
+              </AdminTableCell>
+              <AdminTableCell align="center" ltr className="min-w-[9rem]">
+                {new Date(order.created_at).toLocaleDateString(intlLocale, {
+                  dateStyle: "short",
+                })}
+              </AdminTableCell>
+            </tr>
+          ))}
+        </tbody>
+      </AdminTable>
 
       <DashboardTablePagination
         page={page}

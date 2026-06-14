@@ -3,6 +3,7 @@
 import { Download } from "lucide-react";
 import { useState } from "react";
 import type { RequestPhotoRow } from "@/lib/request-photos-queries";
+import { serviceRequestPhotoApiUrl } from "@/lib/service-request-photo-url";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type ServiceRequestPhotosPanelProps = {
@@ -10,16 +11,50 @@ type ServiceRequestPhotosPanelProps = {
   photos: RequestPhotoRow[];
 };
 
-function serviceRequestPhotoApiUrl(
-  requestId: string,
-  photoId: string,
-  download = false,
-): string {
-  const params = new URLSearchParams({ requestId, photoId });
-  if (download) {
-    params.set("download", "1");
+export function ServiceRequestPhotosGallery({
+  requestId,
+  photos,
+}: ServiceRequestPhotosPanelProps) {
+  const { messages: t } = useLocale();
+  const [failedIds, setFailedIds] = useState<Set<string>>(() => new Set());
+
+  if (photos.length === 0) {
+    return <span className="text-muted">{t.common.dash}</span>;
   }
-  return `/api/service-request-photo?${params.toString()}`;
+
+  return (
+    <div className="space-y-3">
+      {photos.map((photo) => {
+        const failed = failedIds.has(photo.id);
+        const src = serviceRequestPhotoApiUrl(requestId, photo.id);
+
+        return (
+          <div key={photo.id} className="space-y-2">
+            {failed ? (
+              <p className="text-sm text-red-400">{t.common.photoLoadError}</p>
+            ) : (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={src}
+                alt={t.common.attachedPhoto}
+                className="max-h-56 w-full rounded-xl border border-border bg-[var(--card-media-bg)] object-contain"
+                onError={() =>
+                  setFailedIds((current) => new Set(current).add(photo.id))
+                }
+              />
+            )}
+            <a
+              href={serviceRequestPhotoApiUrl(requestId, photo.id, true)}
+              className="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline"
+            >
+              <Download className="size-4 shrink-0" aria-hidden />
+              {t.common.downloadPhoto}
+            </a>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 export function ServiceRequestPhotosPanel({

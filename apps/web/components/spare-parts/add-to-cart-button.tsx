@@ -6,6 +6,7 @@ import type { SparePart } from "@service-time/types";
 import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { useRequireClientForCart } from "@/lib/use-require-client-for-cart";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -68,7 +69,10 @@ export function AddToCartButton({
       className={cn(
         "inline-flex items-center justify-center transition-all duration-300",
         isIcon
-          ? "size-9 shrink-0 rounded-full border border-[#94D4B9] bg-[#050B10]/85 text-[#94D4B9] shadow-md backdrop-blur-sm hover:bg-[#94D4B9]/20"
+          ? cn(
+              "size-9 shrink-0 rounded-full border border-[var(--icon-accent)] bg-[#050B10]/85 shadow-md backdrop-blur-sm hover:bg-[var(--icon-accent-bg)]",
+              iconAccentClass,
+            )
           : cn(
               "gap-2 rounded-[20px] text-sm font-semibold",
               variant === "card" ? "h-11 w-full" : "h-11 w-full",
@@ -77,8 +81,12 @@ export function AddToCartButton({
           (outOfStock
             ? "cursor-not-allowed border border-red-500/30 bg-red-500/10 text-red-400"
             : inCart
-              ? "border border-[#94D4B9]/40 bg-[#94D4B9]/10 text-[#94D4B9]"
-              : "bg-[#94D4B9] text-[#050B10] hover:opacity-90"),
+              ? variant === "card"
+                ? "spare-part-card__btn-filled spare-part-card__btn-filled--in-cart"
+                : "border border-[#94D4B9]/40 bg-[#94D4B9]/10 text-[#94D4B9]"
+              : variant === "card"
+                ? "spare-part-card__btn-filled"
+                : "bg-[#94D4B9] text-[#050B10] hover:opacity-90"),
         isIcon &&
           (outOfStock
             ? "cursor-not-allowed border-red-500/30 text-red-400"

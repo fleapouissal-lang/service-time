@@ -28,6 +28,7 @@
     "db:contact-table": "node scripts/apply-contact-table.mjs",
     "db:client-registration": "node scripts/apply-client-registration.mjs",
     "db:profile-avatars": "node scripts/apply-profile-avatars.mjs",
+    "db:profiles-avatar-storage-path": "node scripts/apply-profiles-avatar-storage-path.mjs",
     "db:delete-clients": "node scripts/delete-client-users.mjs --confirm",
     "db:client-dashboard-rls": "node scripts/apply-client-dashboard-rls.mjs",
     "db:create-service-request-rpc": "node scripts/apply-create-service-request-rpc.mjs",

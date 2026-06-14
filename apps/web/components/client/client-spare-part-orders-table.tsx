@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { Eye } from "lucide-react";
+import { useState } from "react";
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
 import {
   AdminTable,
@@ -9,6 +9,7 @@ import {
   AdminTableHead,
   AdminTableHeadCell,
 } from "@/components/admin/admin-table";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
@@ -49,6 +50,7 @@ export function ClientSparePartOrdersTable({
     from,
     to,
   } = useDashboardTablePagination(orders);
+  const [viewTarget, setViewTarget] = useState<SparePartOrderWithItems | null>(null);
 
   return (
     <>
@@ -77,8 +79,6 @@ export function ClientSparePartOrdersTable({
                 sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
               0,
             );
-            const detailHref = `/client/spare-part-orders/${order.id}`;
-
             return (
               <tr key={order.id} className="border-b border-border">
                 <AdminTableCell ltr className="min-w-[7rem]">
@@ -115,20 +115,110 @@ export function ClientSparePartOrdersTable({
                   })}
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-20">
-                  <Link
-                    href={detailHref}
+                  <button
+                    type="button"
+                    onClick={() => setViewTarget(order)}
                     className={actionBtnClass}
                     title={p.table.view}
                     aria-label={p.table.view}
                   >
                     <Eye className="size-4" aria-hidden />
-                  </Link>
+                  </button>
                 </AdminTableCell>
               </tr>
             );
           })}
         </tbody>
       </AdminTable>
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={viewTarget?.order_token ?? ""}
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.table.orderToken,
+                  value: viewTarget.order_token,
+                  ltr: true,
+                  fullWidth: true,
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant="secondary">{statusLabels[viewTarget.status]}</Badge>
+                  ),
+                },
+                {
+                  label: p.table.payment,
+                  value: (
+                    <>
+                      <span className="block">{paymentMethodLabels[viewTarget.payment_method]}</span>
+                      <span className="mt-0.5 block text-xs text-muted">
+                        {paymentStatusLabels[viewTarget.payment_status]}
+                      </span>
+                    </>
+                  ),
+                },
+                {
+                  label: p.table.total,
+                  value: formatSparePartPrice(
+                    viewTarget.items.reduce(
+                      (sum, item) =>
+                        sum +
+                        getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
+                      0,
+                    ),
+                    locale,
+                  ),
+                  ltr: true,
+                },
+                {
+                  label: p.table.date,
+                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }),
+                  ltr: true,
+                },
+                ...(viewTarget.delivery_address
+                  ? [
+                      {
+                        label: t.spareParts.deliveryAddress,
+                        value: viewTarget.delivery_address,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
+      >
+        {viewTarget && viewTarget.items.length > 0 ? (
+          <div className="mt-4">
+            <p className="mb-2 text-sm font-semibold">{t.common.products}</p>
+            <ul className="space-y-2">
+              {viewTarget.items.map((item) => (
+                <li
+                  key={item.id}
+                  className="rounded-xl border border-border p-3 text-sm"
+                >
+                  <p className="font-medium">{item.name_snapshot}</p>
+                  {item.category_snapshot ? (
+                    <p className="text-muted">{item.category_snapshot}</p>
+                  ) : null}
+                  <p className="mt-1 text-muted" dir="ltr">
+                    {formatSparePartPrice(Number(item.price_snapshot) || 0, locale)} ×{" "}
+                    {item.quantity}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
+      </DashboardDetailDialog>
 
       <DashboardTablePagination
         page={page}

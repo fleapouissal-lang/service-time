@@ -27,7 +27,17 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useEffect, useId, useRef, useState } from "react";
+import {
+  iconAccentBgClass,
+  iconAccentClass,
+} from "@/lib/card-surface";
 import type { IconSelectOption } from "@/lib/icon-select-options";
+import {
+  requestFieldShellClass,
+  requestSelectDropdownClass,
+  requestSelectOptionActiveClass,
+  requestSelectOptionClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 export type { IconSelectOption };
@@ -143,19 +153,20 @@ export function IconSelect({
         aria-expanded={open}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-11 w-full items-center gap-3 rounded-xl border border-[#94D4B9]/15 bg-[#091014] px-3 text-sm text-foreground transition-all duration-200",
-          "hover:border-[#94D4B9]/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#94D4B9]/40",
-          open && "border-[#94D4B9]/40 ring-2 ring-[#94D4B9]/25",
+          "flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-foreground transition-all duration-200",
+          requestFieldShellClass,
+          "focus-visible:outline-none",
+          open && "border-[color:var(--request-field-focus-border)] shadow-[0_0_0_2px_var(--request-field-focus-ring)]",
         )}
       >
-        <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#94D4B9]/10">
-          <SelectedIcon className="size-4 text-[#94D4B9]" aria-hidden />
+        <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", iconAccentBgClass)}>
+          <SelectedIcon className={cn("size-4", iconAccentClass)} aria-hidden />
         </span>
         <span className="flex-1 truncate text-start">{selected?.label}</span>
         <ChevronDown
           className={cn(
             "size-4 shrink-0 text-muted transition-transform duration-200",
-            open && "rotate-180 text-[#94D4B9]",
+            open && cn("rotate-180", iconAccentClass),
           )}
           aria-hidden
         />
@@ -165,7 +176,7 @@ export function IconSelect({
         <ul
           role="listbox"
           aria-labelledby={selectId}
-          className="scrollbar-theme absolute z-[1000] mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] p-1.5 shadow-[0_16px_52px_rgba(148,212,185,0.22)]"
+          className="scrollbar-theme absolute z-[1000] mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] p-1.5 request-select-dropdown"
         >
           {options.map((option, index) => {
             const Icon = resolveIcon(option.icon, FallbackIcon);
@@ -186,18 +197,18 @@ export function IconSelect({
                   onClick={() => commitValue(option.value)}
                   className={cn(
                     "flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm transition-all duration-200",
-                    isSelected
-                      ? "bg-[#94D4B9]/15 font-medium text-[#94D4B9]"
-                      : "text-foreground hover:bg-[#94D4B9]/8 hover:text-[#94D4B9]",
+                    isSelected ? requestSelectOptionActiveClass : requestSelectOptionClass,
                   )}
                 >
                   <span
                     className={cn(
                       "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
-                      isSelected ? "bg-[#94D4B9]/20" : "bg-[#94D4B9]/10",
+                      isSelected
+                        ? "bg-[color-mix(in_srgb,var(--icon-accent)_20%,transparent)]"
+                        : iconAccentBgClass,
                     )}
                   >
-                    <Icon className="size-4 text-[#94D4B9]" aria-hidden />
+                    <Icon className={cn("size-4", iconAccentClass)} aria-hidden />
                   </span>
                   <span className="flex-1 text-start">{option.label}</span>
                 </button>

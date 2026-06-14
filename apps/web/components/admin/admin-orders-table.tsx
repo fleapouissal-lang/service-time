@@ -6,16 +6,20 @@ import { deleteAdminOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
+import { ServiceRequestPhotosGallery } from "@/components/service-requests/service-request-photos-panel";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import type { ServiceRequestStatus, RequestPriority, ServiceType } from "@service-time/types";
 
 type AdminOrdersTableProps = {
   orders: ServiceRequest[];
   photoCounts: Record<string, number>;
+  photosByRequestId: Record<string, RequestPhotoRow[]>;
   statusLabels: Record<ServiceRequestStatus, string>;
   serviceTypeLabels: Record<ServiceType, string>;
   priorityLabels: Record<RequestPriority, string>;
@@ -24,6 +28,7 @@ type AdminOrdersTableProps = {
 export function AdminOrdersTable({
   orders,
   photoCounts,
+  photosByRequestId,
   statusLabels,
   serviceTypeLabels,
   priorityLabels,
@@ -32,6 +37,7 @@ export function AdminOrdersTable({
   const p = t.dashboard.admin.ordersPage;
   const intlLocale = getIntlLocale(locale);
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [pending, startTransition] = useTransition();
   const {
     pageItems,
@@ -119,7 +125,7 @@ export function AdminOrdersTable({
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
-                    viewHref={detailHref}
+                    onView={() => setViewTarget(order)}
                     editHref={detailHref}
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
@@ -141,6 +147,99 @@ export function AdminOrdersTable({
         from={from}
         to={to}
         onPageChange={setPage}
+      />
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={viewTarget?.customer_name ?? ""}
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.detail.customer,
+                  value: (
+                    <>
+                      <span className="block font-semibold">{viewTarget.customer_name}</span>
+                      <span className="mt-0.5 block text-muted" dir="ltr">
+                        {viewTarget.customer_phone}
+                      </span>
+                    </>
+                  ),
+                  fullWidth: true,
+                },
+                {
+                  label: p.detail.service,
+                  value: serviceTypeLabels[viewTarget.service_type],
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant="secondary">
+                      {statusLabels[viewTarget.status as ServiceRequestStatus]}
+                    </Badge>
+                  ),
+                },
+                {
+                  label: t.common.priority,
+                  value: (
+                    <Badge variant="outline">
+                      {priorityLabels[viewTarget.priority as RequestPriority]}
+                    </Badge>
+                  ),
+                },
+                {
+                  label: p.table.tracking,
+                  value: viewTarget.tracking_token,
+                  ltr: true,
+                },
+                {
+                  label: p.detail.date,
+                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
+                    dateStyle: "short",
+                    timeStyle: "short",
+                  }),
+                  ltr: true,
+                },
+                ...(viewTarget.car_type
+                  ? [{ label: p.detail.car, value: viewTarget.car_type }]
+                  : []),
+                ...(viewTarget.location_text
+                  ? [
+                      {
+                        label: p.detail.location,
+                        value: viewTarget.location_text,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+                ...(viewTarget.description
+                  ? [
+                      {
+                        label: t.common.description,
+                        value: viewTarget.description,
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+                ...((photosByRequestId[viewTarget.id] ?? []).length > 0
+                  ? [
+                      {
+                        label: p.table.photo,
+                        value: (
+                          <ServiceRequestPhotosGallery
+                            requestId={viewTarget.id}
+                            photos={photosByRequestId[viewTarget.id] ?? []}
+                          />
+                        ),
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
       />
 
       <AdminConfirmDialog

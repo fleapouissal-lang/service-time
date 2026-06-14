@@ -2,6 +2,7 @@ import { togglePlatformUserAction } from "@/app/admin/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getRoleLabels, getTechnicianTypeLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -24,18 +25,13 @@ export async function PlatformUsersList({ users }: { users: Profile[] }) {
         <Card key={user.id}>
           <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
             <div className="flex items-center gap-4">
-              {user.avatar_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={user.avatar_url}
-                  alt=""
-                  className="size-14 rounded-full object-cover ring-2 ring-primary/20"
-                />
-              ) : (
-                <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-lg font-bold text-primary">
-                  {displayName.slice(0, 1)}
-                </div>
-              )}
+              <ProfileAvatar
+                userId={user.id}
+                fullName={displayName}
+                avatarUrl={user.avatar_url}
+                avatarVersion={user.updated_at}
+                size="xl"
+              />
               <div>
                 <p className="font-semibold">{displayName}</p>
                 <p className="text-sm text-muted" dir="ltr">

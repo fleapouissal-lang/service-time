@@ -42,11 +42,15 @@ type ContactVerificationStep = {
 };
 
 function SettingsAvatarField({
+  userId,
   fullName,
   avatarUrl,
+  avatarVersion,
 }: {
+  userId: string;
   fullName: string;
   avatarUrl: string | null;
+  avatarVersion?: string | null;
 }) {
   const { messages: t } = useLocale();
   const s = t.dashboard.settings;
@@ -80,8 +84,10 @@ function SettingsAvatarField({
             />
           ) : (
             <ProfileAvatar
+              userId={userId}
               fullName={fullName}
               avatarUrl={avatarUrl}
+              avatarVersion={avatarVersion}
               size="md"
               className="!size-20 !text-2xl"
             />
@@ -268,8 +274,10 @@ export function DashboardSettingsPanel({
             className="space-y-5"
           >
             <SettingsAvatarField
+              userId={profile.id}
               fullName={displayName}
               avatarUrl={profile.avatar_url}
+              avatarVersion={profile.updated_at}
             />
 
             <div className="grid gap-4 sm:grid-cols-2">

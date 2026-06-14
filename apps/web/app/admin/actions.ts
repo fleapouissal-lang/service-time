@@ -773,6 +773,7 @@ export async function createPlatformUserAction(formData: FormData) {
 
   const userId = created.user.id;
   let avatarUrl: string | null = null;
+  let avatarStoragePath: string | null = null;
 
   if (avatarFile) {
     const uploaded = await uploadProfileAvatar(userId, avatarFile);
@@ -781,6 +782,7 @@ export async function createPlatformUserAction(formData: FormData) {
       throw new Error(uploaded.error);
     }
     avatarUrl = uploaded.publicUrl;
+    avatarStoragePath = uploaded.storagePath;
   }
 
   const { error: profileError } = await admin.from("profiles").upsert(
@@ -794,6 +796,7 @@ export async function createPlatformUserAction(formData: FormData) {
       technician_type: technicianType,
       is_active: true,
       avatar_url: avatarUrl,
+      avatar_storage_path: avatarStoragePath,
     },
     { onConflict: "id" },
   );
@@ -826,6 +829,7 @@ export type PlatformUserEditData = {
   role: ProfileRole;
   technician_type: TechnicianType | null;
   avatar_url: string | null;
+  updated_at: string;
 };
 
 export async function getPlatformUserEditDataAction(
@@ -841,7 +845,7 @@ export async function getPlatformUserEditDataAction(
   const { data: profile, error } = await admin
     .from("profiles")
     .select(
-      "id, full_name, full_name_ar, full_name_en, phone, role, technician_type, avatar_url",
+      "id, full_name, full_name_ar, full_name_en, phone, role, technician_type, avatar_url, updated_at",
     )
     .eq("id", userId)
     .maybeSingle();
@@ -870,6 +874,7 @@ export async function getPlatformUserEditDataAction(
     role: profile.role as ProfileRole,
     technician_type: profile.technician_type as TechnicianType | null,
     avatar_url: profile.avatar_url,
+    updated_at: profile.updated_at,
   };
 }
 

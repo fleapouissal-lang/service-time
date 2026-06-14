@@ -8,12 +8,18 @@ import {
 } from "@/components/request/request-form-shell";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
+import {
+  requestAccentTextClass,
+  requestDividerLabelClass,
+  requestDividerLineClass,
+} from "@/lib/request-styles";
 import { openWhatsApp } from "@/lib/open-whatsapp";
 import {
   buildWhatsAppQuickContactUrl,
   getPublicWhatsAppDigits,
 } from "@/lib/whatsapp-utils";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { cn } from "@/lib/utils";
 
 export function WhatsAppQuickContact() {
   const { messages: t } = useLocale();
@@ -54,15 +60,15 @@ export function WhatsAppQuickContact() {
       <WhatsAppOpenButton href={directHref} label={form.submitDirect} />
 
       <div className="relative text-center text-xs text-muted">
-        <span className="relative z-10 bg-[#091014] px-3">{form.or}</span>
+        <span className={cn("relative z-10 px-3", requestDividerLabelClass)}>{form.or}</span>
         <div
-          className="absolute inset-x-0 top-1/2 border-t border-[#94D4B9]/15"
+          className={cn("absolute inset-x-0 top-1/2 border-t", requestDividerLineClass)}
           aria-hidden
         />
       </div>
 
       <form onSubmit={onSubmit} className="space-y-5">
-        <p className="text-sm font-medium text-[#94D4B9]">{form.optionalFields}</p>
+        <p className={cn("text-sm font-medium", requestAccentTextClass)}>{form.optionalFields}</p>
 
         <div>
           <Label htmlFor="wa_name">{form.name}</Label>

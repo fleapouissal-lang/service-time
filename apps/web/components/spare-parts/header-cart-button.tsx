@@ -32,14 +32,14 @@ export function HeaderCartButton({
       className={cn(
         "relative inline-flex size-10 shrink-0 items-center justify-center rounded-[20px] transition-colors",
         isTransparent
-          ? "text-white hover:bg-white/10"
-          : "text-[#94D4B9] hover:bg-[#94D4B9]/10",
+          ? "header-chrome-text hover:bg-[color-mix(in_srgb,var(--header-chrome-surface-bg)_60%,var(--header-chrome-fg)_40%)]"
+          : "text-[var(--site-header-fg)] hover:bg-white/10",
       )}
       aria-label={`${t.spareParts.cart} (${cart.totalCount})`}
       title={t.spareParts.headerCart}
     >
       <ShoppingCart className="size-5" aria-hidden />
-      <span className="pointer-events-none absolute -top-0.5 -end-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[#94D4B9] px-1.5 py-0.5 text-[10px] font-bold text-[#050B10]">
+      <span className="pointer-events-none absolute -top-0.5 -end-0.5 inline-flex min-w-5 items-center justify-center rounded-full bg-[var(--site-header-btn-filled-bg)] px-1.5 py-0.5 text-[10px] font-bold text-[var(--site-header-btn-filled-text)]">
         {cart.totalCount}
       </span>
     </button>

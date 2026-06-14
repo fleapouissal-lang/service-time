@@ -3,6 +3,7 @@
 import { Plus, Sparkles, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { ProductImageStudioModal } from "@/components/admin/product-image-studio-modal";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { ProductImageStudioSettings } from "@/lib/product-image-studio";
 import { cn } from "@/lib/utils";
@@ -299,7 +300,10 @@ export function MultiPhotoUploadField({
                   <button
                     type="button"
                     onClick={() => editPendingInStudio(pending)}
-                    className="flex size-7 items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#050B10]/90 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
+                    className={cn(
+                      "flex size-7 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_45%,transparent)] bg-[#050B10]/90 transition-colors hover:bg-[var(--icon-accent-bg)]",
+                      iconAccentClass,
+                    )}
                     aria-label={p.editPhotoStudio}
                   >
                     <Sparkles className="size-3.5" aria-hidden />
@@ -333,7 +337,7 @@ export function MultiPhotoUploadField({
             aria-hidden
           />
           <span className="flex size-12 items-center justify-center rounded-full border border-[#94D4B9]/45 bg-[#091014]">
-            <Plus className="size-6 text-[#94D4B9]" strokeWidth={1.5} aria-hidden />
+            <Plus className={cn("size-6", iconAccentClass)} strokeWidth={1.5} aria-hidden />
           </span>
         </div>
 

@@ -8,6 +8,15 @@ import {
   buildWhatsAppQuickContactUrl,
   getPublicWhatsAppDigits,
 } from "@/lib/whatsapp-utils";
+import {
+  requestCardBtnClass,
+  requestCardBadgeClass,
+  requestCardDescClass,
+  requestCardInteractiveClass,
+  requestCardTitleClass,
+  requestTabActiveClass,
+  requestTabClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -53,10 +62,8 @@ export function RequestModeTabs({ active }: { active: RequestMode }) {
       {tabs.map(({ mode, label, href, external }) => {
         const isActive = active === mode;
         const className = cn(
-          "inline-flex h-11 items-center rounded-full px-5 text-sm font-semibold transition-colors",
-          isActive
-            ? "bg-[#94D4B9] text-[#050B10]"
-            : "border border-[#94D4B9]/20 bg-[#091014] text-foreground hover:border-[#94D4B9]/40",
+          requestTabClass,
+          isActive && requestTabActiveClass,
           mode === "whatsapp" &&
             !isActive &&
             "border-[#25D366]/30 hover:border-[#25D366]/50",
@@ -113,37 +120,49 @@ function HubCard({
   external = false,
   accent = "primary",
 }: HubCardProps) {
+  const { locale } = useLocale();
+  const isRtl = locale === "ar";
+
   const className = cn(
-    "group flex min-h-0 flex-col rounded-[20px] border bg-[#091014] transition-all",
-    "max-md:min-h-[11rem] max-md:p-5",
-    "md:h-full md:p-6",
-    accent === "whatsapp"
-      ? "border-[#25D366]/30 hover:border-[#25D366]/60 hover:shadow-[0_8px_32px_rgba(37,211,102,0.12)]"
-      : "border-[#94D4B9]/10 hover:border-[#94D4B9]/30 hover:shadow-[0_8px_32px_rgba(148,212,185,0.08)]",
+    "request-hub-card group relative flex min-h-0 flex-col text-start transition-all",
+    requestCardInteractiveClass,
+    "max-md:min-h-[11rem] max-md:p-5 md:h-full md:p-6",
+    accent === "whatsapp" && "request-hub-card--whatsapp",
   );
 
   const inner = (
     <>
-      <div className="flex shrink-0 justify-end">
-        <span className="rounded-full border border-[#94D4B9]/15 bg-[#050B10] px-2.5 py-1 text-[11px] font-medium text-muted-foreground max-md:leading-tight md:text-xs">
-          {badge}
-        </span>
-      </div>
+      <span
+        className={cn(
+          requestCardBadgeClass,
+          "absolute top-4 start-4 z-10 rounded-full px-2.5 py-1 text-[11px] font-semibold max-md:leading-tight md:top-6 md:start-6 md:text-xs",
+        )}
+      >
+        {badge}
+      </span>
 
-      <div className="flex shrink-0 flex-col max-md:mt-3 max-md:gap-1.5 md:mt-3">
-        <h2 className="line-clamp-2 font-bold max-md:text-base max-md:leading-6 md:text-lg">
-          {title}
-        </h2>
-        <p className="line-clamp-3 text-muted max-md:text-sm max-md:leading-[1.45] md:mt-2 md:flex-1 md:text-sm md:leading-7">
-          {description}
-        </p>
-      </div>
+      <h2
+        className={cn(
+          requestCardTitleClass,
+          "mt-10 line-clamp-2 max-md:mt-9 max-md:text-base max-md:leading-6 md:mt-11 md:text-lg md:leading-7",
+        )}
+      >
+        {title}
+      </h2>
+
+      <p
+        className={cn(
+          requestCardDescClass,
+          "mt-2 line-clamp-3 flex-1 max-md:text-sm max-md:leading-[1.45] md:text-sm md:leading-7",
+        )}
+      >
+        {description}
+      </p>
 
       <span
         className={cn(
-          "inline-flex w-full shrink-0 items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] font-semibold text-[#050B10] transition-opacity group-hover:opacity-90",
-          "max-md:mt-4 max-md:h-11 max-md:px-4 max-md:text-sm",
-          "md:mt-5 md:h-11 md:px-4 md:text-sm",
+          requestCardBtnClass,
+          "mt-4 max-md:h-11 max-md:px-4 max-md:text-sm md:mt-5 md:h-11 md:px-4 md:text-sm",
         )}
       >
         {actionLabel}
@@ -159,6 +178,7 @@ function HubCard({
         target="_blank"
         rel="noopener noreferrer"
         className={className}
+        dir={isRtl ? "rtl" : "ltr"}
       >
         {inner}
       </a>
@@ -166,7 +186,7 @@ function HubCard({
   }
 
   return (
-    <Link href={href} className={className}>
+    <Link href={href} className={className} dir={isRtl ? "rtl" : "ltr"}>
       {inner}
     </Link>
   );

@@ -2,6 +2,7 @@
 
 import { Plus } from "lucide-react";
 import { useEffect, useState } from "react";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -113,7 +114,7 @@ export function PhotoUploadField({
                 )}
               >
                 <Plus
-                  className={cn("text-[#94D4B9]", compact ? "size-5" : "size-7")}
+                  className={cn(iconAccentClass, compact ? "size-5" : "size-7")}
                   strokeWidth={1.5}
                   aria-hidden
                 />

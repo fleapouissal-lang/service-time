@@ -12,7 +12,7 @@ export function SiteFooter() {
   const email = "info@servicetime.sa";
 
   return (
-    <footer className="site-footer relative rounded-t-[20px] bg-[#050B10] text-white">
+    <footer className="site-footer relative rounded-t-[20px] bg-site-footer text-[var(--site-chrome-text)]">
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-3">
         <div className="text-start">
           <Link href="/" className="inline-block">
@@ -24,13 +24,13 @@ export function SiteFooter() {
               className="h-14 w-auto max-w-full object-contain brightness-[1.12] contrast-[1.05]"
             />
           </Link>
-          <p className="mt-4 text-sm leading-7 text-white/85">
+          <p className="mt-4 text-sm leading-7 text-[var(--site-chrome-text-muted)]">
             {messages.footer.tagline}
           </p>
         </div>
 
         <div className="text-start">
-          <p className="font-semibold text-[#94D4B9]">
+          <p className="font-semibold text-[var(--site-chrome-accent)]">
             {messages.footer.quickLinks}
           </p>
           <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2 text-sm md:grid-cols-1 md:space-y-2">
@@ -38,7 +38,7 @@ export function SiteFooter() {
               <li key={link.href}>
                 <Link
                   href={link.href}
-                  className="font-normal text-white transition-all duration-200 hover:font-bold hover:text-white"
+                  className="font-normal text-[var(--site-chrome-text)] transition-all duration-200 hover:font-bold"
                 >
                   {link.label}
                 </Link>
@@ -48,7 +48,7 @@ export function SiteFooter() {
         </div>
 
         <div className="text-start">
-          <p className="font-semibold text-[#94D4B9]">
+          <p className="font-semibold text-[var(--site-chrome-accent)]">
             {messages.footer.contact}
           </p>
           <ul className="mt-3 grid grid-cols-3 gap-x-3 gap-y-2 text-xs leading-snug sm:text-sm md:grid-cols-1 md:space-y-2.5">
@@ -56,7 +56,7 @@ export function SiteFooter() {
               <a
                 href={`tel:${phone.replace(/[^\d+]/g, "")}`}
                 dir="ltr"
-                className="inline-block font-normal text-white transition-all duration-200 hover:font-bold"
+                className="inline-block font-normal text-[var(--site-chrome-text)] transition-all duration-200 hover:font-bold"
               >
                 {phone}
               </a>
@@ -65,19 +65,19 @@ export function SiteFooter() {
               <a
                 href={`mailto:${email}`}
                 dir="ltr"
-                className="inline-block break-all font-normal text-white transition-all duration-200 hover:font-bold"
+                className="inline-block break-all font-normal text-[var(--site-chrome-text)] transition-all duration-200 hover:font-bold"
               >
                 {email}
               </a>
             </li>
-            <li className="text-white/85 md:leading-7">
+            <li className="text-[var(--site-chrome-text-muted)] md:leading-7">
               {messages.footer.location}
             </li>
           </ul>
         </div>
       </div>
 
-      <div className="relative border-t border-[#94D4B9]/10 py-4 text-center text-xs text-white/60">
+      <div className="relative border-t border-[var(--site-chrome-border)] py-4 text-center text-xs text-[var(--site-chrome-text-muted)]">
         © {new Date().getFullYear()} Service Time. {messages.footer.rights}
       </div>
     </footer>

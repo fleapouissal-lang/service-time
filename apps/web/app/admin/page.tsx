@@ -21,7 +21,7 @@ import {
   WeeklyTrendChart,
 } from "@/components/dashboard/dashboard-charts";
 import { StatCard } from "@/components/dashboard/stat-card";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import {
   buildDashboardKpis,
   buildPriorityChartData,
@@ -33,7 +33,7 @@ import {
   getAdminServiceRequests,
   getUserRoleStats,
 } from "@/lib/admin-dashboard-data";
-import { getOverviewPeriodLabel, getOverviewTrendTitle, getStatusLabels } from "@/lib/i18n/labels";
+import { getOverviewPeriodLabel, getOverviewTrendTitle, getPriorityLabels, getStatusLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
   buildOverviewTrend,
@@ -64,6 +64,7 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
   const kpis = buildDashboardKpis(orders);
   const periodLabel = getOverviewPeriodLabel(t, params.period);
   const statusLabels = getStatusLabels(t);
+  const priorityLabels = getPriorityLabels(t);
   const inProgress =
     (kpis.byStatus.in_progress ?? 0) + (kpis.byStatus.on_the_way ?? 0);
 
@@ -249,29 +250,28 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
       />
 
       <Card>
-        <CardContent className="p-6">
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold">
-              {t.dashboard.common.ordersForPeriod} — {periodLabel}
-            </h2>
-            <Link
-              href="/admin/orders"
-              className="text-sm font-semibold text-primary"
-            >
-              {t.dashboard.common.manageOrders}
-            </Link>
-          </div>
-          {orders.length === 0 ? (
-            <p className="text-sm text-muted">
-              {`${t.dashboard.admin.noOrdersInPeriod} ${periodLabel}.`}
-            </p>
-          ) : (
-            <AdminOverviewOrdersTable
-              orders={orders}
-              statusLabels={statusLabels}
-            />
-          )}
-        </CardContent>
+        <div className="flex flex-wrap items-center justify-between gap-3 p-6 pb-4">
+          <h2 className="text-lg font-semibold">
+            {t.dashboard.common.ordersForPeriod} — {periodLabel}
+          </h2>
+          <Link
+            href="/admin/orders"
+            className="text-sm font-semibold text-primary hover:underline"
+          >
+            {t.dashboard.common.manageOrders}
+          </Link>
+        </div>
+        {orders.length === 0 ? (
+          <p className="px-6 pb-6 text-sm text-muted">
+            {`${t.dashboard.admin.noOrdersInPeriod} ${periodLabel}.`}
+          </p>
+        ) : (
+          <AdminOverviewOrdersTable
+            orders={orders}
+            statusLabels={statusLabels}
+            priorityLabels={priorityLabels}
+          />
+        )}
       </Card>
     </div>
   );

@@ -11,6 +11,8 @@ import {
 } from "@/lib/localized-content";
 import type { Service } from "@service-time/types";
 import { cn } from "@/lib/utils";
+import { serviceTagPillSmClass } from "@/lib/section-styles";
+import { surfaceCardClass } from "@/lib/card-surface";
 
 function ServiceIcon({
   type,
@@ -19,7 +21,7 @@ function ServiceIcon({
   type: Service["service_type"];
   large?: boolean;
 }) {
-  const className = cn("text-[#94D4B9]", large ? "size-7 sm:size-6" : "size-6");
+  const className = cn("service-card__icon", large ? "size-7 sm:size-6" : "size-6");
   if (type === "emergency") return <Truck className={className} />;
   if (type === "spare_parts") return <Car className={className} />;
   return <Wrench className={className} />;
@@ -52,7 +54,8 @@ export function ServiceCard({
     <Card
       dir={isArabic ? "rtl" : "ltr"}
       className={cn(
-        "group rounded-2xl border border-[#94D4B9]/10 bg-[#091014] shadow-[0_4px_24px_rgba(148,212,185,0.06)] transition-all duration-300 ease-out hover:-translate-y-1.5 hover:border-[#94D4B9]/30 hover:shadow-[0_16px_52px_rgba(148,212,185,0.28)] sm:rounded-[20px]",
+        "service-card group rounded-2xl sm:rounded-[20px]",
+        surfaceCardClass,
         isGrid && "flex h-full min-h-0 flex-col",
       )}
     >
@@ -73,19 +76,14 @@ export function ServiceCard({
         >
           <span
             className={cn(
-              "inline-flex transition-transform duration-300 group-hover:scale-110",
+              "service-card__icon-wrap inline-flex",
               isArabic ? "origin-right" : "origin-left",
             )}
           >
             <ServiceIcon type={service.service_type} large={isGrid} />
           </span>
           {category ? (
-            <span
-              className={cn(
-                "shrink-0 rounded-[20px] bg-[#94D4B9] font-semibold text-[#050B10]",
-                "px-2.5 py-0.5 text-[11px] sm:px-3 sm:py-1 sm:text-xs",
-              )}
-            >
+            <span className={cn("shrink-0", serviceTagPillSmClass)}>
               {category}
             </span>
           ) : null}
@@ -99,7 +97,7 @@ export function ServiceCard({
         >
           <h3
             className={cn(
-              "font-semibold transition-colors duration-300 group-hover:text-[#94D4B9]",
+              "service-card__title",
               isGrid
                 ? "line-clamp-2 text-[0.95rem] leading-6 sm:text-lg sm:leading-7"
                 : "text-lg",
@@ -109,7 +107,7 @@ export function ServiceCard({
           </h3>
           <p
             className={cn(
-              "text-muted",
+              "service-card__desc",
               isGrid
                 ? "line-clamp-3 text-[0.8125rem] leading-5 sm:line-clamp-2 sm:text-sm sm:leading-7"
                 : "mt-2 text-sm leading-7",
@@ -122,7 +120,7 @@ export function ServiceCard({
         <Link
           href={ctaHref}
           className={cn(
-            "inline-flex w-full shrink-0 items-center justify-center rounded-[20px] bg-[#94D4B9] font-semibold text-[#050B10] transition-all duration-300 hover:opacity-90",
+            "service-card__cta inline-flex w-full shrink-0 items-center justify-center rounded-[20px] font-semibold transition-all duration-300",
             isGrid ? "h-10 text-sm max-sm:h-11 sm:h-11" : "mt-4 h-10 text-sm sm:h-11",
             !isGrid && "mt-4",
             showCtaAlways

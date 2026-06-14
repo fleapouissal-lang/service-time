@@ -2,15 +2,19 @@
 
 import { type LucideIcon } from "lucide-react";
 import * as React from "react";
+import { iconAccentBgClass, iconAccentClass } from "@/lib/card-surface";
+import { requestFieldShellClass } from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
-const fieldShellClass =
-  "flex w-full items-center gap-3 rounded-xl border border-[#94D4B9]/15 bg-[#091014] px-3 transition-all duration-200 hover:border-[#94D4B9]/30 focus-within:border-[#94D4B9]/40 focus-within:ring-2 focus-within:ring-[#94D4B9]/25";
+const fieldShellClass = cn(
+  "flex w-full items-center gap-3 rounded-xl px-3 transition-all duration-200",
+  requestFieldShellClass,
+);
 
 function FieldIcon({ icon: Icon }: { icon: LucideIcon }) {
   return (
-    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-[#94D4B9]/10">
-      <Icon className="size-4 text-[#94D4B9]" aria-hidden />
+    <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", iconAccentBgClass)}>
+      <Icon className={cn("size-4", iconAccentClass)} aria-hidden />
     </span>
   );
 }

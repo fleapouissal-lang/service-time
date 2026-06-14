@@ -1,9 +1,9 @@
 import { cn } from "@/lib/utils";
 
-export const adminTableWrapClass = "overflow-x-auto";
+export const adminTableWrapClass = "admin-table-wrap overflow-x-auto";
 
 export const adminTableClass =
-  "w-full min-w-[960px] border-collapse text-sm [&_th]:align-middle [&_td]:align-middle";
+  "admin-table w-full min-w-[960px] border-separate border-spacing-0 text-sm [&_th]:align-middle [&_td]:align-middle";
 
 export function AdminTable({
   className,
@@ -28,7 +28,7 @@ export function AdminTableHead({
 }) {
   return (
     <thead>
-      <tr className={cn("border-b border-border bg-muted/30", className)}>
+      <tr className={cn("admin-table-head", className)}>
         {children}
       </tr>
     </thead>
@@ -47,7 +47,7 @@ export function AdminTableHeadCell({
   return (
     <th
       className={cn(
-        "px-4 py-3 font-medium text-muted whitespace-nowrap",
+        "admin-table-head-cell px-4 py-3 font-medium whitespace-nowrap",
         align === "center" && "text-center",
         align === "end" && "text-end",
         align === "start" && "text-start",

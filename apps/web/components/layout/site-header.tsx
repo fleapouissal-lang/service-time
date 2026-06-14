@@ -7,13 +7,12 @@ import { useEffect, useState } from "react";
 import { HeaderAuthSection } from "@/components/layout/header-auth-section";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { MobileAccountButton } from "@/components/layout/mobile-account-button";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { HeaderCartButton } from "@/components/spare-parts/header-cart-button";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getNavLinks } from "@/lib/i18n/nav";
 import { cn } from "@/lib/utils";
 
-const HEADER_BG = "bg-[#050B10]";
-const HEADER_FG = "text-[#94D4B9]";
 const SCROLL_THRESHOLD = 24;
 
 function navLinkClass(active: boolean, transparent: boolean) {
@@ -21,17 +20,20 @@ function navLinkClass(active: boolean, transparent: boolean) {
     return cn(
       "px-3 py-2 text-sm font-medium transition-all duration-200",
       active
-        ? "-translate-y-0.5 border-b-2 border-[#94D4B9] pb-1.5 font-semibold text-[#94D4B9]"
-        : "border-b-2 border-transparent pb-1.5 text-white hover:text-[#94D4B9]",
+        ? cn(
+            "-translate-y-0.5 border-b-2 pb-1.5 font-semibold header-chrome-nav-link--active",
+          )
+        : cn(
+            "border-b-2 border-transparent pb-1.5 header-chrome-nav-link",
+          ),
     );
   }
 
   return cn(
-    "px-3 py-2 text-sm font-medium transition-all duration-200",
-    HEADER_FG,
+    "px-3 py-2 text-sm font-medium transition-all duration-200 text-[var(--site-header-fg)]",
     active
-      ? "-translate-y-0.5 border-b-2 border-[#94D4B9] pb-1.5 font-semibold"
-      : "border-b-2 border-transparent pb-1.5 hover:text-white",
+      ? "-translate-y-0.5 border-b-2 border-[var(--site-header-link-active-border)] pb-1.5 font-semibold text-[var(--site-header-fg)]"
+      : "border-b-2 border-transparent pb-1.5 hover:text-[var(--site-header-fg-hover)]",
   );
 }
 
@@ -57,14 +59,14 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-all duration-300",
+        "sticky top-0 z-50 transition-all duration-300 max-md:rounded-b-[20px]",
         isTransparent
-          ? "bg-transparent md:rounded-b-[20px]"
-          : cn("rounded-b-[20px]", HEADER_BG),
+          ? "site-header-transparent bg-transparent md:rounded-b-[20px]"
+          : "rounded-b-[20px] bg-site-header",
         scrolled && "site-header-scrolled",
         isHome
           ? "max-md:bg-transparent max-md:backdrop-blur-none"
-          : "max-md:bg-[#050B10]/95 max-md:backdrop-blur-md",
+          : "max-md:bg-site-header/95 max-md:backdrop-blur-md",
       )}
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">
@@ -95,12 +97,14 @@ export function SiteHeader() {
         </nav>
 
         <div className="hidden shrink-0 items-center gap-1.5 lg:flex xl:gap-2">
+          <ThemeToggle isTransparent={isTransparent} />
           <LanguageSwitcher isTransparent={isTransparent} />
           <HeaderCartButton isTransparent={isTransparent} />
           <HeaderAuthSection isTransparent={isTransparent} variant="desktop" />
         </div>
 
         <div className="relative z-10 flex shrink-0 items-center gap-1.5 lg:hidden">
+          <ThemeToggle isTransparent={isTransparent} compact />
           <LanguageSwitcher isTransparent={isTransparent} compact />
           <HeaderCartButton isTransparent={isTransparent} />
           <MobileAccountButton isTransparent={isTransparent} />

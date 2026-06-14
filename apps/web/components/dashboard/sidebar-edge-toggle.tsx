@@ -34,28 +34,6 @@ export function SidebarEdgeToggle({
     >
       <div
         className={cn(
-          "absolute w-[2px] bg-[#050B10]/15",
-          isRtl ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2",
-        )}
-        style={{
-          top: 0,
-          height: `calc(50% - ${NOTCH_HALF}px)`,
-        }}
-      />
-
-      <div
-        className={cn(
-          "absolute w-[2px] bg-[#050B10]/15",
-          isRtl ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2",
-        )}
-        style={{
-          bottom: 0,
-          height: `calc(50% - ${NOTCH_HALF}px)`,
-        }}
-      />
-
-      <div
-        className={cn(
           "pointer-events-auto absolute top-1/2 -translate-y-1/2",
           isRtl ? "left-0 -translate-x-1/2" : "right-0 translate-x-1/2",
         )}

@@ -2,7 +2,14 @@
 
 import { useRef, useState } from "react";
 import { Camera, X } from "lucide-react";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { resolveProfileAvatarSrc } from "@/lib/profile-avatar-url";
+import {
+  loginHintClass,
+  loginLabelClass,
+  loginLinkClass,
+} from "@/lib/login-styles";
 import { cn } from "@/lib/utils";
 
 type ProfileAvatarPickerProps = {
@@ -11,6 +18,8 @@ type ProfileAvatarPickerProps = {
   hint?: string;
   className?: string;
   defaultAvatarUrl?: string | null;
+  defaultUserId?: string;
+  defaultAvatarVersion?: string | null;
   onChange?: (file: File | null) => void;
 };
 
@@ -20,6 +29,8 @@ export function ProfileAvatarPicker({
   hint,
   className,
   defaultAvatarUrl = null,
+  defaultUserId,
+  defaultAvatarVersion,
   onChange,
 }: ProfileAvatarPickerProps) {
   const { messages: t } = useLocale();
@@ -28,7 +39,15 @@ export function ProfileAvatarPicker({
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
-  const displayUrl = preview ?? defaultAvatarUrl;
+  const displayUrl =
+    preview ??
+    (defaultUserId && defaultAvatarUrl
+      ? resolveProfileAvatarSrc(
+          defaultUserId,
+          defaultAvatarUrl,
+          defaultAvatarVersion,
+        )
+      : defaultAvatarUrl);
 
   function clearSelection() {
     setPreview(null);
@@ -56,7 +75,7 @@ export function ProfileAvatarPicker({
 
   return (
     <div className={cn("space-y-2", className)}>
-      <p className="text-sm font-medium text-white">{resolvedLabel}</p>
+      <p className={cn("text-sm font-medium", loginLabelClass)}>{resolvedLabel}</p>
       <div className="flex items-center gap-4">
         <button
           type="button"
@@ -72,7 +91,7 @@ export function ProfileAvatarPicker({
               className="size-full object-cover"
             />
           ) : (
-            <Camera className="size-7 text-[#94D4B9]" aria-hidden />
+            <Camera className={cn("size-7", iconAccentClass)} aria-hidden />
           )}
         </button>
 
@@ -80,16 +99,16 @@ export function ProfileAvatarPicker({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="text-sm font-semibold text-[#94D4B9] hover:underline"
+            className={cn("text-sm font-semibold hover:underline", loginLinkClass)}
           >
             {preview ? t.register.avatarChange : t.register.avatarChoose}
           </button>
           {fileName ? (
-            <p className="mt-1 truncate text-xs text-white/50" dir="ltr">
+            <p className={cn("mt-1 truncate text-xs", loginHintClass)} dir="ltr">
               {fileName}
             </p>
           ) : (
-            <p className="mt-1 text-xs text-white/50">{resolvedHint}</p>
+            <p className={cn("mt-1 text-xs", loginHintClass)}>{resolvedHint}</p>
           )}
           {preview ? (
             <button

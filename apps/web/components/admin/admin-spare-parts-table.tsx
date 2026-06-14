@@ -7,10 +7,15 @@ import { deleteSparePartAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTable, AdminTableCell, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice } from "@/lib/format-price";
-import { getSparePartCategory, getSparePartName } from "@/lib/localized-content";
+import {
+  getSparePartCategory,
+  getSparePartDetails,
+  getSparePartName,
+} from "@/lib/localized-content";
 import { getSparePartCoverImage } from "@/lib/spare-part-images";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -23,6 +28,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [deleteTarget, setDeleteTarget] = useState<SparePart | null>(null);
+  const [viewTarget, setViewTarget] = useState<SparePart | null>(null);
   const [pending, startTransition] = useTransition();
   const {
     pageItems,
@@ -105,7 +111,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
-                    viewHref={`/admin/spare-parts/${part.id}`}
+                    onView={() => setViewTarget(part)}
                     editHref={`/admin/spare-parts/${part.id}`}
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
@@ -128,6 +134,62 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
         to={to}
         onPageChange={setPage}
       />
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={viewTarget ? getSparePartName(viewTarget, locale) : ""}
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: t.common.category,
+                  value: getSparePartCategory(viewTarget, locale) ?? t.common.dash,
+                },
+                {
+                  label: p.table.price,
+                  value: formatSparePartPrice(viewTarget.price, locale),
+                  ltr: true,
+                },
+                {
+                  label: p.table.stock,
+                  value: viewTarget.stock_quantity,
+                  ltr: true,
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant={viewTarget.is_active ? "success" : "outline"}>
+                      {viewTarget.is_active ? t.common.active : t.common.inactive}
+                    </Badge>
+                  ),
+                },
+                ...(getSparePartDetails(viewTarget, locale)
+                  ? [
+                      {
+                        label: t.common.description,
+                        value: getSparePartDetails(viewTarget, locale),
+                        fullWidth: true,
+                      },
+                    ]
+                  : []),
+              ]
+            : []
+        }
+      >
+        {viewTarget && getSparePartCoverImage(viewTarget) ? (
+          <div className="mt-4 flex justify-center">
+            <Image
+              src={getSparePartCoverImage(viewTarget)!}
+              alt={getSparePartName(viewTarget, locale)}
+              width={160}
+              height={160}
+              className="size-40 rounded-xl border border-border object-cover"
+            />
+          </div>
+        ) : null}
+      </DashboardDetailDialog>
 
       <AdminConfirmDialog
         open={Boolean(deleteTarget)}

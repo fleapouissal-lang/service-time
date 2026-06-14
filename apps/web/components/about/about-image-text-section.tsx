@@ -1,5 +1,9 @@
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import {
+  sectionEyebrowClass,
+  sectionTitleH2MdClass,
+} from "@/lib/section-styles";
 
 type AboutImageTextSectionProps = {
   eyebrow: string;
@@ -51,11 +55,11 @@ export function AboutImageTextSection({
           reverse ? "lg:col-start-2 lg:row-start-1" : "lg:col-start-1 lg:row-start-1",
         )}
       >
-        <p className="text-sm font-semibold text-[#94D4B9]">{eyebrow}</p>
-        <h2 className="font-poppins text-2xl font-bold leading-tight text-white sm:text-3xl">
+        <p className={sectionEyebrowClass}>{eyebrow}</p>
+        <h2 className={sectionTitleH2MdClass}>
           {title}{" "}
           {highlight ? (
-            <span className="text-[#94D4B9]">{highlight}</span>
+            <span className="text-[var(--section-eyebrow)]">{highlight}</span>
           ) : null}
         </h2>
         <div className="space-y-3">

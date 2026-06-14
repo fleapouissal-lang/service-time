@@ -18,7 +18,7 @@ export function SparePartPrice({
   return (
     <span
       className={cn(
-        "font-bold text-[#94D4B9]",
+        "spare-part-price font-bold",
         size === "sm" && "text-sm",
         size === "md" && "text-base",
         size === "lg" && "text-xl",

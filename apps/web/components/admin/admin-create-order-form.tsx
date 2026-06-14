@@ -334,13 +334,16 @@ export function AdminCreateOrderForm({
                 <div className="space-y-3">
                   <Label htmlFor="client-search">{p.selectClient}</Label>
                   <div className="relative">
-                    <Search className="pointer-events-none absolute top-1/2 right-3 size-4 -translate-y-1/2 text-muted" />
+                    <Search
+                      className="pointer-events-none absolute top-1/2 start-3 size-4 -translate-y-1/2 text-muted"
+                      aria-hidden
+                    />
                     <Input
                       id="client-search"
                       value={clientSearch}
                       onChange={(event) => setClientSearch(event.target.value)}
                       placeholder={p.searchClient}
-                      className="pe-10"
+                      className="ps-10"
                     />
                   </div>
                   <ul className="scrollbar-theme max-h-64 space-y-2 overflow-y-auto rounded-xl border border-border p-2">

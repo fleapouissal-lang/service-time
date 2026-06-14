@@ -10,7 +10,13 @@ import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { FormSecurityFields } from "@/components/forms/form-security-fields";
+import {
+  requestAccentTextClass,
+  requestBtnFilledClass,
+  requestSuccessBannerClass,
+} from "@/lib/request-styles";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { cn } from "@/lib/utils";
 import {
   contactValidationErrorMessage,
   validateQuickRequestContact,
@@ -83,7 +89,7 @@ export function QuickRequestForm({
       <form ref={formRef} onSubmit={handleSubmit} className="relative space-y-5">
         <FormSecurityFields />
         {state.success ? (
-          <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-sm text-[#94D4B9]">
+          <div className={cn("rounded-xl px-4 py-4 text-sm", requestSuccessBannerClass)}>
             <p className="font-semibold">
               {state.accountCreated
                 ? form.successTitleNewAccount
@@ -167,7 +173,7 @@ export function QuickRequestForm({
               type="submit"
               variant="accent"
               size="lg"
-              className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+              className={cn(requestBtnFilledClass, "h-12 w-full")}
               disabled={pending}
             >
               {pending ? t.common.sending : form.submit}

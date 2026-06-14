@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { formatSparePartPrice } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { suggestServicePrice } from "@/lib/suggest-service-price";
+import { requestAccentPanelClass } from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 type ServicePriceProposalFieldProps = {
@@ -34,7 +35,8 @@ export function ServicePriceProposalField({
   return (
     <div
       className={cn(
-        "space-y-2 rounded-xl border border-[#94D4B9]/20 bg-[#94D4B9]/5",
+        requestAccentPanelClass,
+        "space-y-2 rounded-xl",
         compact ? "p-3" : "p-4",
       )}
     >

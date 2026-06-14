@@ -8,8 +8,10 @@ import { useEffect } from "react";
 import { useSparePartsCart } from "@/components/spare-parts/spare-parts-cart-context";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
+import { iconAccentBgClass, iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getCartItemCategory, getCartItemName } from "@/lib/localized-content";
+import { cn } from "@/lib/utils";
 
 type SparePartsCartDrawerProps = {
   open: boolean;
@@ -61,8 +63,8 @@ export function SparePartsCartDrawer({
       <aside className="absolute inset-y-0 start-0 flex w-full max-w-md flex-col border-e border-[#94D4B9]/20 bg-[#091014] shadow-[0_0_48px_rgba(0,0,0,0.45)]">
         <div className="flex items-center justify-between border-b border-[#94D4B9]/15 px-5 py-4">
           <div className="flex items-center gap-3">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-[#94D4B9]/10">
-              <ShoppingCart className="size-5 text-[#94D4B9]" aria-hidden />
+            <span className={cn("flex size-10 items-center justify-center rounded-xl", iconAccentBgClass)}>
+              <ShoppingCart className={cn("size-5", iconAccentClass)} aria-hidden />
             </span>
             <div>
               <h2 className="text-lg font-bold text-white">{t.spareParts.cartTitle}</h2>
@@ -72,7 +74,10 @@ export function SparePartsCartDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/25 text-[#94D4B9] hover:bg-[#94D4B9]/10"
+            className={cn(
+              "flex size-9 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_25%,transparent)] hover:bg-[var(--icon-accent-bg)]",
+              iconAccentClass,
+            )}
             aria-label={t.common.close}
           >
             <X className="size-4" aria-hidden />
@@ -136,7 +141,10 @@ export function SparePartsCartDrawer({
                           onClick={() =>
                             updateQuantity(item.id, item.quantity - 1)
                           }
-                          className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10"
+                          className={cn(
+                            "flex size-8 items-center justify-center hover:bg-[var(--icon-accent-bg)]",
+                            iconAccentClass,
+                          )}
                           aria-label={t.spareParts.decreaseQty}
                         >
                           <Minus className="size-3.5" aria-hidden />
@@ -150,7 +158,10 @@ export function SparePartsCartDrawer({
                             updateQuantity(item.id, item.quantity + 1)
                           }
                           disabled={item.quantity >= item.stock_quantity}
-                          className="flex size-8 items-center justify-center text-[#94D4B9] hover:bg-[#94D4B9]/10 disabled:cursor-not-allowed disabled:opacity-40"
+                          className={cn(
+                            "flex size-8 items-center justify-center hover:bg-[var(--icon-accent-bg)] disabled:cursor-not-allowed disabled:opacity-40",
+                            iconAccentClass,
+                          )}
                           aria-label={t.spareParts.increaseQty}
                         >
                           <Plus className="size-3.5" aria-hidden />

@@ -14,6 +14,12 @@ import { RequestSparePartsFab } from "@/components/request/request-spare-parts-f
 import { WhatsAppQuickContact } from "@/components/request/whatsapp-quick-contact";
 import { PageHeader } from "@/components/layout/page-header";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  requestBtnFilledClass,
+  requestBtnOutlineClass,
+  requestCardClass,
+} from "@/lib/request-styles";
+import { iconAccentBgClass, iconAccentClass } from "@/lib/card-surface";
 import { MOBILE_SCREEN_CENTER } from "@/lib/mobile-nav-layout";
 import { cn } from "@/lib/utils";
 
@@ -50,24 +56,24 @@ function FullRequestPanel({
           MOBILE_SCREEN_CENTER,
         )}
       >
-        <div className="space-y-6 rounded-[20px] border border-[#94D4B9]/20 bg-[#091014] p-8 text-center shadow-[0_4px_24px_rgba(148,212,185,0.06)]">
-          <div className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-[#94D4B9]/10">
-            <LogIn className="size-8 text-[#94D4B9]" aria-hidden />
+        <div className={cn(requestCardClass, "space-y-6 p-8 text-start")}>
+          <div className={cn("flex size-16 items-center justify-center rounded-2xl", iconAccentBgClass)}>
+            <LogIn className={cn("size-8", iconAccentClass)} aria-hidden />
           </div>
           <div className="space-y-2">
-            <h2 className="text-xl font-bold">{t.request.loginGate.title}</h2>
-            <p className="text-sm leading-7 text-muted">{t.request.modes.fullLoginHint}</p>
+            <h2 className="request-card__title text-xl font-bold">{t.request.loginGate.title}</h2>
+            <p className="request-card__desc text-sm leading-7">{t.request.modes.fullLoginHint}</p>
           </div>
-          <div className="flex flex-col gap-3 sm:flex-row sm:justify-center">
+          <div className="flex flex-col items-start gap-3 sm:flex-row">
             <Link
               href={loginHref}
-              className="inline-flex h-11 items-center justify-center rounded-[20px] bg-[#94D4B9] px-5 text-sm font-semibold text-[#050B10] hover:opacity-90"
+              className={cn(requestBtnFilledClass, "h-11 px-5 text-sm")}
             >
               {t.request.loginGate.login}
             </Link>
             <Link
               href="/register"
-              className="inline-flex h-11 items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9]/20 px-5 text-sm font-semibold hover:bg-[#94D4B9]/5"
+              className={cn(requestBtnOutlineClass, "h-11 gap-2 px-5 text-sm")}
             >
               <UserPlus className="size-4" aria-hidden />
               {t.request.loginGate.register}

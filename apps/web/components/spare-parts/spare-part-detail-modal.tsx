@@ -7,6 +7,7 @@ import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartImageSlider } from "@/components/spare-parts/spare-part-image-slider";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getSparePartDescription,
@@ -71,7 +72,10 @@ export function SparePartDetailModal({
         <button
           type="button"
           onClick={onClose}
-          className="absolute top-4 left-4 z-10 flex size-9 items-center justify-center rounded-full border border-[#94D4B9]/25 bg-[#050B10]/90 text-[#94D4B9] transition-colors hover:bg-[#94D4B9]/15"
+          className={cn(
+            "absolute top-4 left-4 z-10 flex size-9 items-center justify-center rounded-full border border-[color-mix(in_srgb,var(--icon-accent)_25%,transparent)] bg-[#050B10]/90 transition-colors hover:bg-[var(--icon-accent-bg)]",
+            iconAccentClass,
+          )}
           aria-label={t.spareParts.detailClose}
         >
           <X className="size-4" aria-hidden />

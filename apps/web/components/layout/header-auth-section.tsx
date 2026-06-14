@@ -18,9 +18,11 @@ const HEADER_MINT = "#94D4B9";
 const RADIUS = "rounded-[20px]";
 
 type HeaderProfile = {
+  userId: string;
   fullName: string;
   role: ProfileRole;
   avatarUrl: string | null;
+  avatarVersion?: string | null;
 };
 
 const ctaButtonClass = cn(
@@ -34,8 +36,17 @@ function registerButtonClass(isTransparent: boolean) {
     "transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_0_20px_rgba(148,212,185,0.22)]",
     RADIUS,
     isTransparent
-      ? "border-white/80 text-white hover:border-white hover:bg-white/10"
-      : "border-[#94D4B9] text-[#94D4B9] hover:bg-[#94D4B9]/10",
+      ? "header-chrome-btn-outline hover:shadow-[0_0_20px_rgba(148,212,185,0.22)]"
+      : "border-2 border-[var(--site-header-btn-outline-border)] text-[var(--site-header-btn-outline-text)] hover:bg-white/10",
+  );
+}
+
+function loginButtonClass(isTransparent: boolean) {
+  return cn(
+    ctaButtonClass,
+    isTransparent
+      ? "shrink-0 px-3 text-xs whitespace-nowrap xl:px-5 xl:text-sm header-chrome-btn-filled"
+      : "shrink-0 bg-[var(--site-header-btn-filled-bg)] px-3 text-xs text-[var(--site-header-btn-filled-text)] whitespace-nowrap xl:px-5 xl:text-sm",
   );
 }
 
@@ -68,7 +79,10 @@ function GuestButtons({
           onClick={onNavigate}
           className={cn(
             ctaButtonClass,
-            "h-11 min-w-0 flex-1 bg-[#94D4B9] px-2 text-center text-xs text-[#050B10] sm:text-sm",
+            "h-11 min-w-0 flex-1 px-2 text-center text-xs sm:text-sm",
+            isTransparent
+              ? "header-chrome-btn-filled"
+              : "bg-[var(--site-header-btn-filled-bg)] text-[var(--site-header-btn-filled-text)]",
           )}
         >
           {labels.login}
@@ -89,10 +103,7 @@ function GuestButtons({
       <Link
         href="/login"
         onClick={onNavigate}
-        className={cn(
-          ctaButtonClass,
-          "shrink-0 bg-[#94D4B9] px-3 text-xs text-[#050B10] whitespace-nowrap xl:px-5 xl:text-sm",
-        )}
+        className={loginButtonClass(isTransparent)}
       >
         {labels.login}
       </Link>
@@ -138,22 +149,24 @@ function UserProfileButton({
             : cn(
                 "rounded-full py-1 pe-3 ps-1",
                 isTransparent
-                  ? "hover:bg-white/10"
+                  ? "hover:bg-[color-mix(in_srgb,var(--header-chrome-surface-bg)_60%,var(--header-chrome-fg)_40%)]"
                   : "hover:bg-[#94D4B9]/10",
               ),
         )}
         title={profile.fullName}
       >
         <ProfileAvatar
+          userId={profile.userId}
           fullName={profile.fullName}
           avatarUrl={profile.avatarUrl}
+          avatarVersion={profile.avatarVersion}
           size={fullWidth ? "md" : "md"}
         />
         <span className="min-w-0 text-start">
           <span
             className={cn(
               "block truncate text-sm font-semibold",
-              isTransparent ? "text-white" : "text-[#94D4B9]",
+              isTransparent ? "header-chrome-text" : "text-[var(--site-header-fg)]",
             )}
           >
             {profile.fullName}
@@ -161,7 +174,7 @@ function UserProfileButton({
           <span
             className={cn(
               "block text-xs",
-              isTransparent ? "text-white/60" : "text-[#94D4B9]/70",
+              isTransparent ? "header-chrome-text-muted" : "text-[var(--site-header-fg)]/70",
             )}
           >
             {roleLabel}
@@ -237,7 +250,7 @@ export function HeaderAuthSection({
         const { data } = await supabase
           .from("profiles")
           .select(
-            "full_name, full_name_ar, full_name_en, role, avatar_url, is_active",
+            "full_name, full_name_ar, full_name_en, role, avatar_url, updated_at, is_active",
           )
           .eq("id", user.id)
           .maybeSingle();
@@ -246,9 +259,11 @@ export function HeaderAuthSection({
 
         if (data?.is_active && data.role) {
           setProfile({
+            userId: user.id,
             fullName: getProfileDisplayName(data, locale),
             role: data.role as ProfileRole,
             avatarUrl: data.avatar_url ?? null,
+            avatarVersion: data.updated_at ?? null,
           });
         } else {
           setProfile(null);

@@ -60,18 +60,20 @@ function DashboardLayout({
   const displayName = getProfileDisplayName(profile, locale);
 
   const sidebarUser = {
+    userId: profile.id,
     fullName: displayName,
     role: profile.role,
     avatarUrl: profile.avatar_url ?? null,
+    avatarVersion: profile.updated_at,
     profileHref: getProfilePagePath(profile.role),
     homeHref: getProfileHomePath(profile.role),
   };
 
   return (
-    <div className="flex h-dvh flex-col overflow-hidden bg-background lg:flex-row">
+    <div className="flex h-dvh flex-col overflow-hidden bg-background lg:flex-row lg:bg-[var(--dashboard-content-bg)]">
       <DashboardMobileHeader />
 
-      <div className="hidden h-full shrink-0 lg:block">
+      <div className="hidden h-full shrink-0 lg:block lg:self-stretch">
         <DashboardSidebar
           user={sidebarUser}
           items={items}
@@ -83,7 +85,7 @@ function DashboardLayout({
 
       <main
         className={cn(
-          "scrollbar-theme min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8",
+          "dashboard-content scrollbar-theme min-h-0 flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8",
           MOBILE_BOTTOM_BAR_PADDING,
           "lg:pb-8",
         )}

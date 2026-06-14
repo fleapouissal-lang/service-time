@@ -125,6 +125,14 @@ const nextConfig: NextConfig = {
             headers: publicAssetCache,
           },
           {
+            source: "/hero-bg-mobile-light.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/hero-bg-light.png",
+            headers: publicAssetCache,
+          },
+          {
             source: "/cta-bg.png",
             headers: publicAssetCache,
           },

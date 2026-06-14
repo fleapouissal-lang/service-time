@@ -110,7 +110,6 @@ export function ClientQuickRequestsTable({
                 <AdminTableActions
                   onView={() => setDetailTarget(row)}
                   viewLabel={p.table.view}
-                  editLabel={p.table.view}
                   className="justify-center"
                 />
               </AdminTableCell>

@@ -1,6 +1,11 @@
 import Link from "next/link";
 import type { LucideIcon } from "lucide-react";
 import { ChevronLeft, LayoutGrid, MapPin, Settings } from "lucide-react";
+import {
+  iconAccentBgClass,
+  iconAccentClass,
+  iconAccentMutedClass,
+} from "@/lib/card-surface";
 import { getServerI18n } from "@/lib/i18n/server";
 import { cn } from "@/lib/utils";
 
@@ -51,14 +56,14 @@ export async function ClientAccountLinks({
               index > 0 && "border-t border-[#94D4B9]/10",
             )}
           >
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-[#94D4B9]/10">
-              <Icon className="size-5 text-[#94D4B9]" aria-hidden />
+            <span className={cn("flex size-10 shrink-0 items-center justify-center rounded-xl", iconAccentBgClass)}>
+              <Icon className={cn("size-5", iconAccentClass)} aria-hidden />
             </span>
             <span className="min-w-0 flex-1 text-start text-sm font-medium text-white">
               {labels[key]}
             </span>
             <ChevronLeft
-              className="size-4 shrink-0 text-[#94D4B9]/70 rtl:rotate-180"
+              className={cn("size-4 shrink-0 rtl:rotate-180", iconAccentMutedClass)}
               aria-hidden
             />
           </Link>

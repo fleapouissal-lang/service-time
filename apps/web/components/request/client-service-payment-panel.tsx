@@ -9,6 +9,7 @@ import {
   clientSetServicePaymentMethodAction,
   startServiceRequestPaymobCheckoutAction,
 } from "@/lib/service-payment-actions";
+import { iconAccentClass } from "@/lib/card-surface";
 import { Button } from "@/components/ui/button";
 import { formatSparePartPrice } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -19,6 +20,12 @@ import {
 } from "@/lib/service-request-payment";
 import { getEffectiveQuotePrice } from "@/lib/suggest-service-price";
 import { SwitchServicePaymentMethodForm } from "@/components/request/switch-service-payment-method-form";
+import {
+  requestAccentPanelClass,
+  requestBtnFilledClass,
+  requestChoiceCardActiveClass,
+  requestChoiceCardClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 type ClientServicePaymentPanelProps = {
@@ -83,7 +90,7 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
 
   if (canClientPayOnline(order)) {
     return (
-      <div className="space-y-4 rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/5 p-5">
+      <div className={cn(requestAccentPanelClass, "space-y-4 rounded-xl p-5")}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold">{p.title}</h3>
           <span className="rounded-full bg-muted/30 px-2.5 py-0.5 text-xs font-medium text-muted">
@@ -104,7 +111,7 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
         <Button
           type="button"
           variant="accent"
-          className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+          className={cn(requestBtnFilledClass, "h-12 w-full")}
           disabled={payPending}
           onClick={() => {
             setPayError(null);
@@ -138,7 +145,7 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
 
   if (order.payment_method === "cash_on_delivery") {
     return (
-      <div className="space-y-3 rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/5 p-5">
+      <div className={cn(requestAccentPanelClass, "space-y-3 rounded-xl p-5")}>
         <div className="flex flex-wrap items-center justify-between gap-2">
           <h3 className="text-sm font-semibold">{p.title}</h3>
           <span className="rounded-full bg-muted/30 px-2.5 py-0.5 text-xs font-medium text-muted">
@@ -165,7 +172,7 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/5 p-5">
+    <div className={cn(requestAccentPanelClass, "space-y-4 rounded-xl p-5")}>
       <div>
         <h3 className="text-sm font-semibold">{p.title}</h3>
         <p className="mt-1 text-sm text-muted">{p.chooseMethodHint}</p>
@@ -180,13 +187,11 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
           type="button"
           onClick={() => setMethod("online")}
           className={cn(
-            "rounded-xl border p-4 text-start transition-colors",
-            method === "online"
-              ? "border-[#94D4B9] bg-[#94D4B9]/10"
-              : "border-border hover:border-[#94D4B9]/40",
+            requestChoiceCardClass,
+            method === "online" && requestChoiceCardActiveClass,
           )}
         >
-          <CreditCard className="mb-2 size-5 text-[#94D4B9]" aria-hidden />
+          <CreditCard className={cn("mb-2 size-5", iconAccentClass)} aria-hidden />
           <p className="text-sm font-semibold">{p.methodOnline}</p>
           <p className="mt-1 text-xs text-muted">{p.methodOnlineHint}</p>
         </button>
@@ -194,13 +199,11 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
           type="button"
           onClick={() => setMethod("cash_on_delivery")}
           className={cn(
-            "rounded-xl border p-4 text-start transition-colors",
-            method === "cash_on_delivery"
-              ? "border-[#94D4B9] bg-[#94D4B9]/10"
-              : "border-border hover:border-[#94D4B9]/40",
+            requestChoiceCardClass,
+            method === "cash_on_delivery" && requestChoiceCardActiveClass,
           )}
         >
-          <Wallet className="mb-2 size-5 text-[#94D4B9]" aria-hidden />
+          <Wallet className={cn("mb-2 size-5", iconAccentClass)} aria-hidden />
           <p className="text-sm font-semibold">{p.methodCash}</p>
           <p className="mt-1 text-xs text-muted">{p.methodCashHint}</p>
         </button>
@@ -212,7 +215,7 @@ export function ClientServicePaymentPanel({ order }: ClientServicePaymentPanelPr
         <Button
           type="submit"
           variant="accent"
-          className="h-12 w-full rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+          className={cn(requestBtnFilledClass, "h-12 w-full")}
           disabled={pending}
         >
           {pending ? t.common.saving : p.confirmMethod}

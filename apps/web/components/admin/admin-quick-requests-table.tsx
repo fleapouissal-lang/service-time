@@ -203,7 +203,6 @@ export function AdminQuickRequestsTable({
                 <AdminTableActions
                   onView={() => handleView(row)}
                   viewLabel={p.table.view}
-                  editLabel={p.table.view}
                   onToggleRead={() => handleToggleReadStatus(row)}
                   toggleReadLabel={read ? p.markUnread : p.markRead}
                   isRead={read}

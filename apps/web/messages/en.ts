@@ -98,6 +98,14 @@ export const messages = {
     switchToAr: "عر",
   },
 
+  theme: {
+    label: "Theme",
+    dark: "Dark",
+    light: "Light",
+    switchToLight: "Switch to light mode",
+    switchToDark: "Switch to dark mode",
+  },
+
   footer: {
     tagline:
       "Saudi platform for car maintenance and spare parts in Riyadh — fixed workshop or mobile technician with live tracking.",

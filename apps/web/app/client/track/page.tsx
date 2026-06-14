@@ -8,7 +8,10 @@ import {
   getStatusFilterOptionsForDashboard,
 } from "@/lib/dashboard-filter-options";
 import { getClientRequests } from "@/lib/dashboard-queries";
-import { getRequestPhotoCounts } from "@/lib/request-photos-queries";
+import {
+  getRequestPhotosByRequestIds,
+  requestPhotoCountsFromMap,
+} from "@/lib/request-photos-queries";
 import {
   getExecutionMethodLabels,
   getServiceTypeLabels,
@@ -31,7 +34,10 @@ export default async function ClientTrackPage({ searchParams }: PageProps) {
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
   const orders = filterServiceRequests(allOrders, params);
-  const photoCounts = await getRequestPhotoCounts(orders.map((order) => order.id));
+  const photosByRequestId = await getRequestPhotosByRequestIds(
+    orders.map((order) => order.id),
+  );
+  const photoCounts = requestPhotoCountsFromMap(photosByRequestId);
   const serviceTypeLabels = getServiceTypeLabels(t);
   const statusLabels = getStatusLabels(t);
   const executionMethodLabels = getExecutionMethodLabels(t);
@@ -75,6 +81,7 @@ export default async function ClientTrackPage({ searchParams }: PageProps) {
             <ClientOrdersTable
               orders={orders}
               photoCounts={photoCounts}
+              photosByRequestId={photosByRequestId}
               statusLabels={statusLabels}
               serviceTypeLabels={serviceTypeLabels}
               executionMethodLabels={executionMethodLabels}

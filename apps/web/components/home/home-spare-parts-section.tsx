@@ -7,6 +7,10 @@ import { SparePartCard } from "@/components/spare-parts/spare-part-card";
 import { SparePartDetailModal } from "@/components/spare-parts/spare-part-detail-modal";
 import type { SparePart } from "@service-time/types";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  sectionEyebrowClass,
+  sectionTitleH2Class,
+} from "@/lib/section-styles";
 
 type HomeSparePartsSectionProps = {
   parts: SparePart[];
@@ -20,14 +24,14 @@ export function HomeSparePartsSection({ parts }: HomeSparePartsSectionProps) {
     <section className="mx-auto w-[90%] max-w-[1200px] py-16">
       <div className="mb-10 flex items-end justify-between gap-4 text-start">
         <div>
-          <p className="text-sm font-semibold text-[#94D4B9]">
+          <p className={sectionEyebrowClass}>
             {messages.home.sparePartsEyebrow}
           </p>
-          <h2 className="mt-2 text-3xl font-bold">{messages.home.latestParts}</h2>
+          <h2 className={sectionTitleH2Class}>{messages.home.latestParts}</h2>
         </div>
         <Link
           href="/spare-parts"
-          className="hidden shrink-0 items-center gap-1 text-sm font-semibold text-[#94D4B9] transition-all duration-200 hover:font-bold sm:inline-flex"
+          className="hidden shrink-0 items-center gap-1 text-sm font-semibold text-[var(--section-title)] transition-all duration-200 hover:font-bold sm:inline-flex"
         >
           {messages.common.viewAll}
           <LocaleForwardArrow />

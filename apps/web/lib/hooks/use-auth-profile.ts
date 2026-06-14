@@ -7,9 +7,11 @@ import { createAuthBrowserClient } from "@/lib/supabase-browser";
 import type { Locale } from "@/lib/i18n/config";
 
 export type AuthProfile = {
+  userId: string;
   fullName: string;
   role: ProfileRole;
   avatarUrl: string | null;
+  avatarVersion?: string | null;
 };
 
 export function useAuthProfile(locale: Locale) {
@@ -41,7 +43,7 @@ export function useAuthProfile(locale: Locale) {
         const { data } = await supabase
           .from("profiles")
           .select(
-            "full_name, full_name_ar, full_name_en, role, avatar_url, is_active",
+            "full_name, full_name_ar, full_name_en, role, avatar_url, updated_at, is_active",
           )
           .eq("id", user.id)
           .maybeSingle();
@@ -50,9 +52,11 @@ export function useAuthProfile(locale: Locale) {
 
         if (data?.is_active && data.role) {
           setProfile({
+            userId: user.id,
             fullName: getProfileDisplayName(data, locale),
             role: data.role as ProfileRole,
             avatarUrl: data.avatar_url ?? null,
+            avatarVersion: data.updated_at ?? null,
           });
         } else {
           setProfile(null);

@@ -32,12 +32,12 @@ export function PublicShell({ children, header, footer }: PublicShellProps) {
         className={
           showMobileNav
             ? cn(
-                "flex-1 bg-[#060709]",
+                "flex-1 bg-site-main",
                 MOBILE_BOTTOM_BAR_PADDING,
                 "lg:pb-0",
                 isHome && "max-md:overflow-hidden max-md:pb-0",
               )
-            : "flex-1 bg-[#060709]"
+            : "flex-1 bg-site-main"
         }
       >
         {children}

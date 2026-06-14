@@ -19,8 +19,6 @@ import { useLocale } from "@/lib/i18n/locale-context";
 import { shouldShowMobileBottomNav, MOBILE_BOTTOM_NAV_OFFSET } from "@/lib/mobile-nav-layout";
 import { cn } from "@/lib/utils";
 
-const BAR_BG = "bg-[#050B10]/95";
-
 function CenterOverviewFab({
   href,
   label,
@@ -45,7 +43,7 @@ function CenterOverviewFab({
       <span
         className={cn(
           "flex size-[3.75rem] items-center justify-center rounded-full bg-[#94D4B9] text-[#050B10]",
-          "border-4 border-[#050B10] shadow-[0_8px_24px_rgba(148,212,185,0.42)] transition-transform duration-200",
+          "border-4 border-white/90 shadow-[0_8px_24px_rgba(148,212,185,0.42)] transition-transform duration-200",
           active ? "scale-105" : "active:scale-95",
         )}
       >
@@ -53,8 +51,8 @@ function CenterOverviewFab({
       </span>
       <span
         className={cn(
-          "mt-1 max-w-[5rem] truncate px-0.5 text-[11px] font-bold leading-none",
-          active ? "text-[#94D4B9]" : "text-white/75",
+          "mt-1 max-w-[5rem] truncate px-0.5 text-[11px] leading-none mobile-bottom-nav__fab-label",
+          active && "mobile-bottom-nav__fab-label--active",
         )}
       >
         {label}
@@ -88,20 +86,18 @@ function TabLink({
     >
       <span
         className={cn(
-          "relative flex items-center justify-center rounded-full transition-all duration-300",
-          compact ? "size-8" : "size-9",
-          active
-            ? "border-2 border-[#94D4B9] bg-[#94D4B9]/10 text-[#94D4B9] shadow-[0_0_18px_rgba(148,212,185,0.2)]"
-            : "text-white/55",
+          "mobile-bottom-nav__icon-wrap relative flex items-center justify-center rounded-full",
+          compact ? "size-8 mobile-bottom-nav__icon-wrap--compact" : "size-9",
+          active && "mobile-bottom-nav__icon-wrap--active",
         )}
       >
-        <Icon className={compact ? "size-4" : "size-5"} strokeWidth={active ? 2.35 : 2} />
+        <Icon className={compact ? "size-4" : "size-5"} strokeWidth={active ? 2.5 : 2.25} />
       </span>
       <span
         className={cn(
-          "max-w-full truncate px-0.5 font-medium leading-tight",
-          compact ? "text-[9px]" : "text-[10px]",
-          active ? "font-semibold text-[#94D4B9]" : "text-white/55",
+          "mobile-bottom-nav__label max-w-full truncate px-0.5 text-[10px] leading-tight",
+          compact && "mobile-bottom-nav__label--compact",
+          active && "mobile-bottom-nav__label--active",
         )}
       >
         {label}
@@ -143,9 +139,7 @@ function SheetOverlay({
       >
         <div
           className={cn(
-            "rounded-t-[24px] border-t border-[#94D4B9]/15 px-4 pt-3 pb-3",
-            "backdrop-blur-xl",
-            BAR_BG,
+            "rounded-t-[24px] border-t border-[#050B10]/10 bg-mobile-bottom-nav px-4 pt-3 pb-3",
           )}
         >
           {children}
@@ -166,13 +160,13 @@ function SheetHeader({
 }) {
   return (
     <>
-      <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-white/20" />
+      <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-[#050B10]/15" />
       <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold text-[#94D4B9]">{title}</p>
+        <p className="text-sm font-semibold text-[#050B10]">{title}</p>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-full p-2 text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="rounded-full p-2 text-[#050B10]/70 transition-colors hover:bg-[#050B10]/10 hover:text-[#050B10]"
           aria-label={closeLabel}
         >
           <X className="size-5" />
@@ -210,8 +204,8 @@ function NavSheetLink({
       className={cn(
         "flex items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition-colors",
         active
-          ? "bg-[#94D4B9]/15 text-[#94D4B9]"
-          : "text-white/85 hover:bg-white/5",
+          ? "bg-[#050B10]/10 text-[#050B10] font-semibold"
+          : "text-[#050B10]/80 hover:bg-[#050B10]/5",
       )}
     >
       <Icon className="size-5 shrink-0" />
@@ -242,18 +236,16 @@ function MoreTabButton({
     >
       <span
         className={cn(
-          "relative flex size-9 items-center justify-center rounded-full transition-all duration-300",
-          active || open
-            ? "border-2 border-[#94D4B9] bg-[#94D4B9]/10 text-[#94D4B9] shadow-[0_0_18px_rgba(148,212,185,0.2)]"
-            : "text-white/55",
+          "mobile-bottom-nav__icon-wrap relative flex size-9 items-center justify-center rounded-full",
+          (active || open) && "mobile-bottom-nav__icon-wrap--active",
         )}
       >
-        <LayoutGrid className="size-5" />
+        <LayoutGrid className="size-5" strokeWidth={active || open ? 2.5 : 2.25} />
       </span>
       <span
         className={cn(
-          "max-w-full truncate px-0.5 text-[10px] font-medium leading-tight",
-          active || open ? "font-semibold text-[#94D4B9]" : "text-white/55",
+          "mobile-bottom-nav__label max-w-full truncate px-0.5 text-[10px] leading-tight",
+          (active || open) && "mobile-bottom-nav__label--active",
         )}
       >
         {label}
@@ -283,9 +275,8 @@ function BottomBarShell({
     >
       <div
         className={cn(
-          "mobile-bottom-nav relative overflow-visible border-t border-[#94D4B9]/15",
-          BAR_BG,
-          "backdrop-blur-xl rounded-t-[20px] shadow-[0_-10px_40px_rgba(0,0,0,0.5)]",
+          "mobile-bottom-nav bg-mobile-bottom-nav relative w-full overflow-visible border-t border-[rgba(5,11,16,0.12)]",
+          "rounded-t-[20px]",
           center ? "pt-3" : "pt-2.5",
           "pb-[calc(0.625rem+env(safe-area-inset-bottom))]",
         )}
@@ -299,7 +290,7 @@ function BottomBarShell({
           />
         ) : null}
 
-        <div className="relative z-10 mx-auto flex h-12 w-full max-w-lg items-center justify-evenly px-2">
+        <div className="relative z-10 mx-auto flex h-[3.25rem] w-full max-w-lg items-center justify-evenly px-2">
           {children}
         </div>
       </div>

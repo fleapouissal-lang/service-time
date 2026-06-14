@@ -7,6 +7,10 @@ import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
 import { getSiteContent, getWorkshops } from "@/lib/queries";
+import {
+  sectionEyebrowClass,
+  sectionTitleH2MdClass,
+} from "@/lib/section-styles";
 import { cn } from "@/lib/utils";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -76,16 +80,16 @@ export default async function ContactPage() {
     >
       <div className="grid gap-6 lg:grid-cols-2 lg:grid-rows-[auto_auto] lg:items-stretch lg:gap-x-8 lg:gap-y-6">
         <div className="order-1 hidden text-start md:block lg:col-start-1 lg:row-start-1">
-          <p className="text-sm font-semibold text-[#94D4B9]">{t.contact.quickMessage}</p>
-          <h2 className="mt-2 text-2xl font-bold sm:text-3xl">{t.contact.sendMessage}</h2>
+          <p className={sectionEyebrowClass}>{t.contact.quickMessage}</p>
+          <h2 className={sectionTitleH2MdClass}>{t.contact.sendMessage}</h2>
           <p className="mt-2 text-sm leading-7 text-muted sm:text-base">
             {t.contact.formHint}
           </p>
         </div>
 
         <div className="order-3 hidden text-start md:block lg:col-start-2 lg:row-start-1">
-          <p className="text-sm font-semibold text-[#94D4B9]">{t.contact.eyebrow}</p>
-          <h1 className="mt-2 text-2xl font-bold sm:text-3xl">{t.contact.title}</h1>
+          <p className={sectionEyebrowClass}>{t.contact.eyebrow}</p>
+          <h1 className={sectionTitleH2MdClass}>{t.contact.title}</h1>
           <p className="mt-2 text-sm leading-7 text-muted sm:text-base">
             {t.contact.description}
           </p>

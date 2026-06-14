@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { requestCardClass } from "@/lib/request-styles";
 
 export function RequestFormShell({
   children,
@@ -28,7 +29,8 @@ export function RequestFormShell({
     >
       <div
         className={cn(
-          "space-y-6 rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:p-8",
+          requestCardClass,
+          "space-y-6 p-6 text-start sm:p-8",
           className,
         )}
       >

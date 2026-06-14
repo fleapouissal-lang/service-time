@@ -27,6 +27,40 @@ export async function getRequestPhotos(
   return (data as RequestPhotoRow[]) ?? [];
 }
 
+export async function getRequestPhotosByRequestIds(
+  requestIds: string[],
+): Promise<Record<string, RequestPhotoRow[]>> {
+  const admin = getAdminSupabaseClient();
+  if (!admin || requestIds.length === 0) return {};
+
+  const { data, error } = await admin
+    .from("request_photos")
+    .select("id, request_id, storage_path, created_at")
+    .in("request_id", requestIds)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("[request-photos] batch:", error.message);
+    return {};
+  }
+
+  const map: Record<string, RequestPhotoRow[]> = {};
+  for (const row of data ?? []) {
+    const requestId = row.request_id as string;
+    if (!map[requestId]) map[requestId] = [];
+    map[requestId].push(row as RequestPhotoRow);
+  }
+  return map;
+}
+
+export function requestPhotoCountsFromMap(
+  photosByRequestId: Record<string, RequestPhotoRow[]>,
+): Record<string, number> {
+  return Object.fromEntries(
+    Object.entries(photosByRequestId).map(([id, photos]) => [id, photos.length]),
+  );
+}
+
 export async function getRequestPhotoCounts(
   requestIds: string[],
 ): Promise<Record<string, number>> {

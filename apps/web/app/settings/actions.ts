@@ -92,6 +92,7 @@ async function applyDirectProfileSettingsUpdate(
     fullNameEn: string;
     phone: string;
     avatarUrl: string | null;
+    avatarStoragePath?: string | null;
   },
 ): Promise<ProfileSettingsFormState> {
   const supabase = await createAuthServerClient();
@@ -109,6 +110,9 @@ async function applyDirectProfileSettingsUpdate(
 
   if (params.avatarUrl) {
     profileUpdate.avatar_url = params.avatarUrl;
+  }
+  if (params.avatarStoragePath) {
+    profileUpdate.avatar_storage_path = params.avatarStoragePath;
   }
 
   const { error } = await supabase
@@ -202,6 +206,7 @@ export async function updateProfileSettingsAction(
   const phoneChanged = !phonesEqual(oldPhone, newPhone);
 
   let avatar_url = profile.avatar_url;
+  let avatar_storage_path: string | null = null;
   const avatarFile = getAvatarFromFormData(formData);
 
   if (avatarFile) {
@@ -210,6 +215,7 @@ export async function updateProfileSettingsAction(
       return { error: uploaded.error };
     }
     avatar_url = uploaded.publicUrl;
+    avatar_storage_path = uploaded.storagePath;
   }
 
   const admin = getAdminSupabaseClient();
@@ -244,6 +250,7 @@ export async function updateProfileSettingsAction(
       fullNameEn: full_name_en,
       phone: newPhone,
       avatarUrl: avatar_url,
+      avatarStoragePath: avatar_storage_path,
     });
   }
 

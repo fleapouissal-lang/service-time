@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { IconInput, IconTextarea } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { surfaceCardClass } from "@/lib/card-surface";
+import { cn } from "@/lib/utils";
 
 export function ContactForm() {
   const { messages: t } = useLocale();
@@ -25,12 +27,12 @@ export function ContactForm() {
     <form
       ref={formRef}
       action={action}
-      className="relative space-y-5 rounded-[20px] border border-[#94D4B9]/10 bg-[#091014] p-6 shadow-[0_4px_24px_rgba(148,212,185,0.06)] sm:p-8"
+      className={cn("relative space-y-5 p-6 sm:p-8", surfaceCardClass)}
     >
       <FormSecurityFields />
       {state.success ? (
-        <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-4 text-center">
-          <p className="text-base font-semibold text-[#94D4B9]">
+        <div className="rounded-xl border border-accent/30 bg-accent/10 px-4 py-4 text-center">
+          <p className="text-base font-semibold text-primary">
             {form.successTitle}
           </p>
           <p className="mt-1 text-sm text-muted">{form.successHint}</p>

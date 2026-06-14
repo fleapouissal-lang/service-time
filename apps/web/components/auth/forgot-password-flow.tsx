@@ -6,6 +6,21 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
+  loginBackBtnClass,
+  loginBtnFilledClass,
+  loginDescClass,
+  loginErrorBannerClass,
+  loginEyebrowClass,
+  loginHintClass,
+  loginInfoBannerClass,
+  loginInputClass,
+  loginInputIconBtnClass,
+  loginLabelClass,
+  loginLinkClass,
+  loginTextLinkClass,
+  loginTitleClass,
+} from "@/lib/login-styles";
+import {
   isStrongEnoughPassword,
   PASSWORD_HTML_PATTERN,
 } from "@/lib/password-policy";
@@ -157,26 +172,26 @@ export function ForgotPasswordFlow({
         <button
           type="button"
           onClick={onBack}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-white/60 transition-colors hover:text-[#94D4B9]"
+          className={loginBackBtnClass}
         >
           <ArrowLeft className="size-4" aria-hidden />
           {t.forgotPassword.backToLogin}
         </button>
-        <p className="text-sm font-semibold text-[#94D4B9]">{t.forgotPassword.eyebrow}</p>
-        <h2 className="mt-2 font-poppins text-2xl font-bold text-white sm:text-3xl">
+        <p className={loginEyebrowClass}>{t.forgotPassword.eyebrow}</p>
+        <h2 className={loginTitleClass}>
           {stepTitle}
         </h2>
-        <p className="mt-2 text-sm leading-7 text-white/70">{stepHint}</p>
+        <p className={loginDescClass}>{stepHint}</p>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className={loginErrorBannerClass}>
           {error}
         </div>
       ) : null}
 
       {info ? (
-        <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-3 text-sm text-[#94D4B9]">
+        <div className={loginInfoBannerClass}>
           {info}
         </div>
       ) : null}
@@ -184,7 +199,7 @@ export function ForgotPasswordFlow({
       {step === "request" ? (
         <form onSubmit={(e) => void handleRequest(e)} className="space-y-5">
           <div>
-            <Label htmlFor="forgot-email" className="text-white">
+            <Label htmlFor="forgot-email" className={loginLabelClass}>
               {t.forgotPassword.email}
             </Label>
             <Input
@@ -195,13 +210,13 @@ export function ForgotPasswordFlow({
               onChange={(e) => setEmail(e.target.value)}
               required
               placeholder="name@example.com"
-              className="mt-2 h-12 rounded-[20px] border-0 bg-white text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
+              className={loginInputClass}
             />
           </div>
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-12 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className={loginBtnFilledClass}
           >
             {loading ? t.common.sending : t.forgotPassword.sendCode}
           </button>
@@ -211,7 +226,7 @@ export function ForgotPasswordFlow({
       {step === "verify" ? (
         <form onSubmit={(e) => void handleVerify(e)} className="space-y-5">
           <div>
-            <Label htmlFor="forgot-code" className="text-white">
+            <Label htmlFor="forgot-code" className={loginLabelClass}>
               {t.forgotPassword.verificationCode}
             </Label>
             <Input
@@ -225,13 +240,13 @@ export function ForgotPasswordFlow({
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
               required
               placeholder="123456"
-              className="mt-2 h-12 rounded-[20px] border-0 bg-white text-center text-lg tracking-[0.4em] text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
+              className={`${loginInputClass} text-center text-lg tracking-[0.4em]`}
             />
           </div>
           <button
             type="submit"
             disabled={loading || code.length !== 6}
-            className="inline-flex h-12 w-full items-center justify-center rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className={loginBtnFilledClass}
           >
             {loading ? t.common.verifying : t.forgotPassword.confirmCode}
           </button>
@@ -243,7 +258,7 @@ export function ForgotPasswordFlow({
               setError("");
               setInfo("");
             }}
-            className="w-full text-center text-sm text-[#94D4B9] hover:underline"
+            className={`w-full text-center text-sm ${loginTextLinkClass}`}
           >
             {t.forgotPassword.resendCode}
           </button>
@@ -253,10 +268,10 @@ export function ForgotPasswordFlow({
       {step === "reset" ? (
         <form onSubmit={(e) => void handleReset(e)} className="space-y-5">
           <div>
-            <Label htmlFor="new-password" className="text-white">
+            <Label htmlFor="new-password" className={loginLabelClass}>
               {t.forgotPassword.newPassword}
             </Label>
-            <p className="mt-1 text-xs text-white/55">{t.common.passwordRequirements}</p>
+            <p className={loginHintClass}>{t.common.passwordRequirements}</p>
             <div className="relative mt-2">
               <Input
                 id="new-password"
@@ -269,12 +284,12 @@ export function ForgotPasswordFlow({
                 pattern={PASSWORD_HTML_PATTERN}
                 title={t.common.passwordRequirements}
                 placeholder="••••••••"
-                className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
+                className={`${loginInputClass} mt-0 pe-12`}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword((v) => !v)}
-                className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 hover:text-[#050B10]"
+                className={loginInputIconBtnClass}
                 aria-label={
                   showPassword
                     ? t.forgotPassword.hidePassword
@@ -291,7 +306,7 @@ export function ForgotPasswordFlow({
           </div>
 
           <div>
-            <Label htmlFor="confirm-password" className="text-white">
+            <Label htmlFor="confirm-password" className={loginLabelClass}>
               {t.forgotPassword.confirmPassword}
             </Label>
             <div className="relative mt-2">
@@ -306,12 +321,12 @@ export function ForgotPasswordFlow({
                 pattern={PASSWORD_HTML_PATTERN}
                 title={t.common.passwordRequirements}
                 placeholder="••••••••"
-                className="h-12 rounded-[20px] border-0 bg-white pe-12 text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
+                className={`${loginInputClass} mt-0 pe-12`}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword((v) => !v)}
-                className="absolute inset-y-0 right-3 inline-flex items-center text-[#050B10]/55 hover:text-[#050B10]"
+                className={loginInputIconBtnClass}
                 aria-label={
                   showConfirmPassword
                     ? t.forgotPassword.hideConfirmPassword
@@ -330,7 +345,7 @@ export function ForgotPasswordFlow({
           <button
             type="submit"
             disabled={loading}
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+            className={loginBtnFilledClass}
           >
             {loading ? t.common.saving : t.forgotPassword.savePassword}
             <ArrowLeft className="size-4" aria-hidden />

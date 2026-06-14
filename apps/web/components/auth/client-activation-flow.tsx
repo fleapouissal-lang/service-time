@@ -5,6 +5,20 @@ import { ArrowLeft, MessageCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
+import {
+  loginBackBtnClass,
+  loginBtnFilledClass,
+  loginBtnOutlineClass,
+  loginDescClass,
+  loginErrorBannerClass,
+  loginEyebrowClass,
+  loginInfoBannerClass,
+  loginInputClass,
+  loginInputReadonlyClass,
+  loginLabelClass,
+  loginLinkClass,
+  loginTitleClass,
+} from "@/lib/login-styles";
 import { markAuthSessionActive } from "@/lib/sign-out-client";
 import { resolvePostLoginPath } from "@/lib/profile-home";
 import type { ProfileRole } from "@service-time/types";
@@ -120,35 +134,35 @@ export function ClientActivationFlow({
         <button
           type="button"
           onClick={onBack}
-          className="mb-4 inline-flex items-center gap-1 text-sm text-white/60 transition-colors hover:text-[#94D4B9]"
+          className={loginBackBtnClass}
         >
           <ArrowLeft className="size-4" aria-hidden />
           {t.login.activation.backToLogin}
         </button>
-        <p className="text-sm font-semibold text-[#94D4B9]">{t.login.form.eyebrow}</p>
-        <h2 className="mt-2 font-poppins text-2xl font-bold text-white sm:text-3xl">
+        <p className={loginEyebrowClass}>{t.login.form.eyebrow}</p>
+        <h2 className={loginTitleClass}>
           {t.login.activation.title}
         </h2>
-        <p className="mt-2 text-sm leading-7 text-white/70">
+        <p className={loginDescClass}>
           {t.login.activation.description}
         </p>
       </div>
 
       {error ? (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+        <div className={loginErrorBannerClass}>
           {error}
         </div>
       ) : null}
 
       {info ? (
-        <div className="rounded-xl border border-[#94D4B9]/30 bg-[#94D4B9]/10 px-4 py-3 text-sm text-[#94D4B9]">
+        <div className={loginInfoBannerClass}>
           {info}
         </div>
       ) : null}
 
       <form onSubmit={(e) => void handleVerify(e)} className="space-y-5">
         <div>
-          <Label htmlFor="activation-email" className="text-white">
+          <Label htmlFor="activation-email" className={loginLabelClass}>
             {t.login.form.email}
           </Label>
           <Input
@@ -157,12 +171,12 @@ export function ClientActivationFlow({
             dir="ltr"
             value={email}
             readOnly
-            className="mt-2 h-12 rounded-[20px] border-0 bg-white/90 text-[#050B10] focus-visible:ring-[#94D4B9]"
+            className={loginInputReadonlyClass}
           />
         </div>
 
         <div>
-          <Label htmlFor="activation-code" className="text-white">
+          <Label htmlFor="activation-code" className={loginLabelClass}>
             {t.register.verificationCode}
           </Label>
           <Input
@@ -175,7 +189,7 @@ export function ClientActivationFlow({
             onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
             required
             placeholder="123456"
-            className="mt-2 h-12 rounded-[20px] border-0 bg-white text-center text-lg tracking-[0.4em] text-[#050B10] placeholder:text-[#050B10]/45 focus-visible:ring-[#94D4B9]"
+            className={`${loginInputClass} text-center text-lg tracking-[0.4em]`}
           />
         </div>
 
@@ -184,7 +198,7 @@ export function ClientActivationFlow({
             href={whatsappUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] border border-[#94D4B9] bg-transparent text-sm font-semibold text-[#94D4B9] transition-all duration-300 hover:-translate-y-0.5 hover:bg-[#94D4B9]/10"
+            className={loginBtnOutlineClass}
           >
             <MessageCircle className="size-5" aria-hidden />
             {t.register.whatsappCode}
@@ -195,7 +209,7 @@ export function ClientActivationFlow({
           type="button"
           disabled={loading}
           onClick={() => void handleResend()}
-          className="w-full text-center text-sm text-white/60 hover:text-[#94D4B9] disabled:opacity-50"
+          className={`w-full text-center text-sm ${loginLinkClass} disabled:opacity-50`}
         >
           {t.register.resendCode}
         </button>
@@ -203,7 +217,7 @@ export function ClientActivationFlow({
         <button
           type="submit"
           disabled={loading || code.length !== 6}
-          className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] text-sm font-semibold text-[#050B10] transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+          className={loginBtnFilledClass}
         >
           {loading ? t.common.verifying : t.register.activate}
           <ArrowLeft className="size-4" aria-hidden />

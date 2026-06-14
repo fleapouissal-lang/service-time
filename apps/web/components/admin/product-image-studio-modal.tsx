@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, Loader2, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   DEFAULT_PRODUCT_IMAGE_STUDIO_SETTINGS,
@@ -289,7 +290,7 @@ export function ProductImageStudioModal({
               id="product-image-studio-title"
               className="flex items-center gap-2 text-lg font-semibold"
             >
-              <Sparkles className="size-5 text-[#94D4B9]" aria-hidden />
+              <Sparkles className={cn("size-5", iconAccentClass)} aria-hidden />
               {s.title}
             </h2>
             <p className="mt-0.5 text-sm text-muted">{s.subtitle}</p>
@@ -328,7 +329,7 @@ export function ProductImageStudioModal({
             )}
             {busy ? (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-black/25">
-                <Loader2 className="size-8 animate-spin text-[#94D4B9]" aria-hidden />
+                <Loader2 className={cn("size-8 animate-spin", iconAccentClass)} aria-hidden />
                 {removingBg ? (
                   <p className="text-xs text-[#94D4B9]/90">{s.removingBackground}</p>
                 ) : null}

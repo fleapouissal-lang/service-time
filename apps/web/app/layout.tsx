@@ -10,6 +10,8 @@ import { SparePartsCartRoot } from "@/components/spare-parts/spare-parts-cart-ro
 import { getDir } from "@/lib/i18n/config";
 import { getServerI18n } from "@/lib/i18n/server";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
+import { getTheme } from "@/lib/theme/get-theme";
+import { ThemeProvider } from "@/lib/theme/theme-context";
 import { buildSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
@@ -21,11 +23,14 @@ const poppins = Poppins({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#94D4B9",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#94D4B9" },
+    { media: "(prefers-color-scheme: dark)", color: "#94D4B9" },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  colorScheme: "dark",
+  colorScheme: "dark light",
 };
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -45,13 +50,15 @@ export default async function RootLayout({
 }>) {
   const { locale } = await getServerI18n();
   const dir = getDir(locale);
+  const theme = await getTheme();
   const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
   return (
     <html
       lang={locale}
       dir={dir}
-      className={`${poppins.variable} h-full scroll-smooth`}
+      className={`${poppins.variable} ${theme} h-full scroll-smooth`}
+      suppressHydrationWarning
     >
       <head>
         {supabaseOrigin ? (
@@ -64,13 +71,15 @@ export default async function RootLayout({
       <body className="flex min-h-full flex-col bg-background text-foreground antialiased">
         <PwaProvider>
           <LocaleProvider locale={locale}>
-            <AuthSessionGuard />
-            <SparePartsCartRoot>
-              <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
-                {children}
-              </PublicShell>
-              <MobileBottomNav />
-            </SparePartsCartRoot>
+            <ThemeProvider initialTheme={theme}>
+              <AuthSessionGuard />
+              <SparePartsCartRoot>
+                <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
+                  {children}
+                </PublicShell>
+                <MobileBottomNav />
+              </SparePartsCartRoot>
+            </ThemeProvider>
           </LocaleProvider>
         </PwaProvider>
       </body>

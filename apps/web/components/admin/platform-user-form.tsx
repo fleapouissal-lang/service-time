@@ -211,6 +211,8 @@ export function PlatformUserForm({
               label={t.register.avatarLabel}
               hint={t.register.avatarHint}
               defaultAvatarUrl={editUser?.avatar_url}
+              defaultUserId={editUser?.id}
+              defaultAvatarVersion={editUser?.updated_at}
               className="[&_p]:text-foreground [&_button]:border-primary/40 [&_button]:text-primary"
             />
 

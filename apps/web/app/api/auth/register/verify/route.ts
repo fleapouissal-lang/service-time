@@ -132,6 +132,7 @@ export async function POST(request: Request) {
       technician_type: null,
       is_active: true,
       avatar_url: avatarUrl,
+      avatar_storage_path: record.avatar_storage_path,
     },
     { onConflict: "id" },
   );

@@ -10,6 +10,12 @@ import { Button } from "@/components/ui/button";
 import { formatSparePartPrice } from "@/lib/format-price";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getQuoteStatusLabels } from "@/lib/i18n/labels";
+import {
+  requestAccentPanelClass,
+  requestAccentPanelHighlightClass,
+  requestAccentTextClass,
+  requestBtnFilledClass,
+} from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 type ClientQuotePanelProps = {
@@ -51,7 +57,7 @@ export function ClientQuotePanel({
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/5 p-5">
+    <div className={cn(requestAccentPanelClass, "space-y-4 rounded-xl p-5")}>
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h3 className="text-sm font-semibold">{q.title}</h3>
         <span
@@ -74,9 +80,9 @@ export function ClientQuotePanel({
           </p>
         </div>
         {order.admin_counter_price != null ? (
-          <div className="rounded-lg border border-[#94D4B9]/30 bg-[#94D4B9]/10 p-3">
+          <div className={cn(requestAccentPanelHighlightClass, "rounded-lg p-3")}>
             <p className="text-xs text-muted">{q.adminOffer}</p>
-            <p className="mt-1 text-lg font-bold text-[#94D4B9]" dir="ltr">
+            <p className={cn("mt-1 text-lg font-bold", requestAccentTextClass)} dir="ltr">
               {formatSparePartPrice(order.admin_counter_price, locale)}
             </p>
           </div>
@@ -111,7 +117,7 @@ export function ClientQuotePanel({
               <Button
                 type="submit"
                 variant="accent"
-                className="rounded-[20px] bg-[#94D4B9] text-[#050B10] hover:opacity-90"
+                className={requestBtnFilledClass}
                 disabled={pending}
               >
                 {pending ? t.common.saving : q.acceptCounter}

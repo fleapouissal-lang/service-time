@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { WifiOff } from "lucide-react";
+import { iconAccentBgClass, iconAccentClass } from "@/lib/card-surface";
 import { getServerI18n } from "@/lib/i18n/server";
+import { cn } from "@/lib/utils";
 
 export default async function OfflinePage() {
   const { t } = await getServerI18n();
@@ -8,8 +10,8 @@ export default async function OfflinePage() {
 
   return (
     <div className="mx-auto flex min-h-[60vh] w-[90%] max-w-lg flex-col items-center justify-center py-20 text-center">
-      <span className="mb-6 flex size-16 items-center justify-center rounded-2xl bg-[#94D4B9]/10">
-        <WifiOff className="size-8 text-[#94D4B9]" aria-hidden />
+      <span className={cn("mb-6 flex size-16 items-center justify-center rounded-2xl", iconAccentBgClass)}>
+        <WifiOff className={cn("size-8", iconAccentClass)} aria-hidden />
       </span>
       <h1 className="text-2xl font-bold">{copy.title}</h1>
       <p className="mt-3 text-sm leading-7 text-muted">{copy.description}</p>

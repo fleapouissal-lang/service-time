@@ -11,7 +11,7 @@ type AdminTableActionsProps = {
   editHref?: string;
   onEdit?: () => void;
   viewLabel: string;
-  editLabel: string;
+  editLabel?: string;
   onToggleRead?: () => void;
   toggleReadLabel?: string;
   isRead?: boolean;

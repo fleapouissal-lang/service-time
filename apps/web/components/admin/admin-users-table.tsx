@@ -13,6 +13,8 @@ import {
   AdminTableHeadCell,
 } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
+import { ProfileAvatar } from "@/components/layout/profile-avatar";
+import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
@@ -36,6 +38,7 @@ export function AdminUsersTable({
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.usersPage;
   const [deleteTarget, setDeleteTarget] = useState<Profile | null>(null);
+  const [viewTarget, setViewTarget] = useState<Profile | null>(null);
   const [deleteError, setDeleteError] = useState("");
   const [pending, startTransition] = useTransition();
   const {
@@ -97,18 +100,13 @@ export function AdminUsersTable({
               <tr key={user.id} className="border-b border-border">
                 <AdminTableCell>
                   <div className="flex items-center gap-3">
-                    {user.avatar_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
-                        src={user.avatar_url}
-                        alt={displayName}
-                        className="size-10 shrink-0 rounded-full object-cover ring-2 ring-primary/20"
-                      />
-                    ) : (
-                      <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-sm font-bold text-primary">
-                        {displayName.slice(0, 1)}
-                      </span>
-                    )}
+                    <ProfileAvatar
+                      userId={user.id}
+                      fullName={displayName}
+                      avatarUrl={user.avatar_url}
+                      avatarVersion={user.updated_at}
+                      size="md"
+                    />
                     <span className="font-semibold leading-snug">{displayName}</span>
                   </div>
                 </AdminTableCell>
@@ -132,7 +130,7 @@ export function AdminUsersTable({
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
-                    viewHref={detailHref}
+                    onView={() => setViewTarget(user)}
                     onEdit={onEditUser ? () => onEditUser(user) : undefined}
                     editHref={onEditUser ? undefined : detailHref}
                     viewLabel={p.table.view}
@@ -159,6 +157,63 @@ export function AdminUsersTable({
         to={to}
         onPageChange={setPage}
       />
+
+      <DashboardDetailDialog
+        open={Boolean(viewTarget)}
+        title={viewTarget ? getProfileDisplayName(viewTarget, locale) : ""}
+        onClose={() => setViewTarget(null)}
+        closeLabel={t.common.close}
+        fields={
+          viewTarget
+            ? [
+                {
+                  label: p.detail.fullName,
+                  value: getProfileDisplayName(viewTarget, locale),
+                  fullWidth: true,
+                },
+                {
+                  label: p.detail.phone,
+                  value: viewTarget.phone ?? t.common.dash,
+                  ltr: true,
+                },
+                {
+                  label: p.table.role,
+                  value: (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <Badge variant="secondary">{roleLabels[viewTarget.role]}</Badge>
+                      {viewTarget.role === "technician" && viewTarget.technician_type ? (
+                        <Badge variant="outline" className="text-[10px]">
+                          {technicianTypeLabels[viewTarget.technician_type]}
+                        </Badge>
+                      ) : null}
+                    </div>
+                  ),
+                },
+                {
+                  label: t.common.status,
+                  value: (
+                    <Badge variant={viewTarget.is_active ? "success" : "outline"}>
+                      {viewTarget.is_active ? t.common.active : t.common.inactive}
+                    </Badge>
+                  ),
+                },
+              ]
+            : []
+        }
+      >
+        {viewTarget ? (
+          <div className="mt-4 flex justify-center">
+            <ProfileAvatar
+              userId={viewTarget.id}
+              fullName={getProfileDisplayName(viewTarget, locale)}
+              avatarUrl={viewTarget.avatar_url}
+              avatarVersion={viewTarget.updated_at}
+              size="xl"
+              className="!size-24 !text-3xl"
+            />
+          </div>
+        ) : null}
+      </DashboardDetailDialog>
 
       <AdminConfirmDialog
         open={Boolean(deleteTarget)}

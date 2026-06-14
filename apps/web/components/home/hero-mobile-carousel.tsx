@@ -35,19 +35,19 @@ function MobileHeroSlide({
     >
       <h1
         className={cn(
-          "hero-mobile-line-1 w-full text-[1.85rem] font-bold leading-snug tracking-tight text-white",
+          "hero-mobile__title hero-mobile-line-1 w-full text-[1.85rem] font-bold leading-snug tracking-tight",
           isRtl ? "[font-family:var(--font-body)]" : "font-poppins",
         )}
       >
         {slide.titleBefore}{" "}
-        <span className="hero-mobile-highlight text-[#94D4B9]">
+        <span className="hero-mobile__highlight hero-mobile-highlight">
           {slide.titleHighlight}
         </span>
       </h1>
 
       <p
         className={cn(
-          "hero-mobile-line-2 w-full text-sm leading-relaxed text-white/88",
+          "hero-mobile__subtitle hero-mobile-line-2 w-full text-sm leading-relaxed",
           isRtl && "[font-family:var(--font-body)]",
         )}
       >
@@ -56,7 +56,7 @@ function MobileHeroSlide({
 
       <Link
         href={slide.ctaHref}
-        className="hero-mobile-line-3 inline-flex h-12 items-center justify-center gap-2 rounded-[20px] bg-[#94D4B9] px-8 text-sm font-semibold text-[#050B10] shadow-[0_8px_32px_rgba(148,212,185,0.28)] transition-opacity hover:opacity-90"
+        className="hero-mobile__cta hero-mobile-line-3 inline-flex h-12 items-center justify-center gap-2 rounded-[20px] px-8 text-sm font-semibold transition-opacity hover:opacity-90"
       >
         {slide.cta}
         <LocaleForwardArrow />

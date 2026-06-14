@@ -1,12 +1,14 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import "server-only";
 import { ensureServerEnv } from "@/lib/env-server";
 import {
   extensionForMime,
   validateImageUpload,
 } from "@/lib/image-upload-validation";
+import { PROFILE_AVATAR_BUCKET } from "@/lib/profile-avatar-constants";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 
-export const PROFILE_AVATAR_BUCKET = "profile-avatars";
+export { PROFILE_AVATAR_BUCKET } from "@/lib/profile-avatar-constants";
 
 const MAX_BYTES = 5 * 1024 * 1024;
 

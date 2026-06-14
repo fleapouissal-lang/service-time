@@ -39,7 +39,7 @@ export function TrustMarquee() {
 
   return (
     <section
-      className="trust-marquee w-full border-y border-[#94D4B9] bg-[#060709] py-3.5"
+      className="trust-marquee w-full border-y py-3.5"
       aria-label={t.home.trustMarquee.ariaLabel}
     >
       <div className="trust-marquee__viewport" dir="ltr">
