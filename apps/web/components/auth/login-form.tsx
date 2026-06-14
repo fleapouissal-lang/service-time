@@ -29,6 +29,7 @@ import {
   loginInputIconBtnClass,
   loginLabelClass,
   loginLinkClass,
+  loginRegisterLinkClass,
   loginMutedClass,
   loginPanelClass,
   loginPanelDescClass,
@@ -317,7 +318,7 @@ function LoginFormContent() {
 
                   <p className={loginMutedClass}>
                     {t.login.form.noAccount}{" "}
-                    <Link href="/register" className={`${loginLinkClass} hover:underline`}>
+                    <Link href="/register" className={loginRegisterLinkClass}>
                       {t.login.form.registerLink}
                     </Link>
                   </p>

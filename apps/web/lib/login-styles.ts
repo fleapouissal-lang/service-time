@@ -50,6 +50,11 @@ export const loginBtnOutlineClass =
 
 export const loginLinkClass = "login-link font-medium transition-opacity hover:opacity-80";
 
+export const loginRegisterLinkClass = cn(
+  loginLinkClass,
+  "login-register-link hover:underline",
+);
+
 export const loginTextLinkClass = "login-link hover:underline";
 
 export const loginMutedClass = "login-muted text-center text-sm";

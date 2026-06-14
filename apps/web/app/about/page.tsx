@@ -44,6 +44,7 @@ export default async function AboutPage() {
           description={body}
           paragraphs={[...t.about.summary.paragraphs]}
           imageSrc="/about-workshop.png"
+          imageSrcLight="/about-summary-light.png"
           imageAlt={t.about.summary.imageAlt}
           overlayClassName="bg-black/60"
         />
@@ -56,6 +57,7 @@ export default async function AboutPage() {
           description={t.about.vision.description}
           paragraphs={[...t.about.vision.paragraphs]}
           imageSrc="/hero-bg.png"
+          imageSrcLight="/about-vision-light.png"
           imageAlt={t.about.vision.imageAlt}
           overlayClassName="bg-black/65"
         />
@@ -67,6 +69,7 @@ export default async function AboutPage() {
           description={t.about.mission.description}
           paragraphs={[...t.about.mission.paragraphs]}
           imageSrc="/cta-bg.png"
+          imageSrcLight="/about-mission-light.png"
           imageAlt={t.about.mission.imageAlt}
           overlayClassName="bg-black/70"
         />

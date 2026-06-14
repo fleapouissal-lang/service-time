@@ -433,13 +433,13 @@ html.light {
   --login-btn-outline-text: #050b10;
   --login-btn-outline-hover-bg: rgba(148, 212, 185, 0.12);
   --hero-desktop-title: #050b10;
-  --hero-desktop-highlight: #000000;
-  --hero-desktop-subtitle: #000000;
+  --hero-desktop-highlight: #ffffff;
+  --hero-desktop-subtitle: #ffffff;
   --hero-desktop-cta-bg: #94d4b9;
   --hero-desktop-cta-fg: #050b10;
   --hero-mobile-title: #050b10;
-  --hero-mobile-highlight: #000000;
-  --hero-mobile-subtitle: #000000;
+  --hero-mobile-highlight: #ffffff;
+  --hero-mobile-subtitle: rgba(255, 255, 255, 0.92);
   --hero-mobile-cta-bg: #94d4b9;
   --hero-mobile-cta-fg: #050b10;
   --hero-mobile-cta-shadow: 0 8px 32px rgba(148, 212, 185, 0.22);
@@ -941,6 +941,10 @@ html[lang="ar"] {
 
   .login-link {
     color: var(--login-link);
+  }
+
+  html.light .login-register-link {
+    color: #94d4b9;
   }
 
   .login-back-btn {
@@ -2027,4 +2031,9 @@ html.dark .cta-section__overlay {
 html.dark[dir="rtl"] .cta-section__overlay {
   background-color: rgba(5, 11, 16, 0.35);
   background-image: var(--cta-overlay-rtl, var(--cta-overlay));
+}
+
+/* About section — mint overlay on images in light mode */
+.about-section-image__overlay--light {
+  background-color: rgba(148, 212, 185, 0.16);
 }

@@ -140,6 +140,18 @@ const nextConfig: NextConfig = {
             source: "/about-workshop.png",
             headers: publicAssetCache,
           },
+          {
+            source: "/about-summary-light.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/about-vision-light.png",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/about-mission-light.png",
+            headers: publicAssetCache,
+          },
         ];
 
     return [
