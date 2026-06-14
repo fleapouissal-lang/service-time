@@ -70,13 +70,13 @@ export function ServiceCard({
       >
         <div
           className={cn(
-            "flex shrink-0 items-center justify-between gap-1.5",
-            isGrid && "max-sm:h-9 sm:items-start",
+            "flex shrink-0 items-start justify-between gap-2",
+            isGrid && "sm:items-start",
           )}
         >
           <span
             className={cn(
-              "service-card__icon-wrap inline-flex",
+              "service-card__icon-wrap inline-flex shrink-0",
               isArabic ? "origin-right" : "origin-left",
             )}
           >
@@ -99,7 +99,7 @@ export function ServiceCard({
             className={cn(
               "service-card__title",
               isGrid
-                ? "line-clamp-2 text-[0.95rem] leading-6 sm:text-lg sm:leading-7"
+                ? "line-clamp-2 text-base leading-7 sm:text-lg sm:leading-7"
                 : "text-lg",
             )}
           >
@@ -109,7 +109,7 @@ export function ServiceCard({
             className={cn(
               "service-card__desc",
               isGrid
-                ? "line-clamp-3 text-[0.8125rem] leading-5 sm:line-clamp-2 sm:text-sm sm:leading-7"
+                ? "line-clamp-3 text-sm leading-6 sm:line-clamp-2 sm:text-sm sm:leading-7"
                 : "mt-2 text-sm leading-7",
             )}
           >

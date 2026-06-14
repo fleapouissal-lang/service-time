@@ -44,6 +44,7 @@
   --font-heading: var(--font-poppins), sans-serif;
   --font-body: "Janna LT", sans-serif;
   --mobile-nav-bar-bg: #94d4b9;
+  --mobile-bottom-nav-height: 4.625rem;
 }
 
 html.dark {

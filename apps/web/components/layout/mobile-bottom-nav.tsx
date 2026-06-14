@@ -16,7 +16,7 @@ import {
   isMobileMoreActive,
 } from "@/lib/i18n/mobile-nav";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { shouldShowMobileBottomNav, MOBILE_BOTTOM_NAV_OFFSET } from "@/lib/mobile-nav-layout";
+import { shouldShowMobileBottomNav, MOBILE_BOTTOM_NAV_RESERVE } from "@/lib/mobile-nav-layout";
 import { cn } from "@/lib/utils";
 
 function CenterOverviewFab({
@@ -129,19 +129,15 @@ function SheetOverlay({
       />
       <div
         className={cn(
-          "fixed inset-x-0 z-[55] lg:hidden",
-          MOBILE_BOTTOM_NAV_OFFSET,
-          "mobile-bottom-sheet",
+          "fixed inset-x-0 bottom-0 z-[59] lg:hidden",
+          "mobile-bottom-sheet bg-mobile-bottom-nav rounded-t-[20px]",
+          MOBILE_BOTTOM_NAV_RESERVE,
         )}
         role="dialog"
         aria-modal="true"
         aria-label={label}
       >
-        <div
-          className={cn(
-            "rounded-t-[24px] border-t border-[#050B10]/10 bg-mobile-bottom-nav px-4 pt-3 pb-3",
-          )}
-        >
+        <div className="px-4 pt-3 pb-3">
           {children}
         </div>
       </div>

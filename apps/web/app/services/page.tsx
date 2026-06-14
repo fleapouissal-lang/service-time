@@ -30,7 +30,7 @@ export default async function ServicesPage() {
         <ServicesHeroSection />
       </div>
 
-      <section className="mx-auto w-full max-w-[1200px] bg-site-main px-3 pb-8 pt-14 md:w-[90%] md:px-0 md:py-16">
+      <section className="mx-auto w-full max-w-[1200px] bg-site-main px-4 pb-10 pt-16 md:w-[90%] md:px-0 md:py-16">
         <div className="mb-6 md:mb-10">
           <p className={sectionEyebrowClass}>
             {t.services.allServices}
@@ -43,13 +43,14 @@ export default async function ServicesPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 items-stretch gap-3.5 sm:gap-5 lg:grid-cols-3">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
           {services.length > 0 ? (
             services.map((service) => (
               <ServiceCard
                 key={service.id}
                 service={service}
                 variant="grid"
+                showCtaAlways
               />
             ))
           ) : (
