@@ -11,9 +11,18 @@ export function LocaleForwardArrow({ className }: { className?: string }) {
   );
 }
 
-/** Carousel previous — flex `dir` swaps sides in RTL; icon points toward prior slide. */
+/** Carousel previous — points toward prior slide (flips in RTL). */
 export function LocaleCarouselPrev({ className }: { className?: string }) {
-  return <ChevronLeft className={cn("size-4", className)} aria-hidden />;
+  return (
+    <ChevronLeft className={cn("size-4 rtl:rotate-180", className)} aria-hidden />
+  );
+}
+
+/** Carousel next — points toward next slide (flips in RTL). */
+export function LocaleCarouselNext({ className }: { className?: string }) {
+  return (
+    <ChevronRight className={cn("size-4 rtl:rotate-180", className)} aria-hidden />
+  );
 }
 
 /** Pagination previous — points toward lower page numbers. */
@@ -28,9 +37,4 @@ export function LocalePaginationNext({ className }: { className?: string }) {
   return (
     <ChevronRight className={cn("size-4 rtl:rotate-180", className)} aria-hidden />
   );
-}
-
-/** Carousel next — flex `dir` swaps sides in RTL; icon points toward next slide. */
-export function LocaleCarouselNext({ className }: { className?: string }) {
-  return <ChevronRight className={cn("size-4", className)} aria-hidden />;
 }

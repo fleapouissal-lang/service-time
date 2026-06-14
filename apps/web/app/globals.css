@@ -113,15 +113,17 @@ html.dark {
   --cta-panel-shadow: 0 4px 24px rgba(148, 212, 185, 0.06);
   --cta-overlay: linear-gradient(
     105deg,
-    rgba(5, 11, 16, 0.9) 0%,
-    rgba(23, 73, 131, 0.52) 55%,
-    rgba(23, 73, 131, 0.38) 100%
+    rgba(5, 11, 16, 0.94) 0%,
+    rgba(5, 11, 16, 0.82) 42%,
+    rgba(5, 11, 16, 0.68) 68%,
+    rgba(23, 73, 131, 0.52) 100%
   );
   --cta-overlay-rtl: linear-gradient(
     255deg,
-    rgba(5, 11, 16, 0.9) 0%,
-    rgba(23, 73, 131, 0.52) 55%,
-    rgba(23, 73, 131, 0.38) 100%
+    rgba(5, 11, 16, 0.94) 0%,
+    rgba(5, 11, 16, 0.82) 42%,
+    rgba(5, 11, 16, 0.68) 68%,
+    rgba(23, 73, 131, 0.52) 100%
   );
   --cta-title: #ffffff;
   --cta-desc: rgba(255, 255, 255, 0.9);
@@ -1063,39 +1065,6 @@ html[lang="ar"] {
     border: 1px solid var(--cta-panel-border);
     box-shadow: var(--cta-panel-shadow);
   }
-
-  .cta-section__overlay {
-    background: var(--cta-overlay);
-  }
-
-  html.light[dir="rtl"] .cta-section__panel {
-    background-position: center left;
-  }
-
-  html[dir="rtl"] .cta-section__overlay {
-    background: var(--cta-overlay-rtl, var(--cta-overlay));
-  }
-
-  .cta-section__title {
-    color: var(--cta-title);
-  }
-
-  html.light .cta-section__title {
-    color: #ffffff;
-  }
-
-  .cta-section__desc {
-    color: var(--cta-desc);
-  }
-
-  .cta-section__btn {
-    background-color: var(--cta-btn-bg);
-    color: var(--cta-btn-fg);
-  }
-
-  .cta-section__btn:hover {
-    opacity: 0.9;
-  }
 }
 
 @layer utilities {
@@ -2013,4 +1982,49 @@ html.light .dashboard-content .request-field-shell:focus-within {
 
 .photo-upload-dropzone:hover .photo-upload-action {
   background-color: var(--photo-upload-action-hover-bg);
+}
+
+/* CTA panel — unlayered: overlay must sit above background image in dark mode */
+.cta-section__overlay {
+  z-index: 1;
+  background: var(--cta-overlay);
+}
+
+html[dir="rtl"] .cta-section__overlay {
+  background: var(--cta-overlay-rtl, var(--cta-overlay));
+}
+
+html.light[dir="rtl"] .cta-section__panel {
+  background-position: center left;
+}
+
+.cta-section__title {
+  color: var(--cta-title);
+}
+
+html.light .cta-section__title {
+  color: #ffffff;
+}
+
+.cta-section__desc {
+  color: var(--cta-desc);
+}
+
+.cta-section__btn {
+  background-color: var(--cta-btn-bg);
+  color: var(--cta-btn-fg);
+}
+
+.cta-section__btn:hover {
+  opacity: 0.9;
+}
+
+html.dark .cta-section__overlay {
+  background-color: rgba(5, 11, 16, 0.35);
+  background-image: var(--cta-overlay);
+}
+
+html.dark[dir="rtl"] .cta-section__overlay {
+  background-color: rgba(5, 11, 16, 0.35);
+  background-image: var(--cta-overlay-rtl, var(--cta-overlay));
 }

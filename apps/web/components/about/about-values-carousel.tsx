@@ -4,9 +4,10 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Award,
   Eye,
+  Gauge,
+  Handshake,
   ShieldCheck,
   Smartphone,
-  Zap,
   type LucideIcon,
 } from "lucide-react";
 import { AboutSectionHeader } from "@/components/about/about-section-header";
@@ -22,7 +23,13 @@ import {
 } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 
-const VALUE_ICONS: LucideIcon[] = [Award, Zap, Eye, ShieldCheck, Smartphone];
+const VALUE_ICONS: LucideIcon[] = [
+  Award,
+  Gauge,
+  Eye,
+  Handshake,
+  Smartphone,
+];
 
 const GAP_PX = 20;
 const VISIBLE_DESKTOP = 3;
@@ -48,7 +55,8 @@ type CarouselMetrics = {
 };
 
 export function AboutValuesCarousel() {
-  const { messages: t } = useLocale();
+  const { locale, messages: t } = useLocale();
+  const isRtl = locale === "ar";
   const values = t.about.values;
   const items = values.items;
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -218,17 +226,22 @@ export function AboutValuesCarousel() {
                   aria-hidden={!isVisible}
                 >
                   <div
+                    dir={isRtl ? "rtl" : "ltr"}
                     className={cn(
-                      "flex min-h-[220px] flex-col p-4 px-12 md:rounded-[20px] md:p-6 md:px-6",
+                      "flex min-h-[220px] flex-col text-start",
+                      "p-4 ps-11 pe-11 md:rounded-[20px] md:p-6 md:ps-6 md:pe-6",
                       surfaceCardClass,
                     )}
                   >
-                    <span className={cn("mb-4 size-11 rounded-xl", surfaceCardIconWrapClass)}>
+                    <span
+                      className={cn(
+                        "mb-4 inline-flex size-11 items-center justify-center rounded-xl",
+                        surfaceCardIconWrapClass,
+                      )}
+                    >
                       <Icon className={cn("size-5", surfaceCardIconClass)} aria-hidden />
                     </span>
-                    <h3 className="text-lg font-semibold text-primary">
-                      {item.title}
-                    </h3>
+                    <h3 className="text-lg font-semibold text-primary">{item.title}</h3>
                     <p className="mt-3 line-clamp-3 min-h-[5.25rem] text-sm leading-7 text-muted">
                       {item.text}
                     </p>
