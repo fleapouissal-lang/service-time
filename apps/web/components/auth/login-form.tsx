@@ -4,12 +4,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { FormEvent, Suspense, useState } from "react";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
 import { ClientActivationFlow } from "@/components/auth/client-activation-flow";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { mapAuthError } from "@/lib/auth-errors";
 import { clearLegacySupabaseStorage } from "@/lib/auth-cookies";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -311,7 +312,7 @@ function LoginFormContent() {
                     className={`mt-3 ${loginBtnFilledClass}`}
                   >
                     {loading ? t.common.signingIn : t.login.form.submit}
-                    <ArrowLeft className="size-4" aria-hidden />
+                    <LocaleForwardArrow />
                   </button>
 
                   <p className={loginMutedClass}>
