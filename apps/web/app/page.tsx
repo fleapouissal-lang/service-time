@@ -1,15 +1,15 @@
 import type { Metadata } from "next";
 import { HeroSection } from "@/components/home/hero-section";
-import { HomeServicesSection } from "@/components/home/home-services-section";
+import { ServicesCatalogSection } from "@/components/services/services-catalog-section";
 import { HomeCtaSection } from "@/components/home/home-cta-section";
 import { HomeLocationsSection } from "@/components/home/home-locations-section";
 import { HomeSparePartsSection } from "@/components/home/home-spare-parts-section";
-import { TrustMarquee } from "@/components/home/trust-marquee";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
 import { resolveHeroContent } from "@/lib/hero-content";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
-import { getLatestSpareParts, getServices, getSiteContent, getWorkshops } from "@/lib/queries";
+import { getLatestSpareParts, getSiteContent, getWorkshops } from "@/lib/queries";
+import { getServiceCatalogSession } from "@/lib/services-catalog-session";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getServerI18n();
@@ -25,11 +25,11 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const { t, locale } = await getServerI18n();
-  const [services, hero, latestParts, workshops] = await Promise.all([
-    getServices(),
+  const [hero, latestParts, workshops, catalogSession] = await Promise.all([
     getSiteContent("home.hero"),
     getLatestSpareParts(6),
     getWorkshops(),
+    getServiceCatalogSession(),
   ]);
 
   const { titleBefore, titleHighlight, subtitle, cta } = resolveHeroContent(
@@ -37,8 +37,6 @@ export default async function HomePage() {
     locale,
     t,
   );
-
-  const featured = services.slice(0, 6);
 
   return (
     <>
@@ -55,11 +53,10 @@ export default async function HomePage() {
       />
 
       <div className="hidden md:block">
-        <TrustMarquee />
-        <HomeServicesSection services={featured} />
+        <ServicesCatalogSection variant="home" {...catalogSession} />
         <HomeSparePartsSection parts={latestParts} />
-        <HomeLocationsSection workshops={workshops} />
         <HomeCtaSection />
+        <HomeLocationsSection workshops={workshops} />
       </div>
     </>
   );

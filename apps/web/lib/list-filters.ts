@@ -1,5 +1,5 @@
 import { getProfileSearchText } from "@/lib/profile-display-name";
-import type { Profile, Service, ServiceRequest, SparePart } from "@service-time/types";
+import type { Profile, ServiceRequest, SparePart } from "@service-time/types";
 
 export type ListFilterParams = {
   q?: string;
@@ -10,6 +10,7 @@ export type ListFilterParams = {
   execution_method?: string;
   active?: string;
   category?: string;
+  condition?: string;
   role?: string;
   period?: string;
   admin_read?: string;
@@ -27,6 +28,7 @@ export function parseListFilters(
     execution_method: searchParams.execution_method?.trim() || undefined,
     active: searchParams.active?.trim() || undefined,
     category: searchParams.category?.trim() || undefined,
+    condition: searchParams.condition?.trim() || undefined,
     role: searchParams.role?.trim() || undefined,
     period: searchParams.period?.trim() || undefined,
     admin_read: searchParams.admin_read?.trim() || undefined,
@@ -166,37 +168,6 @@ export function filterSparePartOrders<
   });
 }
 
-export function filterServices(
-  items: Service[],
-  params: ListFilterParams,
-): Service[] {
-  return items.filter((item) => {
-    if (params.q) {
-      const q = params.q.toLowerCase();
-      const hit =
-        matchesQuery(item.name_ar, q) ||
-        matchesQuery(item.name_en, q) ||
-        matchesQuery(item.description_ar, q) ||
-        matchesQuery(item.description_en, q) ||
-        matchesQuery(item.category, q);
-      if (!hit) return false;
-    }
-
-    if (
-      params.service_type &&
-      params.service_type !== "all" &&
-      item.service_type !== params.service_type
-    ) {
-      return false;
-    }
-
-    if (params.active === "active" && !item.is_active) return false;
-    if (params.active === "inactive" && item.is_active) return false;
-
-    return true;
-  });
-}
-
 export function filterSpareParts(
   items: SparePart[],
   params: ListFilterParams,
@@ -220,6 +191,14 @@ export function filterSpareParts(
       params.category &&
       params.category !== "all" &&
       (item.category ?? "") !== params.category
+    ) {
+      return false;
+    }
+
+    if (
+      params.condition &&
+      params.condition !== "all" &&
+      (item.part_condition ?? "new") !== params.condition
     ) {
       return false;
     }
@@ -261,36 +240,6 @@ export function filterSiteContentKeys<
   if (!params.q) return items;
   const q = params.q.toLowerCase();
   return items.filter((item) => item.key.toLowerCase().includes(q));
-}
-
-export function filterQuickRequests<
-  T extends {
-    name: string;
-    phone: string;
-    email: string | null;
-    message: string;
-    admin_read_at: string | null;
-    created_at: string;
-  },
->(items: T[], params: ListFilterParams): T[] {
-  return items.filter((item) => {
-    if (!filterByPeriod(item.created_at, params.period)) return false;
-
-    if (params.q) {
-      const q = params.q.toLowerCase();
-      const hit =
-        matchesQuery(item.message, q) ||
-        matchesQuery(item.name, q) ||
-        matchesQuery(item.phone, q) ||
-        matchesQuery(item.email, q);
-      if (!hit) return false;
-    }
-
-    if (params.admin_read === "read" && !item.admin_read_at) return false;
-    if (params.admin_read === "unread" && item.admin_read_at) return false;
-
-    return true;
-  });
 }
 
 export function uniqueCategories(items: SparePart[]): string[] {

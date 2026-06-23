@@ -1,4 +1,5 @@
 import { legal } from "./legal/ar";
+import { servicesCatalog } from "./services-catalog/ar";
 
 export const messages = {
   meta: {
@@ -365,9 +366,12 @@ export const messages = {
         },
       ],
     },
+    heroBrands: {
+      ariaLabel: "ماركات السيارات المدعومة",
+    },
     services: {
       eyebrow: "خدماتنا",
-      title: "ماذا نقدم لك؟",
+      title: "كل ما تحتاجه سيارتك في مكان واحد",
       empty: "لا توجد خدمات بعد — قم بتشغيل seed.sql",
       prevAria: "الخدمة السابقة",
       nextAria: "الخدمة التالية",
@@ -419,29 +423,48 @@ export const messages = {
       slideAriaLabel: "الشريحة",
       slides: [
         {
-          title: "صيانة دورية",
-          highlight: "موثوقة",
+          title: "صيانة عامة",
+          highlight: "في الورشة",
           description:
-            "فحص شامل وصيانة دورية لسيارتك — اختر الورشة المتنقلة أو زيارة مركزنا.",
+            "زيت، فرامل، مكيف، وفحص شامل — احجز زيارة لورشتنا المعتمدة.",
         },
         {
-          title: "طوارئ",
-          highlight: "على الطريق",
+          title: "صيانة متنقلة",
+          highlight: "عند موقعك",
           description:
-            "تعطلت سيارتك؟ فريق Service Time يصل إليك بسرعة أينما كنت في الرياض.",
+            "فني يصل إليك في أي مكان بالرياض لخدمة في موقعك.",
         },
         {
-          title: "قطع غيار",
+          title: "طلب قطع غيار",
           highlight: "بسرعة",
           description:
-            "اطلب القطعة المناسبة لسيارتك وتابع حالة طلبك عبر واتساب أو SMS.",
+            "تصفّح المتجر أو أرسل طلب قطعة مخصصة مع بياناتك.",
+        },
+        {
+          title: "سطحة",
+          highlight: "ونقل",
+          description:
+            "سحب داخل الرياض، إنقاذ على الطريق، ونقل آمن بعد الحوادث.",
+        },
+        {
+          title: "أعطال",
+          highlight: "وحوادث",
+          description:
+            "مساعدة على الطريق — تشغيل بطارية، إطار، أعطال، ودعم بعد حادث.",
+        },
+        {
+          title: "متابعة طلبات",
+          highlight: "خارجية",
+          description:
+            "تابع الطلبات خارج المنصة — سجّل الدخول برمز التتبع.",
         },
       ],
     },
+    catalog: servicesCatalog,
     allServices: "جميع الخدمات",
-    chooseService: "اختر الخدمة المناسبة",
+    chooseService: "الخدمات الرئيسية والخيارات الفرعية",
     description:
-      "صيانة دورية، طوارئ على الطريق، وطلب قطع غيار — مرّر على البطاقة واضغط «ابدأ طلب الخدمة» للمتابعة.",
+      "صيانة عامة، صيانة متنقلة، قطع غيار، سطحة، أعطال وحوادث، ومتابعة طلبات خارجية — اختر خياراً فرعياً وأرسل طلبك.",
     empty: "لا توجد خدمات متاحة حالياً — قم بتشغيل seed.sql",
     startRequest: "ابدأ طلب الخدمة",
     cta: {
@@ -456,7 +479,7 @@ export const messages = {
     eyebrow: "طلب خدمة",
     title: "أرسل طلب الصيانة",
     hubTitle: "كيف تريد طلب الخدمة؟",
-    hubDescription: "اختر الطريقة المناسبة — طلب كامل، نموذج سريع، أو واتساب.",
+    hubDescription: "سجّل الدخول لتقديم طلب خدمة كامل مع تتبع مباشر.",
     description: "املأ البيانات وسنتواصل معك قريباً عبر واتساب أو SMS.",
     loginRequired: "يجب تسجيل الدخول بحساب عميل لإرسال طلب خدمة.",
     modes: {
@@ -523,6 +546,8 @@ export const messages = {
       deleteVehicleFailed: "تعذّر حذف السيارة. حاول مجدداً.",
       location: "الموقع",
       serviceType: "نوع الخدمة *",
+      subServiceType: "نوع الخدمة الفرعي *",
+      selectServiceCategory: "اختر الخدمة…",
       executionMethod: "طريقة التنفيذ *",
       problemDescription: "وصف المشكلة / الطلب",
       photoTitle: "إرفاق صورة",
@@ -656,6 +681,12 @@ export const messages = {
     photoCounter: "{current} / {total}",
     photoGoTo: "الانتقال إلى الصورة {n}",
     photosLabel: "صور",
+    condition: {
+      label: "نوع المنتج",
+      all: "كل الأنواع",
+      new: "جديد",
+      used: "مستعمل",
+    },
   },
 
   checkout: {
@@ -1383,6 +1414,7 @@ export const messages = {
         detailsEn: "التفاصيل (English)",
         priceSar: "السعر (ر.س)",
         stockQuantity: "الكمية في المخزون",
+        partCondition: "نوع المنتج",
         partImage: "صورة القطعة",
         partImages: "صور القطعة",
         addMorePhotos: "إضافة المزيد من الصور",
@@ -1439,6 +1471,7 @@ export const messages = {
         table: {
           image: "الصورة",
           name: "الاسم",
+          condition: "النوع",
           price: "السعر",
           stock: "المخزون",
           actions: "إجراءات",

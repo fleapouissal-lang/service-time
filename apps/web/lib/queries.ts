@@ -1,6 +1,5 @@
 import type {
   RequestStatusHistory,
-  Service,
   ServiceRequest,
   SiteContent,
   SparePart,
@@ -12,18 +11,6 @@ import { SPARE_PARTS_PAGE_SIZE } from "@/lib/spare-parts-pagination";
 import { createWebSupabaseClient } from "@/lib/supabase";
 
 export type { WorkshopBranch };
-
-export async function getServices(): Promise<Service[]> {
-  const supabase = createWebSupabaseClient();
-  const { data, error } = await supabase
-    .from("services")
-    .select("*")
-    .eq("is_active", true)
-    .order("sort_order", { ascending: true });
-
-  if (error) return [];
-  return (data ?? []) as Service[];
-}
 
 export async function getSpareParts(): Promise<SparePart[]> {
   const supabase = createWebSupabaseClient();
@@ -40,6 +27,7 @@ export async function getSpareParts(): Promise<SparePart[]> {
 export type SparePartsListFilters = {
   q?: string;
   category?: string;
+  condition?: string;
 };
 
 export async function getSparePartsPage(
@@ -62,6 +50,10 @@ export async function getSparePartsPage(
 
   if (filters.category && filters.category !== "all") {
     query = query.eq("category", filters.category);
+  }
+
+  if (filters.condition && filters.condition !== "all") {
+    query = query.eq("part_condition", filters.condition);
   }
 
   if (filters.q) {

@@ -1,6 +1,5 @@
 import type {
   Profile,
-  Service,
   ServiceRequest,
   SiteContent,
   SparePart,
@@ -26,25 +25,6 @@ export async function getTechnicianRequests(
     .eq("assigned_technician_id", technicianId)
     .order("created_at", { ascending: false });
   return (data ?? []) as ServiceRequest[];
-}
-
-export async function getAllServicesAdmin(): Promise<Service[]> {
-  const supabase = await createAuthServerClient();
-  const { data } = await supabase
-    .from("services")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  return (data ?? []) as Service[];
-}
-
-export async function getServiceById(id: string): Promise<Service | null> {
-  const supabase = await createAuthServerClient();
-  const { data } = await supabase
-    .from("services")
-    .select("*")
-    .eq("id", id)
-    .maybeSingle();
-  return (data as Service | null) ?? null;
 }
 
 export async function getAllSparePartsAdmin(): Promise<SparePart[]> {

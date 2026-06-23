@@ -67,7 +67,6 @@ export function getDashboardMobileNav(
     const primaryHrefs = [
       "/admin/orders",
       "/admin/spare-part-orders",
-      "/admin/quick-requests",
     ];
     return {
       primary: items.filter((item) => primaryHrefs.includes(item.href)),

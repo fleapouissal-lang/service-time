@@ -6,6 +6,7 @@ import { Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
+import { SparePartConditionBadge } from "@/components/spare-parts/spare-part-condition-badge";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
@@ -15,6 +16,7 @@ import {
   getSparePartCategory,
   getSparePartName,
 } from "@/lib/localized-content";
+import { resolveSparePartCondition } from "@/lib/spare-part-condition";
 import { getSparePartCoverImage, getSparePartImages } from "@/lib/spare-part-images";
 import { cn } from "@/lib/utils";
 import { serviceTagPillSmClass } from "@/lib/section-styles";
@@ -39,6 +41,7 @@ export function SparePartCard({
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
   const category = getSparePartCategory(part, locale);
+  const condition = resolveSparePartCondition(part);
   const coverImage = getSparePartCoverImage(part);
   const photoCount = getSparePartImages(part).length;
   const isClickable = Boolean(onOpen);
@@ -114,6 +117,10 @@ export function SparePartCard({
             {category}
           </span>
         ) : null}
+        <SparePartConditionBadge
+          condition={condition}
+          className="absolute top-2 start-2 z-20 sm:top-3 sm:start-3"
+        />
         {isClickable ? (
           <div className="absolute bottom-2 start-2 z-30 flex flex-row gap-2 sm:hidden">
             <AddToCartButton part={part} variant="icon" className={iconActionClass} />

@@ -18,6 +18,7 @@ import { isQuotePending } from "@/lib/suggest-service-price";
 import { isPaymentBlockingAssignment } from "@/lib/service-request-payment";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
+import { parseSparePartCondition } from "@/lib/spare-part-condition";
 import {
   getAvatarFromFormData,
   PROFILE_AVATAR_BUCKET,
@@ -219,178 +220,6 @@ export async function deleteSparePartOrderAction(formData: FormData) {
   redirect("/admin/spare-part-orders");
 }
 
-export async function getQuickRequestPhotoSignedUrlAction(
-  storagePath: string,
-): Promise<{ url: string } | { error: string }> {
-  await requireProfileOrThrow(["admin"]);
-
-  const path = String(storagePath ?? "").trim();
-  if (!path) {
-    return { error: "مسار الصورة غير صالح." };
-  }
-
-  const { getQuickRequestPhotoSignedUrl } = await import("@/lib/quick-request-photo");
-  const url = await getQuickRequestPhotoSignedUrl(path);
-  if (!url) {
-    return { error: "تعذّر تحميل الصورة." };
-  }
-
-  return { url };
-}
-
-export async function setQuickRequestAdminReadStatusAction(
-  id: string,
-  read: boolean,
-): Promise<{ ok: true; admin_read_at: string | null } | { error: string }> {
-  await requireProfileOrThrow(["admin"]);
-
-  const admin = getAdminSupabaseClient();
-  if (!admin) {
-    return { error: "إعدادات الخادم غير مكتملة." };
-  }
-
-  const requestId = String(id ?? "").trim();
-  if (!requestId) {
-    return { error: "معرّف الطلب مطلوب." };
-  }
-
-  const adminReadAt = read ? new Date().toISOString() : null;
-  const { error } = await admin
-    .from("quick_requests")
-    .update({ admin_read_at: adminReadAt })
-    .eq("id", requestId);
-
-  if (error) {
-    return { error: error.message };
-  }
-
-  revalidatePath("/admin/quick-requests");
-  revalidatePath("/admin");
-  revalidatePath("/client/quick-requests");
-
-  return { ok: true, admin_read_at: adminReadAt };
-}
-
-export async function markQuickRequestReadAction(
-  id: string,
-): Promise<{ ok: true } | { error: string }> {
-  const result = await setQuickRequestAdminReadStatusAction(id, true);
-  if ("error" in result) {
-    return result;
-  }
-  return { ok: true };
-}
-
-export async function deleteQuickRequestAction(formData: FormData) {
-  await requireProfileOrThrow(["admin"]);
-  const admin = getAdminSupabaseClient();
-  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
-
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) throw new Error("معرّف الطلب مطلوب.");
-
-  const { data: row, error: fetchError } = await admin
-    .from("quick_requests")
-    .select("photo_storage_path")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (fetchError) throw new Error(fetchError.message);
-  if (!row) throw new Error("الطلب غير موجود.");
-
-  if (row.photo_storage_path) {
-    const { removeQuickRequestPhoto } = await import("@/lib/quick-request-photo");
-    await removeQuickRequestPhoto(row.photo_storage_path, id);
-  }
-
-  const { error } = await admin.from("quick_requests").delete().eq("id", id);
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/admin/quick-requests");
-  revalidatePath("/admin");
-  revalidatePath("/client/quick-requests");
-}
-
-export async function saveServiceAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id") ?? "");
-  const payload = {
-    name_ar: String(formData.get("name_ar")),
-    name_en: String(formData.get("name_en") ?? "").trim() || null,
-    description_ar: String(formData.get("description_ar") ?? ""),
-    description_en: String(formData.get("description_en") ?? "").trim() || null,
-    category: String(formData.get("category") ?? ""),
-    service_type: String(formData.get("service_type")),
-    sort_order: Number(formData.get("sort_order") ?? 0),
-    is_active: formData.get("is_active") === "on",
-  };
-
-  const { data, error } = id
-    ? await supabase.from("services").update(payload).eq("id", id).select("id").single()
-    : await supabase.from("services").insert(payload).select("id").single();
-
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/services");
-  if (id) {
-    revalidatePath(`/admin/services/${id}`);
-  } else if (data?.id) {
-    redirect(`/admin/services/${data.id}`);
-  }
-}
-
-export type SaveServiceFormState = {
-  success?: boolean;
-  error?: string;
-};
-
-function buildServicePayload(formData: FormData) {
-  return {
-    name_ar: String(formData.get("name_ar")),
-    name_en: String(formData.get("name_en") ?? "").trim() || null,
-    description_ar: String(formData.get("description_ar") ?? ""),
-    description_en: String(formData.get("description_en") ?? "").trim() || null,
-    category: String(formData.get("category") ?? ""),
-    service_type: String(formData.get("service_type")),
-    sort_order: Number(formData.get("sort_order") ?? 0),
-    is_active: formData.get("is_active") === "on",
-  };
-}
-
-export async function saveServiceEditAction(
-  _prev: SaveServiceFormState,
-  formData: FormData,
-): Promise<SaveServiceFormState> {
-  try {
-    const supabase = await adminClient();
-    const id = String(formData.get("id") ?? "");
-    if (!id) return { error: "Missing service id" };
-
-    const { error } = await supabase
-      .from("services")
-      .update(buildServicePayload(formData))
-      .eq("id", id);
-
-    if (error) return { error: error.message };
-
-    revalidatePath("/admin/services");
-    revalidatePath(`/admin/services/${id}`);
-    return { success: true };
-  } catch (err) {
-    return {
-      error: err instanceof Error ? err.message : "Unknown error",
-    };
-  }
-}
-
-export async function deleteServiceAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id"));
-  const { error } = await supabase.from("services").delete().eq("id", id);
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/services");
-  redirect("/admin/services");
-}
-
 export async function saveSparePartAction(formData: FormData) {
   const supabase = await adminClient();
   const id = String(formData.get("id") ?? "");
@@ -415,6 +244,7 @@ export async function saveSparePartAction(formData: FormData) {
     images,
     price,
     stock_quantity,
+    part_condition: parseSparePartCondition(formData.get("part_condition")),
     is_active: formData.get("is_active") === "on",
   };
 
@@ -472,6 +302,7 @@ export async function saveSparePartEditAction(
       images,
       price,
       stock_quantity,
+      part_condition: parseSparePartCondition(formData.get("part_condition")),
       is_active: formData.get("is_active") === "on",
     };
 
@@ -693,12 +524,10 @@ export async function deletePlatformUserAction(formData: FormData) {
   revalidatePath("/admin/users");
   revalidatePath("/admin/technicians");
   revalidatePath("/admin/orders");
-  revalidatePath("/admin/quick-requests");
   revalidatePath("/admin/spare-part-orders");
   revalidatePath("/admin/reports");
   revalidatePath("/admin");
   revalidatePath("/client/orders");
-  revalidatePath("/client/quick-requests");
   revalidatePath("/client/spare-part-orders");
 }
 

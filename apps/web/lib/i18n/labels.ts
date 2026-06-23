@@ -203,25 +203,6 @@ export function getRoleFilterOptions(t: Messages) {
   }));
 }
 
-export function getQuickRequestAdminReadFilterOptions(
-  t: Messages,
-  variant: "client" | "admin" = "client",
-) {
-  if (variant === "admin") {
-    const labels = t.dashboard.admin.quickRequestsPage.table;
-    return [
-      { value: "read", label: labels.read },
-      { value: "unread", label: labels.unread },
-    ];
-  }
-
-  const labels = t.dashboard.client.quickRequestsPage.table;
-  return [
-    { value: "read", label: labels.adminRead },
-    { value: "unread", label: labels.adminPending },
-  ];
-}
-
 export function withAllOption(
   options: IconSelectOption[],
   allLabel: string,

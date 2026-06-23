@@ -88,6 +88,17 @@ export function AdminSparePartAddForm() {
                   dir="ltr"
                 />
               </div>
+              <div>
+                <Label>{p.partCondition}</Label>
+                <select
+                  name="part_condition"
+                  defaultValue="new"
+                  className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                >
+                  <option value="new">{t.spareParts.condition.new}</option>
+                  <option value="used">{t.spareParts.condition.used}</option>
+                </select>
+              </div>
               <div className="md:col-span-2">
                 <Label className="mb-2 block">{p.partImages}</Label>
                 <MultiPhotoUploadField

@@ -11,6 +11,7 @@ import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-d
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice } from "@/lib/format-price";
+import { getSparePartConditionLabel, resolveSparePartCondition } from "@/lib/spare-part-condition";
 import {
   getSparePartCategory,
   getSparePartDetails,
@@ -58,6 +59,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           </AdminTableHeadCell>
           <AdminTableHeadCell>{p.table.name}</AdminTableHeadCell>
           <AdminTableHeadCell>{t.common.category}</AdminTableHeadCell>
+          <AdminTableHeadCell align="center">{p.table.condition}</AdminTableHeadCell>
           <AdminTableHeadCell align="center" className="min-w-[7rem]">
             {p.table.price}
           </AdminTableHeadCell>
@@ -97,6 +99,9 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                 </AdminTableCell>
                 <AdminTableCell className="text-muted">
                   {category ?? t.common.dash}
+                </AdminTableCell>
+                <AdminTableCell align="center">
+                  {getSparePartConditionLabel(resolveSparePartCondition(part), t)}
                 </AdminTableCell>
                 <AdminTableCell align="center" ltr className="min-w-[7rem]">
                   {formatSparePartPrice(part.price, locale)}
@@ -146,6 +151,13 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                 {
                   label: t.common.category,
                   value: getSparePartCategory(viewTarget, locale) ?? t.common.dash,
+                },
+                {
+                  label: p.table.condition,
+                  value: getSparePartConditionLabel(
+                    resolveSparePartCondition(viewTarget),
+                    t,
+                  ),
                 },
                 {
                   label: p.table.price,

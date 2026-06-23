@@ -10,7 +10,6 @@ import {
   Settings,
   ShoppingCart,
   Users,
-  Zap,
   Wrench,
 } from "lucide-react";
 
@@ -27,11 +26,6 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       icon: ClipboardList,
     },
     {
-      href: "/admin/services",
-      label: messages.dashboard.admin.services,
-      icon: Wrench,
-    },
-    {
       href: "/admin/spare-parts",
       label: messages.dashboard.admin.spareParts,
       icon: Package,
@@ -40,11 +34,6 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       href: "/admin/spare-part-orders",
       label: messages.dashboard.admin.sparePartOrders,
       icon: ShoppingCart,
-    },
-    {
-      href: "/admin/quick-requests",
-      label: messages.dashboard.admin.quickRequests,
-      icon: Zap,
     },
     {
       href: "/admin/locations",
@@ -115,11 +104,6 @@ export function getClientNav(messages: Messages): DashboardNavItem[] {
       href: "/client/spare-part-orders",
       label: messages.dashboard.client.sparePartOrders,
       icon: ShoppingCart,
-    },
-    {
-      href: "/client/quick-requests",
-      label: messages.dashboard.client.quickRequests,
-      icon: Zap,
     },
     {
       href: "/client/request",

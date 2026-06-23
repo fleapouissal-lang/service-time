@@ -4,6 +4,7 @@ import { AdminSparePartsTable } from "@/components/admin/admin-spare-parts-table
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { Card, CardContent } from "@/components/ui/card";
 import { getActiveFilterOptionsForDashboard } from "@/lib/dashboard-filter-options";
+import { getSparePartConditionFilterOptions } from "@/lib/spare-part-condition";
 import { getAllSparePartsAdmin } from "@/lib/dashboard-queries";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
@@ -27,6 +28,7 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
     label: c,
   }));
   const ACTIVE_OPTIONS = getActiveFilterOptionsForDashboard(t);
+  const conditionOptions = getSparePartConditionFilterOptions(t);
 
   return (
     <div className="space-y-8">
@@ -37,6 +39,12 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
         values={params}
         searchPlaceholder={t.dashboard.filters.sparePartSearch}
         selects={[
+          {
+            name: "condition",
+            label: t.spareParts.condition.label,
+            options: conditionOptions,
+            allLabel: t.spareParts.condition.all,
+          },
           { name: "category", label: t.common.category, options: categories },
           { name: "active", label: t.common.status, options: ACTIVE_OPTIONS },
         ]}

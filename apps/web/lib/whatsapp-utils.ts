@@ -69,6 +69,17 @@ export function buildWhatsAppQuickContactUrl(
   return buildWaMeUrl(businessDigits, lines.join("\n"));
 }
 
+export function buildWhatsAppSiteContactUrl(
+  businessDigits: string,
+  locale: "ar" | "en",
+): string {
+  const text =
+    locale === "ar"
+      ? "مرحباً Service Time، أريد الاستفسار عن خدماتكم."
+      : "Hello Service Time, I would like to inquire about your services.";
+  return buildWaMeUrl(businessDigits, text);
+}
+
 export function buildWhatsAppOrderTrackingToClientMessage(payload: {
   customerName: string;
   trackingToken: string;

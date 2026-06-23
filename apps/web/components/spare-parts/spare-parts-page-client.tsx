@@ -15,7 +15,7 @@ type SparePartsPageClientProps = {
   currentPage: number;
   totalPages: number;
   pageSize: number;
-  filters?: { q?: string; category?: string };
+  filters?: { q?: string; category?: string; condition?: string };
 };
 
 function SparePartsCartFab() {

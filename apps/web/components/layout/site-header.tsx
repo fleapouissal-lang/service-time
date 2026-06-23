@@ -39,9 +39,12 @@ function navLinkClass(active: boolean, transparent: boolean) {
 
 export function SiteHeader() {
   const pathname = usePathname();
-  const { messages } = useLocale();
+  const { messages, locale } = useLocale();
   const navLinks = getNavLinks(messages);
   const [scrolled, setScrolled] = useState(false);
+  const isEnglish = locale === "en";
+  const logoSrc = isEnglish ? "/logos/logo-en.png" : "/logos/logo-ar.png";
+  const logoAlt = isEnglish ? "Service Time" : "Service Time — سيرفيس تايم";
 
   const isHome = pathname === "/";
   const isTransparent = isHome && !scrolled;
@@ -72,12 +75,17 @@ export function SiteHeader() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">
         <Link href="/" className="flex shrink-0 items-center bg-transparent">
           <Image
-            src="/logos/logo-ar.png"
-            alt="Service Time — سيرفيس تايم"
+            src={logoSrc}
+            alt={logoAlt}
             width={280}
             height={98}
             sizes="(max-width: 640px) 160px, 280px"
-            className="h-10 w-auto bg-transparent object-contain brightness-[1.15] contrast-[1.08] sm:h-16 md:h-[4.75rem]"
+            unoptimized
+            className={cn(
+              "h-10 w-auto bg-transparent object-contain sm:h-16 md:h-[4.75rem]",
+              !isEnglish && "brightness-[1.15] contrast-[1.08]",
+            )}
+            priority
           />
         </Link>
 

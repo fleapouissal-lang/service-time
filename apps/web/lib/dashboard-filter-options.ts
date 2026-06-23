@@ -4,7 +4,6 @@ import {
   getExecutionMethodFilterOptions,
   getPeriodFilterOptions,
   getPriorityFilterOptions,
-  getQuickRequestAdminReadFilterOptions,
   getRoleFilterOptions,
   getServiceTypeFilterOptions,
   getStatusFilterOptions,
@@ -56,19 +55,4 @@ export function getAdminSparePartOrderSearchPlaceholder(t: Messages) {
 
 export function getUserSearchPlaceholderForDashboard(t: Messages) {
   return t.dashboard.filters.userSearch;
-}
-
-export function getQuickRequestSearchPlaceholderForDashboard(t: Messages) {
-  return t.dashboard.filters.quickRequestSearch;
-}
-
-export function getClientQuickRequestSearchPlaceholder(t: Messages) {
-  return t.dashboard.filters.clientQuickRequestSearch;
-}
-
-export function getQuickRequestAdminReadFilterOptionsForDashboard(
-  t: Messages,
-  variant: "client" | "admin" = "client",
-) {
-  return getQuickRequestAdminReadFilterOptions(t, variant);
 }

@@ -13,7 +13,6 @@ export const FIELD_LIMITS = {
 
 const RATE_LIMITS = {
   contact: { max: 5, windowMs: 60 * 60 * 1000 },
-  quickRequest: { max: 3, windowMs: 60 * 60 * 1000 },
   serviceRequest: { max: 12, windowMs: 60 * 60 * 1000 },
   login: { max: 25, windowMs: 15 * 60 * 1000 },
   forgotPassword: { max: 5, windowMs: 60 * 60 * 1000 },

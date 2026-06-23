@@ -1,17 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Suspense } from "react";
 import { LogIn, UserPlus } from "lucide-react";
-import { QuickRequestForm } from "@/components/request/quick-request-form";
-import {
-  RequestModeHub,
-  RequestModeTabs,
-  type RequestMode,
-} from "@/components/request/request-mode-hub";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { RequestSparePartsFab } from "@/components/request/request-spare-parts-fab";
-import { WhatsAppQuickContact } from "@/components/request/whatsapp-quick-contact";
 import { PageHeader } from "@/components/layout/page-header";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
@@ -24,7 +16,6 @@ import { MOBILE_SCREEN_CENTER } from "@/lib/mobile-nav-layout";
 import { cn } from "@/lib/utils";
 
 type RequestPageContentProps = {
-  mode: RequestMode;
   isClient: boolean;
   defaultName: string;
   defaultPhone: string;
@@ -38,13 +29,7 @@ function FullRequestPanel({
   defaultPhone,
   loginNextPath,
   savedVehicles = [],
-}: {
-  isClient: boolean;
-  defaultName: string;
-  defaultPhone: string;
-  loginNextPath: string;
-  savedVehicles?: string[];
-}) {
+}: RequestPageContentProps) {
   const { messages: t } = useLocale();
   const loginHref = `/login?next=${encodeURIComponent(loginNextPath)}`;
 
@@ -96,120 +81,23 @@ function FullRequestPanel({
   );
 }
 
-function RequestBody({
-  mode,
-  isClient,
-  defaultName,
-  defaultPhone,
-  loginNextPath,
-  savedVehicles = [],
-}: RequestPageContentProps) {
-  if (mode === "hub") {
-    return <RequestModeHub />;
-  }
-
-  if (mode === "full") {
-    return (
-      <FullRequestPanel
-        isClient={isClient}
-        defaultName={defaultName}
-        defaultPhone={defaultPhone}
-        loginNextPath={loginNextPath}
-        savedVehicles={savedVehicles}
-      />
-    );
-  }
-
-  if (mode === "quick") {
-    return <QuickRequestForm />;
-  }
+export function RequestPageContent(props: RequestPageContentProps) {
+  const { messages: t } = useLocale();
 
   return (
     <>
       <div className="hidden md:block">
-        <WhatsAppQuickContact />
+        <PageHeader
+          plain
+          plainWidth="md"
+          eyebrow={t.request.eyebrow}
+          title={t.request.title}
+          description={t.request.modes.fullDescription}
+        />
       </div>
-      <div className="md:hidden">
-        <RequestModeHub />
-      </div>
-    </>
-  );
-}
-
-function RequestHeader({ mode }: { mode: RequestMode }) {
-  const { messages: t } = useLocale();
-
-  const copy = {
-    hub: {
-      title: t.request.hubTitle,
-      description: t.request.hubDescription,
-    },
-    full: {
-      title: t.request.title,
-      description: t.request.modes.fullDescription,
-    },
-    quick: {
-      title: t.request.modes.quickTitle,
-      description: t.request.modes.quickDescription,
-    },
-    whatsapp: {
-      title: t.request.modes.whatsappTitle,
-      description: t.request.modes.whatsappDescription,
-    },
-  }[mode];
-
-  return (
-    <div
-      className={cn(
-        (mode === "hub" || mode === "full" || mode === "whatsapp") &&
-          "hidden md:block",
-      )}
-    >
-      <PageHeader
-        plain
-        plainWidth="md"
-        eyebrow={t.request.eyebrow}
-        title={copy.title}
-        description={copy.description}
-      />
-    </div>
-  );
-}
-
-export function RequestPageContent(props: RequestPageContentProps) {
-  const { mode } = props;
-  const centerOnMobile = mode !== "hub" && mode !== "whatsapp";
-  const showTabsOnMobile = mode !== "hub" && mode !== "whatsapp";
-
-  return (
-    <>
-      <RequestHeader mode={mode} />
       <RequestSparePartsFab />
-      <div
-        className={cn(
-          centerOnMobile && cn(MOBILE_SCREEN_CENTER, "max-md:px-3"),
-        )}
-      >
-        {mode !== "hub" ? (
-          <div
-            className={cn(
-              "mb-10 max-md:mx-auto max-md:w-full max-md:max-w-3xl max-md:shrink-0",
-              mode === "full" && "max-md:mb-4",
-              !showTabsOnMobile && "max-md:hidden",
-            )}
-          >
-            <Suspense fallback={null}>
-              <RequestModeTabs active={mode} />
-            </Suspense>
-          </div>
-        ) : null}
-        {mode === "hub" ? (
-          <Suspense fallback={null}>
-            <RequestBody {...props} />
-          </Suspense>
-        ) : (
-          <RequestBody {...props} />
-        )}
+      <div className={cn(MOBILE_SCREEN_CENTER, "max-md:px-3")}>
+        <FullRequestPanel {...props} />
       </div>
     </>
   );

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
-import { CheckCircle2, FileText, Phone, User } from "lucide-react";
+import { CheckCircle2, FileText, LogIn, Phone, User, UserPlus } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
 import { LocationField } from "@/components/request/location-field";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
@@ -18,17 +18,28 @@ import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
-import {
-  buildExecutionMethodSelectOptions,
-  buildServiceRequestTypeOptions,
-} from "@/lib/i18n/labels";
+import { buildExecutionMethodSelectOptions } from "@/lib/i18n/labels";
 import {
   requestAccentTextClass,
   requestBtnFilledClass,
+  requestBtnOutlineClass,
+  requestCardClass,
   requestStepDotClass,
   requestStepLabelClass,
 } from "@/lib/request-styles";
+import { iconAccentClass } from "@/lib/card-surface";
 import { cn } from "@/lib/utils";
+import type { ExecutionMethod, ServiceType } from "@service-time/types";
+import {
+  buildCatalogCategorySelectOptions,
+  buildCatalogSubSelectOptions,
+  buildServiceRequestHref,
+  catalogCategoryShowsExecutionMethod,
+  defaultExecutionMethodForCategory,
+  findCatalogSubOption,
+  parseCatalogAction,
+  resolveCatalogPrefillDescription,
+} from "@/lib/services-catalog";
 
 export function ServiceRequestForm({
   embedded = false,
@@ -43,6 +54,10 @@ export function ServiceRequestForm({
   defaultPhone = "",
   savedVehicles = [],
   refreshDashboard = false,
+  catalogDefaults,
+  lockCatalogCategory = false,
+  loginRequired = false,
+  loginNextPath = "/request",
   onSuccess,
 }: {
   embedded?: boolean;
@@ -59,26 +74,129 @@ export function ServiceRequestForm({
   defaultPhone?: string;
   savedVehicles?: string[];
   refreshDashboard?: boolean;
+  catalogDefaults?: {
+    serviceType: ServiceType;
+    executionMethod: ExecutionMethod;
+    categoryId: string;
+    subId: string;
+  };
+  lockCatalogCategory?: boolean;
+  loginRequired?: boolean;
+  loginNextPath?: string;
   onSuccess?: () => void;
 }) {
   const { messages: t } = useLocale();
   const f = t.request.form;
+  const catalogCopy = t.services.catalog;
+  const catalogCategories = catalogCopy.categories;
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
-  const defaultType =
-    rawType === "periodic_maintenance" || rawType === "emergency"
+  const resolvedType: ServiceType =
+    catalogDefaults?.serviceType ??
+    (rawType === "periodic_maintenance" ||
+    rawType === "emergency" ||
+    rawType === "spare_parts"
       ? rawType
-      : "periodic_maintenance";
-  const defaultExecution =
-    searchParams.get("execution_method") ?? "mobile_workshop";
+      : "periodic_maintenance");
+  const rawExecution = searchParams.get("execution_method");
+  const resolvedExecution: ExecutionMethod =
+    catalogDefaults?.executionMethod ??
+    (rawExecution === "workshop_visit" || rawExecution === "mobile_workshop"
+      ? rawExecution
+      : "mobile_workshop");
+  const categoryId =
+    catalogDefaults?.categoryId ?? searchParams.get("category") ?? "";
+  const subId = catalogDefaults?.subId ?? searchParams.get("sub") ?? "";
+  const [catalogCategoryId, setCatalogCategoryId] = useState(categoryId);
+  const [catalogSubId, setCatalogSubId] = useState(subId);
+  const selectedSub = useMemo(
+    () => findCatalogSubOption(catalogCategories, catalogCategoryId, catalogSubId),
+    [catalogCategories, catalogCategoryId, catalogSubId],
+  );
+  const parsedSubAction = selectedSub
+    ? parseCatalogAction(selectedSub.action)
+    : null;
+  const isLinkSub = parsedSubAction?.kind === "link";
+  const isFullSub = parsedSubAction?.kind === "full";
+  const showExecutionMethod =
+    !isLinkSub && catalogCategoryShowsExecutionMethod(catalogCategoryId);
+  const lockedCategory = catalogCategories.find(
+    (item) => item.id === catalogCategoryId,
+  );
+  const prefillDescription = useMemo(
+    () =>
+      resolveCatalogPrefillDescription(
+        catalogCategories,
+        catalogCategoryId || null,
+        catalogSubId || null,
+      ),
+    [catalogCategories, catalogCategoryId, catalogSubId],
+  );
 
-  const [serviceType, setServiceType] = useState(defaultType);
-  const [executionMethod, setExecutionMethod] = useState(defaultExecution);
+  const [serviceType, setServiceType] = useState<ServiceType>(resolvedType);
+  const [executionMethod, setExecutionMethod] =
+    useState<ExecutionMethod>(resolvedExecution);
 
-  const serviceTypeOptions = useMemo(
-    () => buildServiceRequestTypeOptions(t),
-    [t],
+  useEffect(() => {
+    if (catalogDefaults) {
+      setCatalogCategoryId(catalogDefaults.categoryId);
+      setCatalogSubId(catalogDefaults.subId);
+      setServiceType(catalogDefaults.serviceType);
+      setExecutionMethod(catalogDefaults.executionMethod);
+    }
+  }, [catalogDefaults]);
+
+  useEffect(() => {
+    if (!catalogCategoryId) {
+      setCatalogSubId("");
+      return;
+    }
+
+    const category = catalogCategories.find((item) => item.id === catalogCategoryId);
+    if (!category?.subOptions.some((item) => item.id === catalogSubId)) {
+      setCatalogSubId("");
+    }
+  }, [catalogCategoryId, catalogCategories, catalogSubId]);
+
+  useEffect(() => {
+    if (parsedSubAction?.kind === "full") {
+      setServiceType(parsedSubAction.serviceType);
+      setExecutionMethod(
+        catalogCategoryShowsExecutionMethod(catalogCategoryId)
+          ? parsedSubAction.executionMethod
+          : defaultExecutionMethodForCategory(
+              catalogCategoryId,
+              parsedSubAction,
+            ),
+      );
+      return;
+    }
+
+    if (
+      catalogCategoryId &&
+      !catalogCategoryShowsExecutionMethod(catalogCategoryId)
+    ) {
+      setExecutionMethod(defaultExecutionMethodForCategory(catalogCategoryId));
+    }
+  }, [parsedSubAction, catalogCategoryId]);
+
+  const categoryOptions = useMemo(
+    () =>
+      buildCatalogCategorySelectOptions(
+        catalogCategories,
+        f.selectServiceCategory,
+      ),
+    [catalogCategories, f.selectServiceCategory],
+  );
+  const subOptions = useMemo(
+    () =>
+      buildCatalogSubSelectOptions(
+        catalogCategories,
+        catalogCategoryId,
+        catalogCopy.selectPlaceholder,
+      ),
+    [catalogCategories, catalogCategoryId, catalogCopy.selectPlaceholder],
   );
   const executionMethodOptions = useMemo(
     () => buildExecutionMethodSelectOptions(t),
@@ -132,6 +250,16 @@ export function ServiceRequestForm({
       return;
     }
 
+    if (!catalogCategoryId || !catalogSubId) {
+      setStepError(f.selectServiceCategory);
+      return;
+    }
+
+    if (!isFullSub) {
+      setStepError(catalogCopy.selectPlaceholder);
+      return;
+    }
+
     for (const el of [nameEl, phoneEl, carEl, locationEl]) {
       if (el && !el.checkValidity()) {
         el.reportValidity();
@@ -144,6 +272,21 @@ export function ServiceRequestForm({
   }
 
   const showFormFields = !state.success || !state.trackingToken;
+  const showRequestFields = !loginRequired && isFullSub;
+  const effectiveLoginNextPath = useMemo(() => {
+    if (catalogCategoryId && catalogSubId && selectedSub) {
+      return buildServiceRequestHref(
+        selectedSub.action,
+        catalogCategoryId,
+        catalogSubId,
+      );
+    }
+    if (catalogCategoryId) {
+      return `/request?category=${encodeURIComponent(catalogCategoryId)}`;
+    }
+    return loginNextPath;
+  }, [catalogCategoryId, catalogSubId, selectedSub, loginNextPath]);
+  const loginHref = `/login?next=${encodeURIComponent(effectiveLoginNextPath)}`;
   const isCompact =
     compact || (embedded && !fullWidth && !mobileSteps && !twoSteps);
   const useWizard = twoSteps || mobileSteps || !isCompact;
@@ -187,6 +330,7 @@ export function ServiceRequestForm({
           {refreshDashboard ? (
             <input type="hidden" name="refresh_dashboard" value="1" />
           ) : null}
+          <input type="hidden" name="service_type" value={serviceType} />
 
           {state.success && state.trackingToken ? (
             <div
@@ -234,6 +378,116 @@ export function ServiceRequestForm({
 
           {showFormFields ? (
             <>
+              <div className="space-y-5">
+                <div>
+                  <Label htmlFor="catalog_category">{f.serviceType}</Label>
+                  {lockCatalogCategory && lockedCategory ? (
+                    <div
+                      className={cn(
+                        requestCardClass,
+                        "mt-2 flex min-h-11 items-center px-4 py-3 text-sm font-semibold",
+                      )}
+                    >
+                      {lockedCategory.title}
+                    </div>
+                  ) : (
+                    <IconSelect
+                      id="catalog_category"
+                      options={categoryOptions}
+                      value={catalogCategoryId}
+                      onValueChange={setCatalogCategoryId}
+                      fallbackIcon="layers"
+                      className="mt-2"
+                      required
+                    />
+                  )}
+                </div>
+
+                <div>
+                  <Label htmlFor="catalog_sub_option">{f.subServiceType}</Label>
+                  <IconSelect
+                    id="catalog_sub_option"
+                    options={subOptions}
+                    value={catalogSubId}
+                    onValueChange={setCatalogSubId}
+                    fallbackIcon="layers"
+                    className="mt-2"
+                    required
+                  />
+                </div>
+
+                {!isLinkSub && showExecutionMethod ? (
+                  <div>
+                    <Label htmlFor="execution_method">{f.executionMethod}</Label>
+                    <IconSelect
+                      id="execution_method"
+                      name="execution_method"
+                      options={executionMethodOptions}
+                      value={executionMethod}
+                      onValueChange={(value) =>
+                        setExecutionMethod(value as ExecutionMethod)
+                      }
+                      className="mt-2"
+                      required
+                    />
+                  </div>
+                ) : !isLinkSub ? (
+                  <input type="hidden" name="execution_method" value={executionMethod} />
+                ) : null}
+
+                {isLinkSub && selectedSub && parsedSubAction?.kind === "link" ? (
+                  <div className="space-y-4 rounded-2xl border border-[#94D4B9]/20 bg-[var(--card-bg)] p-5">
+                    <p className="text-sm leading-7 text-muted">
+                      {selectedSub.description}
+                    </p>
+                    <Link
+                      href={parsedSubAction.href}
+                      className={cn(
+                        "inline-flex h-11 w-full items-center justify-center rounded-[20px] text-sm font-semibold sm:w-auto sm:min-w-[220px] sm:px-6",
+                        requestBtnFilledClass,
+                      )}
+                    >
+                      {catalogCopy.openLink}
+                      <LocaleForwardArrow className="ms-2 size-4" />
+                    </Link>
+                  </div>
+                ) : null}
+
+                {loginRequired ? (
+                  <div className={cn(requestCardClass, "space-y-5 p-5 text-start sm:p-6")}>
+                    <p className="rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/10 px-4 py-3 text-sm leading-7 text-foreground">
+                      {catalogCopy.loginRequiredNote}
+                    </p>
+                    <div className="flex size-14 items-center justify-center rounded-2xl bg-[#94D4B9]/15">
+                      <LogIn className={cn("size-7", iconAccentClass)} aria-hidden />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg font-bold">{t.request.loginGate.title}</h3>
+                      <p className="text-sm leading-7 text-muted">
+                        {t.request.modes.fullLoginHint}
+                      </p>
+                    </div>
+                    <div className="flex flex-col gap-3 sm:flex-row">
+                      <Link
+                        href={loginHref}
+                        className={cn(requestBtnFilledClass, "h-11 px-5 text-sm")}
+                      >
+                        {t.request.loginGate.login}
+                      </Link>
+                      <Link
+                        href="/register"
+                        className={cn(requestBtnOutlineClass, "h-11 gap-2 px-5 text-sm")}
+                      >
+                        <UserPlus className="size-4" aria-hidden />
+                        {t.request.loginGate.register}
+                      </Link>
+                    </div>
+                  </div>
+                ) : null}
+              </div>
+
+              {showRequestFields ? (
+                <>
               {useWizard && twoSteps ? (
                 <div className="flex items-center gap-3 text-sm">
                   <span
@@ -324,30 +578,6 @@ export function ServiceRequestForm({
                   <Label htmlFor="location_text">{f.location}</Label>
                   <LocationField compact={isCompact} />
                 </div>
-
-                <div>
-                  <Label htmlFor="service_type">{f.serviceType}</Label>
-                  <IconSelect
-                    id="service_type"
-                    name="service_type"
-                    options={serviceTypeOptions}
-                    value={serviceType}
-                    onValueChange={setServiceType}
-                    required
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="execution_method">{f.executionMethod}</Label>
-                  <IconSelect
-                    id="execution_method"
-                    name="execution_method"
-                    options={executionMethodOptions}
-                    value={executionMethod}
-                    onValueChange={setExecutionMethod}
-                    required
-                  />
-                </div>
               </div>
 
               <div className={wizardStepClass(2)}>
@@ -375,9 +605,11 @@ export function ServiceRequestForm({
                 <div>
                   <Label htmlFor="description">{f.problemDescription}</Label>
                   <IconTextarea
+                    key={`${catalogCategoryId}-${catalogSubId}`}
                     id="description"
                     name="description"
                     icon={FileText}
+                    defaultValue={prefillDescription}
                     placeholder={t.common.placeholderNotes}
                   />
                 </div>
@@ -416,6 +648,7 @@ export function ServiceRequestForm({
                       size="lg"
                       className={cn(requestBtnFilledClass, "h-12 w-full")}
                       onClick={goToStep2}
+                      disabled={!isFullSub || loginRequired}
                     >
                       {f.nextStep}
                       <LocaleForwardArrow />
@@ -440,7 +673,7 @@ export function ServiceRequestForm({
                         variant="accent"
                         size="lg"
                         className={cn(requestBtnFilledClass, "h-12 flex-1")}
-                        disabled={pending}
+                        disabled={pending || !isFullSub || loginRequired}
                       >
                         {pending ? t.common.sending : f.submit}
                       </Button>
@@ -460,10 +693,12 @@ export function ServiceRequestForm({
                   twoSteps && useWizard && "hidden",
                   wizardMobileOnly && "hidden lg:flex",
                 )}
-                disabled={pending}
+                disabled={pending || !isFullSub || loginRequired}
               >
                 {pending ? t.common.sending : f.submit}
               </Button>
+                </>
+              ) : null}
             </>
           ) : null}
         </form>

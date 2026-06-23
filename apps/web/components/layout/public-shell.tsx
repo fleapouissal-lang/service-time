@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { WhatsAppFloatButton } from "@/components/layout/whatsapp-float-button";
 import {
   MOBILE_BOTTOM_BAR_PADDING,
   shouldShowMobileBottomNav,
@@ -50,6 +51,7 @@ export function PublicShell({ children, header, footer }: PublicShellProps) {
       >
         {footer}
       </div>
+      <WhatsAppFloatButton />
     </>
   );
 }

@@ -1,4 +1,5 @@
 import { legal } from "./legal/en";
+import { servicesCatalog } from "./services-catalog/en";
 
 export const messages = {
   meta: {
@@ -364,9 +365,12 @@ export const messages = {
         },
       ],
     },
+    heroBrands: {
+      ariaLabel: "Supported car brands",
+    },
     services: {
       eyebrow: "Our services",
-      title: "What do we offer?",
+      title: "Everything your car needs, in one place",
       empty: "No services yet — run seed.sql",
       prevAria: "Previous service",
       nextAria: "Next service",
@@ -418,29 +422,48 @@ export const messages = {
       slideAriaLabel: "Slide",
       slides: [
         {
-          title: "Periodic maintenance",
-          highlight: "you can trust",
+          title: "General maintenance",
+          highlight: "at the workshop",
           description:
-            "Comprehensive inspection and periodic maintenance for your car — choose the mobile workshop or visit our center.",
+            "Oil, brakes, AC, and full inspections — book a visit to our certified workshop.",
         },
         {
-          title: "Emergency",
-          highlight: "on the road",
+          title: "Mobile maintenance",
+          highlight: "at your location",
           description:
-            "Car broke down? The Service Time team reaches you quickly wherever you are in Riyadh.",
+            "A technician comes to you anywhere in Riyadh for on-site service.",
         },
         {
           title: "Spare parts",
-          highlight: "fast",
+          highlight: "fast delivery",
           description:
-            "Order the right part for your car and track your order via WhatsApp or SMS.",
+            "Browse the catalog or send a custom parts request with customer details.",
+        },
+        {
+          title: "Flatbed",
+          highlight: "& towing",
+          description:
+            "City towing, highway recovery, and safe transport after accidents.",
+        },
+        {
+          title: "Breakdowns",
+          highlight: "& accidents",
+          description:
+            "Roadside assistance — jump start, flat tire, breakdown, and accident support.",
+        },
+        {
+          title: "External orders",
+          highlight: "tracking",
+          description:
+            "Track orders placed outside the platform — sign in with your tracking code.",
         },
       ],
     },
+    catalog: servicesCatalog,
     allServices: "All services",
-    chooseService: "Choose the right service",
+    chooseService: "Main services & sub-options",
     description:
-      "Periodic maintenance, roadside emergencies, and spare parts orders — hover over a card and click «Start service request» to continue.",
+      "General maintenance, mobile service, spare parts, flatbed, breakdowns, and external order tracking — choose a sub-option and submit your request.",
     empty: "No services available at the moment — run seed.sql",
     startRequest: "Start service request",
     cta: {
@@ -455,7 +478,7 @@ export const messages = {
     eyebrow: "Request service",
     title: "Send a maintenance request",
     hubTitle: "How would you like to request service?",
-    hubDescription: "Choose the option that suits you — full request, quick form, or WhatsApp.",
+    hubDescription: "Sign in to submit a full service request with live tracking.",
     description: "Fill in the details and we will contact you soon via WhatsApp or SMS.",
     loginRequired: "You must sign in with a client account to submit a service request.",
     modes: {
@@ -522,6 +545,8 @@ export const messages = {
       deleteVehicleFailed: "Could not delete vehicle. Try again.",
       location: "Location",
       serviceType: "Service type *",
+      subServiceType: "Service sub-type *",
+      selectServiceCategory: "Choose a service…",
       executionMethod: "Execution method *",
       problemDescription: "Problem / request description",
       photoTitle: "Attach photo",
@@ -655,6 +680,12 @@ export const messages = {
     photoCounter: "{current} / {total}",
     photoGoTo: "Go to photo {n}",
     photosLabel: "photos",
+    condition: {
+      label: "Product type",
+      all: "All types",
+      new: "New",
+      used: "Used",
+    },
   },
 
   checkout: {
@@ -1384,6 +1415,7 @@ export const messages = {
         detailsEn: "Details (English)",
         priceSar: "Price (SAR)",
         stockQuantity: "Stock quantity",
+        partCondition: "Product type",
         partImage: "Part image",
         partImages: "Part photos",
         addMorePhotos: "Add more photos",
@@ -1440,6 +1472,7 @@ export const messages = {
         table: {
           image: "Image",
           name: "Name",
+          condition: "Type",
           price: "Price",
           stock: "Stock",
           actions: "Actions",

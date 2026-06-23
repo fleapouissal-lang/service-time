@@ -83,6 +83,8 @@ export interface Service {
   updated_at: string;
 }
 
+export type SparePartCondition = "new" | "used";
+
 export interface SparePart {
   id: string;
   name_ar: string;
@@ -99,6 +101,7 @@ export interface SparePart {
   images: string[] | null;
   price: number;
   stock_quantity: number;
+  part_condition: SparePartCondition;
   is_active: boolean;
   created_at: string;
   updated_at: string;

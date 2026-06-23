@@ -10,7 +10,7 @@ export function resolveSparePartsPageSize(sizeParam?: string): number {
 export function sparePartsPageHref(
   page: number,
   pageSize: number,
-  filters: { q?: string; category?: string } = {},
+  filters: { q?: string; category?: string; condition?: string } = {},
 ): string {
   const params = new URLSearchParams();
   params.set("page", String(page));
@@ -20,6 +20,9 @@ export function sparePartsPageHref(
   if (filters.q) params.set("q", filters.q);
   if (filters.category && filters.category !== "all") {
     params.set("category", filters.category);
+  }
+  if (filters.condition && filters.condition !== "all") {
+    params.set("condition", filters.condition);
   }
   return `/spare-parts?${params.toString()}`;
 }

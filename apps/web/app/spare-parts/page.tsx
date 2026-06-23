@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { SparePartsMobileFilterBar } from "@/components/spare-parts/spare-parts-mobile-filter-bar";
+import { SparePartsFilterBar } from "@/components/spare-parts/spare-parts-filter-bar";
 import { SparePartsPageClient } from "@/components/spare-parts/spare-parts-page-client";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
@@ -46,7 +46,7 @@ export default async function SparePartsPage({
   return (
     <section className="mx-auto w-[90%] max-w-[1200px] pb-24 pt-20 max-lg:pt-16">
       <Suspense fallback={null}>
-        <SparePartsMobileFilterBar
+        <SparePartsFilterBar
           values={filters}
           categories={categories}
           searchPlaceholder={t.dashboard.filters.sparePartSearch}

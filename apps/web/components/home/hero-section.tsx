@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { HeroBrandsBar } from "@/components/home/hero-brands-bar";
 import { HeroDesktopBackground } from "@/components/home/hero-desktop-background";
 import { HeroMobileBackground } from "@/components/home/hero-mobile-background";
 import { HeroMobileCarousel } from "@/components/home/hero-mobile-carousel";
@@ -84,13 +85,15 @@ export function HeroSection({
           />
         </div>
 
-        <div className="relative z-10 flex w-full items-center justify-center px-6 py-8">
+        <div className="relative z-10 flex w-full items-center justify-center px-6 py-8 pb-20">
           <HeroMobileCarousel
             slides={slides}
             slideAriaLabel={slideAriaLabel}
             locale={locale}
           />
         </div>
+
+        <HeroBrandsBar />
       </section>
 
       <section className="hero-desktop relative -mt-20 hidden min-h-[100svh] w-full overflow-hidden bg-site-main pt-20 md:block">
@@ -112,6 +115,8 @@ export function HeroSection({
             <DesktopHeroContent {...desktopSlide} />
           </div>
         </div>
+
+        <HeroBrandsBar />
       </section>
     </>
   );

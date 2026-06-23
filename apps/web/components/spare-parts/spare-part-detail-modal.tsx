@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useEffect } from "react";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
+import { SparePartConditionBadge } from "@/components/spare-parts/spare-part-condition-badge";
 import { SparePartImageSlider } from "@/components/spare-parts/spare-part-image-slider";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
@@ -15,6 +16,7 @@ import {
   getSparePartDetails,
   getSparePartName,
 } from "@/lib/localized-content";
+import { resolveSparePartCondition } from "@/lib/spare-part-condition";
 import { getSparePartImages } from "@/lib/spare-part-images";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { cn } from "@/lib/utils";
@@ -52,6 +54,7 @@ export function SparePartDetailModal({
   const description = getSparePartDescription(part, locale);
   const details = getSparePartDetails(part, locale);
   const category = getSparePartCategory(part, locale);
+  const condition = resolveSparePartCondition(part);
   const images = getSparePartImages(part);
 
   return (
@@ -90,6 +93,10 @@ export function SparePartDetailModal({
             overlay={
               <>
                 {!inStock ? <SparePartOutOfStockOverlay /> : null}
+                <SparePartConditionBadge
+                  condition={condition}
+                  className="absolute top-4 left-4 z-20"
+                />
                 {category ? (
                   <span
                     className={cn(
@@ -122,11 +129,14 @@ export function SparePartDetailModal({
                 className={!inStock ? "text-muted line-through opacity-70" : undefined}
               />
             </div>
-            {category && images.length === 0 ? (
-              <span className="mt-2 inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
-                {category}
-              </span>
-            ) : null}
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <SparePartConditionBadge condition={condition} />
+              {category && images.length === 0 ? (
+                <span className="inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
+                  {category}
+                </span>
+              ) : null}
+            </div>
           </div>
 
           {description ? (

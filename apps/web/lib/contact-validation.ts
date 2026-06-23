@@ -102,35 +102,6 @@ export function validateRequiredContact(
   };
 }
 
-/** طلب سريع — جوال obligatoire, email optionnel */
-export function validateQuickRequestContact(
-  phone: string,
-  email: string,
-): {
-  ok: true;
-  email: string;
-  phone: string;
-} | {
-  ok: false;
-  error: ContactValidationError;
-} {
-  const phoneResult = validatePhoneField(phone, { required: true });
-  if (!phoneResult.ok) {
-    return phoneResult;
-  }
-
-  const emailResult = validateEmailField(email, { required: false });
-  if (!emailResult.ok) {
-    return emailResult;
-  }
-
-  return {
-    ok: true,
-    email: emailResult.value,
-    phone: phoneResult.value,
-  };
-}
-
 export type ContactValidationMessages = {
   emailRequired: string;
   invalidEmail: string;
