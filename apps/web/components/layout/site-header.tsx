@@ -11,6 +11,7 @@ import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { HeaderCartButton } from "@/components/spare-parts/header-cart-button";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { getNavLinks } from "@/lib/i18n/nav";
+import { useTheme } from "@/lib/theme/theme-context";
 import { cn } from "@/lib/utils";
 
 const SCROLL_THRESHOLD = 24;
@@ -40,6 +41,7 @@ function navLinkClass(active: boolean, transparent: boolean) {
 export function SiteHeader() {
   const pathname = usePathname();
   const { messages, locale } = useLocale();
+  const { theme } = useTheme();
   const navLinks = getNavLinks(messages);
   const [scrolled, setScrolled] = useState(false);
   const isEnglish = locale === "en";
@@ -50,8 +52,12 @@ export function SiteHeader() {
   const isTransparent = isHome && !scrolled;
 
   useEffect(() => {
+    setScrolled(false);
+
     const onScroll = () => {
-      setScrolled(window.scrollY > SCROLL_THRESHOLD);
+      setScrolled(
+        (window.scrollY || document.documentElement.scrollTop) > SCROLL_THRESHOLD,
+      );
     };
 
     onScroll();
@@ -62,14 +68,17 @@ export function SiteHeader() {
   return (
     <header
       className={cn(
-        "sticky top-0 z-50 transition-all duration-300 max-md:rounded-b-[20px]",
+        "site-header sticky top-0 z-50 transition-all duration-300 max-md:rounded-b-[20px]",
         isTransparent
-          ? "site-header-transparent bg-transparent md:rounded-b-[20px]"
-          : "rounded-b-[20px] bg-site-header",
+          ? "site-header--overlay bg-transparent shadow-none backdrop-blur-none md:rounded-b-[20px]"
+          : cn(
+              "site-header--solid rounded-b-[20px] bg-site-header",
+              theme === "dark"
+                ? "site-header--solid-dark"
+                : "site-header--solid-light",
+            ),
+        isTransparent && "site-header-transparent",
         scrolled && "site-header-scrolled",
-        isHome
-          ? "max-md:bg-transparent max-md:backdrop-blur-none"
-          : "max-md:bg-site-header/95 max-md:backdrop-blur-md",
       )}
     >
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">

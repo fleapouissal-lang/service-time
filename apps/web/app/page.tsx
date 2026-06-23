@@ -49,6 +49,7 @@ export default async function HomePage() {
         ctaHref="/request"
         slides={t.home.hero.slides}
         slideAriaLabel={t.home.hero.slideAriaLabel}
+        slidesAriaLabel={t.home.hero.slidesAriaLabel}
         locale={locale}
       />
 

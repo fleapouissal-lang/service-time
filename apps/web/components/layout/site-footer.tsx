@@ -15,7 +15,7 @@ export function SiteFooter() {
   const footer = messages.footer;
 
   return (
-    <footer className="site-footer relative rounded-t-[20px] bg-site-footer text-[var(--site-chrome-text)]">
+    <footer className="site-footer relative hidden rounded-t-[20px] bg-site-footer text-[var(--site-chrome-text)] md:block">
       <div className="relative mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-2 lg:grid-cols-4">
         <div className="text-start">
           <Link href="/" className="inline-block">

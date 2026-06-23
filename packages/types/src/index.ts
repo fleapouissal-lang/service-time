@@ -100,6 +100,8 @@ export interface SparePart {
   /** Ordered gallery paths; `img` is the cover (first image). */
   images: string[] | null;
   price: number;
+  /** Original price before discount; shown when greater than `price`. */
+  original_price: number | null;
   stock_quantity: number;
   part_condition: SparePartCondition;
   is_active: boolean;

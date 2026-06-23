@@ -19,6 +19,7 @@ import { isPaymentBlockingAssignment } from "@/lib/service-request-payment";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import { parseSparePartCondition } from "@/lib/spare-part-condition";
+import { parseSparePartOriginalPrice } from "@/lib/spare-part-promotion";
 import {
   getAvatarFromFormData,
   PROFILE_AVATAR_BUCKET,
@@ -230,6 +231,10 @@ export async function saveSparePartAction(formData: FormData) {
   const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
   const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
   const stock_quantity = Math.max(0, Number.parseInt(stockRaw, 10) || 0);
+  const original_price = parseSparePartOriginalPrice(
+    formData.get("original_price"),
+    price,
+  );
 
   const payload = {
     name_ar: String(formData.get("name_ar")),
@@ -243,6 +248,7 @@ export async function saveSparePartAction(formData: FormData) {
     img,
     images,
     price,
+    original_price,
     stock_quantity,
     part_condition: parseSparePartCondition(formData.get("part_condition")),
     is_active: formData.get("is_active") === "on",
@@ -288,6 +294,10 @@ export async function saveSparePartEditAction(
     const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
     const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
     const stock_quantity = Math.max(0, Number.parseInt(stockRaw, 10) || 0);
+    const original_price = parseSparePartOriginalPrice(
+      formData.get("original_price"),
+      price,
+    );
 
     const payload = {
       name_ar: String(formData.get("name_ar")),
@@ -301,6 +311,7 @@ export async function saveSparePartEditAction(
       img,
       images,
       price,
+      original_price,
       stock_quantity,
       part_condition: parseSparePartCondition(formData.get("part_condition")),
       is_active: formData.get("is_active") === "on",

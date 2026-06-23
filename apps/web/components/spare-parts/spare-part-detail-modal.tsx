@@ -7,7 +7,8 @@ import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartConditionBadge } from "@/components/spare-parts/spare-part-condition-badge";
 import { SparePartImageSlider } from "@/components/spare-parts/spare-part-image-slider";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
-import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { SparePartPriceBlock } from "@/components/spare-parts/spare-part-price-block";
+import { SparePartPromotionBadge } from "@/components/spare-parts/spare-part-promotion-badge";
 import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
@@ -97,6 +98,10 @@ export function SparePartDetailModal({
                   condition={condition}
                   className="absolute top-4 left-4 z-20"
                 />
+                <SparePartPromotionBadge
+                  part={part}
+                  className="absolute bottom-4 right-4 z-20"
+                />
                 {category ? (
                   <span
                     className={cn(
@@ -123,10 +128,10 @@ export function SparePartDetailModal({
               {name}
             </h2>
             <div className="mt-2">
-              <SparePartPrice
-                price={Number(part.price) || 0}
+              <SparePartPriceBlock
+                part={part}
                 size="lg"
-                className={!inStock ? "text-muted line-through opacity-70" : undefined}
+                muted={!inStock}
               />
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">

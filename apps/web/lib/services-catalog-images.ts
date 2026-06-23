@@ -8,8 +8,11 @@ export const SERVICE_CATALOG_IMAGES: Record<string, string> = {
   external_tracking: "/services/external-tracking.png",
 };
 
+/** Bump when replacing files in public/services/ to bust browser + Next caches. */
+const SERVICE_CATALOG_IMAGE_VERSION = "20260623";
+
 export function getServiceCatalogImage(categoryId: string): string {
-  return (
-    SERVICE_CATALOG_IMAGES[categoryId] ?? "/services/general-maintenance.png"
-  );
+  const path =
+    SERVICE_CATALOG_IMAGES[categoryId] ?? "/services/general-maintenance.png";
+  return `${path}?v=${SERVICE_CATALOG_IMAGE_VERSION}`;
 }

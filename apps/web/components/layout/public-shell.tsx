@@ -46,7 +46,7 @@ export function PublicShell({ children, header, footer }: PublicShellProps) {
       <div
         className={cn(
           showMobileNav && MOBILE_BOTTOM_BAR_PADDING,
-          "lg:pb-0",
+          "hidden lg:pb-0 md:block",
         )}
       >
         {footer}

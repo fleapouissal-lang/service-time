@@ -133,6 +133,14 @@ const nextConfig: NextConfig = {
             headers: publicAssetCache,
           },
           {
+            source: "/hero/ar-dark/:path*",
+            headers: publicAssetCache,
+          },
+          {
+            source: "/services/:path*",
+            headers: publicAssetCache,
+          },
+          {
             source: "/cta-bg.png",
             headers: publicAssetCache,
           },

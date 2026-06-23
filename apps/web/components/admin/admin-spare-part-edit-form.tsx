@@ -60,6 +60,20 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
           />
         </div>
         <div>
+          <Label>{p.originalPriceSar}</Label>
+          <Input
+            name="original_price"
+            type="number"
+            min={0}
+            step="0.01"
+            defaultValue={part.original_price ?? ""}
+            className="mt-1"
+            dir="ltr"
+            placeholder={p.originalPricePlaceholder}
+          />
+          <p className="mt-1 text-xs text-muted">{p.originalPriceHint}</p>
+        </div>
+        <div>
           <Label>{p.stockQuantity}</Label>
           <Input
             name="stock_quantity"

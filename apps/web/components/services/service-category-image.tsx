@@ -9,6 +9,10 @@ type ServiceCategoryImageProps = {
   priority?: boolean;
 };
 
+const catalogImageProps = {
+  unoptimized: true,
+} as const;
+
 export function ServiceCategoryImage({
   categoryId,
   alt,
@@ -25,8 +29,9 @@ export function ServiceCategoryImage({
           alt={alt}
           fill
           sizes="80px"
-          className="object-cover"
+          className="object-cover object-center"
           priority={priority}
+          {...catalogImageProps}
         />
       </div>
     );
@@ -42,6 +47,7 @@ export function ServiceCategoryImage({
           sizes="(max-width: 768px) 100vw, 672px"
           className="object-cover object-center"
           priority={priority}
+          {...catalogImageProps}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-black/5" />
       </div>
@@ -51,7 +57,7 @@ export function ServiceCategoryImage({
   return (
     <div
       className={cn(
-        "relative w-full shrink-0 overflow-hidden",
+        "relative w-full shrink-0 overflow-hidden bg-[#050b10]",
         "aspect-[16/10] sm:aspect-[5/3]",
       )}
     >
@@ -60,8 +66,9 @@ export function ServiceCategoryImage({
         alt={alt}
         fill
         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+        className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.03]"
         priority={priority}
+        {...catalogImageProps}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
     </div>

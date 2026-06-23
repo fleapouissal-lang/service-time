@@ -367,7 +367,7 @@ export const messages = {
       ],
     },
     heroBrands: {
-      ariaLabel: "ماركات السيارات المدعومة",
+      ariaLabel: "ماركات السيارات الصينية المدعومة",
     },
     services: {
       eyebrow: "خدماتنا",
@@ -687,6 +687,8 @@ export const messages = {
       new: "جديد",
       used: "مستعمل",
     },
+    promotionBadge: "-{percent}%",
+    promotionLabel: "عرض",
   },
 
   checkout: {
@@ -1413,6 +1415,10 @@ export const messages = {
         descriptionEn: "الوصف (English)",
         detailsEn: "التفاصيل (English)",
         priceSar: "السعر (ر.س)",
+        originalPriceSar: "السعر الأصلي (ر.س)",
+        originalPricePlaceholder: "اختياري — للعرض الترويجي",
+        originalPriceHint:
+          "إذا كان أعلى من السعر الحالي، تُعرض قطعة بخصم (مثلاً 10% من السعر الأصلي).",
         stockQuantity: "الكمية في المخزون",
         partCondition: "نوع المنتج",
         partImage: "صورة القطعة",

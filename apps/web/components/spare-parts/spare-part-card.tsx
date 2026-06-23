@@ -8,7 +8,8 @@ import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
 import { SparePartConditionBadge } from "@/components/spare-parts/spare-part-condition-badge";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
-import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
+import { SparePartPriceBlock } from "@/components/spare-parts/spare-part-price-block";
+import { SparePartPromotionBadge } from "@/components/spare-parts/spare-part-promotion-badge";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
@@ -121,6 +122,10 @@ export function SparePartCard({
           condition={condition}
           className="absolute top-2 start-2 z-20 sm:top-3 sm:start-3"
         />
+        <SparePartPromotionBadge
+          part={part}
+          className="absolute bottom-2 end-2 z-20 sm:bottom-3 sm:end-3"
+        />
         {isClickable ? (
           <div className="absolute bottom-2 start-2 z-30 flex flex-row gap-2 sm:hidden">
             <AddToCartButton part={part} variant="icon" className={iconActionClass} />
@@ -157,14 +162,11 @@ export function SparePartCard({
         </h3>
 
         <div className={cn("shrink-0", isHome ? "mt-1 sm:mt-2" : "mt-2")}>
-          <SparePartPrice
-            price={Number(part.price) || 0}
+          <SparePartPriceBlock
+            part={part}
             size={isHome ? "sm" : "md"}
-            className={cn(
-              "spare-part-card__price",
-              !inStock && "text-muted line-through opacity-70",
-              isHome && "sm:text-base",
-            )}
+            muted={!inStock}
+            priceClassName={cn("spare-part-card__price", isHome && "sm:text-base")}
           />
         </div>
 

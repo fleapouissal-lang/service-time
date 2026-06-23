@@ -366,7 +366,7 @@ export const messages = {
       ],
     },
     heroBrands: {
-      ariaLabel: "Supported car brands",
+      ariaLabel: "Supported Chinese car brands",
     },
     services: {
       eyebrow: "Our services",
@@ -686,6 +686,8 @@ export const messages = {
       new: "New",
       used: "Used",
     },
+    promotionBadge: "-{percent}%",
+    promotionLabel: "Sale",
   },
 
   checkout: {
@@ -1414,6 +1416,10 @@ export const messages = {
         descriptionEn: "Description (English)",
         detailsEn: "Details (English)",
         priceSar: "Price (SAR)",
+        originalPriceSar: "Original price (SAR)",
+        originalPricePlaceholder: "Optional — for promotions",
+        originalPriceHint:
+          "When higher than the current price, the part shows as discounted (e.g. 10% off the original).",
         stockQuantity: "Stock quantity",
         partCondition: "Product type",
         partImage: "Part image",
