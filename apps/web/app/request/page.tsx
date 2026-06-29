@@ -40,9 +40,7 @@ export default async function RequestPage({ searchParams }: PageProps) {
 
   const isClient = Boolean(profile?.is_active && profile.role === "client");
   const savedVehicles =
-    isClient && profile
-      ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
-      : [];
+    isClient && profile ? await getClientVehicles(profile.id) : [];
 
   return (
     <Suspense>

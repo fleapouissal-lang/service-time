@@ -3,6 +3,7 @@ import { requireProfile } from "@/lib/auth";
 import {
   deleteClientVehicle,
   deleteClientVehicleAsAdmin,
+  deleteClientVehicleByLabel,
   getClientVehicles,
   getClientVehiclesAsAdmin,
 } from "@/lib/client-vehicles";
@@ -26,9 +27,7 @@ export async function GET(request: Request) {
       ? await getClientVehiclesAsAdmin(clientId)
       : await getClientVehicles(clientId);
 
-  return NextResponse.json({
-    vehicles: vehicles.map((vehicle) => vehicle.label),
-  });
+  return NextResponse.json({ vehicles });
 }
 
 export async function DELETE(request: Request) {
@@ -37,16 +36,11 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  let body: { label?: string; clientId?: string };
+  let body: { label?: string; id?: string; clientId?: string };
   try {
     body = (await request.json()) as typeof body;
   } catch {
     return NextResponse.json({ error: "Invalid request." }, { status: 400 });
-  }
-
-  const label = (body.label ?? "").trim();
-  if (!label) {
-    return NextResponse.json({ error: "Missing vehicle label." }, { status: 400 });
   }
 
   const requestedClientId = body.clientId?.trim();
@@ -56,10 +50,21 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  const vehicleId = body.id?.trim();
+  const label = (body.label ?? "").trim();
+
+  if (!vehicleId && !label) {
+    return NextResponse.json({ error: "Missing vehicle id or label." }, { status: 400 });
+  }
+
   const deleted =
     profile.role === "admin"
-      ? await deleteClientVehicleAsAdmin(clientId, label)
-      : await deleteClientVehicle(clientId, label);
+      ? label
+        ? await deleteClientVehicleAsAdmin(clientId, label)
+        : false
+      : vehicleId
+        ? await deleteClientVehicle(clientId, vehicleId)
+        : await deleteClientVehicleByLabel(clientId, label);
 
   if (!deleted) {
     return NextResponse.json(
@@ -73,8 +78,5 @@ export async function DELETE(request: Request) {
       ? await getClientVehiclesAsAdmin(clientId)
       : await getClientVehicles(clientId);
 
-  return NextResponse.json({
-    ok: true,
-    vehicles: vehicles.map((vehicle) => vehicle.label),
-  });
+  return NextResponse.json({ ok: true, vehicles });
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Mail, MapPin, Phone } from "lucide-react";
 import { ContactForm } from "@/components/contact/contact-form";
+import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { ContactInfoCard } from "@/components/contact/contact-info-card";
 import { ContactInfoMobileStrip } from "@/components/contact/contact-info-mobile-strip";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -130,6 +131,8 @@ export default async function ContactPage() {
           </div>
         </div>
       </div>
+
+      <SiteCtaSection inset />
     </section>
   );
 }

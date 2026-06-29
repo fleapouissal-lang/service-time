@@ -1,3 +1,4 @@
+import type { ClientVehicle } from "@service-time/types";
 import { getCurrentProfile } from "@/lib/auth";
 import { getClientVehicles } from "@/lib/client-vehicles";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
@@ -7,7 +8,7 @@ export type ServiceCatalogSession = {
   isClient: boolean;
   defaultName: string;
   defaultPhone: string;
-  savedVehicles: string[];
+  savedVehicles: ClientVehicle[];
 };
 
 export async function getServiceCatalogSession(): Promise<ServiceCatalogSession> {
@@ -24,9 +25,7 @@ export async function getServiceCatalogSession(): Promise<ServiceCatalogSession>
     };
   }
 
-  const savedVehicles = (await getClientVehicles(profile.id)).map(
-    (vehicle) => vehicle.label,
-  );
+  const savedVehicles = await getClientVehicles(profile.id);
 
   return {
     isClient: true,

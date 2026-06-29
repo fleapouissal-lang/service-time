@@ -29,7 +29,7 @@ import {
 } from "@/lib/request-styles";
 import { iconAccentClass } from "@/lib/card-surface";
 import { cn } from "@/lib/utils";
-import type { ExecutionMethod, ServiceType } from "@service-time/types";
+import type { ClientVehicle, ExecutionMethod, ServiceType } from "@service-time/types";
 import {
   buildCatalogCategorySelectOptions,
   buildCatalogSubSelectOptions,
@@ -72,7 +72,7 @@ export function ServiceRequestForm({
   hidePriceNegotiationHint?: boolean;
   defaultName?: string;
   defaultPhone?: string;
-  savedVehicles?: string[];
+  savedVehicles?: ClientVehicle[];
   refreshDashboard?: boolean;
   catalogDefaults?: {
     serviceType: ServiceType;

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ClientVehicle } from "@service-time/types";
 import { useState } from "react";
 import { ChevronDown, Plus } from "lucide-react";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
@@ -10,7 +11,7 @@ import { useLocale } from "@/lib/i18n/locale-context";
 type ClientNewOrderSectionProps = {
   defaultName: string;
   defaultPhone: string;
-  savedVehicles?: string[];
+  savedVehicles?: ClientVehicle[];
 };
 
 export function ClientNewOrderSection({

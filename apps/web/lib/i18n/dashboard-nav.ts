@@ -2,6 +2,7 @@ import type { Messages } from "@/messages/types";
 import type { DashboardNavItem } from "@/components/dashboard/dashboard-sidebar";
 import {
   BarChart3,
+  Car,
   ClipboardList,
   LayoutDashboard,
   Mail,
@@ -104,6 +105,11 @@ export function getClientNav(messages: Messages): DashboardNavItem[] {
       href: "/client/spare-part-orders",
       label: messages.dashboard.client.sparePartOrders,
       icon: ShoppingCart,
+    },
+    {
+      href: "/client/vehicles",
+      label: messages.clientVehicles.title,
+      icon: Car,
     },
     {
       href: "/client/request",

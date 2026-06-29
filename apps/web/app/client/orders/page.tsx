@@ -34,9 +34,7 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
-  const savedVehicles = profile
-    ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
-    : [];
+  const savedVehicles = profile ? await getClientVehicles(profile.id) : [];
   const orders = filterServiceRequests(allOrders, params);
   const photosByRequestId = await getRequestPhotosByRequestIds(
     orders.map((order) => order.id),

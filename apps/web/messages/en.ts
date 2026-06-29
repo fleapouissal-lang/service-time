@@ -239,6 +239,31 @@ export const messages = {
     placeholderSearch: "Search...",
   },
 
+  siteCta: {
+    slidesAriaLabel: "Service Time highlights",
+    slideAriaLabel: "Slide",
+    slides: [
+      {
+        id: "roadside",
+        titleBefore: "With you on",
+        titleHighlight: "every journey",
+        description:
+          "If you face a problem on the road, our team is ready to reach you quickly.",
+        ctaLabel: "Request assistance",
+        ctaHref: "/request?category=emergency",
+      },
+      {
+        id: "maintenance",
+        titleBefore: "Maintenance today…",
+        titleHighlight: "peace of mind tomorrow",
+        description:
+          "Book periodic maintenance now and keep your car performing at its best.",
+        ctaLabel: "Book now",
+        ctaHref: "/request?category=periodic_maintenance",
+      },
+    ],
+  },
+
   labels: {
     status: {
       received: "Order received",
@@ -876,6 +901,47 @@ export const messages = {
     browseServices: "Our services",
     contactUs: "Contact us",
     quickLinksAria: "Helpful links",
+  },
+
+  clientVehicles: {
+    title: "My vehicles",
+    subtitle: "Manage your saved cars for faster service requests.",
+    addTitle: "Add vehicle",
+    addFirst: "Add your first vehicle",
+    empty: "You have not added any vehicles yet.",
+    emptyShort: "Add your vehicle with brand, model, and details.",
+    savedList: "Saved vehicles",
+    savedCount: "{count} vehicle(s) saved to your account",
+    noExtraDetails: "No extra details",
+    submit: "Add",
+    selectBrand: "Choose car brand",
+    selectBrandHint: "Select a brand above to choose the model.",
+    model: "Model",
+    sections: {
+      brandModel: "Brand & model",
+      details: "Vehicle details",
+    },
+    cylinders: "Number of cylinders",
+    chassisNumber: "Chassis number (VIN)",
+    plateNumber: "License plate number",
+    plateLetters: "Plate letters",
+    plateNumbers: "Plate numbers",
+    color: "Color",
+    year: "Manufacturing year",
+    fuel: {
+      label: "Fuel type",
+      gasoline: "Gasoline",
+      diesel: "Diesel",
+      electric: "Electric",
+      hybrid: "Hybrid",
+    },
+    errors: {
+      required: "Please complete all required fields.",
+      duplicate: "This vehicle is already saved to your account.",
+      generic: "Could not save the vehicle. Try again.",
+    },
+    scrollPrev: "Scroll left",
+    scrollNext: "Scroll right",
   },
 
   login: {

@@ -14,9 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClientRequestPage() {
   const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
-  const savedVehicles = profile
-    ? (await getClientVehicles(profile.id)).map((vehicle) => vehicle.label)
-    : [];
+  const savedVehicles = profile ? await getClientVehicles(profile.id) : [];
 
   return (
     <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">

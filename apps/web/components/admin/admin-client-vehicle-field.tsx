@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Car } from "lucide-react";
+import type { ClientVehicle } from "@service-time/types";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
 import { IconInput } from "@/components/ui/icon-field";
 import { Label } from "@/components/ui/label";
@@ -13,7 +14,7 @@ export function AdminClientVehicleField({
   clientId: string | null;
 }) {
   const { messages: t } = useLocale();
-  const [vehicles, setVehicles] = useState<string[]>([]);
+  const [vehicles, setVehicles] = useState<ClientVehicle[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -27,8 +28,8 @@ export function AdminClientVehicleField({
 
     void fetch(`/api/client-vehicles?clientId=${encodeURIComponent(clientId)}`)
       .then(async (response) => {
-        if (!response.ok) return { vehicles: [] as string[] };
-        return (await response.json()) as { vehicles?: string[] };
+        if (!response.ok) return { vehicles: [] as ClientVehicle[] };
+        return (await response.json()) as { vehicles?: ClientVehicle[] };
       })
       .then((data) => {
         if (!cancelled) setVehicles(data.vehicles ?? []);

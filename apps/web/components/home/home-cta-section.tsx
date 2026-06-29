@@ -1,99 +1,119 @@
 "use client";
 
-import Link from "next/link";
-import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
+import { useCallback, useEffect, useState } from "react";
+import { getCtaSlideImage, type CtaSlideId } from "@/lib/cta-slides";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { useTheme } from "@/lib/theme/theme-context";
 import { cn } from "@/lib/utils";
 
-type CtaSectionProps = {
-  title?: string;
-  description: string;
-  ctaLabel: string;
-  ctaHref?: string;
+const SLIDE_INTERVAL_MS = 6000;
+
+type SiteCtaSectionProps = {
+  /** Use when CTA sits inside a page section that already has site container width. */
+  inset?: boolean;
 };
 
-export function CtaSection({
-  title,
-  description,
-  ctaLabel,
-  ctaHref = "/request",
-}: CtaSectionProps) {
+export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
+  const { messages: t } = useLocale();
   const { theme } = useTheme();
-  const isLight = theme === "light";
+  const slides = t.siteCta.slides;
+  const [activeIndex, setActiveIndex] = useState(0);
+
+  const goToSlide = useCallback((index: number) => {
+    setActiveIndex(index);
+  }, []);
+
+  const goToNextSlide = useCallback(() => {
+    setActiveIndex((current) => (current + 1) % slides.length);
+  }, [slides.length]);
+
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+    if (prefersReducedMotion || slides.length <= 1) return;
+
+    const timer = window.setInterval(goToNextSlide, SLIDE_INTERVAL_MS);
+    return () => window.clearInterval(timer);
+  }, [goToNextSlide, slides.length]);
+
+  if (slides.length === 0) return null;
 
   return (
-    <section className="cta-section px-[5%] py-16">
-      <div
-        className={cn(
-          "cta-section__panel relative mx-auto flex min-h-[320px] w-[90%] max-w-[1220px] items-center overflow-hidden rounded-[20px] bg-cover sm:min-h-[360px]",
-          isLight ? "bg-[center_right]" : "bg-center",
-        )}
-        style={{
-          backgroundImage: `url('${isLight ? "/cta-bg-light.png" : "/cta-bg.png"}')`,
-        }}
-      >
-        <div
-          className="cta-section__overlay pointer-events-none absolute inset-0 z-[1]"
-          aria-hidden
-        />
+    <section
+      className={cn(
+        "cta-section py-12 sm:py-16",
+        inset ? "w-full" : "mx-auto w-[90%] max-w-[1200px]",
+      )}
+      aria-roledescription="carousel"
+      aria-label={t.siteCta.slidesAriaLabel}
+    >
+      <div className="cta-slider relative w-full overflow-hidden rounded-[20px]">
+        {slides.map((slide, index) => {
+          const isActive = index === activeIndex;
+          const imageSrc = getCtaSlideImage(slide.id as CtaSlideId, theme);
 
-        <div className="relative z-10 flex w-full flex-col items-start gap-6 px-6 py-14 text-start sm:px-10 sm:py-16">
-          {title && (
-            <h2 className="cta-section__title font-poppins text-2xl font-bold leading-tight sm:text-3xl">
-              {title}
-            </h2>
-          )}
+          return (
+            <div
+              key={slide.id}
+              className={cn(
+                "cta-slider__slide",
+                isActive
+                  ? "cta-slider__slide--active"
+                  : "cta-slider__slide--inactive",
+              )}
+              aria-hidden={!isActive}
+            >
+              <div
+                className="cta-slider__bg"
+                style={{ backgroundImage: `url(${imageSrc})` }}
+                aria-hidden
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={imageSrc}
+                alt=""
+                aria-hidden
+                className="cta-slider__image"
+                decoding="async"
+                loading={index <= 1 ? "eager" : "lazy"}
+                fetchPriority={index === 0 ? "high" : "auto"}
+                draggable={false}
+              />
+            </div>
+          );
+        })}
 
-          <p className="cta-section__desc max-w-xl text-base leading-8 sm:text-lg">
-            {description}
-          </p>
-
-          <Link
-            href={ctaHref}
-            className="cta-section__btn inline-flex h-12 items-center justify-center gap-2 rounded-[20px] px-8 text-sm font-semibold transition-opacity"
+        {slides.length > 1 ? (
+          <div
+            className="cta-slider__indicators pointer-events-auto absolute inset-x-0 bottom-3 z-[4] flex items-center justify-center gap-2"
+            role="tablist"
+            aria-label={t.siteCta.slidesAriaLabel}
           >
-            {ctaLabel}
-            <LocaleForwardArrow />
-          </Link>
-        </div>
+            {slides.map((slide, index) => (
+              <button
+                key={slide.id}
+                type="button"
+                role="tab"
+                aria-selected={index === activeIndex}
+                aria-label={`${t.siteCta.slideAriaLabel} ${index + 1}`}
+                onClick={() => goToSlide(index)}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  index === activeIndex
+                    ? "w-7 bg-[#94D4B9]"
+                    : "w-1.5 bg-white/35 hover:bg-white/55",
+                )}
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
     </section>
   );
 }
 
-export function HomeCtaSection() {
-  const { messages: t } = useLocale();
-
-  return (
-    <CtaSection
-      title={t.home.cta.title}
-      description={t.home.cta.description}
-      ctaLabel={t.home.cta.ctaLabel}
-    />
-  );
-}
-
-export function ServicesCtaSection() {
-  const { messages: t } = useLocale();
-
-  return (
-    <CtaSection
-      title={t.services.cta.title}
-      description={t.services.cta.description}
-      ctaLabel={t.services.cta.ctaLabel}
-    />
-  );
-}
-
-export function AboutCtaSection() {
-  const { messages: t } = useLocale();
-
-  return (
-    <CtaSection
-      title={t.about.cta.title}
-      description={t.about.cta.description}
-      ctaLabel={t.about.cta.ctaLabel}
-    />
-  );
-}
+/** @deprecated Use SiteCtaSection — kept for existing imports */
+export const HomeCtaSection = SiteCtaSection;
+export const ServicesCtaSection = SiteCtaSection;
+export const AboutCtaSection = SiteCtaSection;

@@ -240,6 +240,31 @@ export const messages = {
     placeholderSearch: "بحث...",
   },
 
+  siteCta: {
+    slidesAriaLabel: "عروض Service Time",
+    slideAriaLabel: "الشريحة",
+    slides: [
+      {
+        id: "roadside",
+        titleBefore: "معك في",
+        titleHighlight: "كل مشوار",
+        description:
+          "إذا واجهتك مشكلة بالطريق، فريقنا جاهز للوصول إليك بسرعة",
+        ctaLabel: "اطلب المساعدة",
+        ctaHref: "/request?category=emergency",
+      },
+      {
+        id: "maintenance",
+        titleBefore: "صيانة اليوم...",
+        titleHighlight: "راحة لبكرة",
+        description:
+          "احجز الصيانة الدورية الآن وحافظ على أداء سيارتك بأفضل حالة",
+        ctaLabel: "احجز الآن",
+        ctaHref: "/request?category=periodic_maintenance",
+      },
+    ],
+  },
+
   labels: {
     status: {
       received: "تم استلام الطلب",
@@ -877,6 +902,47 @@ export const messages = {
     browseServices: "خدماتنا",
     contactUs: "تواصل معنا",
     quickLinksAria: "روابط مفيدة",
+  },
+
+  clientVehicles: {
+    title: "سياراتي",
+    subtitle: "أدِر سياراتك المحفوظة لتسريع طلبات الخدمة.",
+    addTitle: "إضافة سيارة",
+    addFirst: "أضف سيارتك الأولى",
+    empty: "لم تضف أي سيارة بعد.",
+    emptyShort: "أضف سيارتك مع الماركة والموديل والتفاصيل.",
+    savedList: "السيارات المحفوظة",
+    savedCount: "{count} سيارة محفوظة في حسابك",
+    noExtraDetails: "بدون تفاصيل إضافية",
+    submit: "إضافة",
+    selectBrand: "اختر نوع السيارة",
+    selectBrandHint: "اختر الماركة أعلاه لعرض الموديلات.",
+    model: "الموديل",
+    sections: {
+      brandModel: "الماركة والموديل",
+      details: "تفاصيل السيارة",
+    },
+    cylinders: "عدد الأسطوانات",
+    chassisNumber: "رقم الهيكل",
+    plateNumber: "رقم لوحة السيارة",
+    plateLetters: "حروف اللوحة",
+    plateNumbers: "أرقام اللوحة",
+    color: "اللون",
+    year: "سنة الصنع",
+    fuel: {
+      label: "الوقود",
+      gasoline: "بنزين",
+      diesel: "ديزل",
+      electric: "كهربائية",
+      hybrid: "هجين",
+    },
+    errors: {
+      required: "يرجى إكمال جميع الحقول المطلوبة.",
+      duplicate: "هذه السيارة محفوظة مسبقاً في حسابك.",
+      generic: "تعذر حفظ السيارة. حاول مجدداً.",
+    },
+    scrollPrev: "تمرير لليسار",
+    scrollNext: "تمرير لليمين",
   },
 
   login: {

@@ -1,5 +1,6 @@
 "use client";
 
+import type { ClientVehicle } from "@service-time/types";
 import Link from "next/link";
 import { LogIn, UserPlus } from "lucide-react";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
@@ -20,7 +21,7 @@ type RequestPageContentProps = {
   defaultName: string;
   defaultPhone: string;
   loginNextPath: string;
-  savedVehicles?: string[];
+  savedVehicles?: ClientVehicle[];
 };
 
 function FullRequestPanel({

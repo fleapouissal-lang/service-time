@@ -1,5 +1,6 @@
 "use client";
 
+import type { ClientVehicle } from "@service-time/types";
 import { Suspense } from "react";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -11,7 +12,7 @@ type ServiceCatalogRequestPanelProps = {
   isClient: boolean;
   defaultName: string;
   defaultPhone: string;
-  savedVehicles: string[];
+  savedVehicles: ClientVehicle[];
   onSuccess?: () => void;
 };
 

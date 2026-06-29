@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Navigation } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
+import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { Card, CardContent } from "@/components/ui/card";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -104,6 +105,8 @@ export default async function LocationsPage() {
           )}
         </div>
       </section>
+
+      <SiteCtaSection />
     </>
   );
 }

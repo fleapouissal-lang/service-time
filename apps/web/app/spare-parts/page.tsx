@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { SparePartsFilterBar } from "@/components/spare-parts/spare-parts-filter-bar";
+import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { SparePartsPageClient } from "@/components/spare-parts/spare-parts-page-client";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
@@ -66,6 +67,8 @@ export default async function SparePartsPage({
           filters={filters}
         />
       </Suspense>
+
+      <SiteCtaSection inset />
     </section>
   );
 }

@@ -151,10 +151,22 @@ export interface SparePartOrderItem {
   created_at: string;
 }
 
+export type VehicleFuelType = "gasoline" | "diesel" | "electric" | "hybrid";
+
 export interface ClientVehicle {
   id: string;
   client_id: string;
   label: string;
+  brand: string;
+  model: string;
+  brand_slug: string | null;
+  cylinders: number | null;
+  fuel_type: VehicleFuelType | null;
+  chassis_number: string | null;
+  plate_letters: string | null;
+  plate_number: string | null;
+  color: string | null;
+  year: number | null;
   created_at: string;
   updated_at: string;
 }
