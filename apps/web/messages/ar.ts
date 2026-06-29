@@ -868,9 +868,15 @@ export const messages = {
   },
 
   notFound: {
+    eyebrow: "خطأ 404",
     title: "الصفحة غير موجودة",
-    description: "تأكد من الرابط أو عد إلى الصفحة الرئيسية.",
+    description:
+      "ربما تم نقل الصفحة التي تبحث عنها أو حذفها، أو أن الرابط غير صحيح.",
     backHome: "العودة للرئيسية",
+    requestService: "طلب خدمة",
+    browseServices: "خدماتنا",
+    contactUs: "تواصل معنا",
+    quickLinksAria: "روابط مفيدة",
   },
 
   login: {

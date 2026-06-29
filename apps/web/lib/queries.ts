@@ -18,6 +18,7 @@ export async function getSpareParts(): Promise<SparePart[]> {
     .from("spare_parts")
     .select("*")
     .eq("is_active", true)
+    .gt("stock_quantity", 0)
     .order("name_ar", { ascending: true });
 
   if (error) return [];
@@ -46,7 +47,8 @@ export async function getSparePartsPage(
   let query = supabase
     .from("spare_parts")
     .select("*", { count: "exact" })
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .gt("stock_quantity", 0);
 
   if (filters.category && filters.category !== "all") {
     query = query.eq("category", filters.category);
@@ -88,6 +90,7 @@ export async function getSparePartCategories(): Promise<string[]> {
     .from("spare_parts")
     .select("category")
     .eq("is_active", true)
+    .gt("stock_quantity", 0)
     .not("category", "is", null);
 
   if (error) return [];
@@ -106,6 +109,7 @@ export async function getLatestSpareParts(limit = 6): Promise<SparePart[]> {
     .from("spare_parts")
     .select("*")
     .eq("is_active", true)
+    .gt("stock_quantity", 0)
     .order("created_at", { ascending: false })
     .limit(limit);
 

@@ -94,26 +94,10 @@ export function SparePartDetailModal({
             overlay={
               <>
                 {!inStock ? <SparePartOutOfStockOverlay /> : null}
-                <SparePartConditionBadge
-                  condition={condition}
-                  className="absolute top-4 left-4 z-20"
-                />
                 <SparePartPromotionBadge
                   part={part}
-                  className="absolute bottom-4 right-4 z-20"
+                  className="absolute top-4 end-4 z-20"
                 />
-                {category ? (
-                  <span
-                    className={cn(
-                      "absolute top-4 right-4 z-20 rounded-[20px] px-3 py-1 text-xs font-semibold",
-                      inStock
-                        ? "bg-[#94D4B9] text-[#050B10]"
-                        : "bg-[#050B10]/80 text-red-300",
-                    )}
-                  >
-                    {category}
-                  </span>
-                ) : null}
               </>
             }
           />
@@ -136,7 +120,7 @@ export function SparePartDetailModal({
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <SparePartConditionBadge condition={condition} />
-              {category && images.length === 0 ? (
+              {category ? (
                 <span className="inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
                   {category}
                 </span>

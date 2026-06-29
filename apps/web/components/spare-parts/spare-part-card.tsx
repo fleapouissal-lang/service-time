@@ -6,7 +6,6 @@ import { Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
-import { SparePartConditionBadge } from "@/components/spare-parts/spare-part-condition-badge";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPriceBlock } from "@/components/spare-parts/spare-part-price-block";
 import { SparePartPromotionBadge } from "@/components/spare-parts/spare-part-promotion-badge";
@@ -14,13 +13,10 @@ import { isSparePartInStock } from "@/lib/spare-part-stock";
 import { useLocale } from "@/lib/i18n/locale-context";
 import {
   getSparePartDescription,
-  getSparePartCategory,
   getSparePartName,
 } from "@/lib/localized-content";
-import { resolveSparePartCondition } from "@/lib/spare-part-condition";
 import { getSparePartCoverImage, getSparePartImages } from "@/lib/spare-part-images";
 import { cn } from "@/lib/utils";
-import { serviceTagPillSmClass } from "@/lib/section-styles";
 import { surfaceCardInteractiveClass } from "@/lib/card-surface";
 
 type SparePartCardProps = {
@@ -41,8 +37,6 @@ export function SparePartCard({
   const inStock = isSparePartInStock(part);
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
-  const category = getSparePartCategory(part, locale);
-  const condition = resolveSparePartCondition(part);
   const coverImage = getSparePartCoverImage(part);
   const photoCount = getSparePartImages(part).length;
   const isClickable = Boolean(onOpen);
@@ -108,23 +102,9 @@ export function SparePartCard({
             {photoCount} {t.spareParts.photosLabel}
           </span>
         ) : null}
-        {category ? (
-          <span
-            className={cn(
-              "absolute top-2 end-2 z-20 hidden rounded-[20px] px-2 py-0.5 text-[10px] sm:top-3 sm:end-3 sm:inline-flex",
-              inStock ? serviceTagPillSmClass : "bg-[#050B10]/80 text-red-300",
-            )}
-          >
-            {category}
-          </span>
-        ) : null}
-        <SparePartConditionBadge
-          condition={condition}
-          className="absolute top-2 start-2 z-20 sm:top-3 sm:start-3"
-        />
         <SparePartPromotionBadge
           part={part}
-          className="absolute bottom-2 end-2 z-20 sm:bottom-3 sm:end-3"
+          className="absolute top-2 end-2 z-20 sm:top-3 sm:end-3"
         />
         {isClickable ? (
           <div className="absolute bottom-2 start-2 z-30 flex flex-row gap-2 sm:hidden">

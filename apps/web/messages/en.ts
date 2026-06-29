@@ -867,9 +867,15 @@ export const messages = {
   },
 
   notFound: {
+    eyebrow: "Error 404",
     title: "Page not found",
-    description: "Check the link or return to the home page.",
+    description:
+      "The page you are looking for may have been moved, removed, or the link may be incorrect.",
     backHome: "Back to home",
+    requestService: "Request a service",
+    browseServices: "Our services",
+    contactUs: "Contact us",
+    quickLinksAria: "Helpful links",
   },
 
   login: {
