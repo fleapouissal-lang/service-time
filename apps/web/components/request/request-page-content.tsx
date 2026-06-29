@@ -73,6 +73,7 @@ function FullRequestPanel({
   return (
     <ServiceRequestForm
       embedded
+      wide
       mobileSteps
       hidePriceNegotiationHint
       defaultName={defaultName}
@@ -90,7 +91,7 @@ export function RequestPageContent(props: RequestPageContentProps) {
       <div className="hidden md:block">
         <PageHeader
           plain
-          plainWidth="md"
+          plainWidth="xl"
           eyebrow={t.request.eyebrow}
           title={t.request.title}
           description={t.request.modes.fullDescription}

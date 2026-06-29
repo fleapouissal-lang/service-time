@@ -46,6 +46,7 @@ export function ServiceRequestForm({
   fullWidth = false,
   compact = false,
   bare = false,
+  wide = false,
   mobileSteps = false,
   /** Wizard 2 étapes sur tous les écrans (dashboard client / admin). */
   twoSteps = false,
@@ -65,6 +66,8 @@ export function ServiceRequestForm({
   /** Force la mise en page compacte (auto si embedded sans fullWidth). */
   compact?: boolean;
   bare?: boolean;
+  /** Largeur pleine page (1200px) + grille 2 colonnes desktop — page publique /request. */
+  wide?: boolean;
   /** Active le wizard 2 étapes sur mobile (page /request mode full). */
   mobileSteps?: boolean;
   twoSteps?: boolean;
@@ -315,6 +318,7 @@ export function ServiceRequestForm({
         bare={bare}
         containerClassName={cn(
           fullWidth && !bare ? "w-full max-w-none pb-0" : undefined,
+          wide && !bare && "max-w-[1200px]",
           mobileSteps && "max-md:w-full max-md:max-w-[480px] max-md:pb-4",
         )}
       >
@@ -378,7 +382,12 @@ export function ServiceRequestForm({
 
           {showFormFields ? (
             <>
-              <div className="space-y-5">
+              <div
+                className={cn(
+                  "space-y-5",
+                  wide && "lg:grid lg:grid-cols-2 lg:gap-5 lg:space-y-0",
+                )}
+              >
                 <div>
                   <Label htmlFor="catalog_category">{f.serviceType}</Label>
                   {lockCatalogCategory && lockedCategory ? (
@@ -417,7 +426,7 @@ export function ServiceRequestForm({
                 </div>
 
                 {!isLinkSub && showExecutionMethod ? (
-                  <div>
+                  <div className={cn(wide && "lg:col-span-2")}>
                     <Label htmlFor="execution_method">{f.executionMethod}</Label>
                     <IconSelect
                       id="execution_method"
@@ -436,7 +445,7 @@ export function ServiceRequestForm({
                 ) : null}
 
                 {isLinkSub && selectedSub && parsedSubAction?.kind === "link" ? (
-                  <div className="space-y-4 rounded-2xl border border-[#94D4B9]/20 bg-[var(--card-bg)] p-5">
+                  <div className={cn("space-y-4 rounded-2xl border border-[#94D4B9]/20 bg-[var(--card-bg)] p-5", wide && "lg:col-span-2")}>
                     <p className="text-sm leading-7 text-muted">
                       {selectedSub.description}
                     </p>
@@ -454,7 +463,7 @@ export function ServiceRequestForm({
                 ) : null}
 
                 {loginRequired ? (
-                  <div className={cn(requestCardClass, "space-y-5 p-5 text-start sm:p-6")}>
+                  <div className={cn(requestCardClass, "space-y-5 p-5 text-start sm:p-6", wide && "lg:col-span-2")}>
                     <p className="rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/10 px-4 py-3 text-sm leading-7 text-foreground">
                       {catalogCopy.loginRequiredNote}
                     </p>
@@ -530,7 +539,12 @@ export function ServiceRequestForm({
                 </div>
               ) : null}
 
-              <div className={wizardStepClass(1)}>
+              <div
+                className={cn(
+                  wide && "lg:grid lg:grid-cols-2 lg:items-start lg:gap-x-5 lg:gap-y-5",
+                )}
+              >
+              <div className={cn(wizardStepClass(1), wide && "lg:contents lg:space-y-0")}>
                 {useWizard ? (
                   <div
                     className={cn(
@@ -545,7 +559,12 @@ export function ServiceRequestForm({
                   </div>
                 ) : null}
 
-                <div className={isCompact ? "space-y-5" : "grid gap-5 sm:grid-cols-2"}>
+                <div
+                  className={cn(
+                    isCompact ? "space-y-5" : "grid gap-5 sm:grid-cols-2",
+                    wide && "lg:col-span-2",
+                  )}
+                >
                   <div>
                     <Label htmlFor="customer_name">{f.name}</Label>
                     <IconInput
@@ -572,7 +591,9 @@ export function ServiceRequestForm({
                   </div>
                 </div>
 
-                <ClientVehicleField vehicles={savedVehicles} />
+                <div>
+                  <ClientVehicleField vehicles={savedVehicles} />
+                </div>
 
                 <div>
                   <Label htmlFor="location_text">{f.location}</Label>
@@ -580,7 +601,7 @@ export function ServiceRequestForm({
                 </div>
               </div>
 
-              <div className={wizardStepClass(2)}>
+              <div className={cn(wizardStepClass(2), wide && "lg:contents lg:space-y-0")}>
                 {useWizard ? (
                   <div
                     className={cn(
@@ -595,14 +616,16 @@ export function ServiceRequestForm({
                   </div>
                 ) : null}
 
-                <ServicePriceProposalField
-                  serviceType={serviceType}
-                  executionMethod={executionMethod}
-                  compact={isCompact}
-                  hideNegotiationHint={hidePriceNegotiationHint}
-                />
+                <div className={cn(wide && "lg:col-span-2")}>
+                  <ServicePriceProposalField
+                    serviceType={serviceType}
+                    executionMethod={executionMethod}
+                    compact={isCompact}
+                    hideNegotiationHint={hidePriceNegotiationHint}
+                  />
+                </div>
 
-                <div>
+                <div className={cn(wide && "lg:col-span-2")}>
                   <Label htmlFor="description">{f.problemDescription}</Label>
                   <IconTextarea
                     key={`${catalogCategoryId}-${catalogSubId}`}
@@ -614,7 +637,7 @@ export function ServiceRequestForm({
                   />
                 </div>
 
-                <div>
+                <div className={cn(wide && "lg:col-span-2")}>
                   <Label htmlFor="photo">{f.photoTitle}</Label>
                   <PhotoUploadField
                     id="photo"
@@ -623,6 +646,7 @@ export function ServiceRequestForm({
                     compact={isCompact}
                   />
                 </div>
+              </div>
               </div>
 
               {stepError && useWizard ? (

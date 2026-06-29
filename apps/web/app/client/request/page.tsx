@@ -17,24 +17,23 @@ export default async function ClientRequestPage() {
   const savedVehicles = profile ? await getClientVehicles(profile.id) : [];
 
   return (
-    <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
-      <div className="hidden md:block">
+    <div className="space-y-6 pb-16">
+      <div className="mx-auto hidden w-[90%] max-w-[1200px] md:block">
         <h1 className="text-2xl font-bold">{t.request.title}</h1>
         <p className="text-muted">{t.request.description}</p>
       </div>
 
       <Suspense>
-        <div className="mx-auto w-full max-w-2xl">
-          <ServiceRequestForm
-            embedded
-            twoSteps
-            defaultName={
-              profile ? getProfileDisplayName(profile, locale) : ""
-            }
-            defaultPhone={profile?.phone ?? ""}
-            savedVehicles={savedVehicles}
-          />
-        </div>
+        <ServiceRequestForm
+          embedded
+          wide
+          mobileSteps
+          defaultName={
+            profile ? getProfileDisplayName(profile, locale) : ""
+          }
+          defaultPhone={profile?.phone ?? ""}
+          savedVehicles={savedVehicles}
+        />
       </Suspense>
     </div>
   );

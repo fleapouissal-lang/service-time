@@ -83,8 +83,19 @@ export function ServiceCategoryPanel({
     <>
       <article
         id={category.id}
+        role="button"
+        tabIndex={0}
+        aria-label={category.title}
+        onClick={() => openDialog()}
+        onKeyDown={(event) => {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            openDialog();
+          }
+        }}
         className={cn(
-          "group scroll-mt-28 overflow-hidden rounded-2xl sm:rounded-[20px]",
+          "group scroll-mt-28 cursor-pointer overflow-hidden rounded-2xl sm:rounded-[20px]",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#94D4B9]/60",
           surfaceCardClass,
           "flex h-full flex-col p-0",
         )}
@@ -111,17 +122,16 @@ export function ServiceCategoryPanel({
           </div>
 
           <div className="mt-4 pt-2">
-            <button
-              type="button"
-              onClick={() => openDialog()}
+            <span
+              aria-hidden
               className={cn(
-                "inline-flex h-10 w-full items-center justify-center gap-2 rounded-[20px] text-sm font-semibold transition-all duration-200 sm:h-11",
+                "inline-flex h-10 w-full items-center justify-center gap-2 rounded-[20px] text-sm font-semibold transition-all duration-200 group-hover:opacity-90 sm:h-11",
                 requestBtnFilledClass,
               )}
             >
               {t.common.details}
               <LocaleForwardArrow />
-            </button>
+            </span>
           </div>
         </div>
       </article>
