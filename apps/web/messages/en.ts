@@ -261,6 +261,33 @@ export const messages = {
         ctaLabel: "Book now",
         ctaHref: "/request?category=periodic_maintenance",
       },
+      {
+        id: "spareparts",
+        titleBefore: "Spare parts…",
+        titleHighlight: "fast delivery",
+        description:
+          "Genuine high-quality spare parts delivered quickly wherever you are.",
+        ctaLabel: "Order now",
+        ctaHref: "/spare-parts",
+      },
+      {
+        id: "towing",
+        titleBefore: "Flatbed & safety…",
+        titleHighlight: "towing you can trust",
+        description:
+          "A modern flatbed to move your car safely and right on time.",
+        ctaLabel: "Request now",
+        ctaHref: "/request?category=emergency",
+      },
+      {
+        id: "mobile",
+        titleBefore: "Mobile maintenance…",
+        titleHighlight: "at your location",
+        description:
+          "Our technicians come to you to service your car wherever you are.",
+        ctaLabel: "Book now",
+        ctaHref: "/request?category=periodic_maintenance",
+      },
     ],
   },
 

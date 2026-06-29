@@ -262,6 +262,33 @@ export const messages = {
         ctaLabel: "احجز الآن",
         ctaHref: "/request?category=periodic_maintenance",
       },
+      {
+        id: "spareparts",
+        titleBefore: "قطع الغيار...",
+        titleHighlight: "توصيل سريع",
+        description:
+          "قطع غيار أصلية بمعايير عالية وتوصيل سريع أينما كنت",
+        ctaLabel: "اطلب الآن",
+        ctaHref: "/spare-parts",
+      },
+      {
+        id: "towing",
+        titleBefore: "سطحة وآمان...",
+        titleHighlight: "نقل بثقة",
+        description:
+          "سطحة حديثة لنقل سيارتك بأعلى معايير الأمان وفي الوقت المحدد",
+        ctaLabel: "اطلب الآن",
+        ctaHref: "/request?category=emergency",
+      },
+      {
+        id: "mobile",
+        titleBefore: "صيانة متنقلة...",
+        titleHighlight: "في مكانك",
+        description:
+          "فنيونا يصلون إليك أينما كنت لخدمة سيارتك في موقعك",
+        ctaLabel: "احجز الآن",
+        ctaHref: "/request?category=periodic_maintenance",
+      },
     ],
   },
 

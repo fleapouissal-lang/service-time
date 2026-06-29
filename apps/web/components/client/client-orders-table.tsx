@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Eye, MapPin } from "lucide-react";
 import { useState } from "react";
 import type {
+  ClientVehicle,
   ExecutionMethod,
   ServiceRequest,
   ServiceRequestStatus,
@@ -17,18 +18,28 @@ import {
 } from "@/components/admin/admin-table";
 import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
+import { VehicleBrandLogo } from "@/components/client/vehicles/vehicle-brand-logo";
 import { ServiceRequestPhotosGallery } from "@/components/service-requests/service-request-photos-panel";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
+import {
+  getVehicleBrandLogo,
+  getVehicleDisplayName,
+} from "@/lib/client-vehicle-display";
 import { getIntlLocale } from "@/lib/i18n/config";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import { cn } from "@/lib/utils";
+import {
+  getLocalizedColorName,
+  VEHICLE_COLOR_OPTIONS,
+} from "@/lib/vehicle-catalog";
 
 type ClientOrdersTableProps = {
   orders: ServiceRequest[];
   photoCounts: Record<string, number>;
   photosByRequestId: Record<string, RequestPhotoRow[]>;
+  vehicles?: ClientVehicle[];
   statusLabels: Record<ServiceRequestStatus, string>;
   serviceTypeLabels: Record<ServiceType, string>;
   executionMethodLabels: Record<ExecutionMethod, string>;
@@ -41,12 +52,14 @@ export function ClientOrdersTable({
   orders,
   photoCounts,
   photosByRequestId,
+  vehicles = [],
   statusLabels,
   serviceTypeLabels,
   executionMethodLabels,
 }: ClientOrdersTableProps) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.client.ordersPage;
+  const v = t.clientVehicles;
   const intlLocale = getIntlLocale(locale);
   const {
     pageItems,
@@ -58,6 +71,31 @@ export function ClientOrdersTable({
     to,
   } = useDashboardTablePagination(orders);
   const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
+
+  const viewVehicle = viewTarget?.car_type
+    ? vehicles.find((vehicle) => vehicle.label === viewTarget.car_type)
+    : undefined;
+
+  const vehicleColorName = (() => {
+    if (!viewVehicle?.color) return null;
+    const option = VEHICLE_COLOR_OPTIONS.find(
+      (item) => item.id === viewVehicle.color,
+    );
+    return option
+      ? getLocalizedColorName(option, locale)
+      : viewVehicle.color;
+  })();
+
+  const vehicleColorHex = viewVehicle?.color
+    ? VEHICLE_COLOR_OPTIONS.find((item) => item.id === viewVehicle.color)?.hex ?? null
+    : null;
+
+  const vehiclePlate =
+    viewVehicle && (viewVehicle.plate_letters || viewVehicle.plate_number)
+      ? [viewVehicle.plate_number, viewVehicle.plate_letters]
+          .filter(Boolean)
+          .join(" ")
+      : null;
 
   return (
     <>
@@ -152,6 +190,8 @@ export function ClientOrdersTable({
 
       <DashboardDetailDialog
         open={Boolean(viewTarget)}
+        wide
+        eyebrow={p.table.view}
         title={
           viewTarget ? serviceTypeLabels[viewTarget.service_type] : ""
         }
@@ -198,9 +238,74 @@ export function ClientOrdersTable({
                       },
                     ]
                   : []),
-                ...(viewTarget.car_type
-                  ? [{ label: t.common.car, value: viewTarget.car_type }]
-                  : []),
+                ...(viewVehicle
+                  ? [
+                      {
+                        label: t.common.car,
+                        fullWidth: true,
+                        value: (
+                          <div className="flex items-center gap-3">
+                            <VehicleBrandLogo
+                              src={getVehicleBrandLogo(viewVehicle)}
+                              alt={getVehicleDisplayName(viewVehicle, locale)}
+                              size="sm"
+                            />
+                            <span className="font-semibold">
+                              {getVehicleDisplayName(viewVehicle, locale)}
+                            </span>
+                          </div>
+                        ),
+                      },
+                      ...(vehicleColorName
+                        ? [
+                            {
+                              label: v.color,
+                              value: (
+                                <span className="inline-flex items-center gap-2">
+                                  {vehicleColorHex ? (
+                                    <span
+                                      className="inline-block size-3.5 rounded-full border border-white/30"
+                                      style={{ backgroundColor: vehicleColorHex }}
+                                      aria-hidden
+                                    />
+                                  ) : null}
+                                  {vehicleColorName}
+                                </span>
+                              ),
+                            },
+                          ]
+                        : []),
+                      ...(viewVehicle.year
+                        ? [
+                            {
+                              label: v.year,
+                              value: String(viewVehicle.year),
+                              ltr: true,
+                            },
+                          ]
+                        : []),
+                      ...(vehiclePlate
+                        ? [{ label: v.plateNumber, value: vehiclePlate, ltr: true }]
+                        : []),
+                      ...(viewVehicle.chassis_number
+                        ? [
+                            {
+                              label: v.chassisNumber,
+                              value: viewVehicle.chassis_number,
+                              ltr: true,
+                            },
+                          ]
+                        : []),
+                    ]
+                  : viewTarget.car_type
+                    ? [
+                        {
+                          label: t.common.car,
+                          value: viewTarget.car_type,
+                          fullWidth: true,
+                        },
+                      ]
+                    : []),
                 ...(viewTarget.description
                   ? [
                       {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ServiceCategoryRequestDialog } from "@/components/services/service-category-request-dialog";
 import { ServiceCategoryImage } from "@/components/services/service-category-image";
@@ -7,6 +8,7 @@ import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { surfaceCardClass } from "@/lib/card-surface";
 import { requestBtnFilledClass } from "@/lib/request-styles";
+import { buildServiceRequestHref } from "@/lib/services-catalog";
 import type { ServiceCatalogSession } from "@/lib/services-catalog-session";
 import { cn } from "@/lib/utils";
 
@@ -36,8 +38,20 @@ export function ServiceCategoryPanel({
   savedVehicles,
 }: ServiceCategoryPanelProps) {
   const { messages: t } = useLocale();
+  const router = useRouter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [initialSubId, setInitialSubId] = useState<string | null>(null);
+
+  function buildRequestHref(subId: string | null): string {
+    const sub =
+      subId != null
+        ? category.subOptions.find((item) => item.id === subId)
+        : undefined;
+    if (sub) {
+      return buildServiceRequestHref(sub.action, category.id, sub.id);
+    }
+    return `/request?category=${encodeURIComponent(category.id)}`;
+  }
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -54,6 +68,11 @@ export function ServiceCategoryPanel({
           ? subId
           : null;
 
+      if (isClient) {
+        router.push(buildRequestHref(validSub));
+        return;
+      }
+
       setInitialSubId(validSub);
       setDialogOpen(true);
     };
@@ -61,9 +80,14 @@ export function ServiceCategoryPanel({
     syncFromHash();
     window.addEventListener("hashchange", syncFromHash);
     return () => window.removeEventListener("hashchange", syncFromHash);
-  }, [category.id, category.subOptions]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category.id, category.subOptions, isClient]);
 
   function openDialog(subId: string | null = null) {
+    if (isClient) {
+      router.push(buildRequestHref(subId));
+      return;
+    }
     setInitialSubId(subId);
     setDialogOpen(true);
   }

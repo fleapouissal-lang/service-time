@@ -96,6 +96,7 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
               orders={orders}
               photoCounts={photoCounts}
               photosByRequestId={photosByRequestId}
+              vehicles={savedVehicles}
               statusLabels={statusLabels}
               serviceTypeLabels={serviceTypeLabels}
               executionMethodLabels={executionMethodLabels}
