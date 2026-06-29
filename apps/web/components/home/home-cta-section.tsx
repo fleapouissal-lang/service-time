@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { getCtaSlideImage, type CtaSlideId } from "@/lib/cta-slides";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { useTheme } from "@/lib/theme/theme-context";
 import { cn } from "@/lib/utils";
 
 const SLIDE_INTERVAL_MS = 6000;
@@ -15,7 +14,6 @@ type SiteCtaSectionProps = {
 
 export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
   const { messages: t } = useLocale();
-  const { theme } = useTheme();
   const slides = t.siteCta.slides;
   const [activeIndex, setActiveIndex] = useState(0);
 
@@ -51,7 +49,7 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
       <div className="cta-slider relative w-full overflow-hidden rounded-[20px]">
         {slides.map((slide, index) => {
           const isActive = index === activeIndex;
-          const imageSrc = getCtaSlideImage(slide.id as CtaSlideId, theme);
+          const imageSrc = getCtaSlideImage(slide.id as CtaSlideId);
 
           return (
             <div
@@ -75,6 +73,18 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
                 fetchPriority={index === 0 ? "high" : "auto"}
                 draggable={false}
               />
+              <div className="cta-slider__scrim" aria-hidden />
+              <div className="cta-slider__content">
+                <p className="cta-slider__title">
+                  <span className="cta-slider__title-before">
+                    {slide.titleBefore}
+                  </span>{" "}
+                  <span className="cta-slider__title-highlight">
+                    {slide.titleHighlight}
+                  </span>
+                </p>
+                <p className="cta-slider__desc">{slide.description}</p>
+              </div>
             </div>
           );
         })}

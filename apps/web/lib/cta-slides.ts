@@ -8,7 +8,7 @@ export const CTA_SLIDE_IDS = [
 
 export type CtaSlideId = (typeof CTA_SLIDE_IDS)[number];
 
-const CTA_IMAGE_VERSION = "4";
+const CTA_IMAGE_VERSION = "5";
 
 function ctaImage(path: string): string {
   return `${path}?v=${CTA_IMAGE_VERSION}`;
@@ -16,43 +16,30 @@ function ctaImage(path: string): string {
 
 export const CTA_SLIDE_IMAGES: Record<
   CtaSlideId,
-  { dark: string; light: string; objectPosition: string; objectPositionRtl: string }
+  { src: string; objectPosition: string }
 > = {
   roadside: {
-    dark: ctaImage("/cta/slide-roadside-dark.png"),
-    light: ctaImage("/cta/slide-roadside-light.png"),
-    objectPosition: "center right",
-    objectPositionRtl: "center left",
+    src: ctaImage("/cta/slide-roadside.png"),
+    objectPosition: "center center",
   },
   maintenance: {
-    dark: ctaImage("/cta/slide-maintenance-dark.png"),
-    light: ctaImage("/cta/slide-maintenance-light.png"),
-    objectPosition: "center right",
-    objectPositionRtl: "center left",
+    src: ctaImage("/cta/slide-maintenance.png"),
+    objectPosition: "center center",
   },
   spareparts: {
-    dark: ctaImage("/cta/slide-spareparts-dark.png"),
-    light: ctaImage("/cta/slide-spareparts-light.png"),
-    objectPosition: "center right",
-    objectPositionRtl: "center left",
+    src: ctaImage("/cta/slide-spareparts.png"),
+    objectPosition: "center center",
   },
   towing: {
-    dark: ctaImage("/cta/slide-towing-dark.png"),
-    light: ctaImage("/cta/slide-towing-light.png"),
-    objectPosition: "center right",
-    objectPositionRtl: "center left",
+    src: ctaImage("/cta/slide-towing.png"),
+    objectPosition: "center center",
   },
   mobile: {
-    dark: ctaImage("/cta/slide-mobile-dark.png"),
-    light: ctaImage("/cta/slide-mobile-light.png"),
-    objectPosition: "center right",
-    objectPositionRtl: "center left",
+    src: ctaImage("/cta/slide-mobile.png"),
+    objectPosition: "center center",
   },
 };
 
-export function getCtaSlideImage(
-  slideId: CtaSlideId,
-  theme: "dark" | "light",
-): string {
-  return CTA_SLIDE_IMAGES[slideId][theme];
+export function getCtaSlideImage(slideId: CtaSlideId): string {
+  return CTA_SLIDE_IMAGES[slideId].src;
 }
