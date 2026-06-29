@@ -2171,13 +2171,13 @@ html.light .dashboard-content .request-field-shell:focus-within {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  max-height: 340px;
+  max-height: 300px;
   background-color: var(--cta-section-bg, #060709);
 }
 
 @media (min-width: 768px) {
   .cta-slider {
-    max-height: 380px;
+    max-height: 340px;
   }
 }
 
@@ -2185,15 +2185,6 @@ html.light .dashboard-content .request-field-shell:focus-within {
   position: absolute;
   inset: 0;
   overflow: hidden;
-}
-
-.cta-slider__bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  filter: blur(28px) brightness(0.55);
-  transform: scale(1.12);
 }
 
 .cta-slider__slide--active {
@@ -2211,12 +2202,10 @@ html.light .dashboard-content .request-field-shell:focus-within {
 }
 
 .cta-slider__image {
-  position: relative;
-  z-index: 1;
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center center;
 }
 

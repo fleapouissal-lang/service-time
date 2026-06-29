@@ -64,11 +64,6 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
               )}
               aria-hidden={!isActive}
             >
-              <div
-                className="cta-slider__bg"
-                style={{ backgroundImage: `url(${imageSrc})` }}
-                aria-hidden
-              />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageSrc}

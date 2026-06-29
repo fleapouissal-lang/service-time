@@ -2,7 +2,7 @@ export const CTA_SLIDE_IDS = ["roadside", "maintenance"] as const;
 
 export type CtaSlideId = (typeof CTA_SLIDE_IDS)[number];
 
-const CTA_IMAGE_VERSION = "2";
+const CTA_IMAGE_VERSION = "3";
 
 function ctaImage(path: string): string {
   return `${path}?v=${CTA_IMAGE_VERSION}`;
