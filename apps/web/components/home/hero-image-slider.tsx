@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
 const SLIDE_INTERVAL_MS = 6000;
@@ -12,7 +13,7 @@ type HeroBanner = {
   alt: string;
 };
 
-const BANNERS: HeroBanner[] = [
+const AR_BANNERS: HeroBanner[] = [
   {
     src: "/hero/hero-maintenance-dark.png",
     href: "/request?category=periodic_maintenance",
@@ -40,13 +41,46 @@ const BANNERS: HeroBanner[] = [
   },
 ];
 
+const EN_BANNERS: HeroBanner[] = [
+  {
+    src: "/hero/hero-maintenance-dark-en.png",
+    href: "/request?category=periodic_maintenance",
+    alt: "Service today, comfort tomorrow",
+  },
+  {
+    src: "/hero/hero-towing-light-en.png",
+    href: "/request?category=emergency",
+    alt: "One call away",
+  },
+  {
+    src: "/hero/hero-roadside-dark-en.png",
+    href: "/request?category=emergency",
+    alt: "With you on every trip",
+  },
+  {
+    src: "/hero/hero-spareparts-dark-en.png",
+    href: "/spare-parts",
+    alt: "We've got it covered",
+  },
+  {
+    src: "/hero/hero-bodywork-light-en.png",
+    href: "/request",
+    alt: "Don't stress the crash",
+  },
+];
+
 type HeroImageSliderProps = {
   slideAriaLabel: string;
 };
 
 export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
-  const banners = BANNERS;
+  const { locale } = useLocale();
+  const banners = locale === "en" ? EN_BANNERS : AR_BANNERS;
   const [activeIndex, setActiveIndex] = useState(0);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [locale]);
 
   const goToNext = useCallback(() => {
     setActiveIndex((current) => (current + 1) % banners.length);
@@ -69,7 +103,10 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
       aria-roledescription="carousel"
       aria-label={slideAriaLabel}
     >
-      <div className="hero-image-slider__viewport">
+      <div
+        className="hero-image-slider__viewport"
+        style={{ aspectRatio: locale === "en" ? "3 / 2" : "16 / 9" }}
+      >
         {banners.map((banner, index) => {
           const isActive = index === activeIndex;
 
