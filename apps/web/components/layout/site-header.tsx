@@ -48,8 +48,7 @@ export function SiteHeader() {
   const logoSrc = isEnglish ? "/logos/logo-en.png" : "/logos/logo-ar.png";
   const logoAlt = isEnglish ? "Service Time" : "Service Time — سيرفيس تايم";
 
-  const isHome = pathname === "/";
-  const isTransparent = isHome && !scrolled;
+  const isTransparent = false;
 
   useEffect(() => {
     setScrolled(false);
