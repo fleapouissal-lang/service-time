@@ -94,10 +94,6 @@ export function HeroSection({
           locale={locale}
         />
       </div>
-
-      <div className="relative z-20 w-full">
-        <HeroBrandsBar inline />
-      </div>
     </section>
   );
 
