@@ -17,6 +17,8 @@ type HeroSectionProps = {
   slides: readonly HeroSlide[];
   slideAriaLabel: string;
   locale: Locale;
+  /** Render only the full-screen mobile hero (desktop uses a different hero). */
+  mobileOnly?: boolean;
 };
 
 function DesktopHeroContent({
@@ -55,6 +57,7 @@ export function HeroSection({
   slides,
   slideAriaLabel,
   locale,
+  mobileOnly = false,
 }: HeroSectionProps) {
   const isRtl = locale === "ar";
   const desktopSlide: HeroSlide = {
@@ -65,36 +68,46 @@ export function HeroSection({
     ctaHref,
   };
 
+  const mobileHero = (
+    <section className="hero-mobile relative flex min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full flex-col overflow-hidden bg-site-main md:hidden">
+      <div className="pointer-events-none absolute inset-0 overflow-hidden">
+        <HeroMobileBackground isRtl={isRtl} />
+        <div
+          className={cn(
+            "hero-mobile__overlay-side absolute inset-0",
+            isRtl
+              ? "hero-mobile__overlay-side--rtl"
+              : "hero-mobile__overlay-side--ltr",
+          )}
+          aria-hidden
+        />
+        <div
+          className="hero-mobile__overlay-bottom absolute inset-0"
+          aria-hidden
+        />
+      </div>
+
+      <div className="relative z-10 flex w-full flex-1 items-center justify-center px-6 py-8">
+        <HeroMobileCarousel
+          slides={slides}
+          slideAriaLabel={slideAriaLabel}
+          locale={locale}
+        />
+      </div>
+
+      <div className="relative z-20 w-full">
+        <HeroBrandsBar inline />
+      </div>
+    </section>
+  );
+
+  if (mobileOnly) {
+    return mobileHero;
+  }
+
   return (
     <>
-      <section className="hero-mobile relative flex min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full items-center overflow-hidden bg-site-main md:hidden">
-        <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <HeroMobileBackground isRtl={isRtl} />
-          <div
-            className={cn(
-              "hero-mobile__overlay-side absolute inset-0",
-              isRtl
-                ? "hero-mobile__overlay-side--rtl"
-                : "hero-mobile__overlay-side--ltr",
-            )}
-            aria-hidden
-          />
-          <div
-            className="hero-mobile__overlay-bottom absolute inset-0"
-            aria-hidden
-          />
-        </div>
-
-        <div className="relative z-10 flex w-full items-center justify-center px-6 py-8 pb-20">
-          <HeroMobileCarousel
-            slides={slides}
-            slideAriaLabel={slideAriaLabel}
-            locale={locale}
-          />
-        </div>
-
-        <HeroBrandsBar />
-      </section>
+      {mobileHero}
 
       <section className="hero-desktop relative -mt-20 hidden min-h-[100svh] w-full overflow-hidden bg-site-main pt-20 md:block">
         <div className="pointer-events-none absolute inset-0">

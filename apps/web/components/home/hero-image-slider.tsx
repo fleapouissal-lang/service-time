@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -105,7 +105,11 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
     >
       <div
         className="hero-image-slider__viewport"
-        style={{ aspectRatio: locale === "en" ? "3 / 2" : "16 / 9" }}
+        style={
+          {
+            "--hero-ratio": locale === "en" ? "3 / 2" : "16 / 9",
+          } as CSSProperties
+        }
       >
         {banners.map((banner, index) => {
           const isActive = index === activeIndex;
@@ -123,6 +127,11 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
               aria-hidden={!isActive}
               tabIndex={isActive ? 0 : -1}
             >
+              <span
+                className="hero-image-slider__backdrop"
+                style={{ backgroundImage: `url(${banner.src})` }}
+                aria-hidden
+              />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={banner.src}
