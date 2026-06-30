@@ -68,7 +68,9 @@ export default async function SparePartsPage({
         />
       </Suspense>
 
-      <SiteCtaSection inset />
+      <div className="hidden md:block">
+        <SiteCtaSection inset />
+      </div>
     </section>
   );
 }

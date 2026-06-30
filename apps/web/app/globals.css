@@ -537,11 +537,11 @@ html[lang="ar"] {
 @layer base {
   html {
     font-family: var(--font-body);
-  }
+}
 
-  body {
-    background: var(--background);
-    color: var(--foreground);
+body {
+  background: var(--background);
+  color: var(--foreground);
     font-family: inherit;
   }
 
@@ -2303,9 +2303,37 @@ html.light .dashboard-content .request-field-shell:focus-within {
   position: relative;
   width: 100%;
   margin-inline: auto;
-  aspect-ratio: var(--hero-ratio, 16 / 9);
+  aspect-ratio: 16 / 9;
   max-height: calc(100svh - 3.5rem);
   overflow: hidden;
+}
+
+/* Scrim behind the transparent header so the logo/nav stay legible over any
+   banner (light or dark) while the hero image shows through the header. */
+.hero-image-slider__top-scrim {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 7.5rem;
+  z-index: 10;
+  pointer-events: none;
+}
+
+html.dark .hero-image-slider__top-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgba(5, 11, 16, 0.7),
+    rgba(5, 11, 16, 0)
+  );
+}
+
+html.light .hero-image-slider__top-scrim {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0.82),
+    rgba(255, 255, 255, 0)
+  );
 }
 
 .hero-image-slider__slide {
@@ -2345,7 +2373,7 @@ html.light .dashboard-content .request-field-shell:focus-within {
   display: block;
   width: 100%;
   height: 100%;
-  object-fit: contain;
+  object-fit: cover;
   object-position: center center;
 }
 

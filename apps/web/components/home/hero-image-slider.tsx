@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { type CSSProperties, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -99,18 +99,12 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
 
   return (
     <section
-      className="hero-image-slider bg-site-main"
+      className="hero-image-slider relative -mt-14 bg-site-main sm:-mt-20"
       aria-roledescription="carousel"
       aria-label={slideAriaLabel}
     >
-      <div
-        className="hero-image-slider__viewport"
-        style={
-          {
-            "--hero-ratio": locale === "en" ? "3 / 2" : "16 / 9",
-          } as CSSProperties
-        }
-      >
+      <div className="hero-image-slider__top-scrim" aria-hidden />
+      <div className="hero-image-slider__viewport">
         {banners.map((banner, index) => {
           const isActive = index === activeIndex;
 

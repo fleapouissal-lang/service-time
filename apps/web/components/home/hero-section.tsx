@@ -69,7 +69,7 @@ export function HeroSection({
   };
 
   const mobileHero = (
-    <section className="hero-mobile relative flex min-h-[calc(100dvh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full flex-col overflow-hidden bg-site-main md:hidden">
+    <section className="hero-mobile relative flex min-h-[calc(100svh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full flex-col overflow-hidden bg-site-main md:hidden">
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <HeroMobileBackground isRtl={isRtl} />
         <div
@@ -87,7 +87,7 @@ export function HeroSection({
         />
       </div>
 
-      <div className="relative z-10 flex w-full flex-1 items-center justify-center px-6 py-8">
+      <div className="relative z-10 flex w-full min-h-0 flex-1 items-center justify-center px-6 py-8">
         <HeroMobileCarousel
           slides={slides}
           slideAriaLabel={slideAriaLabel}

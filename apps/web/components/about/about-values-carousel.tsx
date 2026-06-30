@@ -43,10 +43,11 @@ const arrowClass = cn(
   "md:shadow-none md:hover:border-[color-mix(in_srgb,var(--icon-accent)_50%,transparent)] md:hover:bg-[var(--icon-accent-bg)]",
 );
 
-const mobileOverlayArrowClass = cn(
-  arrowClass,
-  "absolute top-1/2 z-10 size-9 -translate-y-1/2 border border-[color-mix(in_srgb,var(--icon-accent)_25%,transparent)] bg-[#050B10]/85 text-[var(--icon-accent)] backdrop-blur-sm",
-  "shadow-[0_4px_16px_rgba(0,0,0,0.45)] active:scale-95 md:hidden",
+const mobileControlArrowClass = cn(
+  "inline-flex size-10 shrink-0 items-center justify-center rounded-full transition-all",
+  "border border-[color-mix(in_srgb,var(--icon-accent)_30%,transparent)]",
+  "bg-[var(--icon-accent-bg)] text-[var(--icon-accent)] active:scale-95",
+  "disabled:pointer-events-none disabled:opacity-40",
 );
 
 type CarouselMetrics = {
@@ -181,26 +182,6 @@ export function AboutValuesCarousel() {
           ref={viewportRef}
           className="relative min-w-0 flex-1 overflow-hidden"
         >
-          <button
-            type="button"
-            onClick={goPrev}
-            disabled={maxIndex === 0}
-            className={cn(mobileOverlayArrowClass, "start-2")}
-            aria-label={values.prevAria}
-          >
-            <LocaleCarouselPrev className="size-4" />
-          </button>
-
-          <button
-            type="button"
-            onClick={goNext}
-            disabled={maxIndex === 0}
-            className={cn(mobileOverlayArrowClass, "end-2")}
-            aria-label={values.nextAria}
-          >
-            <LocaleCarouselNext className="size-4" />
-          </button>
-
           <div
             className="flex gap-0 transition-transform duration-500 ease-out md:gap-5"
             dir="ltr"
@@ -228,8 +209,8 @@ export function AboutValuesCarousel() {
                   <div
                     dir={isRtl ? "rtl" : "ltr"}
                     className={cn(
-                      "flex min-h-[220px] flex-col text-start",
-                      "p-4 ps-11 pe-11 md:rounded-[20px] md:p-6 md:ps-6 md:pe-6",
+                      "flex min-h-[220px] flex-col rounded-[20px] text-start",
+                      "p-5 md:p-6",
                       surfaceCardClass,
                     )}
                   >
@@ -285,6 +266,53 @@ export function AboutValuesCarousel() {
               )}
             />
           ))}
+        </div>
+      ) : null}
+
+      {maxIndex > 0 ? (
+        <div className="flex items-center justify-center gap-4 md:hidden">
+          <button
+            type="button"
+            onClick={goPrev}
+            disabled={maxIndex === 0}
+            className={mobileControlArrowClass}
+            aria-label={values.prevAria}
+          >
+            <LocaleCarouselPrev className="size-4" />
+          </button>
+
+          <div
+            className="flex items-center gap-2"
+            role="tablist"
+            aria-label={values.indicatorsAria}
+          >
+            {Array.from({ length: maxIndex + 1 }, (_, index) => (
+              <button
+                key={index}
+                type="button"
+                role="tab"
+                aria-selected={index === activeIndex}
+                aria-label={values.slideAria.replace("{n}", String(index + 1))}
+                onClick={() => goTo(index)}
+                className={cn(
+                  "h-2 rounded-full transition-all duration-300",
+                  index === activeIndex
+                    ? "w-8 bg-[#94D4B9]"
+                    : "w-2 bg-[#94D4B9]/30",
+                )}
+              />
+            ))}
+          </div>
+
+          <button
+            type="button"
+            onClick={goNext}
+            disabled={maxIndex === 0}
+            className={mobileControlArrowClass}
+            aria-label={values.nextAria}
+          >
+            <LocaleCarouselNext className="size-4" />
+          </button>
         </div>
       ) : null}
     </section>
