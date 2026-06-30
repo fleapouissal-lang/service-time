@@ -35,12 +35,22 @@ function BrandStrip({ copyIndex }: { copyIndex: number }) {
   );
 }
 
-export function HeroBrandsBar() {
+type HeroBrandsBarProps = {
+  /** Render as a static full-width strip instead of absolutely pinned to a hero. */
+  inline?: boolean;
+};
+
+export function HeroBrandsBar({ inline = false }: HeroBrandsBarProps) {
   const { messages: t } = useLocale();
 
   return (
     <div
-      className="hero-brands-bar absolute inset-x-0 bottom-0 z-20 border-t py-3 backdrop-blur-sm sm:py-3.5"
+      className={cn(
+        "hero-brands-bar py-3 backdrop-blur-sm sm:py-3.5",
+        inline
+          ? "relative w-full border-y"
+          : "absolute inset-x-0 bottom-0 z-20 border-t",
+      )}
       aria-label={t.home.heroBrands.ariaLabel}
     >
       <div className="hero-brands-bar__viewport" dir="ltr">

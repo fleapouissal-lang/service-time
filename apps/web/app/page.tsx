@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { HeroBrandsBar } from "@/components/home/hero-brands-bar";
 import { HeroImageSlider } from "@/components/home/hero-image-slider";
 import { ServicesCatalogSection } from "@/components/services/services-catalog-section";
 import { HomeCtaSection } from "@/components/home/home-cta-section";
@@ -36,6 +37,7 @@ export default async function HomePage() {
       <HeroImageSlider slideAriaLabel={t.home.hero.slideAriaLabel} />
 
       <div className="hidden md:block">
+        <HeroBrandsBar inline />
         <ServicesCatalogSection variant="home" {...catalogSession} />
         <HomeSparePartsSection parts={latestParts} />
         <HomeCtaSection />
