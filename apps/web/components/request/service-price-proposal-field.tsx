@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 type ServicePriceProposalFieldProps = {
   serviceType: string;
   executionMethod: string;
+  catalogPrice?: number | null;
   compact?: boolean;
   hideNegotiationHint?: boolean;
 };
@@ -20,12 +21,17 @@ type ServicePriceProposalFieldProps = {
 export function ServicePriceProposalField({
   serviceType,
   executionMethod,
+  catalogPrice = null,
   compact = false,
   hideNegotiationHint = false,
 }: ServicePriceProposalFieldProps) {
   const { messages: t, locale } = useLocale();
   const f = t.request.form;
-  const suggested = suggestServicePrice(serviceType, executionMethod);
+  const suggested = suggestServicePrice(
+    serviceType,
+    executionMethod,
+    catalogPrice,
+  );
   const [price, setPrice] = useState(String(suggested));
 
   useEffect(() => {

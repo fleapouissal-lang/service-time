@@ -4,7 +4,10 @@ import type { ClientVehicle } from "@service-time/types";
 import { Suspense } from "react";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { useLocale } from "@/lib/i18n/locale-context";
-import { parseCatalogAction } from "@/lib/services-catalog";
+import {
+  parseCatalogAction,
+  type CatalogCategoryLike,
+} from "@/lib/services-catalog";
 
 type ServiceCatalogRequestPanelProps = {
   categoryId: string;
@@ -13,6 +16,7 @@ type ServiceCatalogRequestPanelProps = {
   defaultName: string;
   defaultPhone: string;
   savedVehicles: ClientVehicle[];
+  categories?: CatalogCategoryLike[];
   onSuccess?: () => void;
 };
 
@@ -23,12 +27,16 @@ export function ServiceCatalogRequestPanel({
   defaultName,
   defaultPhone,
   savedVehicles,
+  categories,
   onSuccess,
 }: ServiceCatalogRequestPanelProps) {
   const { messages: t } = useLocale();
-  const category = t.services.catalog.categories.find(
-    (item) => item.id === categoryId,
-  );
+  const fallbackCategories = t.services.catalog.categories;
+  const catalogCategories =
+    categories && categories.length > 0
+      ? categories
+      : (fallbackCategories as unknown as CatalogCategoryLike[]);
+  const category = catalogCategories.find((item) => item.id === categoryId);
   const initialSub = category?.subOptions.find(
     (item) => item.id === initialSubId,
   );
@@ -51,6 +59,7 @@ export function ServiceCatalogRequestPanel({
         defaultName={defaultName}
         defaultPhone={defaultPhone}
         savedVehicles={savedVehicles}
+        catalogCategories={catalogCategories}
         catalogDefaults={
           fullDefaults
             ? {

@@ -40,6 +40,11 @@ import {
   validateWorkshopBranch,
   workshopValidationMessage,
 } from "@/lib/workshop-locations-admin";
+import {
+  getAdminServicesCatalog,
+  parseCategoryFromForm,
+  persistAdminServicesCatalog,
+} from "@/lib/services-catalog-admin";
 import { resolveProfileNamesFromFields } from "@/lib/profile-names";
 import { notifyAccountCreated } from "@/lib/account-welcome-notifications";
 import { getLoginUrl } from "@/lib/quick-request-client";
@@ -1282,4 +1287,86 @@ export async function createAdminOrderAction(
   revalidateServiceRequestDashboards();
 
   return { success: true };
+}
+
+function revalidateServicesCatalogPaths() {
+  revalidatePath("/admin/services");
+  revalidatePath("/services");
+  revalidatePath("/request");
+  revalidatePath("/");
+  revalidatePath("/client/request");
+}
+
+export async function saveAdminServiceCategoryAction(formData: FormData) {
+  await requireProfileOrThrow(["admin"]);
+  const supabase = await adminClient();
+  const arMessages = getDictionary("ar");
+  const enMessages = getDictionary("en");
+  const t = getDictionary(await getLocale());
+
+  const catalog = await getAdminServicesCatalog(
+    arMessages.services.catalog,
+    enMessages.services.catalog,
+  );
+
+  const existingId = String(formData.get("id") ?? "").trim();
+  const existing = existingId
+    ? catalog.find((item) => item.id === existingId) ?? null
+    : null;
+
+  let category = parseCategoryFromForm(formData, existing);
+  if (category.title_ar.length < 2) {
+    throw new Error(t.dashboard.admin.servicesPage.nameAr);
+  }
+  if (category.subOptions.length < 1) {
+    throw new Error(t.dashboard.admin.servicesPage.addSubService);
+  }
+
+  const seen = new Set<string>();
+  category = {
+    ...category,
+    subOptions: category.subOptions.map((sub) => {
+      let id = sub.id;
+      while (seen.has(id)) id = `${id}_${crypto.randomUUID().slice(0, 4)}`;
+      seen.add(id);
+      return { ...sub, id };
+    }),
+  };
+
+  const nextCatalog = existing
+    ? catalog.map((item) =>
+        item.id === existing.id
+          ? { ...category, sort_order: existing.sort_order }
+          : item,
+      )
+    : [...catalog, { ...category, sort_order: catalog.length }];
+
+  await persistAdminServicesCatalog(supabase, nextCatalog);
+  revalidateServicesCatalogPaths();
+
+  if (existingId) {
+    redirect(`/admin/services/${existingId}?saved=1`);
+  }
+  redirect(`/admin/services/${category.id}?saved=1`);
+}
+
+export async function deleteAdminServiceCategoryAction(formData: FormData) {
+  await requireProfileOrThrow(["admin"]);
+  const supabase = await adminClient();
+  const id = String(formData.get("id") ?? "").trim();
+  if (!id) return;
+
+  const arMessages = getDictionary("ar");
+  const enMessages = getDictionary("en");
+  const catalog = await getAdminServicesCatalog(
+    arMessages.services.catalog,
+    enMessages.services.catalog,
+  );
+
+  const next = catalog.filter((item) => item.id !== id);
+  if (next.length === catalog.length) return;
+
+  await persistAdminServicesCatalog(supabase, next);
+  revalidateServicesCatalogPaths();
+  redirect("/admin/services");
 }

@@ -21,6 +21,7 @@ type CatalogCategory = {
     label: string;
     description: string;
     action: string;
+    price?: number;
   }[];
 };
 
@@ -36,6 +37,7 @@ export function ServiceCategoryPanel({
   defaultName,
   defaultPhone,
   savedVehicles,
+  categories,
 }: ServiceCategoryPanelProps) {
   const { messages: t } = useLocale();
   const router = useRouter();
@@ -169,6 +171,7 @@ export function ServiceCategoryPanel({
         defaultName={defaultName}
         defaultPhone={defaultPhone}
         savedVehicles={savedVehicles}
+        categories={categories}
       />
     </>
   );

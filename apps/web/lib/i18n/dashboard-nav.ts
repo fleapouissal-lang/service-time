@@ -27,6 +27,11 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       icon: ClipboardList,
     },
     {
+      href: "/admin/services",
+      label: messages.dashboard.admin.services,
+      icon: Wrench,
+    },
+    {
       href: "/admin/spare-parts",
       label: messages.dashboard.admin.spareParts,
       icon: Package,

@@ -8,6 +8,7 @@ import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getProfileHomePath } from "@/lib/profile-home";
+import { resolvePublicServicesCatalog } from "@/lib/services-catalog-session";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getServerI18n();
@@ -39,8 +40,10 @@ export default async function RequestPage({ searchParams }: PageProps) {
   }
 
   const isClient = Boolean(profile?.is_active && profile.role === "client");
-  const savedVehicles =
-    isClient && profile ? await getClientVehicles(profile.id) : [];
+  const [savedVehicles, catalogCategories] = await Promise.all([
+    isClient && profile ? getClientVehicles(profile.id) : Promise.resolve([]),
+    resolvePublicServicesCatalog(locale),
+  ]);
 
   return (
     <Suspense>
@@ -52,6 +55,7 @@ export default async function RequestPage({ searchParams }: PageProps) {
         defaultPhone={isClient ? profile!.phone ?? "" : ""}
         loginNextPath="/request"
         savedVehicles={savedVehicles}
+        catalogCategories={catalogCategories}
       />
     </Suspense>
   );

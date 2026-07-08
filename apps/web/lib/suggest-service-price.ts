@@ -1,6 +1,6 @@
 import type { ExecutionMethod, ServiceType } from "@service-time/types";
 
-/** Suggested starting price (SAR) based on service type and execution method. */
+/** Fallback when no catalog sub-option price is configured. */
 const PRICE_MATRIX: Record<
   Exclude<ServiceType, "spare_parts">,
   Record<ExecutionMethod, number>
@@ -18,7 +18,12 @@ const PRICE_MATRIX: Record<
 export function suggestServicePrice(
   serviceType: string,
   executionMethod: string,
+  catalogPrice?: number | null,
 ): number {
+  if (catalogPrice != null && Number.isFinite(catalogPrice) && catalogPrice > 0) {
+    return Math.round(catalogPrice);
+  }
+
   if (
     serviceType !== "periodic_maintenance" &&
     serviceType !== "emergency"

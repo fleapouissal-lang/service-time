@@ -78,6 +78,7 @@ export type CatalogCategoryLike = {
     label: string;
     description: string;
     action: string;
+    price?: number;
   }[];
 };
 

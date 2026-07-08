@@ -7,6 +7,7 @@ import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { RequestSparePartsFab } from "@/components/request/request-spare-parts-fab";
 import { PageHeader } from "@/components/layout/page-header";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { CatalogCategoryLike } from "@/lib/services-catalog";
 import {
   requestBtnFilledClass,
   requestBtnOutlineClass,
@@ -22,6 +23,7 @@ type RequestPageContentProps = {
   defaultPhone: string;
   loginNextPath: string;
   savedVehicles?: ClientVehicle[];
+  catalogCategories?: CatalogCategoryLike[];
 };
 
 function FullRequestPanel({
@@ -30,6 +32,7 @@ function FullRequestPanel({
   defaultPhone,
   loginNextPath,
   savedVehicles = [],
+  catalogCategories,
 }: RequestPageContentProps) {
   const { messages: t } = useLocale();
   const loginHref = `/login?next=${encodeURIComponent(loginNextPath)}`;
@@ -79,6 +82,7 @@ function FullRequestPanel({
       defaultName={defaultName}
       defaultPhone={defaultPhone}
       savedVehicles={savedVehicles}
+      catalogCategories={catalogCategories}
     />
   );
 }

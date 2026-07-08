@@ -22,10 +22,15 @@ export function ServicesCatalogSection({
   defaultName,
   defaultPhone,
   savedVehicles,
+  categories,
 }: ServicesCatalogSectionProps) {
   const { messages: t } = useLocale();
   const copy = t.services.catalog;
   const isHome = variant === "home";
+  const catalogCategories =
+    categories.length > 0
+      ? categories
+      : (copy.categories as unknown as typeof categories);
 
   return (
     <section
@@ -73,7 +78,7 @@ export function ServicesCatalogSection({
             : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
         )}
       >
-        {copy.categories.map((category) => (
+        {catalogCategories.map((category) => (
           <ServiceCategoryPanel
             key={category.id}
             category={category}
@@ -82,6 +87,7 @@ export function ServicesCatalogSection({
             defaultName={defaultName}
             defaultPhone={defaultPhone}
             savedVehicles={savedVehicles}
+            categories={catalogCategories}
           />
         ))}
       </div>

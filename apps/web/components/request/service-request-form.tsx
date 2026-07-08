@@ -39,6 +39,7 @@ import {
   findCatalogSubOption,
   parseCatalogAction,
   resolveCatalogPrefillDescription,
+  type CatalogCategoryLike,
 } from "@/lib/services-catalog";
 
 export function ServiceRequestForm({
@@ -59,6 +60,7 @@ export function ServiceRequestForm({
   lockCatalogCategory = false,
   loginRequired = false,
   loginNextPath = "/request",
+  catalogCategories: catalogCategoriesProp,
   onSuccess,
 }: {
   embedded?: boolean;
@@ -86,12 +88,16 @@ export function ServiceRequestForm({
   lockCatalogCategory?: boolean;
   loginRequired?: boolean;
   loginNextPath?: string;
+  catalogCategories?: CatalogCategoryLike[];
   onSuccess?: () => void;
 }) {
   const { messages: t } = useLocale();
   const f = t.request.form;
   const catalogCopy = t.services.catalog;
-  const catalogCategories = catalogCopy.categories;
+  const catalogCategories =
+    catalogCategoriesProp && catalogCategoriesProp.length > 0
+      ? catalogCategoriesProp
+      : catalogCopy.categories;
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
@@ -620,6 +626,7 @@ export function ServiceRequestForm({
                   <ServicePriceProposalField
                     serviceType={serviceType}
                     executionMethod={executionMethod}
+                    catalogPrice={selectedSub?.price ?? null}
                     compact={isCompact}
                     hideNegotiationHint={hidePriceNegotiationHint}
                   />

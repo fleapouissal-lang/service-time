@@ -17,6 +17,7 @@ type CatalogCategory = {
     label: string;
     description: string;
     action: string;
+    price?: number;
   }[];
 };
 
@@ -36,6 +37,7 @@ export function ServiceCategoryRequestDialog({
   defaultName,
   defaultPhone,
   savedVehicles,
+  categories,
 }: ServiceCategoryRequestDialogProps) {
   const { messages: t, locale } = useLocale();
   const copy = t.services.catalog;
@@ -148,6 +150,7 @@ export function ServiceCategoryRequestDialog({
               defaultName={defaultName}
               defaultPhone={defaultPhone}
               savedVehicles={savedVehicles}
+              categories={categories}
               onSuccess={onClose}
             />
           </div>
