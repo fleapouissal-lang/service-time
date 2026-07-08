@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ServicesCtaSection } from "@/components/home/home-cta-section";
 import { ServicesCatalogSection } from "@/components/services/services-catalog-section";
 import { ServicesHeroSection } from "@/components/services/services-hero-section";
+import { ServicesWhatsAppCard } from "@/components/services/services-whatsapp-card";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getServiceCatalogSession } from "@/lib/services-catalog-session";
@@ -26,6 +27,8 @@ export default async function ServicesPage() {
       </div>
 
       <ServicesCatalogSection variant="page" {...catalogSession} />
+
+      <ServicesWhatsAppCard />
 
       <div className="hidden md:block">
         <ServicesCtaSection />

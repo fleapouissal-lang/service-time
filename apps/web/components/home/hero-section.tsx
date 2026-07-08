@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { HeroBrandsBar } from "@/components/home/hero-brands-bar";
 import { HeroDesktopBackground } from "@/components/home/hero-desktop-background";
-import { HeroMobileBackground } from "@/components/home/hero-mobile-background";
-import { HeroMobileCarousel } from "@/components/home/hero-mobile-carousel";
+import { HeroMobileImageSlider } from "@/components/home/hero-mobile-image-slider";
 import type { HeroSlide } from "@/components/home/hero-types";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import type { Locale } from "@/lib/i18n/config";
@@ -69,32 +68,9 @@ export function HeroSection({
   };
 
   const mobileHero = (
-    <section className="hero-mobile relative flex min-h-[calc(100svh-3.5rem-5.25rem-env(safe-area-inset-bottom))] w-full flex-col overflow-hidden bg-site-main md:hidden">
-      <div className="pointer-events-none absolute inset-0 overflow-hidden">
-        <HeroMobileBackground isRtl={isRtl} />
-        <div
-          className={cn(
-            "hero-mobile__overlay-side absolute inset-0",
-            isRtl
-              ? "hero-mobile__overlay-side--rtl"
-              : "hero-mobile__overlay-side--ltr",
-          )}
-          aria-hidden
-        />
-        <div
-          className="hero-mobile__overlay-bottom absolute inset-0"
-          aria-hidden
-        />
-      </div>
-
-      <div className="relative z-10 flex w-full min-h-0 flex-1 items-center justify-center px-6 py-8">
-        <HeroMobileCarousel
-          slides={slides}
-          slideAriaLabel={slideAriaLabel}
-          locale={locale}
-        />
-      </div>
-    </section>
+    <div className="md:hidden">
+      <HeroMobileImageSlider slideAriaLabel={slideAriaLabel} />
+    </div>
   );
 
   if (mobileOnly) {

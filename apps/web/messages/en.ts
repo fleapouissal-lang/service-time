@@ -517,6 +517,11 @@ export const messages = {
     description:
       "General maintenance, mobile service, spare parts, flatbed, breakdowns, and external order tracking — choose a sub-option and submit your request.",
     empty: "No services available at the moment — run seed.sql",
+    whatsappCard: {
+      title: "Need help choosing a service?",
+      description: "Chat with our team on WhatsApp for a quick answer.",
+      cta: "Open WhatsApp",
+    },
     startRequest: "Start service request",
     cta: {
       title: "Need a custom service?",
