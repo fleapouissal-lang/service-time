@@ -1823,6 +1823,48 @@ html.light .trust-marquee__dot {
   box-shadow: 0 4px 16px rgba(148, 212, 185, 0.04);
 }
 
+/* Home hero: fully transparent header so the banner shows through */
+.site-header--overlay,
+.site-header[data-home-overlay="true"] {
+  background-color: transparent !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-bottom: none !important;
+}
+
+@media (max-width: 767px) {
+  .site-header[data-home-overlay="true"] {
+    position: fixed !important;
+    inset-inline: 0;
+    top: 0;
+    border-radius: 0 !important;
+    background-color: transparent !important;
+  }
+
+  .site-header--overlay {
+    border-radius: 0;
+  }
+
+  /* Icon chips readable over the banner */
+  html.light .site-header--overlay.site-header-transparent,
+  html.light .site-header[data-home-overlay="true"] {
+    --header-chrome-fg: #050b10;
+    --header-chrome-fg-muted: rgba(5, 11, 16, 0.72);
+    --header-chrome-border: rgba(5, 11, 16, 0.18);
+    --header-chrome-surface-bg: rgba(255, 255, 255, 0.55);
+  }
+
+  html.dark .site-header--overlay.site-header-transparent,
+  html.dark .site-header[data-home-overlay="true"] {
+    --header-chrome-fg: #ffffff;
+    --header-chrome-fg-muted: rgba(255, 255, 255, 0.8);
+    --header-chrome-border: rgba(255, 255, 255, 0.35);
+    --header-chrome-surface-bg: rgba(5, 11, 16, 0.28);
+  }
+}
+
 html.dark .site-header--solid-dark,
 html.dark .site-header--solid-dark.site-header-scrolled {
   background-color: var(--site-header-bg);
@@ -2403,10 +2445,15 @@ html.light .hero-image-slider__top-scrim {
   background: #94d4b9;
 }
 
-/* Mobile home hero — portrait banner slider fills space above bottom nav */
+/* Mobile home hero — full viewport; header is fixed overlay, bottom nav floats above */
 .hero-mobile-image-slider {
+  position: relative;
   width: 100%;
-  height: calc(100svh - 3.5rem - 5.25rem - env(safe-area-inset-bottom));
+  height: 100svh;
+  height: 100dvh;
+  max-height: 100svh;
+  max-height: 100dvh;
+  background-color: transparent;
 }
 
 .hero-mobile-image-slider__viewport {
@@ -2449,13 +2496,16 @@ html.light .hero-image-slider__top-scrim {
 .hero-mobile-image-slider__indicators {
   position: absolute;
   inset-inline: 0;
-  bottom: clamp(0.75rem, 3vw, 1.25rem);
+  /* Keep dots above the fixed bottom nav (image still runs behind the bar) */
+  bottom: calc(
+    var(--mobile-bottom-nav-height, 4.625rem) + env(safe-area-inset-bottom, 0px) +
+      0.65rem
+  );
   z-index: 4;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding-bottom: env(safe-area-inset-bottom, 0);
 }
 
 .hero-mobile-image-slider__dot {

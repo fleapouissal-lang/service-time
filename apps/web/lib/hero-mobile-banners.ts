@@ -5,7 +5,7 @@ export type HeroMobileBanner = {
 };
 
 /** Bump when replacing files in public/hero/mobile/ to bust caches. */
-export const HERO_MOBILE_IMAGE_VERSION = "1";
+export const HERO_MOBILE_IMAGE_VERSION = "2";
 
 export const AR_MOBILE_BANNERS: HeroMobileBanner[] = [
   {

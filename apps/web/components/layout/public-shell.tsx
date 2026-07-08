@@ -36,7 +36,8 @@ export function PublicShell({ children, header, footer }: PublicShellProps) {
                 "flex-1 bg-site-main",
                 MOBILE_BOTTOM_BAR_PADDING,
                 "lg:pb-0",
-                isHome && "max-md:overflow-hidden max-md:pb-0",
+                isHome &&
+                  "max-md:h-[100dvh] max-md:max-h-[100dvh] max-md:overflow-hidden max-md:pb-0 max-md:bg-transparent",
               )
             : "flex-1 bg-site-main"
         }

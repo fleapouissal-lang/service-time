@@ -49,12 +49,18 @@ export function SiteHeader() {
   const logoAlt = isEnglish ? "Service Time" : "Service Time — سيرفيس تايم";
 
   const isHome = pathname === "/";
+  // On mobile home there is no page scroll; keep overlay even if scroll state flickers.
   const isTransparent = isHome && !scrolled;
 
   useEffect(() => {
     setScrolled(false);
 
     const onScroll = () => {
+      // Mobile home locks scroll — never switch to solid bar there.
+      if (window.matchMedia("(max-width: 767px)").matches && pathname === "/") {
+        setScrolled(false);
+        return;
+      }
       setScrolled(
         (window.scrollY || document.documentElement.scrollTop) > SCROLL_THRESHOLD,
       );
@@ -67,17 +73,20 @@ export function SiteHeader() {
 
   return (
     <header
+      data-home-overlay={isTransparent ? "true" : undefined}
       className={cn(
-        "site-header sticky top-0 z-50 transition-all duration-300 max-md:rounded-b-[20px]",
+        "site-header z-50 transition-all duration-300",
         isTransparent
-          ? "site-header--overlay bg-transparent shadow-none backdrop-blur-none md:rounded-b-[20px]"
+          ? cn(
+              "site-header--overlay site-header-transparent bg-transparent shadow-none backdrop-blur-none",
+              "fixed inset-x-0 top-0 md:sticky md:top-0",
+            )
           : cn(
-              "site-header--solid rounded-b-[20px] bg-site-header",
+              "sticky top-0 site-header--solid rounded-b-[20px] bg-site-header max-md:rounded-b-[20px]",
               theme === "dark"
                 ? "site-header--solid-dark"
                 : "site-header--solid-light",
             ),
-        isTransparent && "site-header-transparent",
         scrolled && "site-header-scrolled",
       )}
     >

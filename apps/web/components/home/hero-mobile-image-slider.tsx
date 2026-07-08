@@ -44,7 +44,7 @@ export function HeroMobileImageSlider({
 
   return (
     <section
-      className="hero-mobile-image-slider bg-site-main"
+      className="hero-mobile-image-slider"
       aria-roledescription="carousel"
       aria-label={slideAriaLabel}
     >
