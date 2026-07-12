@@ -234,14 +234,25 @@ export function HeaderAuthSection({
 
     async function loadProfile() {
       try {
-        const authResult = await Promise.race([
-          supabase.auth.getUser(),
-          new Promise<never>((_, reject) => {
-            window.setTimeout(() => reject(new Error("auth-timeout")), 6_000);
-          }),
-        ]);
+        // Prefer local session first — avoids Failed to fetch when SW/network blocks Auth
+        const { data: sessionData } = await supabase.auth.getSession();
+        const sessionUser = sessionData.session?.user ?? null;
 
-        const user = authResult.data.user;
+        let user = sessionUser;
+        if (sessionUser) {
+          try {
+            const authResult = await Promise.race([
+              supabase.auth.getUser(),
+              new Promise<never>((_, reject) => {
+                window.setTimeout(() => reject(new Error("auth-timeout")), 6_000);
+              }),
+            ]);
+            user = authResult.data.user;
+          } catch {
+            user = sessionUser;
+          }
+        }
+
         if (!user) {
           if (!cancelled) setProfile(null);
           return;

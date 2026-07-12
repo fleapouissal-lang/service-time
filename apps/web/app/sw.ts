@@ -36,6 +36,13 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     {
+      // Never cache Supabase Auth/REST/Storage — stale SW caused Failed to fetch after project switch
+      matcher: ({ url }) =>
+        url.hostname.endsWith(".supabase.co") ||
+        url.hostname.endsWith(".supabase.in"),
+      handler: new NetworkOnly(),
+    },
+    {
       matcher: ({ url }) => isNetworkOnlyPath(url.pathname),
       handler: new NetworkOnly(),
     },

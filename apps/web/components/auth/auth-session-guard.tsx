@@ -7,6 +7,7 @@ import {
   clearLegacySupabaseStorage,
   hasAuthTabSession,
   isWithinLoginGracePeriod,
+  purgeForeignSupabaseAuthArtifacts,
 } from "@/lib/auth-cookies";
 import { signOutAndRedirect } from "@/lib/sign-out-client";
 import { createAuthBrowserClient } from "@/lib/supabase-browser";
@@ -22,6 +23,10 @@ export function AuthSessionGuard() {
   const pathname = usePathname();
 
   useEffect(() => {
+    purgeForeignSupabaseAuthArtifacts();
+  }, []);
+
+  useEffect(() => {
     if (PUBLIC_AUTH_PATHS.has(pathname)) return;
 
     let cancelled = false;
@@ -30,16 +35,20 @@ export function AuthSessionGuard() {
       if (cancelled) return;
       if (hasAuthTabSession() || isWithinLoginGracePeriod()) return;
 
-      const supabase = createAuthBrowserClient();
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
+      try {
+        const supabase = createAuthBrowserClient();
+        const {
+          data: { user },
+        } = await supabase.auth.getUser();
 
-      if (!user || cancelled) return;
+        if (!user || cancelled) return;
 
-      clearLegacySupabaseStorage();
-      clearAuthTabSession();
-      await signOutAndRedirect(router);
+        clearLegacySupabaseStorage();
+        clearAuthTabSession();
+        await signOutAndRedirect(router);
+      } catch {
+        // Network / SW / CORS: ignore — do not crash the page
+      }
     };
 
     if (typeof window.requestIdleCallback === "function") {

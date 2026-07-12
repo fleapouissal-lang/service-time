@@ -124,6 +124,34 @@ export function getSupabaseProjectRef(): string | null {
   }
 }
 
+/** Efface cookies + localStorage d'un autre projet Supabase (après migration de ref). */
+export function purgeForeignSupabaseAuthArtifacts(): void {
+  if (typeof window === "undefined") return;
+
+  const currentRef = getSupabaseProjectRef();
+  const storageKey = "st-supabase-project-ref";
+  const previousRef = localStorage.getItem(storageKey);
+
+  clearLegacySupabaseStorage();
+
+  const raw = document.cookie ? document.cookie.split(";") : [];
+  for (const part of raw) {
+    const name = part.split("=")[0]?.trim();
+    if (!name || !isSupabaseAuthCookieName(name)) continue;
+    // Keep cookies for the current project only
+    if (currentRef && name.startsWith(`sb-${currentRef}-`)) continue;
+    document.cookie = `${name}=; Path=/; Max-Age=0; SameSite=Lax`;
+  }
+
+  if (currentRef && previousRef && previousRef !== currentRef) {
+    // Already cleared foreign cookies above
+  }
+
+  if (currentRef) {
+    localStorage.setItem(storageKey, currentRef);
+  }
+}
+
 /** Efface les cookies auth présents + leurs chunks (.0…9) associés. */
 export function purgeSupabaseAuthCookieChunks(
   cookies: Array<{ name: string; value: string }>,
