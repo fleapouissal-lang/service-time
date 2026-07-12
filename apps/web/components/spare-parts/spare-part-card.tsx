@@ -1,11 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Eye } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SparePart } from "@service-time/types";
 import { AddToCartButton } from "@/components/spare-parts/add-to-cart-button";
+import { SparePartMediaImage } from "@/components/spare-parts/spare-part-media-image";
 import { SparePartOutOfStockOverlay } from "@/components/spare-parts/spare-part-out-of-stock-overlay";
 import { SparePartPriceBlock } from "@/components/spare-parts/spare-part-price-block";
 import { SparePartPromotionBadge } from "@/components/spare-parts/spare-part-promotion-badge";
@@ -85,10 +85,11 @@ export function SparePartCard({
         )}
       >
         {coverImage ? (
-          <Image
+          <SparePartMediaImage
             src={coverImage}
             alt={name}
             fill
+            priority={isHome}
             className={cn(
               "object-cover transition-transform duration-300",
               inStock ? "group-hover:scale-105" : "grayscale saturate-50",

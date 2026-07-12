@@ -1,7 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
+import { SparePartMediaImage } from "@/components/spare-parts/spare-part-media-image";
 import { useRouter } from "next/navigation";
 import { Minus, Plus, ShoppingCart, Trash2, X } from "lucide-react";
 import { useEffect } from "react";
@@ -105,7 +105,7 @@ export function SparePartsCartDrawer({
                 >
                   <div className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-[#060709]">
                     {item.img ? (
-                      <Image
+                      <SparePartMediaImage
                         src={item.img}
                         alt={itemName}
                         fill

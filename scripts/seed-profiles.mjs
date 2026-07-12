@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Crée les comptes Auth + profiles admin/techniciens (démo).
+ * Seed Auth users + public.profiles (admin, technicians, clients).
  *
  * Prérequis .env :
  *   NEXT_PUBLIC_SUPABASE_URL
@@ -21,12 +21,27 @@ dotenv.config({ path: join(rootDir, ".env") });
 const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
 const SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? "";
 
+/** @typedef {{
+ *   id: string;
+ *   email: string;
+ *   password: string;
+ *   full_name: string;
+ *   full_name_ar?: string;
+ *   full_name_en?: string;
+ *   phone: string;
+ *   role: "admin" | "technician" | "client";
+ *   technician_type: "mobile" | "workshop" | null;
+ * }} SeedUser */
+
+/** @type {SeedUser[]} */
 const DEMO_USERS = [
   {
     id: "e1000001-0001-4001-8001-000000000001",
     email: "admin@servicetime.sa",
     password: "Admin123!",
     full_name: "مدير النظام",
+    full_name_ar: "مدير النظام",
+    full_name_en: "System Admin",
     phone: "+966500000001",
     role: "admin",
     technician_type: null,
@@ -36,6 +51,8 @@ const DEMO_USERS = [
     email: "tech@servicetime.sa",
     password: "Tech123!",
     full_name: "فهد المتنقل",
+    full_name_ar: "فهد المتنقل",
+    full_name_en: "Fahd Mobile",
     phone: "+966500000002",
     role: "technician",
     technician_type: "mobile",
@@ -45,13 +62,39 @@ const DEMO_USERS = [
     email: "workshop@servicetime.sa",
     password: "Tech123!",
     full_name: "ورشة الجنوب",
+    full_name_ar: "ورشة الجنوب",
+    full_name_en: "South Workshop",
     phone: "+966500000003",
     role: "technician",
     technician_type: "workshop",
   },
+  {
+    id: "e1000001-0001-4001-8001-000000000004",
+    email: "client@servicetime.sa",
+    password: "Client123!",
+    full_name: "أحمد العتيبي",
+    full_name_ar: "أحمد العتيبي",
+    full_name_en: "Ahmed Al-Otaibi",
+    phone: "+966501234567",
+    role: "client",
+    technician_type: null,
+  },
+  {
+    id: "e1000001-0001-4001-8001-000000000005",
+    email: "sara@servicetime.sa",
+    password: "Client123!",
+    full_name: "سارة القحطاني",
+    full_name_ar: "سارة القحطاني",
+    full_name_en: "Sara Al-Qahtani",
+    phone: "+966509876543",
+    role: "client",
+    technician_type: null,
+  },
 ];
 
-const TECH_MOBILE_ID = DEMO_USERS[1].id;
+const TECH_MOBILE_ID = DEMO_USERS.find((u) => u.email === "tech@servicetime.sa").id;
+const CLIENT_AHMED_ID = DEMO_USERS.find((u) => u.email === "client@servicetime.sa").id;
+const CLIENT_SARA_ID = DEMO_USERS.find((u) => u.email === "sara@servicetime.sa").id;
 
 function restHeaders(extra = {}) {
   return {
@@ -94,7 +137,11 @@ async function createAuthUser(user) {
       email: user.email,
       password: user.password,
       email_confirm: true,
-      user_metadata: { full_name: user.full_name },
+      user_metadata: {
+        full_name: user.full_name,
+        full_name_ar: user.full_name_ar,
+        full_name_en: user.full_name_en,
+      },
     }),
   });
 
@@ -103,7 +150,23 @@ async function createAuthUser(user) {
   const errText = await res.text();
   if (errText.includes("already been registered") || res.status === 422) {
     const existing = await findUserByEmail(user.email);
-    if (existing) return existing;
+    if (existing) {
+      // Keep password in sync for demo re-seed
+      await fetch(`${SUPABASE_URL}/auth/v1/admin/users/${existing.id}`, {
+        method: "PUT",
+        headers: restHeaders(),
+        body: JSON.stringify({
+          password: user.password,
+          email_confirm: true,
+          user_metadata: {
+            full_name: user.full_name,
+            full_name_ar: user.full_name_ar,
+            full_name_en: user.full_name_en,
+          },
+        }),
+      });
+      return existing;
+    }
   }
   throw new Error(`Create user ${user.email}: ${errText}`);
 }
@@ -116,6 +179,8 @@ async function upsertProfilesAndDemoData() {
       DEMO_USERS.map((u) => ({
         id: u.id,
         full_name: u.full_name,
+        full_name_ar: u.full_name_ar ?? u.full_name,
+        full_name_en: u.full_name_en ?? null,
         phone: u.phone,
         role: u.role,
         technician_type: u.technician_type,
@@ -124,14 +189,21 @@ async function upsertProfilesAndDemoData() {
     ),
   });
 
-  await supabaseRest(
-    `/service_requests?tracking_token=eq.demo-track-live`,
-    {
-      method: "PATCH",
-      headers: { Prefer: "return=minimal" },
-      body: JSON.stringify({ assigned_technician_id: TECH_MOBILE_ID }),
-    },
-  );
+  // Link demo requests to clients when present
+  await supabaseRest(`/service_requests?tracking_token=eq.demo-rec001`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ client_id: CLIENT_AHMED_ID }),
+  }).catch(() => {});
+
+  await supabaseRest(`/service_requests?tracking_token=eq.demo-track-live`, {
+    method: "PATCH",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({
+      client_id: CLIENT_SARA_ID,
+      assigned_technician_id: TECH_MOBILE_ID,
+    }),
+  }).catch(() => {});
 
   await supabaseRest("/technician_locations?on_conflict=technician_id", {
     method: "POST",
@@ -144,6 +216,30 @@ async function upsertProfilesAndDemoData() {
         updated_at: new Date().toISOString(),
       },
     ]),
+  }).catch(() => {});
+
+  // Demo vehicles for clients
+  await supabaseRest("/client_vehicles?on_conflict=client_id,label", {
+    method: "POST",
+    headers: { Prefer: "resolution=ignore-duplicates,return=minimal" },
+    body: JSON.stringify([
+      { client_id: CLIENT_AHMED_ID, label: "تويوتا كامري 2020" },
+      { client_id: CLIENT_AHMED_ID, label: "هيونداي توسان 2022" },
+      { client_id: CLIENT_SARA_ID, label: "هيونداي توسان 2022" },
+    ]),
+  }).catch(async () => {
+    // Fallback without unique conflict target if schema differs
+    for (const vehicle of [
+      { client_id: CLIENT_AHMED_ID, label: "تويوتا كامري 2020" },
+      { client_id: CLIENT_AHMED_ID, label: "هيونداي توسان 2022" },
+      { client_id: CLIENT_SARA_ID, label: "هيونداي توسان 2022" },
+    ]) {
+      await supabaseRest("/client_vehicles", {
+        method: "POST",
+        headers: { Prefer: "return=minimal" },
+        body: JSON.stringify(vehicle),
+      }).catch(() => {});
+    }
   });
 }
 
@@ -158,19 +254,20 @@ async function main() {
   console.log("👤 Création des utilisateurs Auth...");
   for (const user of DEMO_USERS) {
     const authUser = await createAuthUser(user);
-    console.log(`   ✓ ${user.email} → ${authUser.id ?? user.id}`);
+    console.log(`   ✓ ${user.email} (${user.role}) → ${authUser.id ?? user.id}`);
   }
 
-  console.log("📋 Insertion des profiles...");
+  console.log("📋 Insertion des profiles + données liées...");
   await upsertProfilesAndDemoData();
-  console.log("   ✓ 3 profiles créés");
-  console.log("   ✓ technicien assigné à demo-track-live (si la demande existe)");
+  console.log(`   ✓ ${DEMO_USERS.length} profiles créés/mis à jour`);
 
   console.log("");
-  console.log("✅ Comptes démo :");
-  console.log("   admin@servicetime.sa      / Admin123!  → /login → /admin");
-  console.log("   tech@servicetime.sa       / Tech123!   → /login → /technician");
-  console.log("   workshop@servicetime.sa   / Tech123!   → /login → /technician");
+  console.log("✅ Comptes seed :");
+  console.log("   admin@servicetime.sa      / Admin123!   → /admin");
+  console.log("   tech@servicetime.sa       / Tech123!    → /technician (mobile)");
+  console.log("   workshop@servicetime.sa   / Tech123!    → /technician (workshop)");
+  console.log("   client@servicetime.sa     / Client123!  → /client");
+  console.log("   sara@servicetime.sa       / Client123!  → /client");
 }
 
 main().catch((err) => {

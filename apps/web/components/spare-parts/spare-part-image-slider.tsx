@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import { SparePartMediaImage } from "@/components/spare-parts/spare-part-media-image";
 import { iconAccentClass } from "@/lib/card-surface";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
@@ -45,7 +45,7 @@ export function SparePartImageSlider({
 
   return (
     <div className={cn("relative aspect-[4/3] w-full overflow-hidden bg-[#060709]", className)}>
-      <Image
+      <SparePartMediaImage
         key={images[index]}
         src={images[index]}
         alt={hasMultiple ? `${alt} (${index + 1}/${count})` : alt}

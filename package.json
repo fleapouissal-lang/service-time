@@ -8,6 +8,7 @@
   ],
   "scripts": {
     "dev": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && npm run dev -w web",
+    "dev:3001": "node scripts/sync-env.mjs && node scripts/clean-dev-lock.mjs && npm run dev -w web -- --port 3001",
     "sync-env": "node scripts/sync-env.mjs",
     "check:email": "node scripts/check-email-env.mjs",
     "test:smtp": "node scripts/test-smtp.mjs",
@@ -36,7 +37,10 @@
     "db:client-vehicles": "node scripts/apply-client-vehicles.mjs",
     "db:profile-names": "node scripts/apply-profile-localized-names.mjs",
     "db:request-status-assigned": "node scripts/apply-request-status-assigned.mjs",
-    "db:push": "npx supabase db push"
+    "db:push": "npx supabase db push",
+    "assets:spare-parts": "node scripts/generate-spare-part-placeholders.mjs",
+    "keepalive:db": "node scripts/keepalive-db.mjs",
+    "cache:clear": "node scripts/clear-web-cache.mjs"
   },
   "devDependencies": {
     "dotenv": "^16.5.0",

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
+import { SparePartMediaImage } from "@/components/spare-parts/spare-part-media-image";
 import type { SparePart } from "@service-time/types";
 import { deleteSparePartAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -81,7 +81,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
               <tr key={part.id} className="border-b border-border">
                 <AdminTableCell align="center" className="w-20">
                   {coverImage ? (
-                    <Image
+                    <SparePartMediaImage
                       src={coverImage}
                       alt={name}
                       width={48}
@@ -192,7 +192,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
       >
         {viewTarget && getSparePartCoverImage(viewTarget) ? (
           <div className="mt-4 flex justify-center">
-            <Image
+            <SparePartMediaImage
               src={getSparePartCoverImage(viewTarget)!}
               alt={getSparePartName(viewTarget, locale)}
               width={160}

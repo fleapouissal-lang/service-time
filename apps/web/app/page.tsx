@@ -57,6 +57,10 @@ export default async function HomePage() {
         locale={locale}
       />
 
+      <div className="md:hidden">
+        <HomeSparePartsSection parts={latestParts} />
+      </div>
+
       <div className="hidden md:block">
         <HeroImageSlider slideAriaLabel={t.home.hero.slideAriaLabel} />
         <HeroBrandsBar inline />

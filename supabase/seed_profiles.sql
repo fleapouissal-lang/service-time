@@ -1,32 +1,24 @@
--- Service Time — Profils admin + techniciens (démo)
+-- Service Time — Seed users (admin + techniciens + clients)
 -- Exécuter dans Supabase SQL Editor (rôle postgres)
+--   ou : npm run db:seed-profiles
 --
--- Comptes créés :
+-- Comptes :
 --   admin@servicetime.sa      / Admin123!
---   tech@servicetime.sa       / Tech123!   (فني متنقل)
---   workshop@servicetime.sa   / Tech123!   (ورشة)
---
--- Prérequis : extension pgcrypto (activée par défaut sur Supabase)
+--   tech@servicetime.sa       / Tech123!    (فني متنقل)
+--   workshop@servicetime.sa   / Tech123!    (ورشة)
+--   client@servicetime.sa     / Client123!  (عميل)
+--   sara@servicetime.sa       / Client123!  (عميل)
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
-
--- UUID fixes pour re-seed idempotent
--- Admin
--- e1000001-0001-4001-8001-000000000001
--- Technicien mobile
--- e1000001-0001-4001-8001-000000000002
--- Technicien workshop
--- e1000001-0001-4001-8001-000000000003
 
 DO $$
 DECLARE
   admin_id uuid := 'e1000001-0001-4001-8001-000000000001';
   tech_mobile_id uuid := 'e1000001-0001-4001-8001-000000000002';
   tech_workshop_id uuid := 'e1000001-0001-4001-8001-000000000003';
+  client_ahmed_id uuid := 'e1000001-0001-4001-8001-000000000004';
+  client_sara_id uuid := 'e1000001-0001-4001-8001-000000000005';
 BEGIN
-  -- -------------------------------------------------------------------------
-  -- auth.users + auth.identities (3 comptes email/password)
-  -- -------------------------------------------------------------------------
   INSERT INTO auth.users (
     id,
     instance_id,
@@ -54,7 +46,7 @@ BEGIN
       crypt('Admin123!', gen_salt('bf')),
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"full_name":"مدير النظام"}'::jsonb,
+      '{"full_name":"مدير النظام","full_name_ar":"مدير النظام","full_name_en":"System Admin"}'::jsonb,
       now(),
       now(),
       '',
@@ -71,7 +63,7 @@ BEGIN
       crypt('Tech123!', gen_salt('bf')),
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"full_name":"فهد المتنقل"}'::jsonb,
+      '{"full_name":"فهد المتنقل","full_name_ar":"فهد المتنقل","full_name_en":"Fahd Mobile"}'::jsonb,
       now(),
       now(),
       '',
@@ -88,7 +80,41 @@ BEGIN
       crypt('Tech123!', gen_salt('bf')),
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"full_name":"ورشة الجنوب"}'::jsonb,
+      '{"full_name":"ورشة الجنوب","full_name_ar":"ورشة الجنوب","full_name_en":"South Workshop"}'::jsonb,
+      now(),
+      now(),
+      '',
+      '',
+      '',
+      ''
+    ),
+    (
+      client_ahmed_id,
+      '00000000-0000-0000-0000-000000000000',
+      'authenticated',
+      'authenticated',
+      'client@servicetime.sa',
+      crypt('Client123!', gen_salt('bf')),
+      now(),
+      '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"full_name":"أحمد العتيبي","full_name_ar":"أحمد العتيبي","full_name_en":"Ahmed Al-Otaibi"}'::jsonb,
+      now(),
+      now(),
+      '',
+      '',
+      '',
+      ''
+    ),
+    (
+      client_sara_id,
+      '00000000-0000-0000-0000-000000000000',
+      'authenticated',
+      'authenticated',
+      'sara@servicetime.sa',
+      crypt('Client123!', gen_salt('bf')),
+      now(),
+      '{"provider":"email","providers":["email"]}'::jsonb,
+      '{"full_name":"سارة القحطاني","full_name_ar":"سارة القحطاني","full_name_en":"Sara Al-Qahtani"}'::jsonb,
       now(),
       now(),
       '',
@@ -143,39 +169,72 @@ BEGIN
       now(),
       now(),
       now()
+    ),
+    (
+      client_ahmed_id,
+      client_ahmed_id,
+      jsonb_build_object('sub', client_ahmed_id::text, 'email', 'client@servicetime.sa'),
+      'email',
+      client_ahmed_id::text,
+      now(),
+      now(),
+      now()
+    ),
+    (
+      client_sara_id,
+      client_sara_id,
+      jsonb_build_object('sub', client_sara_id::text, 'email', 'sara@servicetime.sa'),
+      'email',
+      client_sara_id::text,
+      now(),
+      now(),
+      now()
     )
   ON CONFLICT (provider, provider_id) DO UPDATE SET
     identity_data = EXCLUDED.identity_data,
     updated_at = now();
 
-  -- -------------------------------------------------------------------------
-  -- public.profiles
-  -- Contrainte : admin → technician_type NULL | technician → type obligatoire
-  -- -------------------------------------------------------------------------
-  INSERT INTO public.profiles (id, full_name, phone, role, technician_type, is_active)
+  INSERT INTO public.profiles (
+    id, full_name, full_name_ar, full_name_en, phone, role, technician_type, is_active
+  )
   VALUES
-    (admin_id, 'مدير النظام', '+966500000001', 'admin', NULL, true),
-    (tech_mobile_id, 'فهد المتنقل', '+966500000002', 'technician', 'mobile', true),
-    (tech_workshop_id, 'ورشة الجنوب', '+966500000003', 'technician', 'workshop', true)
+    (admin_id, 'مدير النظام', 'مدير النظام', 'System Admin', '+966500000001', 'admin', NULL, true),
+    (tech_mobile_id, 'فهد المتنقل', 'فهد المتنقل', 'Fahd Mobile', '+966500000002', 'technician', 'mobile', true),
+    (tech_workshop_id, 'ورشة الجنوب', 'ورشة الجنوب', 'South Workshop', '+966500000003', 'technician', 'workshop', true),
+    (client_ahmed_id, 'أحمد العتيبي', 'أحمد العتيبي', 'Ahmed Al-Otaibi', '+966501234567', 'client', NULL, true),
+    (client_sara_id, 'سارة القحطاني', 'سارة القحطاني', 'Sara Al-Qahtani', '+966509876543', 'client', NULL, true)
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
+    full_name_ar = EXCLUDED.full_name_ar,
+    full_name_en = EXCLUDED.full_name_en,
     phone = EXCLUDED.phone,
     role = EXCLUDED.role,
     technician_type = EXCLUDED.technician_type,
     is_active = EXCLUDED.is_active,
     updated_at = now();
 
-  -- Assigner la demande démo "on_the_way" au technicien mobile
   UPDATE public.service_requests
-  SET assigned_technician_id = tech_mobile_id
+  SET client_id = client_ahmed_id
+  WHERE tracking_token = 'demo-rec001';
+
+  UPDATE public.service_requests
+  SET
+    client_id = client_sara_id,
+    assigned_technician_id = tech_mobile_id
   WHERE tracking_token = 'demo-track-live';
 
-  -- Position GPS démo pour le suivi live
   INSERT INTO public.technician_locations (technician_id, lat, lng, updated_at)
   VALUES (tech_mobile_id, 24.7050, 46.6700, now())
   ON CONFLICT (technician_id) DO UPDATE SET
     lat = EXCLUDED.lat,
     lng = EXCLUDED.lng,
     updated_at = now();
+
+  INSERT INTO public.client_vehicles (client_id, label)
+  VALUES
+    (client_ahmed_id, 'تويوتا كامري 2020'),
+    (client_ahmed_id, 'هيونداي توسان 2022'),
+    (client_sara_id, 'هيونداي توسان 2022')
+  ON CONFLICT DO NOTHING;
 
 END $$;
