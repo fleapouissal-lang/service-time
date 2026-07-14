@@ -47,7 +47,7 @@ export function getPublicWhatsAppDigits(): string {
     process.env.NEXT_PUBLIC_WHATSAPP_NUMBER?.trim() ||
     process.env.WHATSAPP_NUMBER?.trim() ||
     "";
-  if (!raw) return "966500000001";
+  if (!raw) return "966583814214";
   return phoneToWhatsAppDigits(raw);
 }
 

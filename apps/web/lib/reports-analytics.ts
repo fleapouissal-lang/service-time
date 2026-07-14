@@ -11,7 +11,21 @@ export type SparePartOrdersReport = {
 };
 
 export function computeSparePartOrderTotal(order: SparePartOrderWithItems): number {
-  if (order.total_amount > 0) return order.total_amount;
+  const parts =
+    order.total_amount > 0
+      ? Number(order.total_amount)
+      : order.items.reduce(
+          (sum, item) =>
+            sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
+          0,
+        );
+  return parts + Math.max(0, Number(order.delivery_fee) || 0);
+}
+
+export function computeSparePartOrderPartsTotal(
+  order: SparePartOrderWithItems,
+): number {
+  if (order.total_amount > 0) return Number(order.total_amount);
   return order.items.reduce(
     (sum, item) =>
       sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
@@ -28,6 +42,7 @@ export function buildSparePartOrdersReport(
     preparing: 0,
     ready: 0,
     delivered: 0,
+    received: 0,
     cancelled: 0,
   } satisfies Record<SparePartOrderStatus, number>;
 

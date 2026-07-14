@@ -76,7 +76,7 @@ export const legal = {
         title: "Your rights and choices",
         paragraphs: [
           "Subject to applicable Saudi regulations, you may have the right to request access to personal data we hold about you, request correction of inaccurate data, request deletion where legally permitted, object to or restrict certain processing, and receive a copy of your data in a structured format where technically feasible.",
-          "You can update much of your profile information directly from your client dashboard. For other requests, contact us at info@servicetime.sa. We may need to verify your identity before responding.",
+          "You can update much of your profile information directly from your client dashboard. For other requests, contact us at servicetime10@gmail.com. We may need to verify your identity before responding.",
           "We will respond to legitimate requests within a reasonable timeframe as required by applicable law. You may also lodge a complaint with the relevant supervisory authority if you believe your rights have been violated.",
         ],
       },
@@ -104,7 +104,7 @@ export const legal = {
         title: "Contact us",
         paragraphs: [
           "For privacy-related inquiries, data subject requests, or questions about this policy, please contact:",
-          "Service Time — Privacy Office\nEmail: info@servicetime.sa\nLocation: Riyadh, Kingdom of Saudi Arabia\nYou may also use the contact form on our website.",
+          "Service Time — Privacy Office\nEmail: servicetime10@gmail.com\nLocation: Riyadh, Kingdom of Saudi Arabia\nYou may also use the contact form on our website.",
         ],
       },
     ],
@@ -220,7 +220,7 @@ export const legal = {
       {
         title: "14. Contact",
         paragraphs: [
-          "For questions regarding these Terms, please contact Service Time at info@servicetime.sa or through the contact page on servicetime.com.sa.",
+          "For questions regarding these Terms, please contact Service Time at servicetime10@gmail.com or through the contact page on servicetime.com.sa.",
         ],
       },
     ],
@@ -241,8 +241,8 @@ export const legal = {
       {
         title: "Contact details",
         paragraphs: [
-          "General inquiries: info@servicetime.sa",
-          "Telephone: +966 50 000 0001",
+          "General inquiries: servicetime10@gmail.com",
+          "Telephone: +966 58 381 4214",
           "Postal / business address: Riyadh, Kingdom of Saudi Arabia",
           "For support regarding an active order, please sign in to your client dashboard or use the tracking link provided in your order confirmation.",
         ],
@@ -250,7 +250,7 @@ export const legal = {
       {
         title: "Publication director",
         paragraphs: [
-          "The publication director responsible for editorial and operational content on the Platform is the Service Time management team. Legal and compliance correspondence should be sent to info@servicetime.sa with the subject line “Legal Notice”.",
+          "The publication director responsible for editorial and operational content on the Platform is the Service Time management team. Legal and compliance correspondence should be sent to servicetime10@gmail.com with the subject line “Legal Notice”.",
         ],
       },
       {

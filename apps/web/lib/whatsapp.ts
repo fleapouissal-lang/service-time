@@ -18,7 +18,7 @@ export function getWhatsAppNumber(): string {
   ensureServerEnv();
   const raw = process.env.WHATSAPP_NUMBER?.trim() ?? "";
   if (!raw) {
-    return "966500000001";
+    return "966583814214";
   }
   return phoneToWhatsAppDigits(raw);
 }

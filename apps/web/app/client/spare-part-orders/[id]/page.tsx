@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ClearCartOnSuccess } from "@/components/spare-parts/clear-cart-on-success";
+import { ClientConfirmSparePartReceivedButton } from "@/components/client/client-confirm-spare-part-received-button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { requireProfile } from "@/lib/auth";
@@ -34,15 +35,18 @@ export default async function ClientSparePartOrderDetailPage({
 
   if (!order) notFound();
 
-  const orderTotal = order.items.reduce(
+  const partsTotal = order.items.reduce(
     (sum, item) =>
       sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
     0,
   );
+  const deliveryFee = Math.max(0, Number(order.delivery_fee) || 0);
+  const grandTotal = partsTotal + deliveryFee;
   const statusLabels = getSparePartOrderStatusLabelsForDashboard(t);
   const paymentMethodLabels = getSparePartPaymentMethodLabelsForDashboard(t);
   const paymentStatusLabels = getSparePartPaymentStatusLabelsForDashboard(t);
   const intlLocale = getIntlLocale(locale);
+  const p = t.dashboard.client.sparePartOrdersPage;
 
   return (
     <div className="mx-auto max-w-2xl space-y-6">
@@ -71,9 +75,7 @@ export default async function ClientSparePartOrderDetailPage({
         <CardContent className="space-y-4 p-6">
           <div className="flex items-center justify-between gap-3">
             <span className="text-sm text-muted">{t.common.status}</span>
-            <Badge variant="secondary">
-              {statusLabels[order.status]}
-            </Badge>
+            <Badge variant="secondary">{statusLabels[order.status]}</Badge>
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted">{t.spareParts.paymentMethod}</span>
@@ -84,8 +86,16 @@ export default async function ClientSparePartOrderDetailPage({
             <span>{paymentStatusLabels[order.payment_status]}</span>
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">{t.common.total}</span>
-            <SparePartPrice price={orderTotal} size="sm" className="text-primary" />
+            <span className="text-muted">{p.partsSubtotal}</span>
+            <SparePartPrice price={partsTotal} size="sm" />
+          </div>
+          <div className="flex items-center justify-between gap-3 text-sm">
+            <span className="text-muted">{p.deliveryFee}</span>
+            <SparePartPrice price={deliveryFee} size="sm" />
+          </div>
+          <div className="flex items-center justify-between gap-3 text-sm font-semibold">
+            <span>{p.grandTotal}</span>
+            <SparePartPrice price={grandTotal} size="sm" className="text-primary" />
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted">{t.common.date}</span>
@@ -126,6 +136,10 @@ export default async function ClientSparePartOrderDetailPage({
         </CardContent>
       </Card>
 
+      {order.status === "delivered" ? (
+        <ClientConfirmSparePartReceivedButton orderId={order.id} />
+      ) : null}
+
       <Card>
         <CardContent className="p-6">
           <h2 className="mb-4 font-semibold">{t.common.products}</h2>
@@ -153,9 +167,19 @@ export default async function ClientSparePartOrderDetailPage({
               </li>
             ))}
           </ul>
-          <div className="mt-4 flex items-center justify-between border-t border-border pt-4">
-            <span className="font-medium">{t.common.total}</span>
-            <SparePartPrice price={orderTotal} size="lg" className="text-primary" />
+          <div className="mt-4 space-y-2 border-t border-border pt-4 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted">{p.partsSubtotal}</span>
+              <SparePartPrice price={partsTotal} size="sm" />
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted">{p.deliveryFee}</span>
+              <SparePartPrice price={deliveryFee} size="sm" />
+            </div>
+            <div className="flex items-center justify-between font-semibold">
+              <span>{p.grandTotal}</span>
+              <SparePartPrice price={grandTotal} size="lg" className="text-primary" />
+            </div>
           </div>
         </CardContent>
       </Card>

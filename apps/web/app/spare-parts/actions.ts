@@ -191,6 +191,16 @@ export type UpdateSparePartOrderStatusState = {
   error?: string;
 };
 
+const ADMIN_SPARE_PART_ORDER_STATUSES: SparePartOrderStatus[] = [
+  "pending",
+  "confirmed",
+  "preparing",
+  "ready",
+  "delivered",
+  "received",
+  "cancelled",
+];
+
 export async function updateSparePartOrderStatusFormAction(
   _prev: UpdateSparePartOrderStatusState,
   formData: FormData,
@@ -201,30 +211,31 @@ export async function updateSparePartOrderStatusFormAction(
 
     const id = String(formData.get("id") ?? "");
     const status = String(formData.get("status") ?? "") as SparePartOrderStatus;
+    const deliveryFeeRaw = String(formData.get("delivery_fee") ?? "").trim();
+    const deliveryFee = Number(deliveryFeeRaw.replace(",", "."));
 
-    const allowed: SparePartOrderStatus[] = [
-      "pending",
-      "confirmed",
-      "preparing",
-      "ready",
-      "delivered",
-      "cancelled",
-    ];
-
-    if (!id || !allowed.includes(status)) {
+    if (!id || !ADMIN_SPARE_PART_ORDER_STATUSES.includes(status)) {
       return { error: "Invalid data" };
+    }
+
+    if (!Number.isFinite(deliveryFee) || deliveryFee < 0) {
+      return { error: "Invalid delivery fee" };
     }
 
     const supabase = await createAuthServerClient();
     const { error } = await supabase
       .from("spare_part_orders")
-      .update({ status })
+      .update({
+        status,
+        delivery_fee: Math.round(deliveryFee * 100) / 100,
+      })
       .eq("id", id);
 
     if (error) return { error: error.message };
 
     revalidatePath("/admin/spare-part-orders");
     revalidatePath(`/admin/spare-part-orders/${id}`);
+    revalidatePath("/client/spare-part-orders");
     revalidatePath(`/client/spare-part-orders/${id}`);
     return { success: true };
   } catch (err) {
@@ -241,16 +252,7 @@ export async function updateSparePartOrderStatusAction(formData: FormData) {
   const id = String(formData.get("id") ?? "");
   const status = String(formData.get("status") ?? "") as SparePartOrderStatus;
 
-  const allowed: SparePartOrderStatus[] = [
-    "pending",
-    "confirmed",
-    "preparing",
-    "ready",
-    "delivered",
-    "cancelled",
-  ];
-
-  if (!id || !allowed.includes(status)) return;
+  if (!id || !ADMIN_SPARE_PART_ORDER_STATUSES.includes(status)) return;
 
   const supabase = await createAuthServerClient();
   await supabase.from("spare_part_orders").update({ status }).eq("id", id);
@@ -258,6 +260,50 @@ export async function updateSparePartOrderStatusAction(formData: FormData) {
   revalidatePath("/admin/spare-parts");
   revalidatePath("/admin/spare-part-orders");
   revalidatePath(`/client/spare-part-orders/${id}`);
+}
+
+export type ConfirmSparePartOrderReceivedState = {
+  success?: boolean;
+  error?: string;
+};
+
+export async function confirmSparePartOrderReceivedAction(
+  _prev: ConfirmSparePartOrderReceivedState,
+  formData: FormData,
+): Promise<ConfirmSparePartOrderReceivedState> {
+  try {
+    const profile = await requireProfile(["client"]);
+    if (!profile) return { error: "Unauthorized" };
+
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: "Invalid data" };
+
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.client.sparePartOrdersPage;
+
+    const supabase = await createAuthServerClient();
+    const { error } = await supabase.rpc(
+      "client_confirm_spare_part_order_received",
+      { p_order_id: id },
+    );
+
+    if (error) {
+      if (error.message.includes("order_not_delivered")) {
+        return { error: p.confirmReceivedError };
+      }
+      return { error: error.message || p.confirmReceivedError };
+    }
+
+    revalidatePath("/client/spare-part-orders");
+    revalidatePath(`/client/spare-part-orders/${id}`);
+    revalidatePath("/admin/spare-part-orders");
+    revalidatePath(`/admin/spare-part-orders/${id}`);
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
 }
 
 export async function startPaymobCheckoutAction(

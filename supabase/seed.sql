@@ -47,15 +47,15 @@ INSERT INTO public.site_content (key, value) VALUES
   ),
   (
     'contact.phone',
-    '{"value": "+966500000001", "label_ar": "الهاتف"}'::jsonb
+    '{"value": "+966 58 381 4214", "label_ar": "الهاتف"}'::jsonb
   ),
   (
     'contact.email',
-    '{"value": "info@servicetime.sa", "label_ar": "البريد"}'::jsonb
+    '{"value": "servicetime10@gmail.com", "label_ar": "البريد"}'::jsonb
   ),
   (
     'contact.whatsapp',
-    '{"value": "+966500000001", "label_ar": "واتساب"}'::jsonb
+    '{"value": "+966 58 381 4214", "label_ar": "واتساب"}'::jsonb
   ),
   (
     'locations.workshops',

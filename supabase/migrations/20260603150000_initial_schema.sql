@@ -476,6 +476,6 @@ CREATE POLICY "request_photos_storage_select"
 -- ---------------------------------------------------------------------------
 INSERT INTO public.site_content (key, value) VALUES
   ('home.hero', '{"title_ar": "Service Time", "subtitle_ar": "صيانة السيارات في الرياض"}'::jsonb),
-  ('contact.phone', '{"value": "+966500000000"}'::jsonb),
-  ('contact.email', '{"value": "info@servicetime.sa"}'::jsonb)
+  ('contact.phone', '{"value": "+966 58 381 4214"}'::jsonb),
+  ('contact.email', '{"value": "servicetime10@gmail.com"}'::jsonb)
 ON CONFLICT (key) DO NOTHING;

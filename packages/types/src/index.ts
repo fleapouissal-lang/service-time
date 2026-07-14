@@ -119,6 +119,7 @@ export type SparePartOrderStatus =
   | "preparing"
   | "ready"
   | "delivered"
+  | "received"
   | "cancelled";
 
 export interface SparePartOrder {
@@ -129,7 +130,10 @@ export interface SparePartOrder {
   order_token: string;
   payment_method: SparePartPaymentMethod;
   payment_status: SparePartPaymentStatus;
+  /** Parts subtotal at order creation (line items). */
   total_amount: number;
+  /** Manual delivery/shipping fee set by admin. */
+  delivery_fee: number;
   payment_reference: string | null;
   customer_full_name: string | null;
   customer_phone: string | null;

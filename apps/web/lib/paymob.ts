@@ -108,7 +108,7 @@ export function normalizePaymobPhone(phone: string | null | undefined): string {
   if (digits.startsWith("966")) return `+${digits}`;
   if (digits.startsWith("05")) return `+966${digits.slice(1)}`;
   if (digits.length >= 9) return `+966${digits.slice(-9)}`;
-  return "+966500000000";
+  return "+966583814214";
 }
 
 function mapPaymobApiError(status: number, body: string): string {

@@ -36,8 +36,8 @@ export default async function ContactPage() {
     getWorkshops(),
   ]);
 
-  const phoneValue = (phone?.value as string) ?? "+966500000001";
-  const emailValue = (email?.value as string) ?? "info@servicetime.sa";
+  const phoneValue = (phone?.value as string) ?? "+966 58 381 4214";
+  const emailValue = (email?.value as string) ?? "servicetime10@gmail.com";
 
   const mainBranch = workshops[0];
   const locationLabel =

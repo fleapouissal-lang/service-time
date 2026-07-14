@@ -3,8 +3,8 @@ import type { Locale } from "@/lib/i18n/config";
 
 export const SITE_NAME = "Service Time";
 export const DEFAULT_OG_IMAGE = "/logos/banner.png";
-export const SITE_EMAIL = "info@servicetime.sa";
-export const SITE_PHONE = "+966500000001";
+export const SITE_EMAIL = "servicetime10@gmail.com";
+export const SITE_PHONE = "+966 58 381 4214";
 
 /** Public marketing routes included in sitemap.xml */
 export const PUBLIC_SITEMAP_PATHS = [

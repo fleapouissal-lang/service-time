@@ -10,8 +10,8 @@ export function SiteFooter() {
   const { messages } = useLocale();
   const navLinks = getNavLinks(messages);
   const legalLinks = getLegalLinks(messages);
-  const phone = "+966500000001";
-  const email = "info@servicetime.sa";
+  const phone = "+966 58 381 4214";
+  const email = "servicetime10@gmail.com";
   const footer = messages.footer;
 
   return (

@@ -3,9 +3,15 @@
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
 import { useState } from "react";
 import { AdminSparePartOrderDeleteButton } from "@/components/admin/admin-spare-part-order-delete-button";
-import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
+import { AdminSparePartOrderViewDialog } from "@/components/admin/admin-spare-part-order-view-dialog";
+import {
+  AdminTable,
+  AdminTableCell,
+  AdminTableCustomerInfo,
+  AdminTableHead,
+  AdminTableHeadCell,
+} from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
-import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
@@ -35,7 +41,9 @@ export function AdminSparePartOrdersTable({
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartOrdersPage;
   const intlLocale = getIntlLocale(locale);
-  const [viewTarget, setViewTarget] = useState<SparePartOrderWithItems | null>(null);
+  const [viewTarget, setViewTarget] = useState<SparePartOrderWithItems | null>(
+    null,
+  );
   const {
     pageItems,
     setPage,
@@ -49,212 +57,116 @@ export function AdminSparePartOrdersTable({
   return (
     <>
       <AdminTable>
-      <AdminTableHead>
-        <AdminTableHeadCell className="min-w-[11rem]">{p.table.client}</AdminTableHeadCell>
-        <AdminTableHeadCell align="center" className="min-w-[7rem]">
-          {p.table.orderToken}
-        </AdminTableHeadCell>
-        <AdminTableHeadCell align="center">{p.table.items}</AdminTableHeadCell>
-        <AdminTableHeadCell align="center" className="min-w-[7rem]">
-          {p.table.total}
-        </AdminTableHeadCell>
-        <AdminTableHeadCell align="center">{t.common.status}</AdminTableHeadCell>
-        <AdminTableHeadCell>{p.table.payment}</AdminTableHeadCell>
-        <AdminTableHeadCell align="center" className="min-w-[9rem]">
-          {p.table.date}
-        </AdminTableHeadCell>
-        <AdminTableHeadCell align="center" className="w-36">
-          {p.table.actions}
-        </AdminTableHeadCell>
-      </AdminTableHead>
-      <tbody>
-        {pageItems.map((order) => {
-          const orderTotal = order.items.reduce(
-            (sum, item) =>
-              sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
-            0,
-          );
-          const detailHref = `/admin/spare-part-orders/${order.id}`;
-          const deleteLabel =
-            order.customer_full_name ??
-            (order.client
-              ? getProfileDisplayName(order.client, locale)
-              : order.order_token);
+        <AdminTableHead>
+          <AdminTableHeadCell className="min-w-[11rem]">
+            {p.table.client}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center" className="min-w-[7rem]">
+            {p.table.orderToken}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center">{p.table.items}</AdminTableHeadCell>
+          <AdminTableHeadCell align="center" className="min-w-[7rem]">
+            {p.table.total}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center">{t.common.status}</AdminTableHeadCell>
+          <AdminTableHeadCell>{p.table.payment}</AdminTableHeadCell>
+          <AdminTableHeadCell align="center" className="min-w-[9rem]">
+            {p.table.date}
+          </AdminTableHeadCell>
+          <AdminTableHeadCell align="center" className="w-36">
+            {p.table.actions}
+          </AdminTableHeadCell>
+        </AdminTableHead>
+        <tbody>
+          {pageItems.map((order) => {
+            const partsTotal = order.items.reduce(
+              (sum, item) =>
+                sum +
+                getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
+              0,
+            );
+            const orderTotal =
+              partsTotal + Math.max(0, Number(order.delivery_fee) || 0);
+            const detailHref = `/admin/spare-part-orders/${order.id}`;
+            const deleteLabel =
+              order.customer_full_name ??
+              (order.client
+                ? getProfileDisplayName(order.client, locale)
+                : order.order_token);
 
-          return (
-            <tr key={order.id} className="border-b border-border">
-              <AdminTableCell className="min-w-[11rem]">
-                <AdminTableCustomerInfo
-                  name={
-                    order.client
-                      ? getProfileDisplayName(order.client, locale)
-                      : t.common.dash
-                  }
-                  phone={order.client?.phone}
-                />
-              </AdminTableCell>
-              <AdminTableCell ltr className="min-w-[7rem]">
-                <span
-                  className="mx-auto block max-w-[7rem] truncate font-mono text-xs"
-                  title={order.order_token}
-                >
-                  {order.order_token}
-                </span>
-              </AdminTableCell>
-              <AdminTableCell align="center" ltr>
-                {order.items.length}
-              </AdminTableCell>
-              <AdminTableCell align="center" ltr className="min-w-[7rem]">
-                {formatSparePartPrice(orderTotal, locale)}
-              </AdminTableCell>
-              <AdminTableCell align="center">
-                <Badge variant="secondary">{statusLabels[order.status]}</Badge>
-              </AdminTableCell>
-              <AdminTableCell>
-                <span className="block text-sm leading-snug">
-                  {paymentMethodLabels[order.payment_method]}
-                </span>
-                <span className="mt-0.5 block text-xs text-muted">
-                  {paymentStatusLabels[order.payment_status]}
-                </span>
-              </AdminTableCell>
-              <AdminTableCell ltr className="min-w-[9rem]">
-                {new Date(order.created_at).toLocaleString(intlLocale, {
-                  dateStyle: "short",
-                  timeStyle: "short",
-                })}
-              </AdminTableCell>
-              <AdminTableCell align="center" className="w-36">
-                <div className="flex items-center justify-center gap-1.5">
-                  <AdminTableActions
-                    onView={() => setViewTarget(order)}
-                    editHref={detailHref}
-                    viewLabel={p.table.view}
-                    editLabel={p.table.edit}
-                    className="justify-center"
+            return (
+              <tr key={order.id} className="border-b border-border">
+                <AdminTableCell className="min-w-[11rem]">
+                  <AdminTableCustomerInfo
+                    name={
+                      order.client
+                        ? getProfileDisplayName(order.client, locale)
+                        : t.common.dash
+                    }
+                    phone={order.client?.phone}
                   />
-                  <AdminSparePartOrderDeleteButton
-                    orderId={order.id}
-                    orderLabel={deleteLabel}
-                    variant="icon"
-                  />
-                </div>
-              </AdminTableCell>
-            </tr>
-          );
-        })}
-      </tbody>
-      </AdminTable>
-
-      <DashboardDetailDialog
-        open={Boolean(viewTarget)}
-        title={
-          viewTarget
-            ? (viewTarget.client
-                ? getProfileDisplayName(viewTarget.client, locale)
-                : viewTarget.order_token)
-            : ""
-        }
-        onClose={() => setViewTarget(null)}
-        closeLabel={t.common.close}
-        fields={
-          viewTarget
-            ? [
-                {
-                  label: p.detail.orderToken,
-                  value: viewTarget.order_token,
-                  ltr: true,
-                },
-                {
-                  label: t.common.status,
-                  value: (
-                    <Badge variant="secondary">{statusLabels[viewTarget.status]}</Badge>
-                  ),
-                },
-                {
-                  label: p.detail.paymentMethod,
-                  value: paymentMethodLabels[viewTarget.payment_method],
-                },
-                {
-                  label: p.detail.paymentStatus,
-                  value: paymentStatusLabels[viewTarget.payment_status],
-                },
-                {
-                  label: p.table.total,
-                  value: formatSparePartPrice(
-                    viewTarget.items.reduce(
-                      (sum, item) =>
-                        sum +
-                        getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
-                      0,
-                    ),
-                    locale,
-                  ),
-                  ltr: true,
-                },
-                {
-                  label: p.detail.date,
-                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
+                </AdminTableCell>
+                <AdminTableCell ltr className="min-w-[7rem]">
+                  <span
+                    className="mx-auto block max-w-[7rem] truncate font-mono text-xs"
+                    title={order.order_token}
+                  >
+                    {order.order_token}
+                  </span>
+                </AdminTableCell>
+                <AdminTableCell align="center" ltr>
+                  {order.items.length}
+                </AdminTableCell>
+                <AdminTableCell align="center" ltr className="min-w-[7rem]">
+                  {formatSparePartPrice(orderTotal, locale)}
+                </AdminTableCell>
+                <AdminTableCell align="center">
+                  <Badge variant="secondary">{statusLabels[order.status]}</Badge>
+                </AdminTableCell>
+                <AdminTableCell>
+                  <span className="block text-sm leading-snug">
+                    {paymentMethodLabels[order.payment_method]}
+                  </span>
+                  <span className="mt-0.5 block text-xs text-muted">
+                    {paymentStatusLabels[order.payment_status]}
+                  </span>
+                </AdminTableCell>
+                <AdminTableCell ltr className="min-w-[9rem]">
+                  {new Date(order.created_at).toLocaleString(intlLocale, {
                     dateStyle: "short",
                     timeStyle: "short",
-                  }),
-                  ltr: true,
-                },
-                ...(viewTarget.client?.phone
-                  ? [
-                      {
-                        label: t.common.phone,
-                        value: viewTarget.client.phone,
-                        ltr: true,
-                      },
-                    ]
-                  : []),
-                ...(viewTarget.customer_email
-                  ? [
-                      {
-                        label: p.detail.contactEmail,
-                        value: viewTarget.customer_email,
-                        ltr: true,
-                        fullWidth: true,
-                      },
-                    ]
-                  : []),
-                ...(viewTarget.delivery_address
-                  ? [
-                      {
-                        label: p.detail.deliveryAddress,
-                        value: viewTarget.delivery_address,
-                        fullWidth: true,
-                      },
-                    ]
-                  : []),
-              ]
-            : []
-        }
-      >
-        {viewTarget && viewTarget.items.length > 0 ? (
-          <div className="mt-4">
-            <p className="mb-2 text-sm font-semibold">{p.detail.items}</p>
-            <ul className="space-y-2">
-              {viewTarget.items.map((item) => (
-                <li
-                  key={item.id}
-                  className="rounded-xl border border-border p-3 text-sm"
-                >
-                  <p className="font-medium">{item.name_snapshot}</p>
-                  {item.category_snapshot ? (
-                    <p className="text-muted">{item.category_snapshot}</p>
-                  ) : null}
-                  <p className="mt-1 text-muted" dir="ltr">
-                    {formatSparePartPrice(Number(item.price_snapshot) || 0, locale)} ×{" "}
-                    {item.quantity}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ) : null}
-      </DashboardDetailDialog>
+                  })}
+                </AdminTableCell>
+                <AdminTableCell align="center" className="w-36">
+                  <div className="flex items-center justify-center gap-1.5">
+                    <AdminTableActions
+                      onView={() => setViewTarget(order)}
+                      editHref={detailHref}
+                      viewLabel={p.table.view}
+                      editLabel={p.table.edit}
+                      className="justify-center"
+                    />
+                    <AdminSparePartOrderDeleteButton
+                      orderId={order.id}
+                      orderLabel={deleteLabel}
+                      variant="icon"
+                    />
+                  </div>
+                </AdminTableCell>
+              </tr>
+            );
+          })}
+        </tbody>
+      </AdminTable>
+
+      <AdminSparePartOrderViewDialog
+        order={viewTarget}
+        open={Boolean(viewTarget)}
+        onClose={() => setViewTarget(null)}
+        statusLabels={statusLabels}
+        paymentMethodLabels={paymentMethodLabels}
+        paymentStatusLabels={paymentStatusLabels}
+      />
 
       <DashboardTablePagination
         page={page}
