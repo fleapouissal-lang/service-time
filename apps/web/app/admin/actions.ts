@@ -165,6 +165,7 @@ export async function updateOrderAction(
 
     revalidatePath("/admin/orders");
     revalidatePath(`/admin/orders/${id}`);
+    revalidatePath("/admin/invoices");
     revalidatePath("/admin");
     return { success: true };
   } catch (err) {

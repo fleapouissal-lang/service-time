@@ -235,6 +235,7 @@ export async function updateSparePartOrderStatusFormAction(
 
     revalidatePath("/admin/spare-part-orders");
     revalidatePath(`/admin/spare-part-orders/${id}`);
+    revalidatePath("/admin/invoices");
     revalidatePath("/client/spare-part-orders");
     revalidatePath(`/client/spare-part-orders/${id}`);
     return { success: true };

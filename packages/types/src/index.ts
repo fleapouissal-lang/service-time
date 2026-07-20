@@ -239,3 +239,29 @@ export interface NotificationLog {
   payload: Record<string, unknown>;
   created_at: string;
 }
+
+export type InvoiceStatus = "pending" | "validated";
+
+export type InvoiceSourceType = "service_request" | "spare_part_order";
+
+export interface Invoice {
+  id: string;
+  invoice_number: string;
+  source_type: InvoiceSourceType;
+  service_request_id: string | null;
+  spare_part_order_id: string | null;
+  client_id: string | null;
+  customer_name: string;
+  customer_phone: string | null;
+  customer_company_name: string | null;
+  customer_ice: string | null;
+  customer_email: string | null;
+  customer_address: string | null;
+  amount: number;
+  status: InvoiceStatus;
+  validated_at: string | null;
+  validated_by: string | null;
+  notes: string | null;
+  created_at: string;
+  updated_at: string;
+}

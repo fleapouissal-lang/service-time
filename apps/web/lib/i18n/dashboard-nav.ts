@@ -4,6 +4,7 @@ import {
   BarChart3,
   Car,
   ClipboardList,
+  FileText,
   LayoutDashboard,
   Mail,
   MapPin,
@@ -40,6 +41,11 @@ export function getAdminNav(messages: Messages): DashboardNavItem[] {
       href: "/admin/spare-part-orders",
       label: messages.dashboard.admin.sparePartOrders,
       icon: ShoppingCart,
+    },
+    {
+      href: "/admin/invoices",
+      label: messages.dashboard.admin.invoices,
+      icon: FileText,
     },
     {
       href: "/admin/locations",
@@ -110,6 +116,11 @@ export function getClientNav(messages: Messages): DashboardNavItem[] {
       href: "/client/spare-part-orders",
       label: messages.dashboard.client.sparePartOrders,
       icon: ShoppingCart,
+    },
+    {
+      href: "/client/invoices",
+      label: messages.dashboard.client.invoices,
+      icon: FileText,
     },
     {
       href: "/client/vehicles",

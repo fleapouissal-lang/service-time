@@ -14,6 +14,7 @@ export type ListFilterParams = {
   role?: string;
   period?: string;
   admin_read?: string;
+  source_type?: string;
 };
 
 export function parseListFilters(
@@ -32,6 +33,7 @@ export function parseListFilters(
     role: searchParams.role?.trim() || undefined,
     period: searchParams.period?.trim() || undefined,
     admin_read: searchParams.admin_read?.trim() || undefined,
+    source_type: searchParams.source_type?.trim() || undefined,
   };
 }
 
@@ -161,6 +163,55 @@ export function filterSparePartOrders<
     }
 
     if (params.status && params.status !== "all" && item.status !== params.status) {
+      return false;
+    }
+
+    return true;
+  });
+}
+
+export function filterInvoices<
+  T extends {
+    status: string;
+    source_type: string;
+    invoice_number: string;
+    customer_name: string;
+    customer_phone: string | null;
+    created_at: string;
+    client?: {
+      full_name?: string | null;
+      full_name_ar?: string | null;
+      full_name_en?: string | null;
+      phone?: string | null;
+    } | null;
+  },
+>(items: T[], params: ListFilterParams): T[] {
+  return items.filter((item) => {
+    if (!filterByPeriod(item.created_at, params.period)) return false;
+
+    if (params.q) {
+      const q = params.q.toLowerCase();
+      const client = item.client;
+      const hit =
+        matchesQuery(item.invoice_number, q) ||
+        matchesQuery(item.customer_name, q) ||
+        matchesQuery(item.customer_phone, q) ||
+        matchesQuery(client?.full_name, q) ||
+        matchesQuery(client?.full_name_ar, q) ||
+        matchesQuery(client?.full_name_en, q) ||
+        matchesQuery(client?.phone, q);
+      if (!hit) return false;
+    }
+
+    if (params.status && params.status !== "all" && item.status !== params.status) {
+      return false;
+    }
+
+    if (
+      params.source_type &&
+      params.source_type !== "all" &&
+      item.source_type !== params.source_type
+    ) {
       return false;
     }
 

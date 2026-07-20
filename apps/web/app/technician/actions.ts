@@ -21,6 +21,7 @@ export async function updateTechnicianOrderStatus(formData: FormData) {
   if (error) throw new Error(error.message);
   revalidatePath("/technician");
   revalidatePath(`/technician/orders/${id}`);
+  revalidatePath("/admin/invoices");
 }
 
 export async function updateTechnicianLocation(formData: FormData) {
