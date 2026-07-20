@@ -1299,7 +1299,11 @@ export const messages = {
         confirmReceivedError: "Could not confirm receipt. Please try again.",
         partsSubtotal: "Parts subtotal",
         deliveryFee: "Delivery fee",
+        deliveryFeePending:
+          "The admin has not set the delivery fee yet.",
+        deliveryFeePendingShort: "Not set yet",
         grandTotal: "Grand total",
+        grandTotalPendingHint: "Parts only — delivery fee pending",
         openDetails: "Open full details",
         table: {
           orderToken: "Order code",

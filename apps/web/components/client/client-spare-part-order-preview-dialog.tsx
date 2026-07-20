@@ -8,8 +8,9 @@ import { withSparePartImageVersion } from "@/components/spare-parts/spare-part-m
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { isSparePartDeliveryFeePending } from "@/lib/spare-part-delivery-fee";
 import type { SparePartOrderWithItems } from "@/lib/spare-part-orders-queries";
 import type {
   SparePartOrderStatus,
@@ -36,7 +37,6 @@ export function ClientSparePartOrderPreviewDialog({
 }: Props) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.client.sparePartOrdersPage;
-  const intlLocale = getIntlLocale(locale);
 
   useEffect(() => {
     if (!open) return;
@@ -59,6 +59,7 @@ export function ClientSparePartOrderPreviewDialog({
     0,
   );
   const deliveryFee = Math.max(0, Number(order.delivery_fee) || 0);
+  const deliveryFeePending = isSparePartDeliveryFeePending(order.delivery_fee);
   const grandTotal = partsTotal + deliveryFee;
 
   return (
@@ -89,10 +90,7 @@ export function ClientSparePartOrderPreviewDialog({
                 {order.order_token}
               </h2>
               <p className="mt-1 text-xs text-muted" dir="ltr">
-                {new Date(order.created_at).toLocaleString(intlLocale, {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
+                {formatDateTime(order.created_at, locale)}
               </p>
             </div>
             <button
@@ -203,14 +201,30 @@ export function ClientSparePartOrderPreviewDialog({
             </div>
             <div className="mt-2 flex items-center justify-between gap-3">
               <span className="text-muted">{p.deliveryFee}</span>
-              <span className="tabular-nums" dir="ltr">
-                {formatSparePartPrice(deliveryFee, locale)}
-              </span>
+              {deliveryFeePending ? (
+                <span className="max-w-[12rem] text-end text-sm text-amber-300">
+                  {p.deliveryFeePendingShort}
+                </span>
+              ) : (
+                <span className="tabular-nums" dir="ltr">
+                  {formatSparePartPrice(deliveryFee, locale)}
+                </span>
+              )}
             </div>
+            {deliveryFeePending ? (
+              <p className="mt-2 text-xs leading-relaxed text-amber-200/90">
+                {p.deliveryFeePending}
+              </p>
+            ) : null}
             <div className="mt-3 flex items-center justify-between gap-3 border-t border-white/10 pt-3 text-base font-bold">
-              <span>{p.grandTotal}</span>
+              <span className="text-sm sm:text-base">
+                {deliveryFeePending ? p.grandTotalPendingHint : p.grandTotal}
+              </span>
               <span className="tabular-nums text-primary" dir="ltr">
-                {formatSparePartPrice(grandTotal, locale)}
+                {formatSparePartPrice(
+                  deliveryFeePending ? partsTotal : grandTotal,
+                  locale,
+                )}
               </span>
             </div>
           </div>

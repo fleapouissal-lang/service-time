@@ -14,8 +14,9 @@ import { DashboardTablePagination } from "@/components/dashboard/dashboard-table
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
+import { isSparePartDeliveryFeePending } from "@/lib/spare-part-delivery-fee";
 import type {
   SparePartOrderStatus,
   SparePartPaymentMethod,
@@ -37,7 +38,6 @@ export function ClientSparePartOrdersTable({
 }: ClientSparePartOrdersTableProps) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.client.sparePartOrdersPage;
-  const intlLocale = getIntlLocale(locale);
   const [viewTarget, setViewTarget] = useState<SparePartOrderWithItems | null>(
     null,
   );
@@ -78,8 +78,14 @@ export function ClientSparePartOrdersTable({
                 sum + getLineTotal(Number(item.price_snapshot) || 0, item.quantity),
               0,
             );
+            const deliveryFeePending = isSparePartDeliveryFeePending(
+              order.delivery_fee,
+            );
             const orderTotal =
-              partsTotal + Math.max(0, Number(order.delivery_fee) || 0);
+              partsTotal +
+              (deliveryFeePending
+                ? 0
+                : Math.max(0, Number(order.delivery_fee) || 0));
             return (
               <tr key={order.id} className="border-b border-border">
                 <AdminTableCell ltr className="min-w-[7rem]">
@@ -93,8 +99,15 @@ export function ClientSparePartOrdersTable({
                 <AdminTableCell align="center" ltr>
                   {order.items.length}
                 </AdminTableCell>
-                <AdminTableCell align="center" ltr className="min-w-[7rem]">
-                  {formatSparePartPrice(orderTotal, locale)}
+                <AdminTableCell align="center" className="min-w-[8rem]">
+                  <span className="block tabular-nums" dir="ltr">
+                    {formatSparePartPrice(orderTotal, locale)}
+                  </span>
+                  {deliveryFeePending ? (
+                    <span className="mt-0.5 block text-[11px] leading-snug text-amber-700 dark:text-amber-400">
+                      {p.deliveryFeePendingShort}
+                    </span>
+                  ) : null}
                 </AdminTableCell>
                 <AdminTableCell align="center">
                   <Badge variant="secondary" className="whitespace-nowrap">
@@ -110,10 +123,7 @@ export function ClientSparePartOrdersTable({
                   </span>
                 </AdminTableCell>
                 <AdminTableCell ltr className="min-w-[9rem]">
-                  {new Date(order.created_at).toLocaleString(intlLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
+                  {formatDateTime(order.created_at, locale)}
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-20">
                   <button

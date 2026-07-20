@@ -1299,7 +1299,10 @@ export const messages = {
         confirmReceivedError: "تعذّر تأكيد الاستلام. حاول مرة أخرى.",
         partsSubtotal: "مجموع القطع",
         deliveryFee: "رسوم التوصيل",
+        deliveryFeePending: "لم يحدد المسؤول بعد رسوم التوصيل.",
+        deliveryFeePendingShort: "غير محددة بعد",
         grandTotal: "الإجمالي النهائي",
+        grandTotalPendingHint: "مجموع القطع فقط — رسوم التوصيل غير محددة بعد",
         openDetails: "فتح التفاصيل الكاملة",
         table: {
           orderToken: "رمز الطلب",

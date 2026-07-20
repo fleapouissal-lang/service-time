@@ -13,8 +13,9 @@ import {
 import { getClientSparePartOrder } from "@/lib/spare-part-orders-queries";
 import { formatSparePartPrice, getLineTotal } from "@/lib/format-price";
 import { SparePartPrice } from "@/components/spare-parts/spare-part-price";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { getServerI18n } from "@/lib/i18n/server";
+import { isSparePartDeliveryFeePending } from "@/lib/spare-part-delivery-fee";
 
 type PageProps = {
   params: Promise<{ id: string }>;
@@ -41,11 +42,11 @@ export default async function ClientSparePartOrderDetailPage({
     0,
   );
   const deliveryFee = Math.max(0, Number(order.delivery_fee) || 0);
+  const deliveryFeePending = isSparePartDeliveryFeePending(order.delivery_fee);
   const grandTotal = partsTotal + deliveryFee;
   const statusLabels = getSparePartOrderStatusLabelsForDashboard(t);
   const paymentMethodLabels = getSparePartPaymentMethodLabelsForDashboard(t);
   const paymentStatusLabels = getSparePartPaymentStatusLabelsForDashboard(t);
-  const intlLocale = getIntlLocale(locale);
   const p = t.dashboard.client.sparePartOrdersPage;
 
   return (
@@ -91,17 +92,32 @@ export default async function ClientSparePartOrderDetailPage({
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted">{p.deliveryFee}</span>
-            <SparePartPrice price={deliveryFee} size="sm" />
+            {deliveryFeePending ? (
+              <span className="max-w-[14rem] text-end text-amber-700 dark:text-amber-400">
+                {p.deliveryFeePendingShort}
+              </span>
+            ) : (
+              <SparePartPrice price={deliveryFee} size="sm" />
+            )}
           </div>
+          {deliveryFeePending ? (
+            <p className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-sm text-amber-800 dark:text-amber-200">
+              {p.deliveryFeePending}
+            </p>
+          ) : null}
           <div className="flex items-center justify-between gap-3 text-sm font-semibold">
-            <span>{p.grandTotal}</span>
-            <SparePartPrice price={grandTotal} size="sm" className="text-primary" />
+            <span>
+              {deliveryFeePending ? p.grandTotalPendingHint : p.grandTotal}
+            </span>
+            <SparePartPrice
+              price={deliveryFeePending ? partsTotal : grandTotal}
+              size="sm"
+              className="text-primary"
+            />
           </div>
           <div className="flex items-center justify-between gap-3 text-sm">
             <span className="text-muted">{t.common.date}</span>
-            <span>
-              {new Date(order.created_at).toLocaleString(intlLocale)}
-            </span>
+            <span dir="ltr">{formatDateTime(order.created_at, locale)}</span>
           </div>
           {order.customer_full_name ? (
             <div className="flex items-center justify-between gap-3 text-sm">
@@ -172,13 +188,30 @@ export default async function ClientSparePartOrderDetailPage({
               <span className="text-muted">{p.partsSubtotal}</span>
               <SparePartPrice price={partsTotal} size="sm" />
             </div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-3">
               <span className="text-muted">{p.deliveryFee}</span>
-              <SparePartPrice price={deliveryFee} size="sm" />
+              {deliveryFeePending ? (
+                <span className="text-end text-amber-700 dark:text-amber-400">
+                  {p.deliveryFeePendingShort}
+                </span>
+              ) : (
+                <SparePartPrice price={deliveryFee} size="sm" />
+              )}
             </div>
+            {deliveryFeePending ? (
+              <p className="text-xs leading-relaxed text-amber-800 dark:text-amber-200">
+                {p.deliveryFeePending}
+              </p>
+            ) : null}
             <div className="flex items-center justify-between font-semibold">
-              <span>{p.grandTotal}</span>
-              <SparePartPrice price={grandTotal} size="lg" className="text-primary" />
+              <span>
+                {deliveryFeePending ? p.grandTotalPendingHint : p.grandTotal}
+              </span>
+              <SparePartPrice
+                price={deliveryFeePending ? partsTotal : grandTotal}
+                size="lg"
+                className="text-primary"
+              />
             </div>
           </div>
         </CardContent>
