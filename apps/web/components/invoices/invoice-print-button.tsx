@@ -63,6 +63,9 @@ function buildInvoicePrintHtml(opts: {
 
   const lineRows = lineItems
     .map((line, index) => {
+      const detailHtml = line.detail
+        ? `<p class="line-detail">${escapeHtml(line.detail)}</p>`
+        : "";
       const notesHtml =
         index === 0 && invoice.notes
           ? `<div class="notes">${escapeHtml(invoice.notes)}</div>`
@@ -70,6 +73,7 @@ function buildInvoicePrintHtml(opts: {
       return `<tr>
           <td class="desc">
             <p class="line-title">${escapeHtml(line.title)}</p>
+            ${detailHtml}
             ${notesHtml}
           </td>
           <td class="c" dir="ltr">${line.quantity}</td>
@@ -221,6 +225,7 @@ function buildInvoicePrintHtml(opts: {
     .desc { text-align: start; }
     .c { text-align: center; font-variant-numeric: tabular-nums; }
     .line-title { margin: 0; font-weight: 700; }
+    .line-detail { margin: 4px 0 0; font-size: 12px; color: #525252; line-height: 1.35; }
     .notes { margin-top: 4px; color: #737373; font-size: 11.5px; white-space: pre-wrap; }
     .totals-wrap {
       margin-top: 20px;

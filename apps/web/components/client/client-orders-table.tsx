@@ -26,7 +26,7 @@ import {
   getVehicleBrandLogo,
   getVehicleDisplayName,
 } from "@/lib/client-vehicle-display";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import { cn } from "@/lib/utils";
@@ -60,7 +60,6 @@ export function ClientOrdersTable({
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.client.ordersPage;
   const v = t.clientVehicles;
-  const intlLocale = getIntlLocale(locale);
   const {
     pageItems,
     setPage,
@@ -156,10 +155,7 @@ export function ClientOrdersTable({
                   )}
                 </AdminTableCell>
                 <AdminTableCell ltr className="min-w-[9rem]">
-                  {new Date(order.created_at).toLocaleString(intlLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
+                  {formatDateTime(order.created_at, locale)}
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-28">
                   <div className="flex items-center justify-center gap-1.5">
@@ -223,10 +219,7 @@ export function ClientOrdersTable({
                 },
                 {
                   label: p.table.date,
-                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }),
+                  value: formatDateTime(viewTarget.created_at, locale),
                   ltr: true,
                 },
                 ...(viewTarget.location_text

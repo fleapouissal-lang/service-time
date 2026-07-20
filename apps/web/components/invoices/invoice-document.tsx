@@ -292,6 +292,11 @@ export function InvoiceDocument({
                 <tr key={`${line.title}-${index}`} className="border-b border-neutral-200">
                   <td className="py-3 pe-2 align-middle text-start">
                     <p className="font-semibold leading-snug">{line.title}</p>
+                    {line.detail ? (
+                      <p className="mt-1 text-[12px] leading-snug text-neutral-600">
+                        {line.detail}
+                      </p>
+                    ) : null}
                     {index === 0 && invoice.notes ? (
                       <p className="mt-1 whitespace-pre-wrap text-[12px] text-neutral-500">
                         {invoice.notes}

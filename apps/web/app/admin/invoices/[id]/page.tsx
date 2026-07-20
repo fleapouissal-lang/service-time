@@ -9,6 +9,7 @@ import {
 } from "@/lib/invoice-labels";
 import { getInvoiceLineItems } from "@/lib/invoice-line-items";
 import { getAdminInvoiceById } from "@/lib/invoices-queries";
+import { getServiceTypeLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
@@ -30,7 +31,11 @@ export default async function AdminInvoiceDetailPage({ params }: PageProps) {
     p.document.serviceLine,
     p.document.productFallback,
     p.document.deliveryLine,
-    { asAdmin: true },
+    {
+      asAdmin: true,
+      serviceTypeLabels: getServiceTypeLabels(t),
+      catalogCategories: t.services.catalog.categories,
+    },
   );
 
   return (

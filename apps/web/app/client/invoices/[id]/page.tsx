@@ -3,6 +3,7 @@ import { ClientInvoiceDetail } from "@/components/client/client-invoice-detail";
 import { requireProfile } from "@/lib/auth";
 import { getInvoiceLineItems } from "@/lib/invoice-line-items";
 import { getClientValidatedInvoice } from "@/lib/invoices-queries";
+import { getServiceTypeLabels } from "@/lib/i18n/labels";
 import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
@@ -24,6 +25,10 @@ export default async function ClientInvoiceDetailPage({ params }: PageProps) {
     p.document.serviceLine,
     p.document.productFallback,
     p.document.deliveryLine,
+    {
+      serviceTypeLabels: getServiceTypeLabels(t),
+      catalogCategories: t.services.catalog.categories,
+    },
   );
 
   return <ClientInvoiceDetail invoice={invoice} lineItems={lineItems} />;

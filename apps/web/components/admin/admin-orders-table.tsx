@@ -11,7 +11,7 @@ import { DashboardTablePagination } from "@/components/dashboard/dashboard-table
 import { ServiceRequestPhotosGallery } from "@/components/service-requests/service-request-photos-panel";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import type { ServiceRequestStatus, RequestPriority, ServiceType } from "@service-time/types";
@@ -35,7 +35,6 @@ export function AdminOrdersTable({
 }: AdminOrdersTableProps) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.ordersPage;
-  const intlLocale = getIntlLocale(locale);
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
   const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [pending, startTransition] = useTransition();
@@ -118,10 +117,7 @@ export function AdminOrdersTable({
                   )}
                 </AdminTableCell>
                 <AdminTableCell ltr className="min-w-[9rem]">
-                  {new Date(order.created_at).toLocaleString(intlLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  })}
+                  {formatDateTime(order.created_at, locale)}
                 </AdminTableCell>
                 <AdminTableCell align="center" className="w-36">
                   <AdminTableActions
@@ -196,10 +192,7 @@ export function AdminOrdersTable({
                 },
                 {
                   label: p.detail.date,
-                  value: new Date(viewTarget.created_at).toLocaleString(intlLocale, {
-                    dateStyle: "short",
-                    timeStyle: "short",
-                  }),
+                  value: formatDateTime(viewTarget.created_at, locale),
                   ltr: true,
                 },
                 ...(viewTarget.car_type

@@ -15,7 +15,7 @@ import {
 import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
 import { Badge } from "@/components/ui/badge";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDate } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 type AdminOverviewOrdersTableProps = {
@@ -30,7 +30,6 @@ export function AdminOverviewOrdersTable({
   priorityLabels,
 }: AdminOverviewOrdersTableProps) {
   const { locale, messages: t } = useLocale();
-  const intlLocale = getIntlLocale(locale);
   const {
     pageItems,
     setPage,
@@ -78,9 +77,7 @@ export function AdminOverviewOrdersTable({
                 </Badge>
               </AdminTableCell>
               <AdminTableCell align="center" ltr className="min-w-[9rem]">
-                {new Date(order.created_at).toLocaleDateString(intlLocale, {
-                  dateStyle: "short",
-                })}
+                {formatDate(order.created_at, locale)}
               </AdminTableCell>
             </tr>
           ))}

@@ -19,7 +19,7 @@ import {
   getStatusLabels,
   getPriorityLabels,
 } from "@/lib/i18n/labels";
-import { getIntlLocale } from "@/lib/i18n/config";
+import { formatDateTime } from "@/lib/format-datetime";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { isQuotePending } from "@/lib/suggest-service-price";
@@ -52,7 +52,6 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
   const statusOptions = buildStatusSelectOptions(t);
   const priorityOptions = buildPrioritySelectOptions(t);
   const technicianOptions = buildTechnicianAssignOptions(t, technicians, locale);
-  const intlLocale = getIntlLocale(locale);
 
   const assignedTechnician = technicians.find(
     (tech) => tech.id === order.assigned_technician_id,
@@ -89,10 +88,7 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             <div className="rounded-xl border border-border p-4">
               <p className="text-xs font-medium text-muted">{p.detail.date}</p>
               <p className="mt-1 text-sm" dir="ltr">
-                {new Date(order.created_at).toLocaleString(intlLocale, {
-                  dateStyle: "medium",
-                  timeStyle: "short",
-                })}
+                {formatDateTime(order.created_at, locale)}
               </p>
             </div>
           </div>
