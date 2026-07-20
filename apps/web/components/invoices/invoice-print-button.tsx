@@ -113,7 +113,7 @@ function buildInvoicePrintHtml(opts: {
       break-inside: avoid;
       page-break-inside: avoid;
     }
-    .logo { height: 48px; width: auto; object-fit: contain; display: block; }
+    .logo { height: 72px; width: auto; object-fit: contain; display: block; }
     .meta { text-align: right; }
     .title {
       margin: 0;
@@ -348,12 +348,62 @@ function buildInvoicePrintHtml(opts: {
     </div>
   </div>
   <script>
-    window.addEventListener('load', function () {
-      setTimeout(function () { window.focus(); window.print(); }, 350);
-    });
+    (function () {
+      var printed = false;
+      function triggerPrint() {
+        if (printed) return;
+        printed = true;
+        try { window.focus(); window.print(); } catch (e) {}
+      }
+      if (document.readyState === "complete") {
+        setTimeout(triggerPrint, 300);
+      } else {
+        window.addEventListener("load", function () {
+          setTimeout(triggerPrint, 300);
+        });
+      }
+      setTimeout(triggerPrint, 1500);
+    })();
   </script>
 </body>
 </html>`;
+}
+
+function printHtmlDocument(html: string) {
+  // Blob URL avoids blank tabs caused by window.open(..., "noopener").
+  const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+  const url = URL.createObjectURL(blob);
+  const printWindow = window.open(url, "_blank");
+
+  if (printWindow) {
+    window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return;
+  }
+
+  // Popup blocked: fall back to a hidden iframe.
+  URL.revokeObjectURL(url);
+  const iframe = document.createElement("iframe");
+  iframe.setAttribute("title", "invoice-print");
+  iframe.style.position = "fixed";
+  iframe.style.right = "0";
+  iframe.style.bottom = "0";
+  iframe.style.width = "0";
+  iframe.style.height = "0";
+  iframe.style.border = "0";
+  iframe.style.opacity = "0";
+  iframe.style.pointerEvents = "none";
+  document.body.appendChild(iframe);
+
+  const doc = iframe.contentDocument ?? iframe.contentWindow?.document;
+  if (!doc) {
+    iframe.remove();
+    return;
+  }
+
+  doc.open();
+  doc.write(html);
+  doc.close();
+  window.setTimeout(() => iframe.remove(), 60_000);
 }
 
 export function InvoicePrintButton({
@@ -371,15 +421,7 @@ export function InvoicePrintButton({
       labels,
       lineItems,
     });
-    const printWindow = window.open(
-      "",
-      "_blank",
-      "noopener,noreferrer,width=920,height=1100",
-    );
-    if (!printWindow) return;
-    printWindow.document.open();
-    printWindow.document.write(html);
-    printWindow.document.close();
+    printHtmlDocument(html);
   }
 
   return (

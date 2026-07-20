@@ -122,10 +122,10 @@ export function InvoiceDocument({
           <Image
             src={logoSrc}
             alt={labels.brand}
-            width={180}
-            height={60}
+            width={220}
+            height={80}
             unoptimized
-            className="h-12 w-auto object-contain"
+            className="h-16 w-auto object-contain sm:h-[4.5rem]"
             priority
           />
           <div className="text-right">
