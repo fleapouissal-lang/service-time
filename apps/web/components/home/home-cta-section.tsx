@@ -1,11 +1,18 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCtaSlideImage, type CtaSlideId } from "@/lib/cta-slides";
-import { useLocale } from "@/lib/i18n/locale-context";
+import { getDictionary } from "@/lib/i18n/get-dictionary";
+import { useOptionalLocale } from "@/lib/i18n/locale-context";
+import type { Locale } from "@/lib/i18n/config";
 import { cn } from "@/lib/utils";
 
 const SLIDE_INTERVAL_MS = 6000;
+
+function resolveFallbackLocale(): Locale {
+  if (typeof document === "undefined") return "ar";
+  return document.documentElement.lang === "en" ? "en" : "ar";
+}
 
 type SiteCtaSectionProps = {
   /** Use when CTA sits inside a page section that already has site container width. */
@@ -13,7 +20,11 @@ type SiteCtaSectionProps = {
 };
 
 export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
-  const { messages: t } = useLocale();
+  const localeContext = useOptionalLocale();
+  const t = useMemo(
+    () => localeContext?.messages ?? getDictionary(resolveFallbackLocale()),
+    [localeContext?.messages],
+  );
   const slides = t.siteCta.slides;
   const [activeIndex, setActiveIndex] = useState(0);
 

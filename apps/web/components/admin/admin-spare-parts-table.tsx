@@ -18,6 +18,7 @@ import {
   getSparePartName,
 } from "@/lib/localized-content";
 import { getSparePartCoverImage } from "@/lib/spare-part-images";
+import { getSparePartVehicleLabel } from "@/lib/spare-part-vehicle";
 import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { useLocale } from "@/lib/i18n/locale-context";
 
@@ -59,6 +60,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           </AdminTableHeadCell>
           <AdminTableHeadCell>{p.table.name}</AdminTableHeadCell>
           <AdminTableHeadCell>{t.common.category}</AdminTableHeadCell>
+          <AdminTableHeadCell>{t.spareParts.vehicle.brand}</AdminTableHeadCell>
           <AdminTableHeadCell align="center">{p.table.condition}</AdminTableHeadCell>
           <AdminTableHeadCell align="center" className="min-w-[7rem]">
             {p.table.price}
@@ -75,6 +77,11 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
           {pageItems.map((part) => {
             const name = getSparePartName(part, locale);
             const category = getSparePartCategory(part, locale);
+            const vehicleLabel = getSparePartVehicleLabel(
+              part,
+              locale,
+              t.spareParts.vehicle.allVehicles,
+            );
             const coverImage = getSparePartCoverImage(part);
 
             return (
@@ -99,6 +106,9 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                 </AdminTableCell>
                 <AdminTableCell className="text-muted">
                   {category ?? t.common.dash}
+                </AdminTableCell>
+                <AdminTableCell className="text-muted">
+                  {vehicleLabel}
                 </AdminTableCell>
                 <AdminTableCell align="center">
                   {getSparePartConditionLabel(resolveSparePartCondition(part), t)}
@@ -151,6 +161,14 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                 {
                   label: t.common.category,
                   value: getSparePartCategory(viewTarget, locale) ?? t.common.dash,
+                },
+                {
+                  label: t.spareParts.vehicle.compatibleWith,
+                  value: getSparePartVehicleLabel(
+                    viewTarget,
+                    locale,
+                    t.spareParts.vehicle.allVehicles,
+                  ),
                 },
                 {
                   label: p.table.condition,

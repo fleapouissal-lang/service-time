@@ -8,6 +8,7 @@ import {
   saveSparePartEditAction,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
+import { SparePartVehicleFields } from "@/components/spare-parts/spare-part-vehicle-fields";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -47,6 +48,11 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
           <Label>{p.categoryEn}</Label>
           <Input name="category_en" defaultValue={part.category_en ?? ""} className="mt-1" />
         </div>
+        <SparePartVehicleFields
+          required
+          defaultBrand={part.vehicle_brand_slug}
+          defaultModel={part.vehicle_model_id}
+        />
         <div>
           <Label>{p.priceSar}</Label>
           <Input

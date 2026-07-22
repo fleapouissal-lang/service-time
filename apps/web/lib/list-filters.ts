@@ -1,4 +1,5 @@
 import { getProfileSearchText } from "@/lib/profile-display-name";
+import { sparePartMatchesVehicleFilter } from "@/lib/spare-part-vehicle";
 import type { Profile, ServiceRequest, SparePart } from "@service-time/types";
 
 export type ListFilterParams = {
@@ -11,6 +12,8 @@ export type ListFilterParams = {
   active?: string;
   category?: string;
   condition?: string;
+  vehicle_brand?: string;
+  vehicle_model?: string;
   role?: string;
   period?: string;
   admin_read?: string;
@@ -30,6 +33,8 @@ export function parseListFilters(
     active: searchParams.active?.trim() || undefined,
     category: searchParams.category?.trim() || undefined,
     condition: searchParams.condition?.trim() || undefined,
+    vehicle_brand: searchParams.vehicle_brand?.trim() || undefined,
+    vehicle_model: searchParams.vehicle_model?.trim() || undefined,
     role: searchParams.role?.trim() || undefined,
     period: searchParams.period?.trim() || undefined,
     admin_read: searchParams.admin_read?.trim() || undefined,
@@ -250,6 +255,16 @@ export function filterSpareParts(
       params.condition &&
       params.condition !== "all" &&
       (item.part_condition ?? "new") !== params.condition
+    ) {
+      return false;
+    }
+
+    if (
+      !sparePartMatchesVehicleFilter(
+        item,
+        params.vehicle_brand,
+        params.vehicle_model,
+      )
     ) {
       return false;
     }

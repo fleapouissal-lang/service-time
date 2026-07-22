@@ -16,6 +16,7 @@ import {
   getSparePartName,
 } from "@/lib/localized-content";
 import { getSparePartCoverImage, getSparePartImages } from "@/lib/spare-part-images";
+import { getSparePartVehicleLabel } from "@/lib/spare-part-vehicle";
 import { cn } from "@/lib/utils";
 import { surfaceCardInteractiveClass } from "@/lib/card-surface";
 
@@ -37,6 +38,11 @@ export function SparePartCard({
   const inStock = isSparePartInStock(part);
   const name = getSparePartName(part, locale);
   const description = getSparePartDescription(part, locale);
+  const vehicleLabel = getSparePartVehicleLabel(
+    part,
+    locale,
+    t.spareParts.vehicle.allVehicles,
+  );
   const coverImage = getSparePartCoverImage(part);
   const photoCount = getSparePartImages(part).length;
   const isClickable = Boolean(onOpen);
@@ -141,6 +147,17 @@ export function SparePartCard({
         >
           {name}
         </h3>
+
+        {part.vehicle_brand_slug ? (
+          <p
+            className={cn(
+              "mt-1 line-clamp-1 text-xs font-medium text-[#94D4B9]",
+              isHome && "sm:text-sm",
+            )}
+          >
+            {t.spareParts.vehicle.compatibleWith}: {vehicleLabel}
+          </p>
+        ) : null}
 
         <div className={cn("shrink-0", isHome ? "mt-1 sm:mt-2" : "mt-2")}>
           <SparePartPriceBlock

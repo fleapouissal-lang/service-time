@@ -20,6 +20,7 @@ import {
 import { resolveSparePartCondition } from "@/lib/spare-part-condition";
 import { getSparePartImages } from "@/lib/spare-part-images";
 import { isSparePartInStock } from "@/lib/spare-part-stock";
+import { getSparePartVehicleLabel } from "@/lib/spare-part-vehicle";
 import { cn } from "@/lib/utils";
 
 type SparePartDetailModalProps = {
@@ -56,6 +57,11 @@ export function SparePartDetailModal({
   const details = getSparePartDetails(part, locale);
   const category = getSparePartCategory(part, locale);
   const condition = resolveSparePartCondition(part);
+  const vehicleLabel = getSparePartVehicleLabel(
+    part,
+    locale,
+    t.spareParts.vehicle.allVehicles,
+  );
   const images = getSparePartImages(part);
 
   return (
@@ -123,6 +129,11 @@ export function SparePartDetailModal({
               {category ? (
                 <span className="inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
                   {category}
+                </span>
+              ) : null}
+              {part.vehicle_brand_slug ? (
+                <span className="inline-flex rounded-[20px] bg-[#94D4B9]/15 px-3 py-1 text-xs font-semibold text-[#94D4B9]">
+                  {t.spareParts.vehicle.compatibleWith}: {vehicleLabel}
                 </span>
               ) : null}
             </div>

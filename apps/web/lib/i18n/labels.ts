@@ -298,6 +298,10 @@ export function buildFilterSelectOptions(
         mobile_workshop: "truck",
       });
       break;
+    case "vehicle_brand":
+    case "vehicle_model":
+      mapped = options.map((option) => ({ ...option, icon: "car" }));
+      break;
     default:
       mapped = options.map((option) => ({ ...option, icon: "layers" }));
   }

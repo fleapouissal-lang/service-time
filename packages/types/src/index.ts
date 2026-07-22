@@ -104,6 +104,10 @@ export interface SparePart {
   original_price: number | null;
   stock_quantity: number;
   part_condition: SparePartCondition;
+  /** Catalog brand slug; null = fits all vehicles. */
+  vehicle_brand_slug: string | null;
+  /** Catalog model id; null with brand = all models of that brand. */
+  vehicle_model_id: string | null;
   is_active: boolean;
   created_at: string;
   updated_at: string;

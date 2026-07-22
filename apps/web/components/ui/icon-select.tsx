@@ -180,7 +180,7 @@ export function IconSelect({
           <SelectedIcon className={cn("size-3.5", iconAccentClass)} aria-hidden />
         </span>
         <span className="min-w-0 flex-1 truncate text-start font-medium">
-          {selected?.label}
+          {selected?.label || "—"}
         </span>
         <ChevronDown
           className={cn(

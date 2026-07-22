@@ -5,6 +5,7 @@ import { ChevronDown, Plus } from "lucide-react";
 import { saveSparePartAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { SparePartVehicleFields } from "@/components/spare-parts/spare-part-vehicle-fields";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,6 +64,7 @@ export function AdminSparePartAddForm() {
                 <Label>{p.categoryEn}</Label>
                 <Input name="category_en" className="mt-1" />
               </div>
+              <SparePartVehicleFields required />
               <div>
                 <Label>{p.priceSar}</Label>
                 <Input

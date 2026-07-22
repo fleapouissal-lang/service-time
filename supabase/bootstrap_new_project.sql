@@ -4210,4 +4210,24 @@ INSERT INTO service_time_schema_migrations (filename) VALUES ('20260704120000_pr
 INSERT INTO service_time_schema_migrations (filename) VALUES ('20260708120000_spare_parts_condition.sql') ON CONFLICT DO NOTHING;
 INSERT INTO service_time_schema_migrations (filename) VALUES ('20260708130000_spare_parts_promotion.sql') ON CONFLICT DO NOTHING;
 INSERT INTO service_time_schema_migrations (filename) VALUES ('20260709120000_client_vehicles_details.sql') ON CONFLICT DO NOTHING;
+
+-- ===== 20260722160000_spare_parts_vehicle.sql =====
+ALTER TABLE public.spare_parts
+  ADD COLUMN IF NOT EXISTS vehicle_brand_slug text,
+  ADD COLUMN IF NOT EXISTS vehicle_model_id text;
+
+COMMENT ON COLUMN public.spare_parts.vehicle_brand_slug IS
+  'Catalog brand slug (e.g. toyota). NULL = compatible with all vehicles.';
+COMMENT ON COLUMN public.spare_parts.vehicle_model_id IS
+  'Catalog model id within brand (e.g. camry). NULL with brand = all models of that brand.';
+
+CREATE INDEX IF NOT EXISTS spare_parts_vehicle_brand_idx
+  ON public.spare_parts (vehicle_brand_slug)
+  WHERE is_active = true;
+
+CREATE INDEX IF NOT EXISTS spare_parts_vehicle_model_idx
+  ON public.spare_parts (vehicle_brand_slug, vehicle_model_id)
+  WHERE is_active = true;
+
+INSERT INTO service_time_schema_migrations (filename) VALUES ('20260722160000_spare_parts_vehicle.sql') ON CONFLICT DO NOTHING;
 COMMIT;

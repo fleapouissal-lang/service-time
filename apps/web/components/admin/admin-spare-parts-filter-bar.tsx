@@ -1,34 +1,28 @@
 "use client";
 
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
+import { getActiveFilterOptionsForDashboard } from "@/lib/dashboard-filter-options";
 import type { ListFilterParams } from "@/lib/list-filters";
 import { getSparePartConditionFilterOptions } from "@/lib/spare-part-condition";
 import { buildVehicleBrandSelectOptions } from "@/lib/spare-part-vehicle";
 import { findVehicleBrand, getLocalizedModelName } from "@/lib/vehicle-catalog";
 import { useLocale } from "@/lib/i18n/locale-context";
 
-type SparePartsFilterBarProps = {
+type AdminSparePartsFilterBarProps = {
   values: ListFilterParams;
   categories: { value: string; label: string }[];
-  searchPlaceholder: string;
-  categoryLabel: string;
   resultCount: number;
   totalCount: number;
-  preserveParams?: Record<string, string | undefined>;
 };
 
-export function SparePartsFilterBar({
+export function AdminSparePartsFilterBar({
   values,
   categories,
-  searchPlaceholder,
-  categoryLabel,
   resultCount,
   totalCount,
-  preserveParams,
-}: SparePartsFilterBarProps) {
+}: AdminSparePartsFilterBarProps) {
   const { messages: t, locale } = useLocale();
   const labels = t.spareParts.vehicle;
-  const conditionOptions = getSparePartConditionFilterOptions(t);
   const brand = values.vehicle_brand?.trim() || "all";
   const selectedBrand = brand !== "all" ? findVehicleBrand(brand) : undefined;
 
@@ -43,46 +37,43 @@ export function SparePartsFilterBar({
       }))
     : [];
 
-  const selects = [
-    {
-      name: "condition",
-      label: t.spareParts.condition.label,
-      options: conditionOptions,
-      allLabel: t.spareParts.condition.all,
-    },
-    ...(categories.length > 0
-      ? [{ name: "category", label: categoryLabel, options: categories }]
-      : []),
-    {
-      name: "vehicle_brand",
-      label: labels.brand,
-      options: brandOptions,
-      allLabel: labels.allBrands,
-      clearOnChange: ["vehicle_model"],
-    },
-    {
-      name: "vehicle_model",
-      label: labels.model,
-      options: modelOptions,
-      allLabel: selectedBrand ? labels.allModels : labels.selectBrandFirst,
-      remountKey: `vehicle-model-${brand}`,
-    },
-  ];
-
   return (
     <DashboardFilterBar
-      pathname="/spare-parts"
+      pathname="/admin/spare-parts"
       values={values}
-      searchPlaceholder={searchPlaceholder}
-      selects={selects}
+      searchPlaceholder={t.dashboard.filters.sparePartSearch}
+      selects={[
+        {
+          name: "condition",
+          label: t.spareParts.condition.label,
+          options: getSparePartConditionFilterOptions(t),
+          allLabel: t.spareParts.condition.all,
+        },
+        { name: "category", label: t.common.category, options: categories },
+        {
+          name: "vehicle_brand",
+          label: labels.brand,
+          options: brandOptions,
+          allLabel: labels.allBrands,
+          clearOnChange: ["vehicle_model"],
+        },
+        {
+          name: "vehicle_model",
+          label: labels.model,
+          options: modelOptions,
+          allLabel: selectedBrand ? labels.allModels : labels.selectBrandFirst,
+          remountKey: `vehicle-model-${brand}`,
+        },
+        {
+          name: "active",
+          label: t.common.status,
+          options: getActiveFilterOptionsForDashboard(t),
+        },
+      ]}
       resultCount={resultCount}
       totalCount={totalCount}
-      preserveParams={preserveParams}
-      hiddenFields={["size"]}
-      singleRow
       autoSubmit
       plain
-      className="mb-6"
     />
   );
 }

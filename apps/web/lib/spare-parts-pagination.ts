@@ -10,7 +10,13 @@ export function resolveSparePartsPageSize(sizeParam?: string): number {
 export function sparePartsPageHref(
   page: number,
   pageSize: number,
-  filters: { q?: string; category?: string; condition?: string } = {},
+  filters: {
+    q?: string;
+    category?: string;
+    condition?: string;
+    vehicle_brand?: string;
+    vehicle_model?: string;
+  } = {},
 ): string {
   const params = new URLSearchParams();
   params.set("page", String(page));
@@ -23,6 +29,12 @@ export function sparePartsPageHref(
   }
   if (filters.condition && filters.condition !== "all") {
     params.set("condition", filters.condition);
+  }
+  if (filters.vehicle_brand && filters.vehicle_brand !== "all") {
+    params.set("vehicle_brand", filters.vehicle_brand);
+  }
+  if (filters.vehicle_model && filters.vehicle_model !== "all") {
+    params.set("vehicle_model", filters.vehicle_model);
   }
   return `/spare-parts?${params.toString()}`;
 }

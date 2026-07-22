@@ -14,7 +14,13 @@ type SparePartsPaginationProps = {
   currentPage: number;
   totalPages: number;
   pageSize: number;
-  filters?: { q?: string; category?: string };
+  filters?: {
+    q?: string;
+    category?: string;
+    condition?: string;
+    vehicle_brand?: string;
+    vehicle_model?: string;
+  };
 };
 
 export function SparePartsPagination({

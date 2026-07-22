@@ -29,6 +29,8 @@ export type SparePartsListFilters = {
   q?: string;
   category?: string;
   condition?: string;
+  vehicle_brand?: string;
+  vehicle_model?: string;
 };
 
 export async function getSparePartsPage(
@@ -56,6 +58,26 @@ export async function getSparePartsPage(
 
   if (filters.condition && filters.condition !== "all") {
     query = query.eq("part_condition", filters.condition);
+  }
+
+  const brand = filters.vehicle_brand?.trim();
+  const model = filters.vehicle_model?.trim();
+  if (brand && brand !== "all") {
+    const safeBrand = brand.replace(/[,()]/g, "");
+    if (model && model !== "all") {
+      const safeModel = model.replace(/[,()]/g, "");
+      query = query.or(
+        [
+          "vehicle_brand_slug.is.null",
+          `and(vehicle_brand_slug.eq.${safeBrand},vehicle_model_id.eq.${safeModel})`,
+          `and(vehicle_brand_slug.eq.${safeBrand},vehicle_model_id.is.null)`,
+        ].join(","),
+      );
+    } else {
+      query = query.or(
+        `vehicle_brand_slug.eq.${safeBrand},vehicle_brand_slug.is.null`,
+      );
+    }
   }
 
   if (filters.q) {

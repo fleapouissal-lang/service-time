@@ -1,10 +1,8 @@
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
 import { AdminSparePartAddForm } from "@/components/admin/admin-spare-part-add-form";
 import { AdminSparePartsTable } from "@/components/admin/admin-spare-parts-table";
-import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
+import { AdminSparePartsFilterBar } from "@/components/admin/admin-spare-parts-filter-bar";
 import { Card, CardContent } from "@/components/ui/card";
-import { getActiveFilterOptionsForDashboard } from "@/lib/dashboard-filter-options";
-import { getSparePartConditionFilterOptions } from "@/lib/spare-part-condition";
 import { getAllSparePartsAdmin } from "@/lib/dashboard-queries";
 import { getServerI18n } from "@/lib/i18n/server";
 import {
@@ -27,27 +25,14 @@ export default async function AdminSparePartsPage({ searchParams }: PageProps) {
     value: c,
     label: c,
   }));
-  const ACTIVE_OPTIONS = getActiveFilterOptionsForDashboard(t);
-  const conditionOptions = getSparePartConditionFilterOptions(t);
 
   return (
     <div className="space-y-8">
       <DashboardPageHeader title={p.title} />
 
-      <DashboardFilterBar
-        pathname="/admin/spare-parts"
+      <AdminSparePartsFilterBar
         values={params}
-        searchPlaceholder={t.dashboard.filters.sparePartSearch}
-        selects={[
-          {
-            name: "condition",
-            label: t.spareParts.condition.label,
-            options: conditionOptions,
-            allLabel: t.spareParts.condition.all,
-          },
-          { name: "category", label: t.common.category, options: categories },
-          { name: "active", label: t.common.status, options: ACTIVE_OPTIONS },
-        ]}
+        categories={categories}
         resultCount={parts.length}
         totalCount={allParts.length}
       />

@@ -33,7 +33,7 @@ export type DashboardUser = {
 
 const SIDEBAR_EXPANDED = "18rem";
 const SIDEBAR_COLLAPSED = "4.75rem";
-const SIDEBAR_BG = "#94D4B9";
+const SIDEBAR_BG = "#2DB87A";
 const SIDEBAR_FG = "#050B10";
 
 export function DashboardSidebar({

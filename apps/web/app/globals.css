@@ -68,7 +68,7 @@ html.dark {
   --border: rgba(148, 212, 185, 0.14);
   --ring: #94d4b9;
   --dashboard-content-bg: #060709;
-  --dashboard-sidebar-bg: #94d4b9;
+  --dashboard-sidebar-bg: #2db87a;
   --dashboard-sidebar-active: #050b10;
   --admin-table-head-bg: rgba(255, 255, 255, 0.06);
   --admin-table-head-text: var(--muted);
@@ -295,7 +295,7 @@ html.light {
   --border: rgba(148, 212, 185, 0.16);
   --ring: #94d4b9;
   --dashboard-content-bg: #f1f6f9;
-  --dashboard-sidebar-bg: #94d4b9;
+  --dashboard-sidebar-bg: #2db87a;
   --dashboard-sidebar-active: #050b10;
   --admin-table-head-bg: #94d4b9;
   --admin-table-head-text: #000000;

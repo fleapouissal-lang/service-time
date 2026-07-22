@@ -20,6 +20,7 @@ import { getAdminSupabaseClient } from "@/lib/supabase-admin";
 import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
 import { parseSparePartCondition } from "@/lib/spare-part-condition";
 import { parseSparePartOriginalPrice } from "@/lib/spare-part-promotion";
+import { parseSparePartVehicleFields } from "@/lib/spare-part-vehicle";
 import {
   getAvatarFromFormData,
   PROFILE_AVATAR_BUCKET,
@@ -242,6 +243,11 @@ export async function saveSparePartAction(formData: FormData) {
     price,
   );
 
+  const vehicle = parseSparePartVehicleFields(formData);
+  if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
+    throw new Error("Select vehicle brand and model for this part");
+  }
+
   const payload = {
     name_ar: String(formData.get("name_ar")),
     name_en: String(formData.get("name_en") ?? "").trim() || null,
@@ -257,6 +263,8 @@ export async function saveSparePartAction(formData: FormData) {
     original_price,
     stock_quantity,
     part_condition: parseSparePartCondition(formData.get("part_condition")),
+    vehicle_brand_slug: vehicle.vehicle_brand_slug,
+    vehicle_model_id: vehicle.vehicle_model_id,
     is_active: formData.get("is_active") === "on",
   };
 
@@ -305,6 +313,11 @@ export async function saveSparePartEditAction(
       price,
     );
 
+    const vehicle = parseSparePartVehicleFields(formData);
+    if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
+      return { error: "Select vehicle brand and model for this part" };
+    }
+
     const payload = {
       name_ar: String(formData.get("name_ar")),
       name_en: String(formData.get("name_en") ?? "").trim() || null,
@@ -320,6 +333,8 @@ export async function saveSparePartEditAction(
       original_price,
       stock_quantity,
       part_condition: parseSparePartCondition(formData.get("part_condition")),
+      vehicle_brand_slug: vehicle.vehicle_brand_slug,
+      vehicle_model_id: vehicle.vehicle_model_id,
       is_active: formData.get("is_active") === "on",
     };
 

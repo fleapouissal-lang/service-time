@@ -41,7 +41,7 @@ export function SidebarEdgeToggle({
       >
         <div
           className={cn(
-            "absolute top-1/2 h-16 w-5 -translate-y-1/2 bg-[#94D4B9]",
+            "absolute top-1/2 h-16 w-5 -translate-y-1/2 bg-[#2DB87A]",
             isRtl ? "right-0" : "left-0",
           )}
           aria-hidden
