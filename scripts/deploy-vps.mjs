@@ -49,7 +49,8 @@ fi
 git remote remove origin 2>/dev/null || true
 git remote add origin https://github.com/fleapouissal-lang/service-time.git
 git remote set-url origin https://github.com/fleapouissal-lang/service-time.git
-git fetch origin 2>/dev/null || true
+# Avoid hanging on interactive GitHub credential prompts over SSH
+GIT_TERMINAL_PROMPT=0 git -c credential.helper= fetch origin 2>/dev/null || true
 
 echo "=== HEAD ==="
 git log -1 --oneline
