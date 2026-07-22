@@ -20,6 +20,7 @@ type SparePartsPaginationProps = {
     condition?: string;
     vehicle_brand?: string;
     vehicle_model?: string;
+    vehicle_scope?: string;
   };
 };
 

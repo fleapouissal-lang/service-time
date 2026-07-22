@@ -14,6 +14,8 @@ export type ListFilterParams = {
   condition?: string;
   vehicle_brand?: string;
   vehicle_model?: string;
+  /** When `none`, skip defaulting to a logged-in client's vehicle. */
+  vehicle_scope?: string;
   role?: string;
   period?: string;
   admin_read?: string;
@@ -35,6 +37,7 @@ export function parseListFilters(
     condition: searchParams.condition?.trim() || undefined,
     vehicle_brand: searchParams.vehicle_brand?.trim() || undefined,
     vehicle_model: searchParams.vehicle_model?.trim() || undefined,
+    vehicle_scope: searchParams.vehicle_scope?.trim() || undefined,
     role: searchParams.role?.trim() || undefined,
     period: searchParams.period?.trim() || undefined,
     admin_read: searchParams.admin_read?.trim() || undefined,

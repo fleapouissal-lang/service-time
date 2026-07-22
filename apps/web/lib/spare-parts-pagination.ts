@@ -16,6 +16,7 @@ export function sparePartsPageHref(
     condition?: string;
     vehicle_brand?: string;
     vehicle_model?: string;
+    vehicle_scope?: string;
   } = {},
 ): string {
   const params = new URLSearchParams();
@@ -35,6 +36,9 @@ export function sparePartsPageHref(
   }
   if (filters.vehicle_model && filters.vehicle_model !== "all") {
     params.set("vehicle_model", filters.vehicle_model);
+  }
+  if (filters.vehicle_scope) {
+    params.set("vehicle_scope", filters.vehicle_scope);
   }
   return `/spare-parts?${params.toString()}`;
 }

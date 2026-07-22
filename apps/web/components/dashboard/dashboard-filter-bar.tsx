@@ -31,6 +31,12 @@ export type DashboardFilterSelect = {
   clearOnChange?: string[];
   /** Force remount when dependency changes (e.g. vehicle model after brand). */
   remountKey?: string;
+  /** Override displayed value (when not taken from `values[name]`). */
+  currentValue?: string;
+  /** Map a selected value to one or more query params. */
+  resolveParams?: (
+    value: string,
+  ) => Record<string, string | undefined>;
 };
 
 type DashboardFilterBarProps = {
@@ -52,6 +58,8 @@ type DashboardFilterBarProps = {
   autoSubmit?: boolean;
   /** No card background, border, or shadow. */
   plain?: boolean;
+  /** Custom clear link (defaults to pathname + preserved hidden fields). */
+  clearHref?: string;
   children?: ReactNode;
 };
 
@@ -70,6 +78,7 @@ export function DashboardFilterBar({
   singleRow = false,
   autoSubmit = false,
   plain = false,
+  clearHref,
   children,
 }: DashboardFilterBarProps) {
   const { messages: t } = useLocale();
@@ -157,22 +166,23 @@ export function DashboardFilterBar({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- navigate uses latest query/values
   }, [autoSubmit, query, showSearch, values.q]);
 
-  const clearHref =
-    hiddenFields
-      .map((key) => {
-        const value = preserveParams?.[key];
-        return value && value !== "all" ? [key, value] as const : null;
-      })
-      .filter(Boolean)
-      .reduce((params, entry) => {
-        if (!entry) return params;
-        params.set(entry[0], entry[1]);
-        return params;
-      }, new URLSearchParams());
+  const clearParams = hiddenFields
+    .map((key) => {
+      const value = preserveParams?.[key];
+      return value && value !== "all" ? ([key, value] as const) : null;
+    })
+    .filter(Boolean)
+    .reduce((params, entry) => {
+      if (!entry) return params;
+      params.set(entry[0], entry[1]);
+      return params;
+    }, new URLSearchParams());
 
-  const clearUrl = clearHref.toString()
-    ? `${pathname}?${clearHref.toString()}`
-    : pathname;
+  const clearUrl =
+    clearHref ??
+    (clearParams.toString()
+      ? `${pathname}?${clearParams.toString()}`
+      : pathname);
 
   return (
     <Card
@@ -298,9 +308,11 @@ export function DashboardFilterBar({
                   hideAllOption: field.hideAllOption,
                 },
               );
-              const rawValue = values[field.name as keyof ListFilterParams] as
-                | string
-                | undefined;
+              const rawValue =
+                field.currentValue ??
+                (values[field.name as keyof ListFilterParams] as
+                  | string
+                  | undefined);
               const fallbackValue = field.hideAllOption
                 ? (field.options[0]?.value ?? selectOptions[0]?.value ?? "")
                 : "all";
@@ -327,16 +339,30 @@ export function DashboardFilterBar({
                     <IconSelect
                       key={field.remountKey ?? field.name}
                       id={`dashboard-filter-${field.name}`}
-                      name={autoSubmit ? undefined : field.name}
+                      name={
+                        autoSubmit || field.resolveParams
+                          ? undefined
+                          : field.name
+                      }
                       options={selectOptions}
                       fallbackIcon={
-                        field.name.startsWith("vehicle_") ? "car" : "circle"
+                        field.name.startsWith("vehicle_") ||
+                        field.name === "client_vehicle"
+                          ? "car"
+                          : "circle"
                       }
                       value={autoSubmit ? selectValue : undefined}
                       defaultValue={autoSubmit ? undefined : selectValue}
                       onValueChange={
                         autoSubmit
                           ? (next) => {
+                              if (field.resolveParams) {
+                                navigate(
+                                  field.resolveParams(next),
+                                  field.clearOnChange ?? [],
+                                );
+                                return;
+                              }
                               navigate(
                                 {
                                   [field.name]:

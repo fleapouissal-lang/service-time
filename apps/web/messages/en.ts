@@ -759,6 +759,8 @@ export const messages = {
       allBrands: "All brands",
       allModels: "All models",
       allVehicles: "All vehicles",
+      myVehicle: "My vehicle",
+      allMyVehicles: "All my vehicles",
       formTitle: "Compatible vehicle",
       filterTitle: "Filter by vehicle",
       filterHint: "Pick a brand, then a model, to see matching parts.",

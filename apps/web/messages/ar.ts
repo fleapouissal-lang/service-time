@@ -760,6 +760,8 @@ export const messages = {
       allBrands: "كل الماركات",
       allModels: "كل الموديلات",
       allVehicles: "كل السيارات",
+      myVehicle: "سيارتي",
+      allMyVehicles: "كل سياراتي",
       formTitle: "السيارة المتوافقة",
       filterTitle: "التصفية حسب السيارة",
       filterHint: "اختر الماركة ثم الموديل لعرض القطع المناسبة.",

@@ -58,7 +58,18 @@ export function SparePartsFilterBar({
       label: labels.brand,
       options: brandOptions,
       allLabel: labels.allBrands,
-      clearOnChange: ["vehicle_model"],
+      resolveParams: (next: string) =>
+        next === "all"
+          ? {
+              vehicle_brand: undefined,
+              vehicle_model: undefined,
+              vehicle_scope: "none",
+            }
+          : {
+              vehicle_brand: next,
+              vehicle_model: undefined,
+              vehicle_scope: undefined,
+            },
     },
     {
       name: "vehicle_model",
