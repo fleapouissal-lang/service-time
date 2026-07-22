@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Car, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { Car, Check, ChevronDown, Plus, Trash2 } from "lucide-react";
 import type { ClientVehicle } from "@service-time/types";
 import { AddVehicleModal } from "@/components/client/vehicles/add-vehicle-modal";
 import { VehicleBrandLogo } from "@/components/client/vehicles/vehicle-brand-logo";
@@ -62,6 +62,8 @@ export function ClientVehicleField({
   }, [vehicles]);
 
   useEffect(() => {
+    if (!open) return;
+
     const onPointerDown = (event: MouseEvent) => {
       if (
         containerRef.current &&
@@ -70,9 +72,17 @@ export function ClientVehicleField({
         setOpen(false);
       }
     };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
     document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, []);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   const selectedVehicle = useMemo(
     () => vehicles.find((vehicle) => vehicle.label === selection),
@@ -192,7 +202,13 @@ export function ClientVehicleField({
           <ul
             role="listbox"
             aria-labelledby="car_type_select"
-            className="scrollbar-theme absolute z-[1000] mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] p-1.5 request-select-dropdown"
+            className={cn(
+              "scrollbar-theme absolute z-[1000] mt-1.5 max-h-64 w-full overflow-y-auto",
+              "rounded-2xl border border-[color:var(--request-select-dropdown-border)]",
+              "bg-[color:var(--request-select-dropdown-bg)] p-1.5",
+              "shadow-[var(--request-select-dropdown-shadow)]",
+              "ring-1 ring-black/5 dark:ring-white/5",
+            )}
           >
             {vehicles.map((vehicle) => {
               const isSelected = vehicle.label === selection;
@@ -204,10 +220,10 @@ export function ClientVehicleField({
                 <li key={vehicle.id} role="option" aria-selected={isSelected}>
                   <div
                     className={cn(
-                      "flex items-center gap-2 rounded-[14px] px-2 py-1.5 transition-all duration-200",
+                      "flex items-center gap-2 rounded-xl px-2 py-1.5 transition-colors",
                       isSelected
-                        ? "bg-[color-mix(in_srgb,var(--icon-accent)_14%,transparent)]"
-                        : "hover:bg-[color-mix(in_srgb,var(--icon-accent)_8%,transparent)]",
+                        ? "bg-[color:var(--request-select-option-selected-bg)]"
+                        : "hover:bg-[color:var(--request-select-option-hover-bg)]",
                     )}
                   >
                     <button
@@ -216,10 +232,18 @@ export function ClientVehicleField({
                         setSelection(vehicle.label);
                         setOpen(false);
                       }}
-                      className="flex min-w-0 flex-1 items-center gap-3 text-start"
+                      className="flex min-w-0 flex-1 items-center gap-2.5 text-start"
                     >
                       <VehicleBrandLogo src={logo} alt={name} size="sm" />
-                      <span className="flex-1 truncate text-sm">{name}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm font-medium">
+                        {name}
+                      </span>
+                      {isSelected ? (
+                        <Check
+                          className={cn("size-4 shrink-0", iconAccentClass)}
+                          aria-hidden
+                        />
+                      ) : null}
                     </button>
 
                     {allowDelete ? (

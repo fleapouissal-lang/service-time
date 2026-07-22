@@ -105,14 +105,14 @@ export function DashboardFilterBar({
           <form
             method="get"
             action={pathname}
-            className="flex flex-col gap-3 lg:flex-row lg:flex-wrap lg:items-end"
+            className="grid gap-3 sm:grid-cols-2 xl:grid-cols-[minmax(0,1.4fr)_repeat(auto-fit,minmax(11rem,1fr))_auto] xl:items-end"
           >
             {showSearch ? (
-              <div className="min-w-0 lg:min-w-[220px] lg:flex-[2_1_280px]">
-                <Label htmlFor="dashboard-filter-q" className="text-xs text-muted">
+              <div className="min-w-0 sm:col-span-2 xl:col-span-1">
+                <Label htmlFor="dashboard-filter-q" className="text-xs font-medium text-muted">
                   {t.common.search}
                 </Label>
-                <div className="relative mt-1">
+                <div className="relative mt-1.5">
                   <Search
                     className="pointer-events-none absolute start-3 top-1/2 size-4 -translate-y-1/2 text-muted"
                     aria-hidden
@@ -122,7 +122,7 @@ export function DashboardFilterBar({
                     name="q"
                     defaultValue={values.q ?? ""}
                     placeholder={resolvedPlaceholder}
-                    className="h-11 ps-9"
+                    className="h-11 rounded-xl ps-9"
                   />
                 </div>
               </div>
@@ -135,17 +135,14 @@ export function DashboardFilterBar({
             })}
 
             {selects.map((field) => (
-              <div
-                key={field.name}
-                className="min-w-0 lg:min-w-[160px] lg:flex-[1_1_180px]"
-              >
+              <div key={field.name} className="min-w-0">
                 <Label
                   htmlFor={`dashboard-filter-${field.name}`}
-                  className="text-xs text-muted"
+                  className="text-xs font-medium text-muted"
                 >
                   {field.label}
                 </Label>
-                <div className="mt-1">
+                <div className="mt-1.5">
                   <IconSelect
                     id={`dashboard-filter-${field.name}`}
                     name={field.name}
@@ -164,15 +161,15 @@ export function DashboardFilterBar({
               </div>
             ))}
 
-            <div className="flex shrink-0 flex-wrap items-center gap-2 lg:pb-0.5">
-              <Button type="submit" className="h-11 shrink-0">
+            <div className="flex flex-wrap items-center gap-2 sm:col-span-2 xl:col-span-1 xl:justify-end">
+              <Button type="submit" className="h-11 min-w-[7.5rem] shrink-0 rounded-xl">
                 {t.common.filter}
               </Button>
 
               {active ? (
                 <Link
                   href={pathname}
-                  className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border px-4 text-sm font-medium text-muted transition-colors hover:bg-primary/5 hover:text-foreground"
+                  className="inline-flex h-11 shrink-0 items-center gap-1.5 rounded-xl border border-border bg-background px-4 text-sm font-medium text-muted transition-colors hover:bg-primary/5 hover:text-foreground"
                 >
                   <X className="size-4" aria-hidden />
                   {t.common.clear}

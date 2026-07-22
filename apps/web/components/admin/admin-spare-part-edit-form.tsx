@@ -8,6 +8,7 @@ import {
   saveSparePartEditAction,
 } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
+import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MultiPhotoUploadField } from "@/components/ui/multi-photo-upload-field";
@@ -88,14 +89,24 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
         </div>
         <div>
           <Label>{p.partCondition}</Label>
-          <select
-            name="part_condition"
-            defaultValue={part.part_condition ?? "new"}
-            className="mt-1 flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-          >
-            <option value="new">{t.spareParts.condition.new}</option>
-            <option value="used">{t.spareParts.condition.used}</option>
-          </select>
+          <div className="mt-1.5">
+            <IconSelect
+              name="part_condition"
+              defaultValue={part.part_condition ?? "new"}
+              options={[
+                {
+                  value: "new",
+                  label: t.spareParts.condition.new,
+                  icon: "package",
+                },
+                {
+                  value: "used",
+                  label: t.spareParts.condition.used,
+                  icon: "layers",
+                },
+              ]}
+            />
+          </div>
         </div>
         <div className="md:col-span-2">
           <Label className="mb-2 block">{p.partImages}</Label>

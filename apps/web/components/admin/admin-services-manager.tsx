@@ -10,6 +10,7 @@ import {
 import type { AdminCatalogCategory } from "@/lib/services-catalog-admin";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -201,6 +202,13 @@ export function AdminServiceCategoryForm({
       ACTION_VALUES.map((value) => ({
         value,
         label: actionLabel(value, p.actionOptions),
+        icon: value.startsWith("link|")
+          ? "arrow-down"
+          : value.includes("emergency")
+            ? "alert-triangle"
+            : value.includes("mobile")
+              ? "truck"
+              : "wrench",
       })),
     [p.actionOptions],
   );
@@ -376,17 +384,14 @@ export function AdminServiceCategoryForm({
                   </div>
                   <div>
                     <Label>{p.subAction}</Label>
-                    <select
-                      name={`sub_action_${sub.id}`}
-                      defaultValue={sub.action}
-                      className="mt-1 flex h-10 w-full rounded-md border border-[var(--border)] bg-transparent px-3 text-sm"
-                    >
-                      {actionOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </select>
+                    <div className="relative z-10 mt-1.5">
+                      <IconSelect
+                        name={`sub_action_${sub.id}`}
+                        defaultValue={sub.action}
+                        options={actionOptions}
+                        fallbackIcon="layers"
+                      />
+                    </div>
                   </div>
                   <div>
                     <Label>{p.priceSar}</Label>

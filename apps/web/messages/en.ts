@@ -1316,7 +1316,10 @@ export const messages = {
         },
       },
       invoicesPage: {
-        subtitle: "Invoices validated by the admin for your orders",
+        subtitle:
+          "Your invoices appear here after admin validation. You can view the details or download a PDF.",
+        procedure:
+          "After you place a service or spare-parts order, the invoice is prepared automatically when work starts or the order is confirmed. Once the admin validates it, it becomes visible here so you can review it and download it.",
         empty: "No validated invoices yet.",
         searchPlaceholder: "Search by invoice number…",
         backToList: "Back to invoices",
@@ -1748,7 +1751,9 @@ export const messages = {
       },
       invoicesPage: {
         subtitle:
-          "Invoices are created when a service order is in progress or a parts order is confirmed. Validate to show them to the client.",
+          "An invoice is the official billing document for an order. It is created when a service starts or parts are confirmed, and the client sees it only after you validate it.",
+        procedure:
+          "Process: order created → invoice auto-created → review amount and details → validate & show to client → client can download PDF.",
         searchPlaceholder: "Search by invoice number or client…",
         backToList: "Back to invoices list",
         detailTitle: "Invoice details",

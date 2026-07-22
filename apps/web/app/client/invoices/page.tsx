@@ -28,9 +28,10 @@ export default async function ClientInvoicesPage({ searchParams }: PageProps) {
 
   return (
     <div className="mx-auto w-[90%] max-w-[1200px] space-y-6 pb-16">
-      <div className="hidden md:block">
+      <div className="hidden md:block space-y-2">
         <h1 className="text-2xl font-bold">{t.dashboard.client.invoices}</h1>
         <p className="text-muted">{p.subtitle}</p>
+        <p className="text-sm text-muted">{p.procedure}</p>
       </div>
 
       <Suspense>

@@ -7,6 +7,7 @@ import {
   Calendar,
   CalendarRange,
   Car,
+  Check,
   CheckCircle2,
   ChevronDown,
   Circle,
@@ -32,12 +33,7 @@ import {
   iconAccentClass,
 } from "@/lib/card-surface";
 import type { IconSelectOption } from "@/lib/icon-select-options";
-import {
-  requestFieldShellClass,
-  requestSelectDropdownClass,
-  requestSelectOptionActiveClass,
-  requestSelectOptionClass,
-} from "@/lib/request-styles";
+import { requestFieldShellClass } from "@/lib/request-styles";
 import { cn } from "@/lib/utils";
 
 export type { IconSelectOption };
@@ -97,6 +93,7 @@ export function IconSelect({
 }: IconSelectProps) {
   const generatedId = useId();
   const selectId = id ?? generatedId;
+  const listId = `${selectId}-listbox`;
   const [open, setOpen] = useState(false);
   const [internalValue, setInternalValue] = useState(
     defaultValue ?? options[0]?.value ?? "",
@@ -119,6 +116,8 @@ export function IconSelect({
   const SelectedIcon = resolveIcon(selected?.icon, FallbackIcon);
 
   useEffect(() => {
+    if (!open) return;
+
     const onPointerDown = (event: MouseEvent) => {
       if (
         containerRef.current &&
@@ -128,9 +127,17 @@ export function IconSelect({
       }
     };
 
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+
     document.addEventListener("mousedown", onPointerDown);
-    return () => document.removeEventListener("mousedown", onPointerDown);
-  }, []);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("mousedown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   function commitValue(next: string) {
     if (!isControlled) {
@@ -141,7 +148,10 @@ export function IconSelect({
   }
 
   return (
-    <div ref={containerRef} className={cn("relative", open && "z-[1000]", className)}>
+    <div
+      ref={containerRef}
+      className={cn("relative", open && "z-[1000]", className)}
+    >
       {name ? (
         <input type="hidden" name={name} value={value} required={required} />
       ) : null}
@@ -151,18 +161,27 @@ export function IconSelect({
         id={selectId}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-controls={listId}
         onClick={() => setOpen((prev) => !prev)}
         className={cn(
-          "flex h-11 w-full items-center gap-3 rounded-xl px-3 text-sm text-foreground transition-all duration-200",
+          "flex h-11 w-full items-center gap-2.5 rounded-xl px-3 text-sm text-foreground transition-all duration-200",
           requestFieldShellClass,
           "focus-visible:outline-none",
-          open && "border-[color:var(--request-field-focus-border)] shadow-[0_0_0_2px_var(--request-field-focus-ring)]",
+          open &&
+            "border-[color:var(--request-field-focus-border)] shadow-[0_0_0_2px_var(--request-field-focus-ring)]",
         )}
       >
-        <span className={cn("flex size-8 shrink-0 items-center justify-center rounded-lg", iconAccentBgClass)}>
-          <SelectedIcon className={cn("size-4", iconAccentClass)} aria-hidden />
+        <span
+          className={cn(
+            "flex size-7 shrink-0 items-center justify-center rounded-lg",
+            iconAccentBgClass,
+          )}
+        >
+          <SelectedIcon className={cn("size-3.5", iconAccentClass)} aria-hidden />
         </span>
-        <span className="flex-1 truncate text-start">{selected?.label}</span>
+        <span className="min-w-0 flex-1 truncate text-start font-medium">
+          {selected?.label}
+        </span>
         <ChevronDown
           className={cn(
             "size-4 shrink-0 text-muted transition-transform duration-200",
@@ -174,9 +193,16 @@ export function IconSelect({
 
       {open ? (
         <ul
+          id={listId}
           role="listbox"
           aria-labelledby={selectId}
-          className="scrollbar-theme absolute z-[1000] mt-2 max-h-72 w-full overflow-y-auto rounded-[20px] p-1.5 request-select-dropdown"
+          className={cn(
+            "scrollbar-theme absolute inset-x-0 z-[1000] mt-1.5 max-h-64 overflow-y-auto",
+            "rounded-2xl border border-[color:var(--request-select-dropdown-border)]",
+            "bg-[color:var(--request-select-dropdown-bg)] p-1.5",
+            "shadow-[var(--request-select-dropdown-shadow)]",
+            "ring-1 ring-black/5 dark:ring-white/5",
+          )}
         >
           {options.map((option, index) => {
             const Icon = resolveIcon(option.icon, FallbackIcon);
@@ -187,30 +213,41 @@ export function IconSelect({
                 : `${option.label}-${index}`;
 
             return (
-              <li
-                key={optionKey}
-                role="option"
-                aria-selected={isSelected}
-              >
+              <li key={optionKey} role="option" aria-selected={isSelected}>
                 <button
                   type="button"
                   onClick={() => commitValue(option.value)}
                   className={cn(
-                    "flex w-full items-center gap-3 rounded-[14px] px-3 py-2.5 text-sm transition-all duration-200",
-                    isSelected ? requestSelectOptionActiveClass : requestSelectOptionClass,
+                    "flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-sm transition-colors",
+                    isSelected
+                      ? "bg-[color:var(--request-select-option-selected-bg)] font-semibold text-foreground"
+                      : "text-foreground hover:bg-[color:var(--request-select-option-hover-bg)]",
                   )}
                 >
                   <span
                     className={cn(
-                      "flex size-8 shrink-0 items-center justify-center rounded-lg transition-colors",
+                      "flex size-7 shrink-0 items-center justify-center rounded-lg",
                       isSelected
-                        ? "bg-[color-mix(in_srgb,var(--icon-accent)_20%,transparent)]"
+                        ? "bg-[color-mix(in_srgb,var(--icon-accent)_22%,transparent)]"
                         : iconAccentBgClass,
                     )}
                   >
-                    <Icon className={cn("size-4", iconAccentClass)} aria-hidden />
+                    <Icon
+                      className={cn("size-3.5", iconAccentClass)}
+                      aria-hidden
+                    />
                   </span>
-                  <span className="flex-1 text-start">{option.label}</span>
+                  <span className="min-w-0 flex-1 truncate text-start">
+                    {option.label}
+                  </span>
+                  {isSelected ? (
+                    <Check
+                      className={cn("size-4 shrink-0", iconAccentClass)}
+                      aria-hidden
+                    />
+                  ) : (
+                    <span className="size-4 shrink-0" aria-hidden />
+                  )}
                 </button>
               </li>
             );

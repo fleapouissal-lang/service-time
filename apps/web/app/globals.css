@@ -406,12 +406,12 @@ html.light {
   --request-map-border: rgba(148, 212, 185, 0.16);
   --request-map-shadow: 0 4px 24px rgba(148, 212, 185, 0.1);
   --request-map-caption-bg: #ffffff;
-  --request-select-dropdown-border: rgba(148, 212, 185, 0.16);
+  --request-select-dropdown-border: rgba(148, 212, 185, 0.28);
   --request-select-dropdown-bg: #ffffff;
-  --request-select-dropdown-shadow: 0 16px 52px rgba(148, 212, 185, 0.18);
-  --request-select-option-selected-bg: rgba(148, 212, 185, 0.1);
-  --request-select-option-selected-text: #94d4b9;
-  --request-select-option-hover-bg: rgba(148, 212, 185, 0.06);
+  --request-select-dropdown-shadow: 0 12px 36px rgba(5, 11, 16, 0.12);
+  --request-select-option-selected-bg: rgba(148, 212, 185, 0.18);
+  --request-select-option-selected-text: #0f3d2e;
+  --request-select-option-hover-bg: rgba(148, 212, 185, 0.1);
   --request-choice-active-border: #94d4b9;
   --request-choice-active-bg: rgba(148, 212, 185, 0.08);
   --request-choice-hover-border: rgba(148, 212, 185, 0.28);
@@ -2149,6 +2149,19 @@ html.light .dashboard-content .request-field-shell {
 html.light .dashboard-content .request-field-shell:hover,
 html.light .dashboard-content .request-field-shell:focus-within {
   border-color: #94d4b9;
+}
+
+html.light .dashboard-content .request-select-dropdown,
+html.light .dashboard-content [role="listbox"] {
+  background-color: #ffffff;
+  border-color: rgba(148, 212, 185, 0.35);
+  box-shadow: 0 14px 40px rgba(5, 11, 16, 0.12);
+}
+
+html.light .dashboard-content .request-select-option--active,
+html.light .dashboard-content [role="option"] [aria-selected="true"],
+html.light .dashboard-content [role="listbox"] button.font-semibold {
+  color: #0f3d2e;
 }
 
 /* Photo upload — unlayered so dashed border wins on /request full & quick */

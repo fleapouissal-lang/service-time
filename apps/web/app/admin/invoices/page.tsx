@@ -30,6 +30,7 @@ export default async function AdminInvoicesPage({ searchParams }: PageProps) {
     <div className="space-y-8">
       <DashboardPageHeader title={t.dashboard.admin.invoices}>
         <p className="text-muted">{p.subtitle}</p>
+        <p className="mt-2 text-sm text-muted">{p.procedure}</p>
       </DashboardPageHeader>
 
       <Suspense>

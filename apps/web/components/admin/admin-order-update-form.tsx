@@ -82,27 +82,55 @@ export function AdminOrderUpdateForm({
       <form action={action} className="space-y-5">
         <input type="hidden" name="id" value={orderId} />
 
-        <div className="grid gap-3 md:grid-cols-4">
-          <IconSelect
-            name="status"
-            options={filteredStatusOptions}
-            value={statusValue}
-            onValueChange={setStatusValue}
-          />
-          <IconSelect
-            name="priority"
-            options={priorityOptions}
-            defaultValue={priority}
-          />
-          <IconSelect
-            name="assigned_technician_id"
-            options={filteredTechnicianOptions}
-            value={technicianValue}
-            onValueChange={handleTechnicianChange}
-          />
-          <Button type="submit" variant="default" className="h-11" disabled={pending}>
-            {pending ? t.common.saving : t.common.save}
-          </Button>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="min-w-0">
+            <Label className="text-xs font-medium text-muted">
+              {t.common.status}
+            </Label>
+            <div className="mt-1.5">
+              <IconSelect
+                name="status"
+                options={filteredStatusOptions}
+                value={statusValue}
+                onValueChange={setStatusValue}
+              />
+            </div>
+          </div>
+          <div className="min-w-0">
+            <Label className="text-xs font-medium text-muted">
+              {t.common.priority}
+            </Label>
+            <div className="mt-1.5">
+              <IconSelect
+                name="priority"
+                options={priorityOptions}
+                defaultValue={priority}
+              />
+            </div>
+          </div>
+          <div className="min-w-0">
+            <Label className="text-xs font-medium text-muted">
+              {p.detail.technician}
+            </Label>
+            <div className="mt-1.5">
+              <IconSelect
+                name="assigned_technician_id"
+                options={filteredTechnicianOptions}
+                value={technicianValue}
+                onValueChange={handleTechnicianChange}
+              />
+            </div>
+          </div>
+          <div className="flex items-end">
+            <Button
+              type="submit"
+              variant="default"
+              className="h-11 w-full rounded-xl"
+              disabled={pending}
+            >
+              {pending ? t.common.saving : t.common.save}
+            </Button>
+          </div>
         </div>
 
         <div>
