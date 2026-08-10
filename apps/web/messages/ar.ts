@@ -1897,12 +1897,12 @@ export const messages = {
       locationsPage: {
         title: "مواقع الورش",
         subtitle:
-          "أضف أو عدّل عناوين ورش Service Time. استخدم «توليد الإحداثيات» لتحديد الموقع على الخريطة من العنوان.",
+          "أضف أو عدّل عناوين ورش Service Time. الصق رابط خرائط Google أو اكتب عنواناً (مثل المقايين) أو ولّد الإحداثيات من حقول العنوان.",
         addWorkshop: "إضافة ورشة",
         showAddForm: "إضافة ورشة",
         hideAddForm: "إخفاء النموذج",
         addWorkshopHint:
-          "سجّل عنوان ورشة جديدة وولّد إحداثيات الخريطة من العنوان.",
+          "الصق رابط خرائط أو اكتب عنواناً، ثم أكّد الاسم واحفظ.",
         editWorkshop: "تعديل ورشة",
         newWorkshop: "ورشة جديدة",
         saveChanges: "حفظ التعديلات",
@@ -1917,6 +1917,17 @@ export const messages = {
         latitude: "خط العرض *",
         longitude: "خط الطول *",
         coordinates: "الإحداثيات",
+        pasteMapsLabel: "الصق رابط الخرائط أو العنوان",
+        pasteMapsHint:
+          "الصق رابط مشاركة Google Maps أو إحداثيات (24.71, 46.67) أو اكتب عنواناً مثل المقايين، الرياض.",
+        pasteMapsPlaceholder:
+          "https://maps.app.goo.gl/...  أو  المقايين، الرياض  أو  24.71, 46.67",
+        applyPaste: "تطبيق الموقع",
+        applyingPaste: "جاري تحديد الموقع…",
+        pasteSuccess: "تم تطبيق الموقع من الرابط أو العنوان.",
+        pasteFailed:
+          "تعذّر قراءة الرابط أو العنوان. جرّب رابط خرائط آخر أو اكتب العنوان أدناه.",
+        pasteRequired: "الصق رابط خرائط أو عنواناً أولاً.",
         geocode: "توليد الإحداثيات من العنوان",
         geocoding: "جاري تحديد الموقع…",
         geocodeSuccess: "تم تحديد الإحداثيات من العنوان.",
@@ -1926,7 +1937,7 @@ export const messages = {
         minOneHint: "لا يمكن حذف آخر موقع.",
         nameArRequired: "أدخل اسم الورشة بالعربية.",
         addressArRequired: "أدخل العنوان بالعربية.",
-        coordsInvalid: "أدخل إحداثيات صالحة (خط عرض وطول).",
+        coordsInvalid: "طبّق رابط الخرائط أو ولّد الإحداثيات قبل الحفظ.",
         deleteConfirmTitle: "حذف هذه الورشة؟",
         deleteConfirmMessage: "سيتم حذف \"{name}\" من قائمة المواقع.",
         empty: "لا توجد ورش مسجّلة.",

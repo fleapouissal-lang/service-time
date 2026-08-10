@@ -1,25 +1,12 @@
 import type { MapCoords } from "@/lib/driving-route";
+import {
+  extractCoordsFromMapsText,
+  isShortMapsUrl,
+  looksLikeMapsUrl,
+  parseCoordsFromText,
+} from "@/lib/parse-maps-location";
 
-export function parseCoordsFromText(text: string): MapCoords | null {
-  const trimmed = text.trim();
-  const match = trimmed.match(/^(-?\d+(?:\.\d+)?)\s*,\s*(-?\d+(?:\.\d+)?)$/);
-  if (!match) return null;
-
-  const lat = Number(match[1]);
-  const lng = Number(match[2]);
-  if (
-    !Number.isFinite(lat) ||
-    !Number.isFinite(lng) ||
-    lat < -90 ||
-    lat > 90 ||
-    lng < -180 ||
-    lng > 180
-  ) {
-    return null;
-  }
-
-  return { lat, lng };
-}
+export { parseCoordsFromText };
 
 export async function geocodeAddress(text: string): Promise<MapCoords | null> {
   const fromCoords = parseCoordsFromText(text);
@@ -74,6 +61,69 @@ export async function geocodeWorkshopAddress(
     coords: { lat: data.lat, lng: data.lng },
     resolvedAddress: data.address,
   };
+}
+
+/**
+ * Resolve a pasted Maps link, "lat, lng", or free-text address into coordinates.
+ */
+export async function resolveWorkshopLocationPaste(
+  paste: string,
+): Promise<{ coords: MapCoords; resolvedAddress?: string } | null> {
+  const trimmed = paste.trim();
+  if (!trimmed) return null;
+
+  if (looksLikeMapsUrl(trimmed)) {
+    if (isShortMapsUrl(trimmed) || !extractCoordsFromMapsText(trimmed)) {
+      const response = await fetch(
+        `/api/geocode/maps-link?url=${encodeURIComponent(trimmed)}`,
+      );
+      if (!response.ok) return null;
+      const data = (await response.json()) as {
+        lat?: number;
+        lng?: number;
+        address?: string;
+      };
+      if (
+        data.lat == null ||
+        data.lng == null ||
+        !Number.isFinite(data.lat) ||
+        !Number.isFinite(data.lng)
+      ) {
+        return null;
+      }
+      return {
+        coords: { lat: data.lat, lng: data.lng },
+        resolvedAddress: data.address,
+      };
+    }
+
+    const coords = extractCoordsFromMapsText(trimmed);
+    if (!coords) return null;
+
+    try {
+      const reverse = await fetch(
+        `/api/geocode/reverse?lat=${coords.lat}&lng=${coords.lng}`,
+      );
+      if (reverse.ok) {
+        const data = (await reverse.json()) as { address?: string | null };
+        return {
+          coords,
+          resolvedAddress: data.address ?? undefined,
+        };
+      }
+    } catch {
+      // coords alone are enough
+    }
+
+    return { coords };
+  }
+
+  const fromCoords = extractCoordsFromMapsText(trimmed);
+  if (fromCoords) {
+    return { coords: fromCoords };
+  }
+
+  return geocodeWorkshopAddress(trimmed, "");
 }
 
 export function isValidMapCoords(

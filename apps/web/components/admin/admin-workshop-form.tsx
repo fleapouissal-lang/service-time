@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useState, useTransition } from "react";
-import { Loader2, MapPin, Trash2 } from "lucide-react";
+import { Link2, Loader2, MapPin, Trash2 } from "lucide-react";
 import {
   deleteWorkshopLocationAction,
   saveWorkshopLocationAction,
@@ -11,7 +11,11 @@ import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { geocodeWorkshopAddress } from "@/lib/geocode-address";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  geocodeWorkshopAddress,
+  resolveWorkshopLocationPaste,
+} from "@/lib/geocode-address";
 import type { WorkshopBranch } from "@/lib/localized-content";
 import { getWorkshopName } from "@/lib/localized-content";
 import { useLocale } from "@/lib/i18n/locale-context";
@@ -45,6 +49,7 @@ export function AdminWorkshopForm({
   const [lng, setLng] = useState(
     branch?.lng != null ? String(branch.lng) : "",
   );
+  const [pasteValue, setPasteValue] = useState("");
   const [error, setError] = useState("");
   const [info, setInfo] = useState("");
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -61,6 +66,56 @@ export function AdminWorkshopForm({
     latNum <= 90 &&
     lngNum >= -180 &&
     lngNum <= 180;
+
+  function applyResolvedLocation(
+    coords: { lat: number; lng: number },
+    resolvedAddress?: string,
+    sourcePaste?: string,
+  ) {
+    setLat(String(coords.lat));
+    setLng(String(coords.lng));
+
+    if (resolvedAddress) {
+      if (!addressAr.trim()) setAddressAr(resolvedAddress);
+      if (!addressEn.trim()) setAddressEn(resolvedAddress);
+    } else if (sourcePaste && !addressAr.trim()) {
+      setAddressAr(sourcePaste.trim());
+    }
+  }
+
+  async function handleApplyPaste() {
+    setError("");
+    setInfo("");
+
+    const trimmed = pasteValue.trim();
+    if (!trimmed) {
+      setError(p.pasteRequired);
+      return;
+    }
+
+    setGeocoding(true);
+    try {
+      const result = await resolveWorkshopLocationPaste(trimmed);
+      if (!result) {
+        setError(p.pasteFailed);
+        return;
+      }
+      applyResolvedLocation(
+        result.coords,
+        result.resolvedAddress,
+        trimmed,
+      );
+      setInfo(
+        result.resolvedAddress
+          ? `${p.pasteSuccess} (${result.resolvedAddress})`
+          : p.pasteSuccess,
+      );
+    } catch {
+      setError(p.pasteFailed);
+    } finally {
+      setGeocoding(false);
+    }
+  }
 
   async function handleGeocode() {
     setError("");
@@ -110,6 +165,12 @@ export function AdminWorkshopForm({
     event.preventDefault();
     setError("");
     setInfo("");
+
+    if (!hasCoords) {
+      setError(p.coordsInvalid);
+      return;
+    }
+
     startTransition(async () => {
       try {
         await saveWorkshopLocationAction(buildFormData());
@@ -121,6 +182,7 @@ export function AdminWorkshopForm({
           setAddressEn("");
           setLat("");
           setLng("");
+          setPasteValue("");
         }
         onSaved?.();
       } catch (err) {
@@ -197,6 +259,35 @@ export function AdminWorkshopForm({
           </div>
         ) : null}
 
+        <div className="mb-5 rounded-xl border border-dashed border-primary/30 bg-primary/5 p-4">
+          <Label htmlFor={`paste_maps_${branch?.id ?? "new"}`}>
+            {p.pasteMapsLabel}
+          </Label>
+          <p className="mt-1 text-xs leading-5 text-muted">{p.pasteMapsHint}</p>
+          <Textarea
+            id={`paste_maps_${branch?.id ?? "new"}`}
+            value={pasteValue}
+            onChange={(event) => setPasteValue(event.target.value)}
+            placeholder={p.pasteMapsPlaceholder}
+            className="mt-3 min-h-[5.5rem] resize-y"
+            dir="auto"
+          />
+          <Button
+            type="button"
+            variant="outline"
+            className="mt-3"
+            onClick={() => void handleApplyPaste()}
+            disabled={geocoding || pending}
+          >
+            {geocoding ? (
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+            ) : (
+              <Link2 className="size-4" aria-hidden />
+            )}
+            {geocoding ? p.applyingPaste : p.applyPaste}
+          </Button>
+        </div>
+
         <div className="grid gap-4 md:grid-cols-2">
           <div>
             <Label htmlFor={`name_ar_${branch?.id ?? "new"}`}>{p.nameAr}</Label>
@@ -219,54 +310,28 @@ export function AdminWorkshopForm({
               dir="ltr"
             />
           </div>
-          <div>
+          <div className="md:col-span-2">
             <Label htmlFor={`address_ar_${branch?.id ?? "new"}`}>
               {p.addressAr}
             </Label>
-            <Input
+            <Textarea
               id={`address_ar_${branch?.id ?? "new"}`}
               value={addressAr}
               onChange={(event) => setAddressAr(event.target.value)}
               required
-              className="mt-1"
+              className="mt-1 min-h-[4.5rem] resize-y"
               dir="rtl"
             />
           </div>
-          <div>
+          <div className="md:col-span-2">
             <Label htmlFor={`address_en_${branch?.id ?? "new"}`}>
               {p.addressEn}
             </Label>
-            <Input
+            <Textarea
               id={`address_en_${branch?.id ?? "new"}`}
               value={addressEn}
               onChange={(event) => setAddressEn(event.target.value)}
-              className="mt-1"
-              dir="ltr"
-            />
-          </div>
-          <div>
-            <Label htmlFor={`lat_${branch?.id ?? "new"}`}>{p.latitude}</Label>
-            <Input
-              id={`lat_${branch?.id ?? "new"}`}
-              value={lat}
-              onChange={(event) => setLat(event.target.value)}
-              required
-              type="number"
-              step="any"
-              className="mt-1 tabular-nums"
-              dir="ltr"
-            />
-          </div>
-          <div>
-            <Label htmlFor={`lng_${branch?.id ?? "new"}`}>{p.longitude}</Label>
-            <Input
-              id={`lng_${branch?.id ?? "new"}`}
-              value={lng}
-              onChange={(event) => setLng(event.target.value)}
-              required
-              type="number"
-              step="any"
-              className="mt-1 tabular-nums"
+              className="mt-1 min-h-[4.5rem] resize-y"
               dir="ltr"
             />
           </div>

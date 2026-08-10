@@ -1899,12 +1899,12 @@ export const messages = {
       locationsPage: {
         title: "Workshop locations",
         subtitle:
-          "Add or edit Service Time workshop addresses. Use “Generate coordinates” to resolve map position from the address.",
+          "Add or edit Service Time workshop addresses. Paste a Google Maps link, type an address (e.g. Al Magaeyen), or generate coordinates from the address fields.",
         addWorkshop: "Add workshop",
         showAddForm: "Add workshop",
         hideAddForm: "Hide form",
         addWorkshopHint:
-          "Register a new workshop address and generate map coordinates from the address.",
+          "Paste a Maps link or type an address, then confirm name and save.",
         editWorkshop: "Edit workshop",
         newWorkshop: "New workshop",
         saveChanges: "Save changes",
@@ -1919,6 +1919,17 @@ export const messages = {
         latitude: "Latitude *",
         longitude: "Longitude *",
         coordinates: "Coordinates",
+        pasteMapsLabel: "Paste Maps link or address",
+        pasteMapsHint:
+          "Paste a Google Maps share link, coordinates (24.71, 46.67), or type an address such as Al Magaeyen, Riyadh.",
+        pasteMapsPlaceholder:
+          "https://maps.app.goo.gl/...  or  Al Magaeyen, Riyadh  or  24.71, 46.67",
+        applyPaste: "Apply location",
+        applyingPaste: "Resolving location…",
+        pasteSuccess: "Location applied from the pasted link or address.",
+        pasteFailed:
+          "Could not read that link or address. Try another Maps link, or type the address below.",
+        pasteRequired: "Paste a Maps link or address first.",
         geocode: "Generate coordinates from address",
         geocoding: "Resolving location…",
         geocodeSuccess: "Coordinates were generated from the address.",
@@ -1928,7 +1939,7 @@ export const messages = {
         minOneHint: "The last location cannot be deleted.",
         nameArRequired: "Enter the workshop name in Arabic.",
         addressArRequired: "Enter the address in Arabic.",
-        coordsInvalid: "Enter valid latitude and longitude.",
+        coordsInvalid: "Apply a Maps link or generate coordinates before saving.",
         deleteConfirmTitle: "Delete this workshop?",
         deleteConfirmMessage: "\"{name}\" will be removed from the locations list.",
         empty: "No workshops registered.",
