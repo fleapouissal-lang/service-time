@@ -195,19 +195,6 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/admin/spare-parts/:path*",
-        headers: [
-          {
-            key: "Cross-Origin-Opener-Policy",
-            value: "same-origin",
-          },
-          {
-            key: "Cross-Origin-Embedder-Policy",
-            value: "credentialless",
-          },
-        ],
-      },
-      {
         source: "/(.*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },

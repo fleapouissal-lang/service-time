@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { SparePartMediaImage } from "@/components/spare-parts/spare-part-media-image";
 import type { SparePart } from "@service-time/types";
 import { deleteSparePartAction } from "@/app/admin/actions";
@@ -27,11 +28,16 @@ type AdminSparePartsTableProps = {
 };
 
 export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
+  const router = useRouter();
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [deleteTarget, setDeleteTarget] = useState<SparePart | null>(null);
   const [viewTarget, setViewTarget] = useState<SparePart | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [deleteState, deleteAction, pending] = useActionState(
+    deleteSparePartAction,
+    {},
+  );
   const {
     pageItems,
     setPage,
@@ -42,17 +48,37 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
     to,
   } = useDashboardTablePagination(parts);
 
+  useEffect(() => {
+    if (deleteState.error) {
+      setDeleteError(deleteState.error);
+      setDeleteTarget(null);
+      return;
+    }
+    if (!deleteState.success) return;
+    setDeleteTarget(null);
+    router.push("/admin/spare-parts?deleted=1");
+    router.refresh();
+  }, [deleteState.success, deleteState.error, router]);
+
   const handleDelete = () => {
     if (!deleteTarget) return;
+    setDeleteError(null);
     const formData = new FormData();
     formData.set("id", deleteTarget.id);
-    startTransition(async () => {
-      await deleteSparePartAction(formData);
-    });
+    deleteAction(formData);
   };
 
   return (
     <>
+      {deleteError ? (
+        <div
+          className="mx-6 mb-4 rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {deleteError}
+        </div>
+      ) : null}
+
       <AdminTable>
         <AdminTableHead>
           <AdminTableHeadCell align="center" className="w-20">
@@ -131,7 +157,10 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
                     deleteLabel={t.common.delete}
-                    onDelete={() => setDeleteTarget(part)}
+                    onDelete={() => {
+                      setDeleteError(null);
+                      setDeleteTarget(part);
+                    }}
                     className="justify-center"
                   />
                 </AdminTableCell>

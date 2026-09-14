@@ -228,12 +228,14 @@ export async function deleteSparePartOrderAction(formData: FormData) {
   redirect("/admin/spare-part-orders");
 }
 
-export async function saveSparePartAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id") ?? "");
-  const images = await resolveSparePartImagesFromForm(formData);
-  const img = images[0] ?? null;
+export type SaveSparePartFormState = {
+  success?: boolean;
+  error?: string;
+  id?: string;
+};
 
+function sparePartPayloadFromForm(formData: FormData, images: string[]) {
+  const img = images[0] ?? null;
   const priceRaw = String(formData.get("price") ?? "0").trim();
   const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
   const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
@@ -242,83 +244,11 @@ export async function saveSparePartAction(formData: FormData) {
     formData.get("original_price"),
     price,
   );
-
   const vehicle = parseSparePartVehicleFields(formData);
-  if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
-    throw new Error("Select vehicle brand and model for this part");
-  }
 
-  const payload = {
-    name_ar: String(formData.get("name_ar")),
-    name_en: String(formData.get("name_en") ?? "").trim() || null,
-    description_ar: String(formData.get("description_ar") ?? ""),
-    description_en: String(formData.get("description_en") ?? "").trim() || null,
-    category: String(formData.get("category") ?? ""),
-    category_en: String(formData.get("category_en") ?? "").trim() || null,
-    details: String(formData.get("details") ?? ""),
-    details_en: String(formData.get("details_en") ?? "").trim() || null,
-    img,
-    images,
-    price,
-    original_price,
-    stock_quantity,
-    part_condition: parseSparePartCondition(formData.get("part_condition")),
-    vehicle_brand_slug: vehicle.vehicle_brand_slug,
-    vehicle_model_id: vehicle.vehicle_model_id,
-    is_active: formData.get("is_active") === "on",
-  };
-
-  const { data, error } = id
-    ? await supabase
-        .from("spare_parts")
-        .update(payload)
-        .eq("id", id)
-        .select("id")
-        .single()
-    : await supabase.from("spare_parts").insert(payload).select("id").single();
-
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/spare-parts");
-  revalidatePath("/spare-parts");
-  if (id) {
-    revalidatePath(`/admin/spare-parts/${id}`);
-  } else if (data?.id) {
-    redirect(`/admin/spare-parts/${data.id}`);
-  }
-}
-
-export type SaveSparePartFormState = {
-  success?: boolean;
-  error?: string;
-};
-
-export async function saveSparePartEditAction(
-  _prev: SaveSparePartFormState,
-  formData: FormData,
-): Promise<SaveSparePartFormState> {
-  try {
-    const supabase = await adminClient();
-    const id = String(formData.get("id") ?? "");
-    if (!id) return { error: "Missing part id" };
-
-    const images = await resolveSparePartImagesFromForm(formData);
-    const img = images[0] ?? null;
-
-    const priceRaw = String(formData.get("price") ?? "0").trim();
-    const price = Math.max(0, Number.parseFloat(priceRaw) || 0);
-    const stockRaw = String(formData.get("stock_quantity") ?? "0").trim();
-    const stock_quantity = Math.max(0, Number.parseInt(stockRaw, 10) || 0);
-    const original_price = parseSparePartOriginalPrice(
-      formData.get("original_price"),
-      price,
-    );
-
-    const vehicle = parseSparePartVehicleFields(formData);
-    if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
-      return { error: "Select vehicle brand and model for this part" };
-    }
-
-    const payload = {
+  return {
+    vehicle,
+    payload: {
       name_ar: String(formData.get("name_ar")),
       name_en: String(formData.get("name_en") ?? "").trim() || null,
       description_ar: String(formData.get("description_ar") ?? ""),
@@ -336,7 +266,57 @@ export async function saveSparePartEditAction(
       vehicle_brand_slug: vehicle.vehicle_brand_slug,
       vehicle_model_id: vehicle.vehicle_model_id,
       is_active: formData.get("is_active") === "on",
+    },
+  };
+}
+
+export async function saveSparePartAction(
+  _prev: SaveSparePartFormState,
+  formData: FormData,
+): Promise<SaveSparePartFormState> {
+  try {
+    const supabase = await adminClient();
+    const images = await resolveSparePartImagesFromForm(formData);
+    const { vehicle, payload } = sparePartPayloadFromForm(formData, images);
+
+    if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
+      return { error: "Select vehicle brand and model for this part" };
+    }
+
+    const { data, error } = await supabase
+      .from("spare_parts")
+      .insert(payload)
+      .select("id")
+      .single();
+
+    if (error) return { error: error.message };
+    if (!data?.id) return { error: "Failed to create spare part" };
+
+    revalidatePath("/admin/spare-parts");
+    revalidatePath("/spare-parts");
+    return { success: true, id: data.id };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
     };
+  }
+}
+
+export async function saveSparePartEditAction(
+  _prev: SaveSparePartFormState,
+  formData: FormData,
+): Promise<SaveSparePartFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id") ?? "");
+    if (!id) return { error: "Missing part id" };
+
+    const images = await resolveSparePartImagesFromForm(formData);
+    const { vehicle, payload } = sparePartPayloadFromForm(formData, images);
+
+    if (!vehicle.vehicle_brand_slug || !vehicle.vehicle_model_id) {
+      return { error: "Select vehicle brand and model for this part" };
+    }
 
     const { error } = await supabase
       .from("spare_parts")
@@ -348,7 +328,7 @@ export async function saveSparePartEditAction(
     revalidatePath("/admin/spare-parts");
     revalidatePath(`/admin/spare-parts/${id}`);
     revalidatePath("/spare-parts");
-    return { success: true };
+    return { success: true, id };
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Unknown error",
@@ -356,14 +336,37 @@ export async function saveSparePartEditAction(
   }
 }
 
-export async function deleteSparePartAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id"));
-  const { error } = await supabase.from("spare_parts").delete().eq("id", id);
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/spare-parts");
-  revalidatePath("/spare-parts");
-  redirect("/admin/spare-parts");
+export type DeleteSparePartFormState = {
+  success?: boolean;
+  error?: string;
+};
+
+export async function deleteSparePartAction(
+  _prev: DeleteSparePartFormState,
+  formData: FormData,
+): Promise<DeleteSparePartFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: "Missing part id" };
+
+    const { error } = await supabase.from("spare_parts").delete().eq("id", id);
+    if (error) {
+      if (error.code === "23503" || /foreign key|restrict/i.test(error.message)) {
+        const t = getDictionary(await getLocale());
+        return { error: t.dashboard.admin.sparePartsPage.deleteInUseError };
+      }
+      return { error: error.message };
+    }
+
+    revalidatePath("/admin/spare-parts");
+    revalidatePath("/spare-parts");
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Unknown error",
+    };
+  }
 }
 
 export async function saveContentAction(formData: FormData) {

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { ChevronDown, Plus } from "lucide-react";
+import { useActionState, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, ChevronDown, Plus } from "lucide-react";
 import { saveSparePartAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,9 +15,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { useLocale } from "@/lib/i18n/locale-context";
 
 export function AdminSparePartAddForm() {
+  const router = useRouter();
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [open, setOpen] = useState(false);
+  const [state, action, pending] = useActionState(saveSparePartAction, {});
+
+  useEffect(() => {
+    if (!state.success || !state.id) return;
+    router.push(`/admin/spare-parts/${state.id}?saved=1`);
+    router.refresh();
+  }, [state.success, state.id, router]);
 
   return (
     <Card>
@@ -45,7 +54,7 @@ export function AdminSparePartAddForm() {
 
         {open ? (
           <form
-            action={saveSparePartAction}
+            action={action}
             className="mt-4 grid gap-4 md:grid-cols-2"
           >
               <div>
@@ -158,15 +167,38 @@ export function AdminSparePartAddForm() {
                 {t.common.active}
               </label>
               <div className="flex flex-wrap gap-2 md:col-span-2">
-                <Button type="submit">{t.common.add}</Button>
+                <Button type="submit" disabled={pending}>
+                  {pending ? t.common.saving : t.common.add}
+                </Button>
                 <Button
                   type="button"
                   variant="outline"
                   onClick={() => setOpen(false)}
+                  disabled={pending}
                 >
                   {t.common.cancel}
                 </Button>
               </div>
+
+              {state.error ? (
+                <div
+                  className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300 md:col-span-2"
+                  role="alert"
+                >
+                  {state.error}
+                </div>
+              ) : null}
+
+              {state.success ? (
+                <div
+                  className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary md:col-span-2"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+                  {t.dashboard.admin.sparePartSaveSuccess}
+                </div>
+              ) : null}
           </form>
         ) : null}
       </CardContent>

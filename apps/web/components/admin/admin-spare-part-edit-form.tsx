@@ -1,12 +1,14 @@
 "use client";
 
-import { useActionState, useMemo } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2 } from "lucide-react";
 import type { SparePart } from "@service-time/types";
 import {
   deleteSparePartAction,
   saveSparePartEditAction,
 } from "@/app/admin/actions";
+import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { Button } from "@/components/ui/button";
 import { SparePartVehicleFields } from "@/components/spare-parts/spare-part-vehicle-fields";
 import { IconSelect } from "@/components/ui/icon-select";
@@ -19,16 +21,50 @@ import { getSparePartImages } from "@/lib/spare-part-images";
 
 type AdminSparePartEditFormProps = {
   part: SparePart;
+  showSavedBanner?: boolean;
 };
 
-export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
+export function AdminSparePartEditForm({
+  part,
+  showSavedBanner = false,
+}: AdminSparePartEditFormProps) {
+  const router = useRouter();
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartsPage;
   const [state, action, pending] = useActionState(saveSparePartEditAction, {});
+  const [deleteState, deleteAction, deletePending] = useActionState(
+    deleteSparePartAction,
+    {},
+  );
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const existingImages = useMemo(() => getSparePartImages(part), [part]);
+
+  useEffect(() => {
+    if (!deleteState.success) {
+      if (deleteState.error) {
+        setDeleteError(deleteState.error);
+        setConfirmOpen(false);
+      }
+      return;
+    }
+    router.push("/admin/spare-parts?deleted=1");
+    router.refresh();
+  }, [deleteState.success, deleteState.error, router]);
 
   return (
     <div className="space-y-4">
+      {showSavedBanner || state.success ? (
+        <div
+          className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+          {t.dashboard.admin.sparePartSaveSuccess}
+        </div>
+      ) : null}
+
       <form action={action} className="grid gap-4 md:grid-cols-2">
         <input type="hidden" name="id" value={part.id} />
 
@@ -162,17 +198,6 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
         </div>
       </form>
 
-      {state.success ? (
-        <div
-          className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary"
-          role="status"
-          aria-live="polite"
-        >
-          <CheckCircle2 className="size-4 shrink-0" aria-hidden />
-          {t.dashboard.admin.sparePartSaveSuccess}
-        </div>
-      ) : null}
-
       {state.error ? (
         <div
           className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
@@ -182,12 +207,42 @@ export function AdminSparePartEditForm({ part }: AdminSparePartEditFormProps) {
         </div>
       ) : null}
 
-      <form action={deleteSparePartAction}>
-        <input type="hidden" name="id" value={part.id} />
-        <Button type="submit" variant="outline" className="text-red-600">
-          {t.common.delete}
-        </Button>
-      </form>
+      {deleteError ? (
+        <div
+          className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {deleteError}
+        </div>
+      ) : null}
+
+      <Button
+        type="button"
+        variant="outline"
+        className="text-red-600"
+        onClick={() => {
+          setDeleteError(null);
+          setConfirmOpen(true);
+        }}
+      >
+        {t.common.delete}
+      </Button>
+
+      <AdminConfirmDialog
+        open={confirmOpen}
+        title={p.deleteConfirmTitle}
+        message={p.deleteConfirmMessage.replace("{name}", part.name_ar)}
+        cancelLabel={t.common.cancel}
+        confirmLabel={t.common.delete}
+        loadingLabel={t.common.loading}
+        pending={deletePending}
+        onCancel={() => setConfirmOpen(false)}
+        onConfirm={() => {
+          const formData = new FormData();
+          formData.set("id", part.id);
+          deleteAction(formData);
+        }}
+      />
     </div>
   );
 }

@@ -18,17 +18,28 @@ type PageProps = {
 export default async function AdminSparePartsPage({ searchParams }: PageProps) {
   const { t } = await getServerI18n();
   const p = t.dashboard.admin.sparePartsPage;
-  const params = parseListFilters(await searchParams);
+  const rawParams = await searchParams;
+  const params = parseListFilters(rawParams);
   const allParts = await getAllSparePartsAdmin();
   const parts = filterSpareParts(allParts, params);
   const categories = uniqueCategories(allParts).map((c) => ({
     value: c,
     label: c,
   }));
+  const deleted = rawParams.deleted === "1";
 
   return (
     <div className="space-y-8">
       <DashboardPageHeader title={p.title} />
+
+      {deleted ? (
+        <p
+          className="rounded-xl border border-[rgba(148,212,185,0.35)] bg-[rgba(148,212,185,0.12)] px-4 py-3 text-sm text-primary"
+          role="status"
+        >
+          {p.deleteSuccess}
+        </p>
+      ) : null}
 
       <AdminSparePartsFilterBar
         values={params}

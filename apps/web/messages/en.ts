@@ -1724,6 +1724,9 @@ export const messages = {
         deleteConfirmTitle: "Delete this part?",
         deleteConfirmMessage:
           'Are you sure you want to delete "{name}"? This action cannot be undone.',
+        deleteSuccess: "✓ Part deleted successfully.",
+        deleteInUseError:
+          "Cannot delete this part because it is used in existing orders.",
       },
       sparePartOrdersPage: {
         subtitle: "Manage spare parts orders",

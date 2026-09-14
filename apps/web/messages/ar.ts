@@ -1722,6 +1722,9 @@ export const messages = {
         deleteConfirmTitle: "حذف هذه القطعة؟",
         deleteConfirmMessage:
           'هل أنت متأكد من حذف "{name}"؟ لا يمكن التراجع عن هذا الإجراء.',
+        deleteSuccess: "✓ تم حذف القطعة بنجاح.",
+        deleteInUseError:
+          "لا يمكن حذف هذه القطعة لأنها مستخدمة في طلبات موجودة.",
       },
       sparePartOrdersPage: {
         subtitle: "إدارة طلبات قطع الغيار",

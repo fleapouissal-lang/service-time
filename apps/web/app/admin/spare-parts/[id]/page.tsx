@@ -9,12 +9,17 @@ import { getServerI18n } from "@/lib/i18n/server";
 
 type PageProps = {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ saved?: string }>;
 };
 
-export default async function AdminSparePartDetailPage({ params }: PageProps) {
+export default async function AdminSparePartDetailPage({
+  params,
+  searchParams,
+}: PageProps) {
   const { t } = await getServerI18n();
   const p = t.dashboard.admin.sparePartsPage;
   const { id } = await params;
+  const { saved } = await searchParams;
   const part = await getSparePartById(id);
 
   if (!part) notFound();
@@ -36,7 +41,10 @@ export default async function AdminSparePartDetailPage({ params }: PageProps) {
 
       <Card>
         <CardContent className="p-6">
-          <AdminSparePartEditForm part={part} />
+          <AdminSparePartEditForm
+            part={part}
+            showSavedBanner={saved === "1"}
+          />
         </CardContent>
       </Card>
     </div>
