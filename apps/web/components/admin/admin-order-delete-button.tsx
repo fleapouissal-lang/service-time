@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { deleteAdminOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -18,19 +19,34 @@ export function AdminOrderDeleteButton({
 }: AdminOrderDeleteButtonProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.ordersPage;
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const handleDelete = () => {
     const formData = new FormData();
     formData.set("id", orderId);
+    setError(null);
     startTransition(async () => {
-      await deleteAdminOrderAction(formData);
+      const result = await deleteAdminOrderAction(formData);
+      if (result.error) {
+        setError(result.error);
+        setOpen(false);
+        return;
+      }
+      setOpen(false);
+      router.refresh();
     });
   };
 
   return (
     <>
+      {error ? (
+        <p className="text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      ) : null}
       <Button
         type="button"
         variant="outline"

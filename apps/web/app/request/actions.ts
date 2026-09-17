@@ -1,7 +1,6 @@
 "use server";
 
 import type { ExecutionMethod, ServiceType } from "@service-time/types";
-import { redirect } from "next/navigation";
 import { createAuthServerClient, requireProfile } from "@/lib/auth";
 import { saveClientVehicle } from "@/lib/client-vehicles";
 import { ensureServerEnv } from "@/lib/env-server";
@@ -193,13 +192,8 @@ export async function submitServiceRequest(
 
   revalidateServiceRequestDashboards();
 
-  const refreshDashboard = formData.get("refresh_dashboard") === "1";
-  if (refreshDashboard) {
-    return {
-      success: true,
-      trackingToken: row.tracking_token,
-    };
-  }
-
-  redirect(`/client/track/${row.tracking_token}?success=1`);
+  return {
+    success: true,
+    trackingToken: row.tracking_token,
+  };
 }

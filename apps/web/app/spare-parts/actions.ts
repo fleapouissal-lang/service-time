@@ -27,6 +27,7 @@ import type {
 
 export type SparePartOrderFormState = {
   error?: string;
+  redirectTo?: string;
 };
 
 export type SparePartsCheckoutPrefill = {
@@ -163,7 +164,7 @@ export async function submitSparePartOrderAction(
 
   if (error) {
     if (error.message.includes("client_required")) {
-      redirect("/login?next=/spare-parts/checkout");
+      return { redirectTo: "/login?next=/spare-parts/checkout" };
     }
     return { error: await mapOrderError(error.message) };
   }
@@ -180,10 +181,10 @@ export async function submitSparePartOrderAction(
   revalidatePath("/admin/spare-part-orders");
 
   if (payment_method === "online") {
-    redirect(`/spare-parts/checkout/pay/${row.id}`);
+    return { redirectTo: `/spare-parts/checkout/pay/${row.id}` };
   }
 
-  redirect(`/client/spare-part-orders/${row.id}?success=1`);
+  return { redirectTo: `/client/spare-part-orders/${row.id}?success=1` };
 }
 
 export type UpdateSparePartOrderStatusState = {

@@ -61,10 +61,16 @@ export function SparePartsCheckoutForm() {
   }, [requireClient]);
 
   useEffect(() => {
-    if (ready && items.length === 0) {
+    if (ready && items.length === 0 && !state.redirectTo) {
       router.replace("/spare-parts");
     }
-  }, [ready, items.length, router]);
+  }, [ready, items.length, router, state.redirectTo]);
+
+  useEffect(() => {
+    if (!state.redirectTo) return;
+    router.push(state.redirectTo);
+    router.refresh();
+  }, [state.redirectTo, router]);
 
   function goToPaymentStep() {
     setStepError("");

@@ -2,6 +2,7 @@
 
 import type { ServiceRequest } from "@service-time/types";
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { deleteAdminOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
@@ -35,7 +36,9 @@ export function AdminOrdersTable({
 }: AdminOrdersTableProps) {
   const { locale, messages: t } = useLocale();
   const p = t.dashboard.admin.ordersPage;
+  const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<ServiceRequest | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [pending, startTransition] = useTransition();
   const {
@@ -53,12 +56,28 @@ export function AdminOrdersTable({
     const formData = new FormData();
     formData.set("id", deleteTarget.id);
     startTransition(async () => {
-      await deleteAdminOrderAction(formData);
+      const result = await deleteAdminOrderAction(formData);
+      if (result.error) {
+        setDeleteError(result.error);
+        setDeleteTarget(null);
+        return;
+      }
+      setDeleteError(null);
+      setDeleteTarget(null);
+      router.refresh();
     });
   };
 
   return (
     <>
+      {deleteError ? (
+        <div
+          className="mb-4 rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {deleteError}
+        </div>
+      ) : null}
       <AdminTable>
         <AdminTableHead>
           <AdminTableHeadCell className="min-w-[11rem]">{p.table.customer}</AdminTableHeadCell>

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
 import { deleteSparePartOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -23,19 +24,35 @@ export function AdminSparePartOrderDeleteButton({
 }: AdminSparePartOrderDeleteButtonProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.sparePartOrdersPage;
+  const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
 
   const handleDelete = () => {
     const formData = new FormData();
     formData.set("id", orderId);
+    setError(null);
     startTransition(async () => {
-      await deleteSparePartOrderAction(formData);
+      const result = await deleteSparePartOrderAction(formData);
+      if (result.error) {
+        setError(result.error);
+        setOpen(false);
+        return;
+      }
+      setOpen(false);
+      router.push("/admin/spare-part-orders");
+      router.refresh();
     });
   };
 
   return (
     <>
+      {error ? (
+        <p className="text-sm text-red-400" role="alert">
+          {error}
+        </p>
+      ) : null}
       {variant === "icon" ? (
         <button
           type="button"

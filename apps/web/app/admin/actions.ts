@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { redirect } from "next/navigation";
 import type {
   ExecutionMethod,
   ProfileRole,
@@ -176,56 +175,68 @@ export async function updateOrderAction(
   }
 }
 
-export async function deleteAdminOrderAction(formData: FormData) {
-  await requireProfileOrThrow(["admin"]);
-  const admin = getAdminSupabaseClient();
-  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
+export async function deleteAdminOrderAction(
+  formData: FormData,
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const admin = getAdminSupabaseClient();
+    if (!admin) return { error: "إعدادات الخادم غير مكتملة." };
 
-  const id = String(formData.get("id"));
-  const { error } = await admin.from("service_requests").delete().eq("id", id);
-  if (error) throw new Error(error.message);
+    const id = String(formData.get("id"));
+    const { error } = await admin.from("service_requests").delete().eq("id", id);
+    if (error) return { error: error.message };
 
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin");
-  redirect("/admin/orders");
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "تعذّر حذف الطلب." };
+  }
 }
 
-export async function deleteSparePartOrderAction(formData: FormData) {
-  await requireProfileOrThrow(["admin"]);
-  const admin = getAdminSupabaseClient();
-  if (!admin) throw new Error("إعدادات الخادم غير مكتملة.");
+export async function deleteSparePartOrderAction(
+  formData: FormData,
+): Promise<{ success?: boolean; error?: string }> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const admin = getAdminSupabaseClient();
+    if (!admin) return { error: "إعدادات الخادم غير مكتملة." };
 
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) throw new Error("معرّف الطلب مطلوب.");
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: "معرّف الطلب مطلوب." };
 
-  const { data: order, error: fetchError } = await admin
-    .from("spare_part_orders")
-    .select("status")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (fetchError) throw new Error(fetchError.message);
-  if (!order) throw new Error("الطلب غير موجود.");
-
-  if (order.status !== "cancelled") {
-    const { error: cancelError } = await admin
+    const { data: order, error: fetchError } = await admin
       .from("spare_part_orders")
-      .update({ status: "cancelled" })
-      .eq("id", id);
+      .select("status")
+      .eq("id", id)
+      .maybeSingle();
 
-    if (cancelError) throw new Error(cancelError.message);
+    if (fetchError) return { error: fetchError.message };
+    if (!order) return { error: "الطلب غير موجود." };
+
+    if (order.status !== "cancelled") {
+      const { error: cancelError } = await admin
+        .from("spare_part_orders")
+        .update({ status: "cancelled" })
+        .eq("id", id);
+
+      if (cancelError) return { error: cancelError.message };
+    }
+
+    const { error } = await admin.from("spare_part_orders").delete().eq("id", id);
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/spare-part-orders");
+    revalidatePath(`/admin/spare-part-orders/${id}`);
+    revalidatePath("/admin");
+    revalidatePath("/admin/reports");
+    revalidatePath("/client/spare-part-orders");
+    revalidatePath("/spare-parts");
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "تعذّر حذف الطلب." };
   }
-
-  const { error } = await admin.from("spare_part_orders").delete().eq("id", id);
-  if (error) throw new Error(error.message);
-
-  revalidatePath("/admin/spare-part-orders");
-  revalidatePath(`/admin/spare-part-orders/${id}`);
-  revalidatePath("/admin");
-  revalidatePath("/admin/reports");
-  revalidatePath("/client/spare-part-orders");
-  revalidatePath("/spare-parts");
-  redirect("/admin/spare-part-orders");
 }
 
 export type SaveSparePartFormState = {
@@ -1402,23 +1413,32 @@ export async function saveAdminServiceCategoryAction(
   }
 }
 
-export async function deleteAdminServiceCategoryAction(formData: FormData) {
-  await requireProfileOrThrow(["admin"]);
-  const supabase = await adminClient();
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) return;
+export async function deleteAdminServiceCategoryAction(
+  _prev: SaveAdminServiceFormState,
+  formData: FormData,
+): Promise<SaveAdminServiceFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: "Missing service id" };
 
-  const arMessages = getDictionary("ar");
-  const enMessages = getDictionary("en");
-  const catalog = await getAdminServicesCatalog(
-    arMessages.services.catalog,
-    enMessages.services.catalog,
-  );
+    const arMessages = getDictionary("ar");
+    const enMessages = getDictionary("en");
+    const catalog = await getAdminServicesCatalog(
+      arMessages.services.catalog,
+      enMessages.services.catalog,
+    );
 
-  const next = catalog.filter((item) => item.id !== id);
-  if (next.length === catalog.length) return;
+    const next = catalog.filter((item) => item.id !== id);
+    if (next.length === catalog.length) return { error: "Service not found" };
 
-  await persistAdminServicesCatalog(supabase, next);
-  revalidateServicesCatalogPaths();
-  redirect("/admin/services");
+    await persistAdminServicesCatalog(supabase, next);
+    revalidateServicesCatalogPaths();
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "Could not delete service",
+    };
+  }
 }

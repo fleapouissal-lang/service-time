@@ -222,8 +222,9 @@ export function ServiceRequestForm({
     if (!state.success || !state.trackingToken) return;
     if (handledSuccessRef.current === state.trackingToken) return;
     handledSuccessRef.current = state.trackingToken;
-    router.refresh();
     onSuccess?.();
+    router.push(`/client/track/${state.trackingToken}?success=1`);
+    router.refresh();
   }, [state.success, state.trackingToken, router, onSuccess]);
 
   useEffect(() => {

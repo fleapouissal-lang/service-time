@@ -100,6 +100,16 @@ export function AdminServicesTable({
 }) {
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.servicesPage;
+  const router = useRouter();
+  const [deleteState, deleteAction, deletePending] = useActionState(
+    deleteAdminServiceCategoryAction,
+    {},
+  );
+
+  useEffect(() => {
+    if (!deleteState.success) return;
+    router.refresh();
+  }, [deleteState.success, router]);
 
   if (categories.length === 0) {
     return <p className="p-6 text-center text-muted">{p.empty}</p>;
@@ -107,6 +117,14 @@ export function AdminServicesTable({
 
   return (
     <div className="overflow-x-auto">
+      {deleteState.error ? (
+        <div
+          className="mx-4 mt-4 rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {deleteState.error}
+        </div>
+      ) : null}
       <table className="w-full min-w-[640px] text-sm">
         <thead className="border-b border-[var(--border)] bg-[var(--muted)]/40 text-start">
           <tr>
@@ -160,10 +178,11 @@ export function AdminServicesTable({
                     >
                       {p.table.edit}
                     </Link>
-                    <form action={deleteAdminServiceCategoryAction}>
+                    <form action={deleteAction}>
                       <input type="hidden" name="id" value={category.id} />
-                      <Button
-                        type="submit"
+                      <PendingSubmitButton
+                        pending={deletePending}
+                        pendingLabel={t.common.loading}
                         size="sm"
                         variant="outline"
                         className="text-red-600"
@@ -175,7 +194,7 @@ export function AdminServicesTable({
                         }}
                       >
                         {p.table.delete}
-                      </Button>
+                      </PendingSubmitButton>
                     </form>
                   </div>
                 </td>
