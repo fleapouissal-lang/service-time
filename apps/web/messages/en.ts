@@ -1592,6 +1592,11 @@ export const messages = {
         showAddForm: "Add new service",
         hideAddForm: "Hide form",
         saveSuccess: "✓ Service saved successfully.",
+        nameArRequired: "Enter an Arabic title of at least 2 characters.",
+        subRequired: "Add at least one sub-service.",
+        subLabelRequired:
+          "Each sub-service needs an Arabic title of at least 2 characters.",
+        saveError: "Could not save the service. Please try again.",
         nameAr: "Title (Arabic)",
         nameEn: "Title (English)",
         descriptionAr: "Description (Arabic)",

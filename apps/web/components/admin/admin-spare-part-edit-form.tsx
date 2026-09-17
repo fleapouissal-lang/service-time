@@ -193,7 +193,14 @@ export function AdminSparePartEditForm({
         </label>
         <div className="flex flex-wrap gap-2 md:col-span-2">
           <Button type="submit" disabled={pending}>
-            {pending ? t.common.saving : t.common.save}
+            {pending ? (
+              <>
+                <span className="size-4 animate-spin rounded-full border-2 border-current/30 border-t-current" />
+                {t.common.saving}
+              </>
+            ) : (
+              t.common.save
+            )}
           </Button>
         </div>
       </form>

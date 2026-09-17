@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useActionState, type ReactNode } from "react";
-import { CheckCircle2, ExternalLink } from "lucide-react";
+import { CheckCircle2, ExternalLink, Loader2 } from "lucide-react";
 import {
   unvalidateInvoiceAction,
   updateInvoiceAction,
@@ -234,7 +234,14 @@ export function AdminInvoiceDetail({
 
             <div className="flex flex-wrap items-center gap-3 pt-1">
               <Button type="submit" disabled={updatePending}>
-                {updatePending ? t.common.saving : p.edit.save}
+                {updatePending ? (
+                  <>
+                    <Loader2 className="size-4 animate-spin" aria-hidden />
+                    {t.common.saving}
+                  </>
+                ) : (
+                  p.edit.save
+                )}
               </Button>
               {updateState.success ? (
                 <span className="inline-flex items-center gap-1.5 text-sm font-medium text-primary">
@@ -295,14 +302,28 @@ export function AdminInvoiceDetail({
               <form action={validateAction}>
                 <input type="hidden" name="id" value={invoice.id} />
                 <Button type="submit" disabled={validatePending}>
-                  {validatePending ? t.common.saving : p.detail.validate}
+                  {validatePending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      {t.common.saving}
+                    </>
+                  ) : (
+                    p.detail.validate
+                  )}
                 </Button>
               </form>
             ) : (
               <form action={hideAction}>
                 <input type="hidden" name="id" value={invoice.id} />
                 <Button type="submit" variant="outline" disabled={hidePending}>
-                  {hidePending ? t.common.saving : p.detail.hideFromClient}
+                  {hidePending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      {t.common.saving}
+                    </>
+                  ) : (
+                    p.detail.hideFromClient
+                  )}
                 </Button>
               </form>
             )}

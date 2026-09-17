@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, ChevronDown, Plus } from "lucide-react";
+import { CheckCircle2, ChevronDown, Loader2, Plus } from "lucide-react";
 import { saveSparePartAction } from "@/app/admin/actions";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -168,7 +168,14 @@ export function AdminSparePartAddForm() {
               </label>
               <div className="flex flex-wrap gap-2 md:col-span-2">
                 <Button type="submit" disabled={pending}>
-                  {pending ? t.common.saving : t.common.add}
+                  {pending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      {t.common.saving}
+                    </>
+                  ) : (
+                    t.common.add
+                  )}
                 </Button>
                 <Button
                   type="button"
@@ -179,6 +186,17 @@ export function AdminSparePartAddForm() {
                   {t.common.cancel}
                 </Button>
               </div>
+
+              {pending ? (
+                <div
+                  className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary md:col-span-2"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  {t.common.saving}
+                </div>
+              ) : null}
 
               {state.error ? (
                 <div

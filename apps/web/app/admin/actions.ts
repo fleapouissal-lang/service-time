@@ -1316,57 +1316,90 @@ function revalidateServicesCatalogPaths() {
   revalidatePath("/client/request");
 }
 
-export async function saveAdminServiceCategoryAction(formData: FormData) {
-  await requireProfileOrThrow(["admin"]);
-  const supabase = await adminClient();
-  const arMessages = getDictionary("ar");
-  const enMessages = getDictionary("en");
-  const t = getDictionary(await getLocale());
+export type SaveAdminServiceFormState = {
+  success?: boolean;
+  error?: string;
+  id?: string;
+};
 
-  const catalog = await getAdminServicesCatalog(
-    arMessages.services.catalog,
-    enMessages.services.catalog,
-  );
+export async function saveAdminServiceCategoryAction(
+  _prev: SaveAdminServiceFormState,
+  formData: FormData,
+): Promise<SaveAdminServiceFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const arMessages = getDictionary("ar");
+    const enMessages = getDictionary("en");
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.servicesPage;
 
-  const existingId = String(formData.get("id") ?? "").trim();
-  const existing = existingId
-    ? catalog.find((item) => item.id === existingId) ?? null
-    : null;
+    const catalog = await getAdminServicesCatalog(
+      arMessages.services.catalog,
+      enMessages.services.catalog,
+    );
 
-  let category = parseCategoryFromForm(formData, existing);
-  if (category.title_ar.length < 2) {
-    throw new Error(t.dashboard.admin.servicesPage.nameAr);
+    const existingId = String(formData.get("id") ?? "").trim();
+    const existing = existingId
+      ? catalog.find((item) => item.id === existingId) ?? null
+      : null;
+
+    let category = parseCategoryFromForm(formData, existing);
+    if (category.title_ar.length < 2) {
+      return { error: p.nameArRequired };
+    }
+    if (category.subOptions.length < 1) {
+      return { error: p.subRequired };
+    }
+    if (category.subOptions.some((sub) => sub.label_ar.trim().length < 2)) {
+      return { error: p.subLabelRequired };
+    }
+
+    const seen = new Set<string>();
+    category = {
+      ...category,
+      subOptions: category.subOptions.map((sub) => {
+        let id = sub.id;
+        while (seen.has(id)) id = `${id}_${crypto.randomUUID().slice(0, 4)}`;
+        seen.add(id);
+        return { ...sub, id };
+      }),
+    };
+
+    if (!existing) {
+      const taken = new Set(catalog.map((item) => item.id));
+      let uniqueId = category.id;
+      let suffix = 2;
+      while (taken.has(uniqueId)) {
+        uniqueId = `${category.id}_${suffix}`;
+        suffix += 1;
+      }
+      category = { ...category, id: uniqueId };
+    }
+
+    const nextCatalog = existing
+      ? catalog.map((item) =>
+          item.id === existing.id
+            ? { ...category, sort_order: existing.sort_order }
+            : item,
+        )
+      : [...catalog, { ...category, sort_order: catalog.length }];
+
+    await persistAdminServicesCatalog(supabase, nextCatalog);
+    revalidateServicesCatalogPaths();
+    return { success: true, id: category.id };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.servicesPage;
+    const message = err instanceof Error ? err.message : "";
+    if (message === "services_catalog_title_ar_required") {
+      return { error: p.nameArRequired };
+    }
+    if (message === "services_catalog_sub_label_ar_required") {
+      return { error: p.subLabelRequired };
+    }
+    return { error: message || p.saveError };
   }
-  if (category.subOptions.length < 1) {
-    throw new Error(t.dashboard.admin.servicesPage.addSubService);
-  }
-
-  const seen = new Set<string>();
-  category = {
-    ...category,
-    subOptions: category.subOptions.map((sub) => {
-      let id = sub.id;
-      while (seen.has(id)) id = `${id}_${crypto.randomUUID().slice(0, 4)}`;
-      seen.add(id);
-      return { ...sub, id };
-    }),
-  };
-
-  const nextCatalog = existing
-    ? catalog.map((item) =>
-        item.id === existing.id
-          ? { ...category, sort_order: existing.sort_order }
-          : item,
-      )
-    : [...catalog, { ...category, sort_order: catalog.length }];
-
-  await persistAdminServicesCatalog(supabase, nextCatalog);
-  revalidateServicesCatalogPaths();
-
-  if (existingId) {
-    redirect(`/admin/services/${existingId}?saved=1`);
-  }
-  redirect(`/admin/services/${category.id}?saved=1`);
 }
 
 export async function deleteAdminServiceCategoryAction(formData: FormData) {

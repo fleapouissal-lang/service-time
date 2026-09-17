@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ChevronDown,
   FileText,
+  Loader2,
   Phone,
   Plus,
   Search,
@@ -568,6 +569,17 @@ export function AdminCreateOrderForm({
                 </div>
               </div>
 
+              {pending ? (
+                <div
+                  className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary"
+                  role="status"
+                  aria-live="polite"
+                >
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  {t.common.saving}
+                </div>
+              ) : null}
+
               {state.error ? (
                 <div
                   className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
@@ -579,7 +591,14 @@ export function AdminCreateOrderForm({
 
               <div className="flex flex-wrap gap-2">
                 <Button type="submit" disabled={pending}>
-                  {pending ? t.common.saving : p.createOrder}
+                  {pending ? (
+                    <>
+                      <Loader2 className="size-4 animate-spin" aria-hidden />
+                      {t.common.saving}
+                    </>
+                  ) : (
+                    p.createOrder
+                  )}
                 </Button>
                 <Button
                   type="button"

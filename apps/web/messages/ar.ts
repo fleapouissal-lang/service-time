@@ -1590,6 +1590,11 @@ export const messages = {
         showAddForm: "إضافة خدمة جديدة",
         hideAddForm: "إخفاء النموذج",
         saveSuccess: "✓ تم حفظ الخدمة بنجاح.",
+        nameArRequired: "أدخل العنوان بالعربية (حرفان على الأقل).",
+        subRequired: "أضف خدمة فرعية واحدة على الأقل.",
+        subLabelRequired:
+          "كل خدمة فرعية تحتاج عنواناً بالعربية من حرفين على الأقل.",
+        saveError: "تعذّر حفظ الخدمة. حاول مرة أخرى.",
         nameAr: "العنوان (عربي)",
         nameEn: "العنوان (English)",
         descriptionAr: "الوصف (عربي)",

@@ -1,14 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useActionState, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Plus, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { CheckCircle2, ChevronDown, Plus, Trash2 } from "lucide-react";
 import {
   deleteAdminServiceCategoryAction,
   saveAdminServiceCategoryAction,
 } from "@/app/admin/actions";
 import type { AdminCatalogCategory } from "@/lib/services-catalog-admin";
 import { Button } from "@/components/ui/button";
+import { PendingSubmitButton } from "@/components/ui/pending-submit-button";
 import { Card, CardContent } from "@/components/ui/card";
 import { IconSelect } from "@/components/ui/icon-select";
 import { Input } from "@/components/ui/input";
@@ -193,9 +195,22 @@ export function AdminServiceCategoryForm({
   category?: AdminCatalogCategory | null;
   mode: "create" | "edit";
 }) {
+  const router = useRouter();
   const { messages: t } = useLocale();
   const p = t.dashboard.admin.servicesPage;
   const [subs, setSubs] = useState<DraftSub[]>(() => toDraftSubs(category));
+  const [state, formAction, pending] = useActionState(
+    saveAdminServiceCategoryAction,
+    {},
+  );
+
+  useEffect(() => {
+    if (!state.success || !state.id) return;
+    if (mode === "create") {
+      router.push(`/admin/services/${encodeURIComponent(state.id)}?saved=1`);
+    }
+    router.refresh();
+  }, [mode, router, state.id, state.success]);
 
   const actionOptions = useMemo(
     () =>
@@ -232,7 +247,17 @@ export function AdminServiceCategoryForm({
   }
 
   return (
-    <form action={saveAdminServiceCategoryAction} className="space-y-6">
+    <form action={formAction} className="relative space-y-6">
+      {pending ? (
+        <div
+          className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary"
+          role="status"
+          aria-live="polite"
+        >
+          <span className="size-4 animate-spin rounded-full border-2 border-primary/30 border-t-primary" />
+          {t.common.saving}
+        </div>
+      ) : null}
       {mode === "edit" && category ? (
         <input type="hidden" name="id" value={category.id} />
       ) : null}
@@ -423,10 +448,30 @@ export function AdminServiceCategoryForm({
         </CardContent>
       </Card>
 
+      {state.error ? (
+        <div
+          className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {state.error}
+        </div>
+      ) : null}
+
+      {mode === "edit" && state.success ? (
+        <div
+          className="flex items-center gap-2 rounded-xl border border-primary/30 bg-primary/10 px-4 py-2.5 text-sm font-semibold text-primary"
+          role="status"
+          aria-live="polite"
+        >
+          <CheckCircle2 className="size-4 shrink-0" aria-hidden />
+          {p.saveSuccess}
+        </div>
+      ) : null}
+
       <div className="flex flex-wrap gap-3">
-        <Button type="submit">
+        <PendingSubmitButton pending={pending} pendingLabel={t.common.saving}>
           {mode === "create" ? p.addService : p.editService}
-        </Button>
+        </PendingSubmitButton>
         <Link
           href="/admin/services"
           className="inline-flex h-10 items-center justify-center rounded-xl border border-border bg-card px-4 text-sm font-semibold text-foreground hover:border-primary/40 hover:bg-card-elevated"
