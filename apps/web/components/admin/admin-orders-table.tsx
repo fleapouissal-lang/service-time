@@ -145,6 +145,7 @@ export function AdminOrdersTable({
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
                     deleteLabel={t.common.delete}
+                    deleting={pending && deleteTarget?.id === order.id}
                     onDelete={() => setDeleteTarget(order)}
                     className="justify-center"
                   />

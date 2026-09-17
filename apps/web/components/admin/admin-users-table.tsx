@@ -136,6 +136,7 @@ export function AdminUsersTable({
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
                     deleteLabel={t.common.delete}
+                    deleting={pending && deleteTarget?.id === user.id}
                     onDelete={() => {
                       setDeleteError("");
                       setDeleteTarget(user);

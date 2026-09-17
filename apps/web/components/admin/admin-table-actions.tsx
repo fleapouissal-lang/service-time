@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, Circle, Eye, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, Circle, Eye, Loader2, Pencil, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const actionBtnClass =
@@ -17,6 +17,7 @@ type AdminTableActionsProps = {
   isRead?: boolean;
   deleteLabel?: string;
   onDelete?: () => void;
+  deleting?: boolean;
   className?: string;
 };
 
@@ -32,6 +33,7 @@ export function AdminTableActions({
   isRead,
   deleteLabel,
   onDelete,
+  deleting = false,
   className,
 }: AdminTableActionsProps) {
   return (
@@ -100,14 +102,21 @@ export function AdminTableActions({
         <button
           type="button"
           onClick={onDelete}
+          disabled={deleting}
+          aria-busy={deleting}
           className={cn(
             actionBtnClass,
             "hover:border-red-400/40 hover:bg-red-950/30 hover:text-red-400",
+            deleting && "border-red-400/40 text-red-400",
           )}
           title={deleteLabel}
           aria-label={deleteLabel}
         >
-          <Trash2 className="size-4" aria-hidden />
+          {deleting ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Trash2 className="size-4" aria-hidden />
+          )}
         </button>
       ) : null}
     </div>

@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { deleteSparePartOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -63,8 +63,14 @@ export function AdminSparePartOrderDeleteButton({
           )}
           title={p.deleteOrder}
           aria-label={p.deleteOrder}
+          aria-busy={pending}
+          disabled={pending}
         >
-          <Trash2 className="size-4" aria-hidden />
+          {pending ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Trash2 className="size-4" aria-hidden />
+          )}
         </button>
       ) : (
         <Button
@@ -76,8 +82,17 @@ export function AdminSparePartOrderDeleteButton({
           )}
           onClick={() => setOpen(true)}
         >
-          <Trash2 className="size-4" aria-hidden />
-          {p.deleteOrder}
+          {pending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+              {t.common.loading}
+            </>
+          ) : (
+            <>
+              <Trash2 className="size-4" aria-hidden />
+              {p.deleteOrder}
+            </>
+          )}
         </Button>
       )}
 

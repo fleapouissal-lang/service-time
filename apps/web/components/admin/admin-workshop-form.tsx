@@ -238,8 +238,17 @@ export function AdminWorkshopForm({
               className="border-red-400/40 text-red-400 hover:bg-red-950/30"
               onClick={() => setDeleteOpen(true)}
             >
-              <Trash2 className="size-4" aria-hidden />
-              {t.common.delete}
+              {deletePending ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                  {t.common.loading}
+                </>
+              ) : (
+                <>
+                  <Trash2 className="size-4" aria-hidden />
+                  {t.common.delete}
+                </>
+              )}
             </Button>
           ) : null}
           {isEdit && !canDelete ? (

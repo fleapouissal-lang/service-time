@@ -157,6 +157,7 @@ export function AdminSparePartsTable({ parts }: AdminSparePartsTableProps) {
                     viewLabel={p.table.view}
                     editLabel={p.table.edit}
                     deleteLabel={t.common.delete}
+                    deleting={pending && deleteTarget?.id === part.id}
                     onDelete={() => {
                       setDeleteError(null);
                       setDeleteTarget(part);

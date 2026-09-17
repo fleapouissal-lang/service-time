@@ -1,6 +1,6 @@
 "use client";
 
-import { Palette, Trash2 } from "lucide-react";
+import { Loader2, Palette, Trash2 } from "lucide-react";
 import type { ClientVehicle } from "@service-time/types";
 import { VehicleBrandLogo } from "@/components/client/vehicles/vehicle-brand-logo";
 import {
@@ -132,7 +132,11 @@ export function ClientVehicleCard({
           className="saved-vehicle-card__delete"
           aria-label={t.request.form.deleteVehicle}
         >
-          <Trash2 className="size-4" aria-hidden />
+          {deleting ? (
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+          ) : (
+            <Trash2 className="size-4" aria-hidden />
+          )}
         </button>
       ) : null}
     </article>

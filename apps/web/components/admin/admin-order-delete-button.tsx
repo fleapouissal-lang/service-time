@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Trash2 } from "lucide-react";
+import { Loader2, Trash2 } from "lucide-react";
 import { deleteAdminOrderAction } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { Button } from "@/components/ui/button";
@@ -53,8 +53,17 @@ export function AdminOrderDeleteButton({
         className="border-red-400/40 text-red-400 hover:bg-red-950/30"
         onClick={() => setOpen(true)}
       >
-        <Trash2 className="size-4" aria-hidden />
-        {p.deleteOrder}
+        {pending ? (
+          <>
+            <Loader2 className="size-4 animate-spin" aria-hidden />
+            {t.common.loading}
+          </>
+        ) : (
+          <>
+            <Trash2 className="size-4" aria-hidden />
+            {p.deleteOrder}
+          </>
+        )}
       </Button>
 
       <AdminConfirmDialog

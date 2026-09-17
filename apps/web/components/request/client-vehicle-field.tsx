@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Car, Check, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { Car, Check, ChevronDown, Loader2, Plus, Trash2 } from "lucide-react";
 import type { ClientVehicle } from "@service-time/types";
 import { AddVehicleModal } from "@/components/client/vehicles/add-vehicle-modal";
 import { VehicleBrandLogo } from "@/components/client/vehicles/vehicle-brand-logo";
@@ -254,7 +254,11 @@ export function ClientVehicleField({
                         aria-label={f.deleteVehicle}
                         className="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-red-400 transition-colors hover:bg-red-500/15 disabled:opacity-50"
                       >
-                        <Trash2 className="size-4" aria-hidden />
+                        {isDeleting ? (
+                          <Loader2 className="size-4 animate-spin" aria-hidden />
+                        ) : (
+                          <Trash2 className="size-4" aria-hidden />
+                        )}
                       </button>
                     ) : null}
                   </div>
