@@ -380,24 +380,35 @@ export async function deleteSparePartAction(
   }
 }
 
-export async function saveContentAction(formData: FormData) {
-  const supabase = await adminClient();
-  const key = String(formData.get("key"));
-  const valueRaw = String(formData.get("value_json"));
+export type MutationFormState = {
+  success?: boolean;
+  error?: string;
+};
 
-  let value: Record<string, unknown>;
+export async function saveContentAction(
+  _prev: MutationFormState,
+  formData: FormData,
+): Promise<MutationFormState> {
   try {
-    value = JSON.parse(valueRaw) as Record<string, unknown>;
-  } catch {
-    throw new Error("JSON غير صالح");
+    const supabase = await adminClient();
+    const key = String(formData.get("key"));
+    const valueRaw = String(formData.get("value_json"));
+
+    let value: Record<string, unknown>;
+    try {
+      value = JSON.parse(valueRaw) as Record<string, unknown>;
+    } catch {
+      return { error: "JSON غير صالح" };
+    }
+
+    const { error } = await supabase.from("site_content").upsert({ key, value });
+    if (error) return { error: error.message };
+
+    revalidatePath("/admin/content");
+    return { success: true };
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "تعذّر الحفظ." };
   }
-
-  const { error } = await supabase
-    .from("site_content")
-    .upsert({ key, value });
-
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/content");
 }
 
 function revalidateWorkshopLocationPaths() {
@@ -406,175 +417,203 @@ function revalidateWorkshopLocationPaths() {
   revalidatePath("/");
 }
 
-export async function saveWorkshopLocationAction(formData: FormData) {
-  const t = getDictionary(await getLocale());
-  const p = t.dashboard.admin.locationsPage;
-  const supabase = await adminClient();
+export async function saveWorkshopLocationAction(
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.locationsPage;
+    const supabase = await adminClient();
 
-  const existingId = String(formData.get("id") ?? "").trim();
-  const branch = parseWorkshopBranchFromForm(
-    formData,
-    existingId || undefined,
-  );
-  const issue = validateWorkshopBranch(branch);
-  if (issue) {
-    throw new Error(
-      workshopValidationMessage(issue, {
-        nameArRequired: p.nameArRequired,
-        addressArRequired: p.addressArRequired,
-        coordsInvalid: p.coordsInvalid,
-        minOneRequired: p.minOneRequired,
-      }),
+    const existingId = String(formData.get("id") ?? "").trim();
+    const branch = parseWorkshopBranchFromForm(
+      formData,
+      existingId || undefined,
     );
+    const issue = validateWorkshopBranch(branch);
+    if (issue) {
+      return {
+        error: workshopValidationMessage(issue, {
+          nameArRequired: p.nameArRequired,
+          addressArRequired: p.addressArRequired,
+          coordsInvalid: p.coordsInvalid,
+          minOneRequired: p.minOneRequired,
+        }),
+      };
+    }
+
+    const branches = await getWorkshopBranchesAdmin();
+    const index = branches.findIndex((item) => item.id === branch.id);
+
+    if (index >= 0) {
+      branches[index] = branch;
+    } else {
+      branches.push(branch);
+    }
+
+    await persistWorkshopBranches(supabase, branches);
+    revalidateWorkshopLocationPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    return {
+      error:
+        err instanceof Error
+          ? err.message
+          : t.dashboard.admin.locationsPage.saveFailed,
+    };
   }
-
-  const branches = await getWorkshopBranchesAdmin();
-  const index = branches.findIndex((item) => item.id === branch.id);
-
-  if (index >= 0) {
-    branches[index] = branch;
-  } else {
-    branches.push(branch);
-  }
-
-  await persistWorkshopBranches(supabase, branches);
-  revalidateWorkshopLocationPaths();
 }
 
-export async function deleteWorkshopLocationAction(formData: FormData) {
-  const t = getDictionary(await getLocale());
-  const p = t.dashboard.admin.locationsPage;
-  const supabase = await adminClient();
+export async function deleteWorkshopLocationAction(
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.locationsPage;
+    const supabase = await adminClient();
 
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) {
-    throw new Error(p.deleteFailed);
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: p.deleteFailed };
+
+    const branches = await getWorkshopBranchesAdmin();
+    if (branches.length <= 1) return { error: p.minOneRequired };
+
+    const next = branches.filter((branch) => branch.id !== id);
+    if (next.length === branches.length) return { error: p.notFound };
+
+    await persistWorkshopBranches(supabase, next);
+    revalidateWorkshopLocationPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    return {
+      error:
+        err instanceof Error
+          ? err.message
+          : t.dashboard.admin.locationsPage.deleteFailed,
+    };
   }
-
-  const branches = await getWorkshopBranchesAdmin();
-  if (branches.length <= 1) {
-    throw new Error(p.minOneRequired);
-  }
-
-  const next = branches.filter((branch) => branch.id !== id);
-  if (next.length === branches.length) {
-    throw new Error(p.notFound);
-  }
-
-  await persistWorkshopBranches(supabase, next);
-  revalidateWorkshopLocationPaths();
 }
 
-export async function togglePlatformUserAction(formData: FormData) {
-  const supabase = await adminClient();
-  const id = String(formData.get("id"));
-  const is_active = formData.get("is_active") === "true";
+export async function togglePlatformUserAction(
+  _prev: MutationFormState,
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    const supabase = await adminClient();
+    const id = String(formData.get("id"));
+    const is_active = formData.get("is_active") === "true";
 
-  const { error } = await supabase
-    .from("profiles")
-    .update({ is_active: !is_active })
-    .eq("id", id);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ is_active: !is_active })
+      .eq("id", id);
 
-  if (error) throw new Error(error.message);
-  revalidatePath("/admin/users");
-  revalidatePath("/admin/technicians");
-  revalidatePath(`/admin/users/${id}`);
+    if (error) return { error: error.message };
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/technicians");
+    revalidatePath(`/admin/users/${id}`);
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "تعذّر تحديث الحالة.",
+    };
+  }
 }
 
 /** @deprecated Utiliser togglePlatformUserAction */
-export async function toggleTechnicianAction(formData: FormData) {
-  return togglePlatformUserAction(formData);
+export async function toggleTechnicianAction(
+  prev: MutationFormState,
+  formData: FormData,
+): Promise<MutationFormState> {
+  return togglePlatformUserAction(prev, formData);
 }
 
-export async function deletePlatformUserAction(formData: FormData) {
-  const currentAdmin = await requireProfileOrThrow(["admin"]);
-
-  const admin = getAdminSupabaseClient();
-  if (!admin) {
-    throw new Error("إعدادات الخادم غير مكتملة.");
-  }
-
-  const id = String(formData.get("id") ?? "").trim();
-  if (!id) {
-    throw new Error("معرّف المستخدم غير صالح.");
-  }
-
-  if (id === currentAdmin.id) {
-    throw new Error("لا يمكنك حذف حسابك الحالي.");
-  }
-
-  const { data: target, error: fetchError } = await admin
-    .from("profiles")
-    .select("id, role, full_name, phone")
-    .eq("id", id)
-    .maybeSingle();
-
-  if (fetchError) {
-    throw new Error(fetchError.message);
-  }
-
-  if (!target) {
-    throw new Error("المستخدم غير موجود.");
-  }
-
-  if (target.role === "admin") {
-    const { count, error: countError } = await admin
-      .from("profiles")
-      .select("id", { count: "exact", head: true })
-      .eq("role", "admin");
-
-    if (countError) {
-      throw new Error(countError.message);
-    }
-
-    if ((count ?? 0) <= 1) {
-      throw new Error("لا يمكن حذف آخر مدير.");
-    }
-  }
-
-  if (target.role === "client") {
-    const { data: authUserData, error: authUserError } =
-      await admin.auth.admin.getUserById(id);
-
-    if (authUserError) {
-      throw new Error(authUserError.message);
-    }
-
-    await deleteClientRelatedData(
-      admin,
-      id,
-      target.phone,
-      authUserData.user?.email ?? null,
-    );
-  }
-
+export async function deletePlatformUserAction(
+  formData: FormData,
+): Promise<MutationFormState> {
   try {
-    const { data: files } = await admin.storage
-      .from(PROFILE_AVATAR_BUCKET)
-      .list(id);
+    const currentAdmin = await requireProfileOrThrow(["admin"]);
 
-    if (files?.length) {
-      await admin.storage
-        .from(PROFILE_AVATAR_BUCKET)
-        .remove(files.map((file) => `${id}/${file.name}`));
+    const admin = getAdminSupabaseClient();
+    if (!admin) {
+      return { error: "إعدادات الخادم غير مكتملة." };
     }
-  } catch {
-    // Nettoyage avatar best-effort — la suppression auth reste prioritaire.
-  }
 
-  const { error: deleteError } = await admin.auth.admin.deleteUser(id);
-  if (deleteError) {
-    throw new Error(deleteError.message);
-  }
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) {
+      return { error: "معرّف المستخدم غير صالح." };
+    }
 
-  revalidatePath("/admin/users");
-  revalidatePath("/admin/technicians");
-  revalidatePath("/admin/orders");
-  revalidatePath("/admin/spare-part-orders");
-  revalidatePath("/admin/reports");
-  revalidatePath("/admin");
-  revalidatePath("/client/orders");
-  revalidatePath("/client/spare-part-orders");
+    if (id === currentAdmin.id) {
+      return { error: "لا يمكنك حذف حسابك الحالي." };
+    }
+
+    const { data: target, error: fetchError } = await admin
+      .from("profiles")
+      .select("id, role, full_name, phone")
+      .eq("id", id)
+      .maybeSingle();
+
+    if (fetchError) return { error: fetchError.message };
+    if (!target) return { error: "المستخدم غير موجود." };
+
+    if (target.role === "admin") {
+      const { count, error: countError } = await admin
+        .from("profiles")
+        .select("id", { count: "exact", head: true })
+        .eq("role", "admin");
+
+      if (countError) return { error: countError.message };
+      if ((count ?? 0) <= 1) return { error: "لا يمكن حذف آخر مدير." };
+    }
+
+    if (target.role === "client") {
+      const { data: authUserData, error: authUserError } =
+        await admin.auth.admin.getUserById(id);
+
+      if (authUserError) return { error: authUserError.message };
+
+      await deleteClientRelatedData(
+        admin,
+        id,
+        target.phone,
+        authUserData.user?.email ?? null,
+      );
+    }
+
+    try {
+      const { data: files } = await admin.storage
+        .from(PROFILE_AVATAR_BUCKET)
+        .list(id);
+
+      if (files?.length) {
+        await admin.storage
+          .from(PROFILE_AVATAR_BUCKET)
+          .remove(files.map((file) => `${id}/${file.name}`));
+      }
+    } catch {
+      // Nettoyage avatar best-effort — la suppression auth reste prioritaire.
+    }
+
+    const { error: deleteError } = await admin.auth.admin.deleteUser(id);
+    if (deleteError) return { error: deleteError.message };
+
+    revalidatePath("/admin/users");
+    revalidatePath("/admin/technicians");
+    revalidatePath("/admin/orders");
+    revalidatePath("/admin/spare-part-orders");
+    revalidatePath("/admin/reports");
+    revalidatePath("/admin");
+    revalidatePath("/client/orders");
+    revalidatePath("/client/spare-part-orders");
+    return { success: true };
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : "تعذّر حذف المستخدم.",
+    };
+  }
 }
 
 export async function createPlatformUserAction(formData: FormData) {

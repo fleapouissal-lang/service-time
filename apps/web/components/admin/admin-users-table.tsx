@@ -59,15 +59,13 @@ export function AdminUsersTable({
 
     startTransition(async () => {
       setDeleteError("");
-      try {
-        await deletePlatformUserAction(formData);
-        setDeleteTarget(null);
-        router.refresh();
-      } catch (err) {
-        setDeleteError(
-          err instanceof Error ? err.message : t.errors.admin.deleteFailed,
-        );
+      const result = await deletePlatformUserAction(formData);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
       }
+      setDeleteTarget(null);
+      router.refresh();
     });
   };
 

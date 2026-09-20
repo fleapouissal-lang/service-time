@@ -1,10 +1,7 @@
 import { DashboardPageHeader } from "@/components/dashboard/dashboard-page-header";
-import { saveContentAction } from "@/app/admin/actions";
+import { AdminContentItemForm } from "@/components/admin/admin-content-item-form";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { getAllSiteContent } from "@/lib/dashboard-queries";
 import { getServerI18n } from "@/lib/i18n/server";
 import { filterSiteContentKeys, parseListFilters } from "@/lib/list-filters";
@@ -36,26 +33,10 @@ export default async function AdminContentPage({ searchParams }: PageProps) {
         {items.map((item) => (
           <Card key={item.key}>
             <CardContent className="p-5">
-              <form action={saveContentAction} className="space-y-3">
-                <div>
-                  <Label>{c.key}</Label>
-                  <p className="mt-1 font-mono text-sm" dir="ltr">
-                    {item.key}
-                  </p>
-                  <input type="hidden" name="key" value={item.key} />
-                </div>
-                <div>
-                  <Label>{c.valueJson}</Label>
-                  <Textarea
-                    name="value_json"
-                    defaultValue={JSON.stringify(item.value, null, 2)}
-                    className="mt-1 font-mono text-xs"
-                    dir="ltr"
-                    rows={6}
-                  />
-                </div>
-                <Button type="submit">{t.common.save}</Button>
-              </form>
+              <AdminContentItemForm
+                contentKey={item.key}
+                valueJson={JSON.stringify(item.value, null, 2)}
+              />
             </CardContent>
           </Card>
         ))}

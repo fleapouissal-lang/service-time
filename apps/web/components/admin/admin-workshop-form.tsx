@@ -172,38 +172,38 @@ export function AdminWorkshopForm({
     }
 
     startTransition(async () => {
-      try {
-        await saveWorkshopLocationAction(buildFormData());
-        setInfo(p.saved);
-        if (!isEdit) {
-          setNameAr("");
-          setNameEn("");
-          setAddressAr("");
-          setAddressEn("");
-          setLat("");
-          setLng("");
-          setPasteValue("");
-        }
-        onSaved?.();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : p.saveFailed);
+      const result = await saveWorkshopLocationAction(buildFormData());
+      if (result.error) {
+        setError(result.error);
+        return;
       }
+      setInfo(p.saved);
+      if (!isEdit) {
+        setNameAr("");
+        setNameEn("");
+        setAddressAr("");
+        setAddressEn("");
+        setLat("");
+        setLng("");
+        setPasteValue("");
+      }
+      onSaved?.();
     });
   }
 
   function handleDelete() {
     if (!branch) return;
     startDeleteTransition(async () => {
-      try {
-        const formData = new FormData();
-        formData.set("id", branch.id);
-        await deleteWorkshopLocationAction(formData);
+      const formData = new FormData();
+      formData.set("id", branch.id);
+      const result = await deleteWorkshopLocationAction(formData);
+      if (result.error) {
+        setError(result.error);
         setDeleteOpen(false);
-        onSaved?.();
-      } catch (err) {
-        setError(err instanceof Error ? err.message : p.deleteFailed);
-        setDeleteOpen(false);
+        return;
       }
+      setDeleteOpen(false);
+      onSaved?.();
     });
   }
 

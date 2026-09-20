@@ -1,5 +1,7 @@
 "use client";
 
+import { useActionState } from "react";
+import { Loader2 } from "lucide-react";
 import { togglePlatformUserAction } from "@/app/admin/actions";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,6 +24,7 @@ export function AdminUserToggleForm({
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.usersPage;
   const displayName = getProfileDisplayName(user, locale);
+  const [state, action, pending] = useActionState(togglePlatformUserAction, {});
 
   return (
     <div className="space-y-6">
@@ -48,11 +51,29 @@ export function AdminUserToggleForm({
         </Badge>
       </div>
 
-      <form action={togglePlatformUserAction}>
+      {state.error ? (
+        <div
+          className="rounded-xl border border-red-400/30 bg-red-950/40 px-4 py-2.5 text-sm text-red-300"
+          role="alert"
+        >
+          {state.error}
+        </div>
+      ) : null}
+
+      <form action={action}>
         <input type="hidden" name="id" value={user.id} />
         <input type="hidden" name="is_active" value={String(user.is_active)} />
-        <Button type="submit" variant="outline">
-          {user.is_active ? t.common.disable : t.common.enable}
+        <Button type="submit" variant="outline" disabled={pending}>
+          {pending ? (
+            <>
+              <Loader2 className="size-4 animate-spin" aria-hidden />
+              {t.common.loading}
+            </>
+          ) : user.is_active ? (
+            t.common.disable
+          ) : (
+            t.common.enable
+          )}
         </Button>
       </form>
     </div>

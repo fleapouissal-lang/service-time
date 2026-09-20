@@ -1956,6 +1956,7 @@ export const messages = {
         title: "Site content (CMS)",
         key: "Key",
         valueJson: "Value (JSON)",
+        saveSuccess: "✓ Content saved successfully.",
         empty: "No content.",
         emptyFiltered: "No results match your filters.",
       },

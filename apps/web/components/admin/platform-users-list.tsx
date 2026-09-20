@@ -1,6 +1,5 @@
-import { togglePlatformUserAction } from "@/app/admin/actions";
+import { PlatformUserToggleButton } from "@/components/admin/platform-user-toggle-button";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProfileAvatar } from "@/components/layout/profile-avatar";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
@@ -22,49 +21,40 @@ export async function PlatformUsersList({ users }: { users: Profile[] }) {
       {users.map((user) => {
         const displayName = getProfileDisplayName(user, locale);
         return (
-        <Card key={user.id}>
-          <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
-            <div className="flex items-center gap-4">
-              <ProfileAvatar
-                userId={user.id}
-                fullName={displayName}
-                avatarUrl={user.avatar_url}
-                avatarVersion={user.updated_at}
-                size="xl"
-              />
-              <div>
-                <p className="font-semibold">{displayName}</p>
-                <p className="text-sm text-muted" dir="ltr">
-                  {user.phone ?? t.common.dash}
-                </p>
-                <div className="mt-2 flex flex-wrap gap-2">
-                  <Badge variant="secondary">
-                    {roleLabels[user.role]}
-                  </Badge>
-                  {user.role === "technician" && user.technician_type ? (
-                    <Badge variant="outline">
-                      {technicianTypeLabels[user.technician_type]}
+          <Card key={user.id}>
+            <CardContent className="flex flex-wrap items-center justify-between gap-4 p-5">
+              <div className="flex items-center gap-4">
+                <ProfileAvatar
+                  userId={user.id}
+                  fullName={displayName}
+                  avatarUrl={user.avatar_url}
+                  avatarVersion={user.updated_at}
+                  size="xl"
+                />
+                <div>
+                  <p className="font-semibold">{displayName}</p>
+                  <p className="text-sm text-muted" dir="ltr">
+                    {user.phone ?? t.common.dash}
+                  </p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <Badge variant="secondary">{roleLabels[user.role]}</Badge>
+                    {user.role === "technician" && user.technician_type ? (
+                      <Badge variant="outline">
+                        {technicianTypeLabels[user.technician_type]}
+                      </Badge>
+                    ) : null}
+                    <Badge variant={user.is_active ? "success" : "outline"}>
+                      {user.is_active ? t.common.active : t.common.disabled}
                     </Badge>
-                  ) : null}
-                  <Badge variant={user.is_active ? "success" : "outline"}>
-                    {user.is_active ? t.common.active : t.common.disabled}
-                  </Badge>
+                  </div>
                 </div>
               </div>
-            </div>
-            <form action={togglePlatformUserAction}>
-              <input type="hidden" name="id" value={user.id} />
-              <input
-                type="hidden"
-                name="is_active"
-                value={String(user.is_active)}
+              <PlatformUserToggleButton
+                userId={user.id}
+                isActive={user.is_active}
               />
-              <Button type="submit" variant="outline">
-                {user.is_active ? t.common.disable : t.common.enable}
-              </Button>
-            </form>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
         );
       })}
     </div>

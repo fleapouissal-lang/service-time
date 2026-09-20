@@ -1954,6 +1954,7 @@ export const messages = {
         title: "محتوى الموقع (CMS)",
         key: "المفتاح",
         valueJson: "القيمة (JSON)",
+        saveSuccess: "✓ تم حفظ المحتوى بنجاح.",
         empty: "لا يوجد محتوى.",
         emptyFiltered: "لا توجد نتائج مطابقة للتصفية.",
       },

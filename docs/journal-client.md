@@ -1,255 +1,911 @@
-# Service Time — Documentation de livraison
+# Service Time — سجل العميل (دليل الموقع)
 
-**Produit :** plateforme web de maintenance automobile et pièces détachées  
-**Site production :** https://servicetime.com.sa  
-**Langues :** arabe (prioritaire, RTL) + anglais  
-**Document destiné au client** — guide des rôles et des parcours
-
----
-
-## 1. Vue d’ensemble
-
-Service Time connecte trois types d’utilisateurs autour d’un même flux :
-
-1. le **client** demande un service ou commande des pièces ;
-2. l’**administrateur** organise, assigne et gère le catalogue ;
-3. le **technicien** (mobile ou atelier) exécute l’intervention.
-
-| Rôle | Accès principal | Création du compte |
-|------|-----------------|-------------------|
-| **Administrateur** | `/admin` | Créé par un admin |
-| **Technicien** (mobile ou atelier) | `/technician` | Créé par un admin |
-| **Client** | `/client` | Inscription publique ou créé par un admin |
-
-> Il n’y a **pas** de 4ᵉ rôle séparé « atelier » : l’atelier est un **type de technicien**.
+> **وثيقة تسليم مفصّلة** للعميل النهائي — تشرح كل صفحات الموقع ومسارات **العميل (عميل)** خطوة بخطوة.  
+> **الموقع الإنتاجي:** https://servicetime.com.sa  
+> **اللغات:** العربية (افتراضي، RTL) + English  
+> **الإصدار:** أغسطس 2026
 
 ---
 
-## 2. Visiteur (sans compte)
+## فهرس المحتويات
 
-Avant connexion, toute personne peut :
-
-- consulter l’accueil, les services, les emplacements, à propos, contact ;
-- parcourir le catalogue de pièces détachées ;
-- démarrer une **demande rapide** (sans compte) ;
-- contacter via WhatsApp / formulaire ;
-- s’inscrire ou se connecter.
-
-**Ne peut pas :** accéder aux tableaux de bord, suivre une commande privée, finaliser un checkout pièces sans compte client.
-
----
-
-## 3. Rôle Client (`client` / عميل)
-
-### Objectif
-Commander un service d’entretien, acheter des pièces, suivre l’intervention et gérer son compte / ses véhicules.
-
-### Comment obtenir un compte
-- **Inscription** sur `/register` (e-mail + téléphone + mot de passe) → code de vérification → activation → connexion ;
-- **Demande rapide** : un compte client peut être créé automatiquement, avec envoi des accès ;
-- **Création par l’admin** depuis la gestion des utilisateurs.
-
-### Connexion
-Page `/login` — e-mail **ou** numéro de téléphone + mot de passe.  
-Après connexion → tableau de bord `/client`.
-
-### Écrans principaux
-
-| Écran | Route | Utilité |
-|-------|-------|---------|
-| Vue d’ensemble | `/client` | Résumé + dernier suivi |
-| Mes demandes | `/client/orders` | Historique des services |
-| Demandes pièces | `/client/spare-part-orders` | Suivi des commandes pièces |
-| Mes véhicules | `/client/vehicles` | Ajouter / gérer les voitures |
-| Nouvelle demande | `/client/request` ou `/request` | Demande de service complète |
-| Suivi | `/client/track` | Suivi en direct de l’intervention |
-| Paiement | `/client/requests/pay/...` | Paiement du service |
-| Paramètres / profil | `/client/settings` | Compte, contact, mot de passe |
-
-### Ce que le client peut faire
-- Créer une **demande de service** (atelier ou technicien mobile) avec véhicule, localisation, description, photos ;
-- Proposer un prix / accepter une contre-proposition de l’admin ;
-- Choisir le mode de paiement (à la livraison ou en ligne, selon configuration) ;
-- **Suivre** sa demande (statuts + carte du technicien quand il est en route / arrivé) ;
-- Commander des **pièces** (panier → checkout) et suivre la commande ;
-- Gérer ses **véhicules** ;
-- Modifier son profil (nom, téléphone, e-mail, mot de passe, photo).
-
-### Ce que le client ne peut pas faire
-- Accéder à l’espace admin ou technicien ;
-- Assigner un technicien ;
-- Modifier le catalogue services / pièces ;
-- Voir les commandes des autres clients.
+1. [نظرة عامة على المنصة](#1-نظرة-عامة-على-المنصة)
+2. [خريطة الموقع الكاملة](#2-خريطة-الموقع-الكاملة)
+3. [الزائر (بدون حساب)](#3-الزائر-بدون-حساب)
+4. [الصفحة الرئيسية](#4-الصفحة-الرئيسية)
+5. [صفحة الخدمات](#5-صفحة-الخدمات)
+6. [صفحة قطع الغيار](#6-صفحة-قطع-الغيار)
+7. [صفحة المواقع](#7-صفحة-المواقع)
+8. [من نحن وتواصل](#8-من-نحن-وتواصل)
+9. [إنشاء الحساب وتسجيل الدخول](#9-إنشاء-الحساب-وتسجيل-الدخول)
+10. [لوحة العميل](#10-لوحة-العميل)
+11. [سياراتي](#11-سياراتي)
+12. [طلب الخدمة](#12-طلب-الخدمة)
+13. [تفاوض السعر والدفع](#13-تفاوض-السعر-والدفع)
+14. [تتبع الطلب](#14-تتبع-الطلب)
+15. [طلبات قطع الغيار وإتمام الشراء](#15-طلبات-قطع-الغيار-وإتمام-الشراء)
+16. [الفواتير](#16-الفواتير)
+17. [إعدادات الحساب](#17-إعدادات-الحساب)
+18. [الإشعارات والتواصل](#18-الإشعارات-والتواصل)
+19. [الحالات والمصطلحات](#19-الحالات-والمصطلحات)
+20. [صلاحيات العميل](#20-صلاحيات-العميل)
+21. [معلومات التواصل وحسابات التجربة](#21-معلومات-التواصل-وحسابات-التجربة)
 
 ---
 
-## 4. Rôle Administrateur (`admin` / مدير)
+## 1. نظرة عامة على المنصة
 
-### Objectif
-Piloter toute la plateforme : demandes, utilisateurs, catalogue, emplacements, rapports.
+**Service Time** منصة سعودية لـ:
 
-### Comment obtenir un compte
-Uniquement créé (ou promu) par un administrateur existant — **pas** via l’inscription publique.
+- **صيانة السيارات** (ورشة ثابتة أو فني متنقل في الرياض)
+- **بيع قطع الغيار** مع توصيل
+- **تتبع مباشر** للطلب من الهاتف أو الكمبيوتر
 
-### Connexion
-`/login` → redirection vers `/admin`.
+### ما يستطيع العميل فعله
 
-### Écrans principaux
+| الإمكانية | الوصف |
+|-----------|--------|
+| طلب صيانة | نموذج كامل مع سيارة وموقع GPS وصورة |
+| طلب سريع | بدون حساب — اسم، جوال، رسالة |
+| واتساب | تواصل فوري مع الفريق |
+| قطع الغيار | تصفح، سلة، طلب، دفع |
+| تتبع | مراحل الطلب + خريطة الفني |
+| تفاوض السعر | عرضك → مراجعة المدير → قبول |
+| الدفع | عند الخدمة أو إلكتروني (Accept / Paymob) |
+| سياراتي | حفظ السيارات لتسريع الطلبات |
+| الفواتير | عرض وتحميل PDF بعد تأكيد الإدارة |
 
-| Écran | Route | Utilité |
-|-------|-------|---------|
-| Tableau de bord | `/admin` | Indicateurs et vue globale |
-| Demandes de service | `/admin/orders` | Toutes les demandes |
-| Services | `/admin/services` | Catalogue + prix sous-services |
-| Pièces détachées | `/admin/spare-parts` | Catalogue pièces |
-| Commandes pièces | `/admin/spare-part-orders` | Gestion des commandes |
-| Emplacements | `/admin/locations` | Ateliers affichés sur le site |
-| Utilisateurs | `/admin/users` | Créer / modifier comptes |
-| Rapports | `/admin/reports` | Statistiques |
-| Paramètres | `/admin/settings` | Compte admin |
+### الأدوار في المنصة
 
-### Ce que l’admin peut faire
-- Voir et gérer **toutes** les demandes de service ;
-- Créer une demande pour un client ;
-- **Assigner** un technicien (mobile ou atelier) ;
-- Gérer priorités, statuts, devis (accepter / contre-proposer) ;
-- Suivre / gérer les paiements côté admin ;
-- CRUD du **catalogue services** et **pièces** ;
-- Gérer les **commandes de pièces** ;
-- Gérer les **emplacements** (carte / page lieux) ;
-- Créer des comptes **admin**, **technicien** ou **client** ;
-- Activer / désactiver / supprimer des utilisateurs ;
-- Consulter les **rapports**.
+| الدور | المسار | كيف يُنشأ الحساب |
+|-------|--------|------------------|
+| **عميل** | `/client` | تسجيل عام، طلب سريع، أو المدير |
+| **مدير** | `/admin` | المدير فقط |
+| **فني** (متنقل أو ورشة) | `/technician` | المدير فقط |
 
-### Ce que l’admin ne peut pas faire
-- Utiliser le parcours client (checkout pièces, demande « comme un client ») ;
-- Se créer via `/register` (réservé aux clients).
+> لا يوجد دور منفصل «ورشة» — الورشة **نوع فني** وليس حساباً مستقلاً.
+
+### مميزات الموقع
+
+- **PWA** — يمكن تثبيت الموقع على الجوال كتطبيق
+- **وضع فاتح / داكن** — من أيقونة المظهر في الهيدر
+- **عربي / English** — تبديل اللغة من الهيدر
+- **RTL** — واجهة عربية من اليمين لليسار
 
 ---
 
-## 5. Rôle Technicien (`technician` / فني)
+## 2. خريطة الموقع الكاملة
 
-### Objectif
-Exécuter les interventions **qui lui sont assignées** et mettre à jour le statut / la position.
+### الصفحات العامة (للجميع)
 
-### Deux types (même espace, rôles métier différents)
+| المسار | الاسم بالعربية | الوظيفة |
+|--------|----------------|---------|
+| `/` | الرئيسية | الصفحة الأولى، hero، خدمات، قطع، مواقع |
+| `/services` | الخدمات | دليل الخدمات الرئيسية والفرعية |
+| `/request` | طلب خدمة | اختيار: طلب كامل / سريع / واتساب |
+| `/spare-parts` | قطع الغيار | متجر القطع + فلاتر + سلة |
+| `/spare-parts/checkout` | إتمام الطلب | **يتطلب تسجيل دخول عميل** |
+| `/locations` | مواقعنا | خريطة + بطاقات الورش |
+| `/about` | من نحن | رؤية، مهمة، قيم |
+| `/contact` | تواصل | نموذج + هاتف + بريد + خريطة |
+| `/login` | تسجيل الدخول | دخول عميل / فني / مدير |
+| `/register` | إنشاء حساب | تسجيل عميل جديد |
+| `/legal/privacy` | سياسة الخصوصية | صفحة قانونية |
+| `/legal/terms` | شروط الاستخدام | صفحة قانونية |
+| `/legal/notice` | إشعار قانوني | صفحة قانونية |
+| `/~offline` | بدون اتصال | صفحة PWA عند انقطاع الشبكة |
 
-| Type | Code | Description |
-|------|------|-------------|
-| **Technicien mobile** | `mobile` | Intervention sur site / chez le client |
-| **Atelier (ورشة)** | `workshop` | Intervention en atelier |
+### لوحة العميل (بعد تسجيل الدخول)
 
-Les deux utilisent le même tableau de bord `/technician`. Le type sert surtout à l’organisation et à l’affichage côté admin.
+| المسار | الاسم بالعربية | الوظيفة |
+|--------|----------------|---------|
+| `/client` | نظرة عامة | إحصائيات + آخر طلب + اختصارات |
+| `/client/orders` | طلباتي | كل طلبات الصيانة |
+| `/client/orders/[id]` | تفاصيل الطلب | عرض طلب واحد |
+| `/client/spare-part-orders` | طلبات القطع | طلبات قطع الغيار |
+| `/client/spare-part-orders/[id]` | تفاصيل طلب قطع | بنود، دفع، توصيل |
+| `/client/invoices` | الفواتير | قائمة الفواتير المؤكدة |
+| `/client/invoices/[id]` | تفاصيل الفاتورة | عرض + تحميل PDF |
+| `/client/vehicles` | سياراتي | إدارة السيارات المحفوظة |
+| `/client/vehicles/add` | إضافة سيارة | نموذج سيارة جديدة |
+| `/client/request` | طلب جديد | نموذج صيانة كامل |
+| `/client/track` | تتبع الطلب | إدخال رمز التتبع |
+| `/client/track/[token]` | تتبع مباشر | timeline + خريطة الفني |
+| `/client/requests/pay/[id]` | دفع الطلب | Accept / Paymob |
+| `/client/settings` | الإعدادات | الملف + كلمة المرور |
+| `/client/profile` | الملف الشخصي | (مرتبط بالإعدادات) |
 
-### Comment obtenir un compte
-Créé uniquement par l’**administrateur** (e-mail, mot de passe, type mobile ou atelier).
+### شريط التنقل العلوي (Header)
 
-### Connexion
-`/login` → redirection vers `/technician`.
+| الرابط | التسمية |
+|--------|---------|
+| `/` | الرئيسية |
+| `/services` | الخدمات |
+| `/request` | طلب خدمة |
+| `/spare-parts` | قطع الغيار |
+| `/locations` | مواقعنا |
+| `/about` | من نحن |
+| `/contact` | تواصل |
 
-### Écrans principaux
-
-| Écran | Route | Utilité |
-|-------|-------|---------|
-| Vue d’ensemble | `/technician` | Indicateurs sur ses missions |
-| Mes commandes | `/technician/orders` | Liste et détail des interventions |
-| Localisation | `/technician/location` | Partage GPS (suivi client) |
-| Paramètres | `/technician/settings` | Profil et sécurité |
-
-### Ce que le technicien peut faire
-- Voir **uniquement** les demandes qui lui sont assignées ;
-- Mettre à jour le **statut** de l’intervention, par exemple :  
-  reçue → assignée → en cours → en route → arrivé → terminée (ou annulée) ;
-- Consulter les détails / photos de la demande ;
-- Publier sa **position GPS** (utile pour le suivi client « en route / arrivé ») ;
-- Gérer son profil.
-
-### Ce que le technicien ne peut pas faire
-- Voir les demandes non assignées ;
-- Créer ou gérer des utilisateurs ;
-- Modifier le catalogue services / pièces ;
-- Négocier le devis ou assigner un autre technicien ;
-- Accéder à `/admin` ou `/client`.
-
----
-
-## 6. Parcours métier (résumé)
-
-### Demande de service
-```
-Client (ou demande rapide)
-    → Admin reçoit / crée / assigne un technicien
-    → Négociation de prix si besoin
-    → Technicien exécute + met à jour statut / GPS
-    → Client suit en direct + paie selon le mode choisi
-```
-
-### Commande de pièces
-```
-Visiteur / Client parcourt /spare-parts
-    → Client connecté valide le checkout
-    → Admin gère la commande pièces
-    → Client suit dans /client/spare-part-orders
-```
-
-### Statuts typiques d’une intervention
-| Statut (idée) | Signification |
-|---------------|---------------|
-| Reçue | Demande enregistrée |
-| Assignée | Technicien désigné |
-| En cours | Traitement démarré |
-| En route | Technicien mobile en déplacement |
-| Arrivé | Sur place |
-| Terminée | Intervention finie |
-| Annulée | Annulation |
+**على الجوال:** شريط سفلي — الرئيسية، الخدمات، طلب، القطع، المزيد (مواقع، من نحن، تواصل، حسابي).
 
 ---
 
-## 7. Accès & sécurité (points clés)
+## 3. الزائر (بدون حساب)
 
-- Chaque espace (`/admin`, `/technician`, `/client`) est **protégé** : un mauvais rôle est redirigé.
-- Un compte **désactivé** ne peut plus se connecter.
-- Les clients ne voient **que** leurs propres données (règles de sécurité base de données).
-- Les techniciens ne voient **que** les missions assignées.
-- L’admin a une vision globale.
+### ما يستطيع فعله
 
----
+- تصفح كل الصفحات العامة
+- إضافة قطع للسلة (محفوظة في المتصفح)
+- إرسال **طلب سريع** أو **واتساب**
+- التواصل عبر نموذج `/contact`
+- إنشاء حساب أو تسجيل الدخول
 
-## 8. Contacts plateforme (production)
+### ما لا يستطيع فعله
 
-| Canal | Valeur |
+| المنع | السبب |
 |-------|--------|
-| Site | https://servicetime.com.sa |
-| E-mail | servicetime10@gmail.com |
-| Téléphone / WhatsApp | +966 58 381 4214 |
+| إتمام شراء القطع | `/spare-parts/checkout` يتطلب عميلاً |
+| طلب صيانة كامل مع تتبع | يتطلب `/login` |
+| فتح `/client/track/...` | التتبع للعملاء المسجّلين |
+| الدخول إلى `/client` | محمي بالصلاحيات |
 
 ---
 
-## 9. Comptes de démonstration (environnement de test)
+## 4. الصفحة الرئيسية
 
-> À utiliser uniquement sur un environnement de test / seed — **à changer en production**.
+**المسار:** `/`
 
-| E-mail | Mot de passe | Rôle |
-|--------|--------------|------|
-| `admin@servicetime.sa` | `Admin123!` | Administrateur |
-| `tech@servicetime.sa` | `Tech123!` | Technicien mobile |
-| `workshop@servicetime.sa` | `Tech123!` | Technicien atelier |
-| `client@servicetime.sa` | `Client123!` | Client |
-| `sara@servicetime.sa` | `Client123!` | Client |
+### أقسام الصفحة
 
----
+| القسم | المحتوى |
+|-------|---------|
+| **Hero (شرائح)** | عناوين ترويجية + زر «ابدأ الآن» → `/request` |
+| **ماركات السيارات** | ماركات صينية مدعومة |
+| **خدماتنا** | عرض خدمات (حتى 6) — carousel |
+| **أحدث المنتجات** | آخر قطع الغيار → «عرض في المتجر» |
+| **المواقع** | معاينة ورش الرياض |
+| **شريط المزايا** | صيانة دورية، طوارئ 24/7، فنيون معتمدون، تتبع مباشر، إلخ |
+| **CTA** | «جاهز لطلب الخدمة؟» → `/request` |
 
-## 10. Livrables inclus
+### أزرار رئيسية
 
-- Site web public (accueil, services, pièces, contact, emplacements, pages légales)
-- Espaces **Client**, **Technicien**, **Admin**
-- Demande de service (rapide + complète) + suivi
-- Catalogue pièces + panier / commande
-- Gestion utilisateurs, services, pièces, emplacements, rapports
-- E-mails transactionnels (SMTP Gmail configuré)
-- Mise en ligne HTTPS sur le domaine client
+- **ابدأ الآن** / **ابدأ طلب الخدمة** — ينقل إلى صفحة الطلب
 
 ---
 
-*Document de livraison Service Time — rôles et responsabilités.*  
-*Version : juillet 2026*
+## 5. صفحة الخدمات
+
+**المسار:** `/services`
+
+### Hero (6 شرائح)
+
+1. **صيانة عامة — في الورشة** — زيت، فرامل، مكيف، فحص شامل  
+2. **صيانة متنقلة — عند موقعك** — فني يصل إليك في الرياض  
+3. **طلب قطع غيار — بسرعة** — متجر أو طلب مخصص  
+4. **سطحة — ونقل** — سحب ونقل آمن  
+5. **أعطال — وحوادث** — بطارية، إطار، مساعدة طريق  
+6. **متابعة طلبات — خارجية** — تتبع برمز  
+
+### دليل الخدمات
+
+- عرض **الخدمات الرئيسية** و**الخيارات الفرعية**
+- زر **«ابدأ طلب الخدمة»** لكل خدمة
+- بطاقة **واتساب** — «تحتاج مساعدة لاختيار الخدمة؟»
+
+### أنواع الخدمة (في النموذج)
+
+| الكود | بالعربية |
+|-------|----------|
+| `periodic_maintenance` | صيانة دورية |
+| `emergency` | طوارئ |
+| `spare_parts` | قطع غيار |
+
+### طرق التنفيذ
+
+| الكود | بالعربية |
+|-------|----------|
+| `workshop_visit` | زيارة الورشة |
+| `mobile_workshop` | ورشة متنقلة |
+
+---
+
+## 6. صفحة قطع الغيار
+
+**المسار:** `/spare-parts`
+
+### وصف الصفحة
+
+- **العنوان:** قائمة قطع الغيار  
+- **الوصف:** تصفح القطع، أضف للسلة، ثم أكمل طلبك  
+
+### شريط التصفية (سطر واحد)
+
+| الفلتر | التسمية | الخيارات |
+|--------|---------|----------|
+| بحث | بحث | نص حر (اسم، فئة، تفاصيل) |
+| نوع المنتج | نوع المنتج | الكل · جديد · مستعمل |
+| الفئة | الفئة | حسب القطع المتوفرة في المتجر |
+| ماركة السيارة | ماركة السيارة | كل الماركات + ماركات محددة |
+| موديل السيارة | موديل السيارة | يظهر بعد اختيار الماركة |
+
+**عميل مسجّل:** عند فتح الصفحة بدون فلاتر، تُطبَّق تلقائياً **ماركة وموديل** أول سيارة محفوظة في حسابه (قابل للتغيير).  
+**«كل الماركات»** يلغي التصفية التلقائية.
+
+### بطاقة المنتج
+
+- صورة (أو أكثر)
+- السعر (ر.س) — شارة **عرض** إن وُجد خصم
+- **مناسب لـ** — ماركة/موديل السيارة المتوافقة
+- **متوفر:** الكمية
+- **أضف للسلة** / **نفدت الكمية** / **عرض المزيد**
+
+### نافذة تفاصيل المنتج (Modal)
+
+- صور (تنقل بين الصور)
+- الوصف الكامل
+- السعر والمخزون
+- زر إضافة للسلة
+
+### السلة
+
+| العنصر | الوصف |
+|--------|--------|
+| فتح السلة | أيقونة في الهيدر + زر عائم على الجوال |
+| عنوان | سلة قطع الغيار |
+| فارغة | «السلة فارغة — أضف قطع من القائمة» |
+| إجراءات | زيادة/تقليل الكمية، إزالة، إفراغ السلة |
+| **اطلب القطع المحددة** | → `/spare-parts/checkout` (يتطلب دخول) |
+
+**التخزين:** السلة في **localStorage** (المتصفح).
+
+### التصفح (Pagination)
+
+- 12 قطعة للصفحة (6 على الجوال)
+- أزرار الصفحة السابقة / التالية
+
+---
+
+## 7. صفحة المواقع
+
+**المسار:** `/locations`
+
+| العنصر | التفاصيل |
+|--------|----------|
+| العنوان | ورش Service Time في الرياض |
+| الوصف | اعثر على أقرب ورشة أو اطلب ورشة متنقلة تصل إليك |
+| الخريطة | خريطة تفاعلية بمواقع الورش |
+| البطاقات | اسم الورشة، العنوان، زر الاتجاهات (Google Maps) |
+| تنبيه | موقع الفني على الخريطة تقريبي — ليس التزاماً بوقت وصول دقيق |
+
+---
+
+## 8. من نحن وتواصل
+
+### من نحن — `/about`
+
+| القسم | المحتوى |
+|-------|---------|
+| ملخص | Service Time في الرياض — فنيون وورش معتمدة |
+| **رؤيتنا** | خدمة سيارات بشفافية |
+| **مهمتنا** | من الطلب حتى الإنجاز (3 خطوات) |
+| **قيمنا** | الجودة، السرعة، الشفافية، الثقة، الراحة |
+| CTA | «ابدأ طلب الخدمة» |
+
+### تواصل — `/contact`
+
+| القسم | التفاصيل |
+|-------|----------|
+| العنوان | نحن هنا لمساعدتك |
+| **نموذج** | الاسم*، الجوال*، البريد، الرسالة* → «إرسال الرسالة» |
+| **هاتف** | +966 58 381 4214 |
+| **بريد** | servicetime10@gmail.com |
+| **موقع** | الرياض، المملكة العربية السعودية |
+| **خريطة** | Google Maps |
+
+### التذييل (Footer) — كل الصفحات
+
+- روابط سريعة: الرئيسية، الخدمات، طلب، قطع، مواقع، من نحن، تواصل  
+- قانوني: سياسة الخصوصية، شروط الاستخدام، إشعار قانوني  
+- **الرياض، المملكة العربية السعودية**  
+- **جميع الحقوق محفوظة**
+
+---
+
+## 9. إنشاء الحساب وتسجيل الدخول
+
+### التسجيل — `/register`
+
+**الخطوة 1 — بياناتك**
+
+| الحقل | مطلوب | ملاحظات |
+|-------|--------|---------|
+| الاسم الكامل (عربي) | نعم | مثال: محمد العتيبي |
+| الاسم الكامل (إنجليزي) | نعم | Mohammed Al-Otaibi |
+| رقم الجوال | نعم | 05xxxxxxxx |
+| البريد الإلكتروني | نعم | للتفعيل |
+| صورة الملف | لا | JPG/PNG/WebP ≤ 5 MB |
+
+**الخطوة 2 — كلمة المرور**
+
+| الحقل | قاعدة |
+|-------|--------|
+| كلمة المرور | 8+ أحرف، حروف a-z وأرقام |
+| تأكيد كلمة المرور | مطابق |
+
+**الخطوة 3 — التفعيل**
+
+1. «إرسال رمز التحقق» → بريد برمز **6 أرقام**  
+2. إدخال الرمز → «تفعيل الحساب»  
+3. تسجيل الدخول → `/client`
+
+**مساعدة:** «مساعدة عبر واتساب» · «إعادة إرسال الرمز»
+
+### تسجيل الدخول — `/login`
+
+| الحقل | التفاصيل |
+|-------|----------|
+| البريد أو الجوال | name@example.com أو 05xxxxxxxx |
+| كلمة المرور | — |
+| نسيت كلمة المرور؟ | → `/forgot-password` |
+| زر | **تسجيل الدخول** |
+
+**بعد النجاح:**  
+- عميل → `/client`  
+- فني → `/technician`  
+- مدير → `/admin`  
+- مع `?next=` يُحترم المسار المطلوب (مثلاً checkout)
+
+### استعادة كلمة المرور
+
+1. إدخال البريد → رمز 6 أرقام (10 دقائق)  
+2. تأكيد الرمز  
+3. كلمة مرور جديدة + تأكيد  
+4. العودة لتسجيل الدخول  
+
+### طرق أخرى للحصول على حساب
+
+- **طلب سريع** مع بريد جديد → حساب تلقائي + رسالة ترحيب  
+- **المدير** ينشئ الحساب من `/admin/users`
+
+---
+
+## 10. لوحة العميل
+
+**المسار الرئيسي:** `/client`  
+**العنوان:** لوحة العميل — إحصائيات طلباتك
+
+### القائمة الجانبية
+
+| # | المسار | التسمية | الأيقونة |
+|---|--------|---------|----------|
+| 1 | `/client` | نظرة عامة | لوحة |
+| 2 | `/client/orders` | طلباتي | قائمة |
+| 3 | `/client/spare-part-orders` | طلبات القطع | سلة |
+| 4 | `/client/invoices` | الفواتير | مستند |
+| 5 | `/client/vehicles` | سياراتي | سيارة |
+| 6 | `/client/request` | طلب جديد | مفتاح |
+| 7 | `/client/track` | تتبع الطلب | موقع |
+| 8 | `/client/settings` | الإعدادات | إعدادات |
+
+### نظرة عامة — `/client`
+
+**بطاقات الإحصائيات (حسب الفترة: اليوم / الشهر / السنة / 7 أيام)**
+
+| المؤشر | التسمية |
+|--------|---------|
+| إجمالي | إجمالي الطلبات |
+| نشطة | الطلبات النشطة — قيد التنفيذ |
+| في الطريق | الفني في الطريق |
+| مكتمل | مكتمل |
+
+**رؤى سريعة:** بانتظار التعيين · قيد التنفيذ · ملغى · معدل الإنجاز
+
+**اختصارات:**
+
+- **طلب جديد** → `/client/request`  
+- **جميع طلباتي** → `/client/orders`  
+- **تتبع الطلب** → `/client/track`  
+
+**تتبع آخر طلب:**
+
+- حالة الطلب الأخير  
+- بانر مالي: السعر قيد المراجعة / عرض مقابل / تأكيد السعر / بانتظار الدفع / مدفوع  
+- زر **التتبع الكامل** أو **ادفع الآن**  
+- mini-map إذا الفني في الطريق  
+
+### طلباتي — `/client/orders`
+
+| عمود الجدول | المحتوى |
+|-------------|---------|
+| الخدمة | نوع الخدمة |
+| طريقة التنفيذ | زيارة الورشة / ورشة متنقلة |
+| الموقع | عنوان الخدمة |
+| رمز التتبع | للنسخ والمشاركة |
+| صورة | إن وُجدت |
+| التاريخ | — |
+| إجراءات | **عرض** · **تتبع** |
+
+**إنشاء طلب:** زر «إنشاء طلب جديد» → نموذج مدمج في الصفحة
+
+### طلبات القطع — `/client/spare-part-orders`
+
+| عمود | المحتوى |
+|------|---------|
+| رمز الطلب | order_token |
+| القطع | عدد البنود |
+| الإجمالي | مجموع + رسوم توصيل (إن حُددت) |
+| الدفع | طريقة + حالة |
+| التاريخ | — |
+| إجراءات | **عرض** |
+
+**تأكيد الاستلام:** بعد استلام القطع — «تأكيد استلام الطلب» (لا رجوع)
+
+**طلب جديد:** «طلب قطع جديد» → `/spare-parts`
+
+---
+
+## 11. سياراتي
+
+**المسارات:** `/client/vehicles` · `/client/vehicles/add`
+
+### الغرض
+
+- تسريع **طلب الصيانة** (اختيار سيارة محفوظة)  
+- **تصفية قطع الغيار** تلقائياً حسب سيارتك  
+
+### حقول السيارة
+
+| القسم | الحقول |
+|-------|--------|
+| **الماركة والموديل** | نوع السيارة (ماركة)* · الموديل* |
+| **تفاصيل السيارة** | عدد الأسطوانات · الوقود (بنزين/ديزل/كهربائية/هجين) · رقم الهيكل · حروف اللوحة · أرقام اللوحة · اللون · سنة الصنع |
+
+### الإجراءات
+
+- **أضف سيارتك الأولى** / **إضافة**  
+- **حذف** سيارة من القائمة  
+- في نموذج الطلب: **اختر السيارة** · **إضافة سيارة جديدة** · **حذف السيارة** من المحفوظة  
+
+---
+
+## 12. طلب الخدمة
+
+### صفحة الاختيار — `/request`
+
+**العنوان:** كيف تريد طلب الخدمة؟
+
+| الوضع | التسمية | يتطلب حساب | الوصف |
+|-------|---------|------------|--------|
+| كامل | **أرسل طلب الصيانة** | نعم (عميل) | طلب + تتبع مباشر |
+| سريع | **طلب سريع** | لا | اسم، جوال، بريد، رسالة |
+| واتساب | **تواصل سريع عبر واتساب** | لا | فتح واتساب |
+
+**للزائر غير المسجّل:** بطاقة «سجّل الدخول أولاً» مع أزرار تسجيل الدخول / إنشاء حساب
+
+### الطلب الكامل — `/client/request`
+
+**خطوتان:**
+
+#### الخطوة 1 — بياناتك والموقع
+
+| الحقل | التفاصيل |
+|-------|----------|
+| الاسم * | من الملف |
+| رقم الجوال * | من الملف |
+| السيارة | من «سياراتي» أو جديدة |
+| الموقع | عنوان + **استخدم موقعي الحالي** (GPS) + خريطة |
+
+#### الخطوة 2 — تفاصيل الخدمة
+
+| الحقل | التفاصيل |
+|-------|----------|
+| نوع الخدمة * | صيانة دورية / طوارئ / … |
+| نوع الخدمة الفرعي * | من دليل الخدمات |
+| طريقة التنفيذ * | زيارة الورشة / ورشة متنقلة |
+| عرض السعر (ر.س) * | سعرك المقترح — يُراجع |
+| وصف المشكلة | نص حر |
+| صورة | اختياري — JPG/PNG/WebP ≤ 5 MB |
+
+**زر:** **إرسال الطلب**
+
+**بعد النجاح:**
+
+- ✓ تم إرسال طلبك بنجاح  
+- **رمز التتبع:** XXXXX  
+- توجيه → `/client/track/{token}?success=1`  
+
+### الطلب السريع
+
+| الحقل | مطلوب |
+|-------|--------|
+| الاسم | نعم |
+| رقم الجوال | نعم |
+| البريد | اختياري (بدون بريد → حساب بالجوال + واتساب) |
+| الرسالة | نعم |
+| صورة | لا |
+
+**زر:** **إرسال الطلب السريع**
+
+### واتساب
+
+- حقول اختيارية (اسم، جوال، رسالة)  
+- **فتح واتساب** / **فتح واتساب مباشرة**  
+
+---
+
+## 13. تفاوض السعر والدفع
+
+### تفاوض السعر (تفاوض السعر)
+
+| الحالة | بالعربية | ماذا يفعل العميل |
+|--------|----------|------------------|
+| `pending_admin` | بانتظار مراجعة المدير | ينتظر |
+| `admin_countered` | عرض مقابل مرسل | **قبول العرض المقابل** |
+| `accepted` | تم الاتفاق على السعر | يختار الدفع |
+| `declined` | مرفوض | ينهي أو يطلب جديداً |
+
+**أين:** `/client/orders/[id]` · `/client/track/[token]`
+
+### الدفع — بعد قبول السعر
+
+| الطريقة | بالعربية | الوصف |
+|---------|----------|--------|
+| `online` | **دفع إلكتروني** | Accept / Paymob — `/client/requests/pay/[id]` |
+| `cash` | **الدفع عند الخدمة** | للفني أو في الورشة |
+
+**طرق الدفع الإلكتروني المعروضة:**
+
+- مدى (MADA)  
+- Visa و Mastercard  
+- Apple Pay  
+- Tabby (تقسيط)  
+- Tamara (تقسيط)  
+
+**أزرار:** تأكيد طريقة الدفع · **ادفع الآن — Accept** · التبديل بين نقدي/إلكتروني  
+
+---
+
+## 14. تتبع الطلب
+
+> **مهم:** التتبع الكامل للعملاء **المسجّلين** فقط.
+
+### نقاط الدخول
+
+| المصدر | المسار |
+|--------|--------|
+| القائمة | `/client/track` |
+| رابط مباشر | `/client/track/{token}` |
+| طلباتي | زر **تتبع** |
+| بعد إنشاء طلب | redirect تلقائي |
+| SMS / واتساب | رابط في الرسالة |
+
+### صفحة البحث — `/client/track`
+
+- **رمز التتبع** — أدخل الرمز المرسل  
+- **عرض الحالة**  
+
+### صفحة التتبع — `/client/track/[token]`
+
+| القسم | المحتوى |
+|-------|---------|
+| ترحيب | مرحباً + اسم العميل |
+| بانر نجاح | ✓ تم إرسال طلبك بنجاح (إن وُجد) |
+| **ملخص** | العميل، السيارة، نوع الخدمة، طريقة التنفيذ، رمز التتبع، الحالة |
+| **مراحل الطلب** | Timeline بكل المراحل |
+| **تفاوض السعر** | إن كان نشطاً |
+| **الدفع** | إن كان السعر مقبولاً |
+| **موقع الفني** | خريطة + ETA + المسافة (عند «الفني في الطريق» أو «وصل الفني») |
+
+### مراحل الطلب (بالترتيب)
+
+```
+تم استلام الطلب → تم التعيين → جاري التنفيذ → الفني في الطريق → وصل الفني → مكتمل
+                                                                              ↘ ملغي
+```
+
+| الكود | بالعربية |
+|-------|----------|
+| `received` | تم استلام الطلب |
+| `assigned` | تم التعيين |
+| `in_progress` | جاري التنفيذ |
+| `on_the_way` | الفني في الطريق |
+| `arrived` | وصل الفني |
+| `completed` | مكتمل |
+| `cancelled` | ملغي |
+
+**تنبيه الخريطة:** الموقع تقريبي ويعتمد على اتصال الفني — ليس التزاماً بوقت وصول دقيق.
+
+---
+
+## 15. طلبات قطع الغيار وإتمام الشراء
+
+### إتمام الطلب — `/spare-parts/checkout`
+
+**يتطلب:** عميل مسجّل دخوله
+
+#### الخطوة 1 — 1. البيانات (معلومات التوصيل)
+
+| الحقل | ملاحظة |
+|-------|--------|
+| الاسم الكامل * | من الحساب — قابل للتعديل |
+| رقم الجوال * | — |
+| البريد الإلكتروني * | — |
+| عنوان التوصيل * | الحي، الشارع، المدينة — مثال: العليا، الرياض |
+
+**زر:** **متابعة إلى الدفع**
+
+#### الخطوة 2 — 2. الدفع (الدفع والتأكيد)
+
+- مراجعة السلة (قطع، كميات، أسعار)  
+- **ملاحظات (اختياري)**  
+- طريقة الدفع:  
+  - **الدفع عند الاستلام** (افتراضي) — نقداً عند الاستلام  
+  - **الدفع الإلكتروني** — Accept  
+
+**زر:** **تأكيد الطلب**
+
+### بعد التأكيد
+
+| الدفع | التوجيه |
+|-------|---------|
+| عند الاستلام | `/client/spare-part-orders/{id}?success=1` |
+| إلكتروني | `/spare-parts/checkout/pay/{id}` → **ادفع الآن — Accept** |
+
+**السلة تُفرغ** تلقائياً عند النجاح.
+
+### حالات طلب القطع
+
+| الكود | بالعربية |
+|-------|----------|
+| `pending` | قيد المراجعة |
+| `confirmed` | مؤكد |
+| `preparing` | قيد التجهيز |
+| `ready` | جاهز |
+| `delivered` | في الطريق / تم الإرسال |
+| `received` | تم الاستلام |
+| `cancelled` | ملغى |
+
+### حالة الدفع (قطع)
+
+| الكود | بالعربية |
+|-------|----------|
+| `pending` | قيد الانتظار |
+| `paid` | مدفوع |
+| `failed` | فشل الدفع |
+
+### رسوم التوصيل
+
+- قد تظهر **«لم يحدد المسؤول بعد رسوم التوصيل»** حتى يضيفها المدير  
+- **الإجمالي النهائي** = مجموع القطع + التوصيل (إن وُجد)
+
+---
+
+## 16. الفواتير
+
+**المسارات:** `/client/invoices` · `/client/invoices/[id]`
+
+### متى تظهر الفاتورة؟
+
+> بعد إرسال طلب صيانة أو قطع، تُجهَّز الفاتورة تلقائياً.  
+> عند **تأكيد الإدارة** تصبح ظاهرة للعميل هنا.
+
+### قائمة الفواتير
+
+| عمود | المحتوى |
+|------|---------|
+| رقم الفاتورة | — |
+| النوع | طلب صيانة / طلب قطع غيار |
+| المبلغ | ر.س |
+| التاريخ | — |
+| إجراءات | **عرض** |
+
+**بحث:** برقم الفاتورة
+
+### تفاصيل الفاتورة
+
+- بيانات الشركة (Service Time — الرياض)  
+- بيانات العميل  
+- بنود (خدمة / قطع / توصيل)  
+- الإجمالي بدون ضريبة · ضريبة القيمة المضافة · **الإجمالي شامل الضريبة**  
+- البيانات البنكية  
+- **تحميل PDF** · طباعة  
+
+---
+
+## 17. إعدادات الحساب
+
+**المسار:** `/client/settings`
+
+### الملف الشخصي
+
+| الحقل | ملاحظات |
+|-------|---------|
+| صورة الملف | JPG/PNG/WebP ≤ 5 MB |
+| الاسم (عربي / إنجليزي) | — |
+| رقم الجوال | تغيير → رمز واتساب |
+| البريد | تغيير → رمز بريد |
+| **حفظ الملف** | — |
+
+**عند تغيير البريد أو الجوال:**  
+- يُرسل رمز تحقق (6 أرقام)  
+- **تأكيد التغييرات**  
+
+### كلمة المرور
+
+| الحقل | — |
+|-------|---|
+| كلمة المرور الحالية | مطلوب |
+| كلمة المرور الجديدة | 8+ أحرف |
+| تأكيد كلمة المرور | مطابق |
+| **تغيير كلمة المرور** | — |
+
+---
+
+## 18. الإشعارات والتواصل
+
+| الحدث | القنوات |
+|-------|---------|
+| إنشاء حساب / ترحيب | بريد (+ واتساب) |
+| رمز التسجيل | بريد |
+| طلب جديد | واتساب / SMS + **رابط تتبع** |
+| تغيير حالة الطلب | واتساب / SMS |
+| تغيير البريد/الجوال | بريد + واتساب |
+| تأكيد الدفع | الموقع + لوحة العميل |
+| رسالة تواصل | بريد للفريق |
+
+**رابط التتبع النموذجي:**  
+`https://servicetime.com.sa/client/track/{رمز_التتبع}`
+
+---
+
+## 19. الحالات والمصطلحات
+
+### مصطلحات الواجهة
+
+| المصطلح | المعنى |
+|---------|--------|
+| الرئيسية | الصفحة الأولى |
+| الخدمات | دليل الصيانة |
+| طلب خدمة | نموذج الطلب |
+| قطع الغيار | المتجر |
+| طلبات القطع | طلبات الشراء |
+| طلباتي | طلبات الصيانة |
+| تتبع الطلب | متابعة الحالة |
+| لوحة العميل | Dashboard |
+| سياراتي | المركبات المحفوظة |
+| الفواتير | مستندات PDF |
+| إعدادات | حساب وكلمة مرور |
+| الدفع عند الاستلام | COD للقطع |
+| الدفع عند الخدمة | COD للصيانة |
+| الدفع الإلكتروني | Paymob / Accept |
+
+### جدول الصلاحيات
+
+| الميزة | زائر | عميل مسجّل |
+|--------|------|------------|
+| تصفح الخدمات والقطع | ✅ | ✅ |
+| سلة القطع | ✅ | ✅ |
+| إتمام شراء القطع | ❌ | ✅ |
+| طلب صيانة كامل | ❌ | ✅ |
+| طلب سريع / واتساب | ✅ | ✅ |
+| تتبع مباشر + خريطة | ❌ | ✅ |
+| تفاوض السعر | ❌ | ✅ |
+| دفع إلكتروني | ❌ | ✅ |
+| لوحة العميل / سيارات / فواتير | ❌ | ✅ |
+
+---
+
+## 20. صلاحيات العميل
+
+### ✅ يستطيع
+
+- التسجيل، الدخول، استعادة كلمة المرور  
+- إدارة الملف والسيارات  
+- إنشاء ومتابعة طلبات الصيانة  
+- قبول/رفض عرض السعر المقابل  
+- الدفع (نقدي أو إلكتروني)  
+- شراء قطع مع فلتر السيارة  
+- تأكيد استلام قطع  
+- عرض وتحميل **الفواتير**  
+- التواصل عبر `/contact` وواتساب  
+
+### ❌ لا يستطيع
+
+- الدخول إلى `/admin` أو `/technician`  
+- تعيين فني أو تعديل حالة طلب  
+- تعديل دليل الخدمات/القطع/المواقع  
+- رؤية بيانات عملاء آخرين  
+- الدخول إذا الحساب **معطّل**  
+
+---
+
+## 21. معلومات التواصل وحسابات التجربة
+
+### الإنتاج
+
+| القناة | القيمة |
+|--------|--------|
+| الموقع | https://servicetime.com.sa |
+| البريد | servicetime10@gmail.com |
+| واتساب / هاتف | +966 58 381 4214 |
+| الموقع الجغرافي | الرياض، المملكة العربية السعودية |
+
+### حسابات تجريبية (بيئة اختبار فقط)
+
+> **غيّر كلمات المرور في الإنتاج.**
+
+| البريد | كلمة المرور | الدور |
+|--------|-------------|-------|
+| `client@servicetime.sa` | `Client123!` | عميل |
+| `sara@servicetime.sa` | `Client123!` | عميل |
+
+---
+
+## مخطط مسار العميل
+
+```
+                    ┌─────────────────────────────────────┐
+                    │           زائر / Visitor           │
+                    └─────────────────────────────────────┘
+                                      │
+        ┌─────────────────────────────┼─────────────────────────────┐
+        ▼                             ▼                             ▼
+   الرئيسية                      طلب سريع                      واتساب
+   الخدمات                       (بدون حساب)                   (فوري)
+   قطع الغيار                          │                             │
+   المواقع                             │                             │
+   تواصل                               ▼                             │
+        │                    (حساب تلقائي محتمل)                      │
+        │                             │                             │
+        └──────────────┬──────────────┴─────────────────────────────┘
+                       ▼
+              تسجيل /login ←→ /register
+                       │
+                       ▼
+              ┌─────────────────┐
+              │  لوحة العميل     │
+              │    /client      │
+              └─────────────────┘
+                       │
+     ┌─────────────────┼─────────────────┬─────────────────┐
+     ▼                 ▼                 ▼                 ▼
+ سياراتي          طلب جديد          قطع الغيار        الفواتير
+ /vehicles        /request          سلة→checkout      /invoices
+     │                 │                 │
+     │                 ▼                 ▼
+     │         تفاوض → دفع         طلبات القطع
+     │         تتبع /track         /spare-part-orders
+     └─────────────────┴─────────────────┘
+                       │
+                       ▼
+                 إعدادات /settings
+```
+
+---
+
+## المخرجات المسلّمة للعميل
+
+- موقع عام (عربي/إنجليزي، PWA، فاتح/داكن)  
+- لوحة **عميل** كاملة  
+- طلب صيانة (كامل + سريع + واتساب) + تتبع GPS  
+- متجر قطع + سلة + checkout + Paymob  
+- سيارات محفوظة + فلتر توافق القطع  
+- فواتير PDF  
+- بريد SMTP + إشعارات  
+- HTTPS على servicetime.com.sa  
+
+---
+
+## وثائق مرتبطة
+
+| الملف | المحتوى |
+|-------|---------|
+| `docs/customer-journey.md` | مسار تقني (EN/FR) |
+| `docs/documentation-livraison-roles.md` | أدوار المدير والفني |
+| `docs/database.md` | قاعدة البيانات |
+
+---
+
+*سجل العميل — Service Time · وثيقة تسليم*  
+*آخر تحديث: أغسطس 2026*
