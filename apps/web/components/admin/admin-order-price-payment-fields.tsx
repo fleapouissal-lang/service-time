@@ -12,6 +12,8 @@ import { cn } from "@/lib/utils";
 type AdminOrderPricePaymentFieldsProps = {
   serviceType: string;
   executionMethod: string;
+  /** Catalog / class-resolved price when known. */
+  catalogPrice?: number | null;
   paymentMethod: "cash_on_delivery" | "online";
   onPaymentMethodChange: (method: "cash_on_delivery" | "online") => void;
 };
@@ -19,12 +21,17 @@ type AdminOrderPricePaymentFieldsProps = {
 export function AdminOrderPricePaymentFields({
   serviceType,
   executionMethod,
+  catalogPrice = null,
   paymentMethod,
   onPaymentMethodChange,
 }: AdminOrderPricePaymentFieldsProps) {
   const { messages: t, locale } = useLocale();
   const p = t.dashboard.admin.ordersPage.createOrderPayment;
-  const suggested = suggestServicePrice(serviceType, executionMethod);
+  const suggested = suggestServicePrice(
+    serviceType,
+    executionMethod,
+    catalogPrice,
+  );
   const [price, setPrice] = useState(String(suggested));
 
   useEffect(() => {

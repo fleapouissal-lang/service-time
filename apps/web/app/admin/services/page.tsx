@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getAdminServicesCatalog } from "@/lib/services-catalog-admin";
+import { getAdminVehicleClasses } from "@/lib/vehicle-classes-admin";
 import { requireProfileOrThrow } from "@/lib/auth";
 
 export default async function AdminServicesPage() {
@@ -15,16 +16,19 @@ export default async function AdminServicesPage() {
   const p = t.dashboard.admin.servicesPage;
   const arMessages = getDictionary("ar");
   const enMessages = getDictionary("en");
-  const categories = await getAdminServicesCatalog(
-    arMessages.services.catalog,
-    enMessages.services.catalog,
-  );
+  const [categories, vehicleClasses] = await Promise.all([
+    getAdminServicesCatalog(
+      arMessages.services.catalog,
+      enMessages.services.catalog,
+    ),
+    getAdminVehicleClasses(),
+  ]);
 
   return (
     <div className="space-y-8">
       <DashboardPageHeader title={p.title} />
       <p className="text-sm text-muted">{p.seedHint}</p>
-      <AdminServiceAddForm />
+      <AdminServiceAddForm vehicleClasses={vehicleClasses} />
       <Card>
         <CardContent className="p-0">
           <AdminServicesTable categories={categories} />

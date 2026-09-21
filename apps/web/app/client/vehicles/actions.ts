@@ -6,6 +6,7 @@ import type { ClientVehicle, VehicleFuelType } from "@service-time/types";
 import { requireProfile } from "@/lib/auth";
 import { createClientVehicle } from "@/lib/client-vehicles";
 import type { ClientVehicleInput } from "@/lib/client-vehicle-display";
+import { parseVehicleClassId } from "@/lib/vehicle-classes";
 
 export type AddClientVehicleState = {
   error?: string;
@@ -50,6 +51,13 @@ export async function addClientVehicleAction(
     return { error: "required_fields" };
   }
 
+  const vehicleClass = parseVehicleClassId(
+    String(formData.get("vehicle_class") ?? ""),
+  );
+  if (!vehicleClass) {
+    return { error: "vehicle_class_required" };
+  }
+
   const cylinders = cylindersRaw ? Number.parseInt(cylindersRaw, 10) : null;
   const year = yearRaw ? Number.parseInt(yearRaw, 10) : null;
   const parsedFuel = parseFuelType(String(formData.get("fuel_type") ?? "").trim());
@@ -59,6 +67,7 @@ export async function addClientVehicleAction(
     modelId,
     brandName,
     modelName,
+    vehicleClass,
     cylinders: Number.isFinite(cylinders) ? cylinders : null,
     fuelType: parsedFuel,
     chassisNumber: chassisNumber || null,

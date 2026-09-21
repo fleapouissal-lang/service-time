@@ -10,6 +10,8 @@ import { surfaceCardClass } from "@/lib/card-surface";
 import { requestBtnFilledClass } from "@/lib/request-styles";
 import { buildServiceRequestHref } from "@/lib/services-catalog";
 import type { ServiceCatalogSession } from "@/lib/services-catalog-session";
+import { PricingModeBadge } from "@/components/request/pricing-mode-banner";
+import { resolveCatalogSubPricingMode } from "@/lib/service-pricing-mode";
 import { cn } from "@/lib/utils";
 
 type CatalogCategory = {
@@ -38,6 +40,8 @@ export function ServiceCategoryPanel({
   defaultPhone,
   savedVehicles,
   categories,
+  towWorkshops,
+  industrialZones,
 }: ServiceCategoryPanelProps) {
   const { messages: t } = useLocale();
   const router = useRouter();
@@ -139,9 +143,24 @@ export function ServiceCategoryPanel({
           )}
         >
           <div className="min-w-0 flex-1 text-start">
-            <h3 className="service-card__title text-lg sm:text-xl">
-              {category.title}
-            </h3>
+            <div className="flex flex-wrap items-center gap-2">
+              <h3 className="service-card__title text-lg sm:text-xl">
+                {category.title}
+              </h3>
+              {category.subOptions.some(
+                (sub) =>
+                  resolveCatalogSubPricingMode({
+                    categoryId: category.id,
+                    categoryTitle: category.title,
+                    subId: sub.id,
+                    subLabel: sub.label,
+                  }) === "ops_quote",
+              ) ? (
+                <PricingModeBadge mode="ops_quote" />
+              ) : (
+                <PricingModeBadge mode="fixed" />
+              )}
+            </div>
             <p className="service-card__desc mt-2 line-clamp-3 text-sm leading-7">
               {category.description}
             </p>
@@ -172,6 +191,8 @@ export function ServiceCategoryPanel({
         defaultPhone={defaultPhone}
         savedVehicles={savedVehicles}
         categories={categories}
+        towWorkshops={towWorkshops}
+        industrialZones={industrialZones}
       />
     </>
   );

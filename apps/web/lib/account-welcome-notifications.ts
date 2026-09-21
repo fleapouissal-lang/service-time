@@ -1,9 +1,11 @@
+import { renderServiceTimeEmail } from "@/lib/email-template";
 import {
   getLoginUrl,
   isSyntheticLoginEmail,
   resolveLoginIdentifier,
 } from "@/lib/quick-request-client";
 import { sendEmail, type SendEmailResult } from "@/lib/send-email";
+import { SITE_NAME } from "@/lib/seo";
 import { sendWhatsAppMessage } from "@/lib/whatsapp-send";
 import { normalizePhone } from "@/lib/whatsapp-utils";
 
@@ -21,14 +23,6 @@ export type AccountWelcomePayload = {
   source: AccountWelcomeSource;
   loginUrl?: string;
 };
-
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
 
 function introLine(source: AccountWelcomeSource): string {
   switch (source) {
@@ -87,36 +81,36 @@ function buildAccountWelcomeEmailHtml(payload: AccountWelcomePayload): string {
   const loginUrl = payload.loginUrl ?? getLoginUrl();
   const phone = payload.phone ? normalizePhone(payload.phone) : null;
   const loginId = resolveLoginIdentifier(payload.loginEmail, payload.phone);
-  const passwordHtml = payload.password
-    ? `<p><strong>كلمة المرور:</strong> <span dir="ltr" style="font-family: monospace;">${escapeHtml(payload.password)}</span></p>`
-    : payload.source === "client_registered"
-      ? `<p><strong>كلمة المرور:</strong> التي اخترتها عند التسجيل</p>`
-      : "";
-
-  const phoneHtml = phone
-    ? `<p><strong>الجوال:</strong> <span dir="ltr">${escapeHtml(phone)}</span></p>`
-    : "";
-
   const loginLabel = isSyntheticLoginEmail(payload.loginEmail)
     ? "تسجيل الدخول بالجوال"
     : "البريد";
 
-  return `
-    <div dir="rtl" style="font-family: Arial, sans-serif; line-height: 1.8; color: #050B10;">
-      <h2 style="color: #050B10;">مرحباً بك في Service Time</h2>
-      <p>مرحباً ${escapeHtml(payload.fullName)}،</p>
-      <p>${escapeHtml(introLine(payload.source))}</p>
-      <p><strong>${loginLabel}:</strong> <span dir="ltr">${escapeHtml(loginId)}</span></p>
-      ${phoneHtml}
-      ${passwordHtml}
-      <p><a href="${escapeHtml(loginUrl)}" dir="ltr">تسجيل الدخول</a></p>
-      ${
-        payload.password || payload.source === "admin_created"
-          ? `<p style="color: #666;">ننصحك بتغيير كلمة المرور بعد أول تسجيل دخول.</p>`
-          : ""
-      }
-    </div>
-  `.trim();
+  return renderServiceTimeEmail({
+    title: "مرحباً بك في Service Time",
+    greeting: `مرحباً ${payload.fullName}،`,
+    intro: introLine(payload.source),
+    details: [
+      { label: loginLabel, value: loginId, ltr: true },
+      ...(phone ? [{ label: "الجوال", value: phone, ltr: true as const }] : []),
+      ...(payload.password
+        ? [
+            {
+              label: "كلمة المرور",
+              value: payload.password,
+              ltr: true as const,
+            },
+          ]
+        : payload.source === "client_registered"
+          ? [{ label: "كلمة المرور", value: "التي اخترتها عند التسجيل" }]
+          : []),
+    ],
+    ctaUrl: loginUrl,
+    ctaLabel: "تسجيل الدخول",
+    note:
+      payload.password || payload.source === "admin_created"
+        ? "ننصحك بتغيير كلمة المرور بعد أول تسجيل دخول."
+        : undefined,
+  });
 }
 
 export async function sendAccountWelcomeEmail(
@@ -124,7 +118,7 @@ export async function sendAccountWelcomeEmail(
 ): Promise<SendEmailResult> {
   return sendEmail(
     payload.loginEmail,
-    "حسابك في Service Time — بيانات الدخول",
+    `حسابك في ${SITE_NAME} — بيانات الدخول`,
     buildAccountWelcomeEmailHtml(payload),
   );
 }

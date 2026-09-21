@@ -45,6 +45,8 @@ export function ClientQuotePanel({
   );
 
   const status = order.quote_status ?? "pending_admin";
+  const hasClientOffer = order.client_proposed_price != null;
+  const opsFirstPricing = !hasClientOffer && order.quote_status != null;
 
   useEffect(() => {
     if (state.success) {
@@ -52,7 +54,7 @@ export function ClientQuotePanel({
     }
   }, [state.success, router]);
 
-  if (order.client_proposed_price == null) {
+  if (order.quote_status == null) {
     return null;
   }
 
@@ -73,15 +75,19 @@ export function ClientQuotePanel({
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
-        <div className="rounded-lg border border-border bg-card/50 p-3">
-          <p className="text-xs text-muted">{q.yourOffer}</p>
-          <p className="mt-1 text-lg font-bold" dir="ltr">
-            {formatSparePartPrice(order.client_proposed_price, locale)}
-          </p>
-        </div>
+        {hasClientOffer ? (
+          <div className="rounded-lg border border-border bg-card/50 p-3">
+            <p className="text-xs text-muted">{q.yourOffer}</p>
+            <p className="mt-1 text-lg font-bold" dir="ltr">
+              {formatSparePartPrice(order.client_proposed_price!, locale)}
+            </p>
+          </div>
+        ) : null}
         {order.admin_counter_price != null ? (
           <div className={cn(requestAccentPanelHighlightClass, "rounded-lg p-3")}>
-            <p className="text-xs text-muted">{q.adminOffer}</p>
+            <p className="text-xs text-muted">
+              {opsFirstPricing ? q.opsPrice : q.adminOffer}
+            </p>
             <p className={cn("mt-1 text-lg font-bold", requestAccentTextClass)} dir="ltr">
               {formatSparePartPrice(order.admin_counter_price, locale)}
             </p>
@@ -98,12 +104,33 @@ export function ClientQuotePanel({
       </div>
 
       {status === "pending_admin" ? (
-        <p className="text-sm text-muted">{q.waitingAdmin}</p>
+        <div className="space-y-2">
+          <p className="text-sm text-muted">
+            {opsFirstPricing ? q.waitingOpsPrice : q.waitingAdmin}
+          </p>
+          {opsFirstPricing ? (
+            <div className="rounded-lg border border-amber-500/25 bg-amber-500/10 px-3 py-3">
+              <p className="text-xs font-semibold">{q.opsFlowTitle}</p>
+              <ol className="mt-2 space-y-1 text-xs leading-6 text-muted">
+                {q.opsFlowSteps.map((step, index) => (
+                  <li key={step} className="flex gap-2">
+                    <span className="font-semibold tabular-nums text-foreground/70">
+                      {index + 1}.
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          ) : null}
+        </div>
       ) : null}
 
       {status === "admin_countered" && order.admin_counter_price != null ? (
         <div className="space-y-3 border-t border-border pt-4">
-          <p className="text-sm">{q.counterReceived}</p>
+          <p className="text-sm">
+            {opsFirstPricing ? q.opsPriceReceived : q.counterReceived}
+          </p>
           {showLoginHint ? (
             <p className="text-sm text-muted">
               <Link href="/login" className="font-semibold text-primary underline">
@@ -120,7 +147,11 @@ export function ClientQuotePanel({
                 className={requestBtnFilledClass}
                 disabled={pending}
               >
-                {pending ? t.common.saving : q.acceptCounter}
+                {pending
+                  ? t.common.saving
+                  : opsFirstPricing
+                    ? q.acceptOpsPrice
+                    : q.acceptCounter}
               </Button>
             </form>
           )}

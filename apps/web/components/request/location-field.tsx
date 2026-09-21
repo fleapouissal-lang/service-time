@@ -17,17 +17,25 @@ type LocationFieldProps = {
   variant?: "request" | "dashboard";
   /** Carte plus petite et moins d'espace (formulaire compact). */
   compact?: boolean;
+  /** Force l'affichage de la carte même en mode compact. */
+  showMap?: boolean;
+  required?: boolean;
   defaultText?: string;
   defaultLat?: number | null;
   defaultLng?: number | null;
+  /** Prefixe des champs HTML (pickup vs destination). */
+  namePrefix?: "location" | "destination";
 };
 
 export function LocationField({
   variant = "request",
   compact = false,
+  showMap = false,
+  required = false,
   defaultText = "",
   defaultLat = null,
   defaultLng = null,
+  namePrefix = "location",
 }: LocationFieldProps) {
   const { messages: t } = useLocale();
   const loc = t.request.location;
@@ -41,6 +49,10 @@ export function LocationField({
   );
 
   const isDashboard = variant === "dashboard";
+  const textName = `${namePrefix}_text`;
+  const latName = `${namePrefix}_lat`;
+  const lngName = `${namePrefix}_lng`;
+  const textId = textName;
 
   const useCurrentLocation = () => {
     setError(null);
@@ -114,9 +126,10 @@ export function LocationField({
         </span>
 
         <input
-          id="location_text"
-          name="location_text"
+          id={textId}
+          name={textName}
           value={text}
+          required={required}
           onChange={(event) => {
             setText(event.target.value);
             setLat(null);
@@ -154,14 +167,14 @@ export function LocationField({
         </button>
       </div>
 
-      <input type="hidden" name="location_lat" value={lat ?? ""} />
-      <input type="hidden" name="location_lng" value={lng ?? ""} />
+      <input type="hidden" name={latName} value={lat ?? ""} />
+      <input type="hidden" name={lngName} value={lng ?? ""} />
 
-      {!compact ? <p className="text-xs text-muted">{loc.gpsHint}</p> : null}
+      {!compact || showMap ? <p className="text-xs text-muted">{loc.gpsHint}</p> : null}
 
       {error ? <p className="text-xs text-red-400">{error}</p> : null}
 
-      {lat !== null && lng !== null && !compact ? (
+      {lat !== null && lng !== null && (!compact || showMap) ? (
         <div className={requestMapFrameClass}>
           <StaticPinMap
             lat={lat}

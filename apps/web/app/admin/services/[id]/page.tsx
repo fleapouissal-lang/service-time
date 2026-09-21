@@ -5,6 +5,7 @@ import { AdminServiceCategoryForm } from "@/components/admin/admin-services-mana
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getServerI18n } from "@/lib/i18n/server";
 import { getAdminServicesCatalog } from "@/lib/services-catalog-admin";
+import { getAdminVehicleClasses } from "@/lib/vehicle-classes-admin";
 import { requireProfileOrThrow } from "@/lib/auth";
 
 type PageProps = {
@@ -23,10 +24,13 @@ export default async function AdminServiceEditPage({
   const p = t.dashboard.admin.servicesPage;
   const arMessages = getDictionary("ar");
   const enMessages = getDictionary("en");
-  const categories = await getAdminServicesCatalog(
-    arMessages.services.catalog,
-    enMessages.services.catalog,
-  );
+  const [categories, vehicleClasses] = await Promise.all([
+    getAdminServicesCatalog(
+      arMessages.services.catalog,
+      enMessages.services.catalog,
+    ),
+    getAdminVehicleClasses(),
+  ]);
   const category = categories.find((item) => item.id === id);
   if (!category) notFound();
 
@@ -45,7 +49,11 @@ export default async function AdminServiceEditPage({
           {p.saveSuccess}
         </p>
       ) : null}
-      <AdminServiceCategoryForm category={category} mode="edit" />
+      <AdminServiceCategoryForm
+        category={category}
+        mode="edit"
+        vehicleClasses={vehicleClasses}
+      />
     </div>
   );
 }

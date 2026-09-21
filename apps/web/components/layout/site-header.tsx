@@ -19,22 +19,18 @@ const SCROLL_THRESHOLD = 24;
 function navLinkClass(active: boolean, transparent: boolean) {
   if (transparent) {
     return cn(
-      "px-3 py-2 text-sm font-medium transition-all duration-200",
+      "px-3 py-2 text-sm font-semibold tracking-wide transition-all duration-200",
       active
-        ? cn(
-            "-translate-y-0.5 border-b-2 pb-1.5 font-semibold header-chrome-nav-link--active",
-          )
-        : cn(
-            "border-b-2 border-transparent pb-1.5 header-chrome-nav-link",
-          ),
+        ? "-translate-y-0.5 border-b-2 pb-1.5 font-bold header-chrome-nav-link--active"
+        : "border-b-2 border-transparent pb-1.5 header-chrome-nav-link",
     );
   }
 
   return cn(
-    "px-3 py-2 text-sm font-medium transition-all duration-200 text-[var(--site-header-fg)]",
+    "px-3 py-2 text-sm font-semibold tracking-wide transition-all duration-200",
     active
-      ? "-translate-y-0.5 border-b-2 border-[var(--site-header-link-active-border)] pb-1.5 font-semibold text-[var(--site-header-fg)]"
-      : "border-b-2 border-transparent pb-1.5 hover:text-[var(--site-header-fg-hover)]",
+      ? "-translate-y-0.5 border-b-2 border-[var(--site-header-link-active-border)] pb-1.5 font-bold text-[var(--site-header-fg-hover)]"
+      : "border-b-2 border-transparent pb-1.5 text-[var(--site-header-fg)] hover:text-[var(--site-header-fg-hover)]",
   );
 }
 
@@ -90,31 +86,31 @@ export function SiteHeader() {
         scrolled && "site-header-scrolled",
       )}
     >
-      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4 sm:h-20 sm:px-6">
+      <div className="mx-auto flex h-14 max-w-6xl items-center justify-between gap-2 px-4 sm:h-16 sm:px-5 md:h-[4.25rem] lg:gap-3 xl:h-20 xl:px-6">
         <Link href="/" className="flex shrink-0 items-center bg-transparent">
           <Image
             src={logoSrc}
             alt={logoAlt}
             width={280}
             height={98}
-            sizes="(max-width: 640px) 160px, 280px"
+            sizes="(max-width: 640px) 140px, (max-width: 1280px) 180px, 280px"
             unoptimized
             className={cn(
-              "h-10 w-auto bg-transparent object-contain sm:h-16 md:h-[4.75rem]",
+              "h-10 w-auto max-w-[9.5rem] bg-transparent object-contain sm:h-12 sm:max-w-[11rem] md:h-12 md:max-w-[12rem] lg:h-14 lg:max-w-[13rem] xl:h-16 xl:max-w-none",
               !isEnglish && "brightness-[1.15] contrast-[1.08]",
             )}
             priority
           />
         </Link>
 
-        <nav className="hidden min-w-0 items-center gap-0.5 xl:flex xl:gap-1">
+        <nav className="hidden min-w-0 flex-1 items-center justify-center gap-0.5 lg:flex xl:gap-1.5">
           {navLinks.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               className={cn(
                 navLinkClass(pathname === link.href, isTransparent),
-                "px-2 text-xs xl:px-3 xl:text-sm",
+                "px-1.5 text-[0.7rem] leading-tight whitespace-nowrap lg:px-2 lg:text-xs xl:px-3.5 xl:text-[0.95rem]",
               )}
             >
               {link.label}
@@ -122,14 +118,14 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <div className="hidden shrink-0 items-center gap-1.5 lg:flex xl:gap-2">
+        <div className="hidden shrink-0 items-center gap-2 xl:flex">
           <ThemeToggle isTransparent={isTransparent} />
           <LanguageSwitcher isTransparent={isTransparent} />
           <HeaderCartButton isTransparent={isTransparent} />
           <HeaderAuthSection isTransparent={isTransparent} variant="desktop" />
         </div>
 
-        <div className="relative z-10 flex shrink-0 items-center gap-1.5 lg:hidden">
+        <div className="relative z-10 flex shrink-0 items-center gap-1.5 xl:hidden">
           <ThemeToggle isTransparent={isTransparent} compact />
           <LanguageSwitcher isTransparent={isTransparent} compact />
           <HeaderCartButton isTransparent={isTransparent} />

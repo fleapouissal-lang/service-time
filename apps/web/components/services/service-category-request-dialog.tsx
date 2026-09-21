@@ -38,6 +38,8 @@ export function ServiceCategoryRequestDialog({
   defaultPhone,
   savedVehicles,
   categories,
+  towWorkshops,
+  industrialZones,
 }: ServiceCategoryRequestDialogProps) {
   const { messages: t, locale } = useLocale();
   const copy = t.services.catalog;
@@ -151,6 +153,8 @@ export function ServiceCategoryRequestDialog({
               defaultPhone={defaultPhone}
               savedVehicles={savedVehicles}
               categories={categories}
+              towWorkshops={towWorkshops}
+              industrialZones={industrialZones}
               onSuccess={onClose}
             />
           </div>

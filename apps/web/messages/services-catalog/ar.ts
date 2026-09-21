@@ -21,7 +21,7 @@ export const servicesCatalog = {
       id: "general_maintenance",
       title: "صيانة عامة",
       description:
-        "صيانة دورية في الورشة — زيت، فرامل، مكيف، فحص شامل، والمزيد.",
+        "صيانة دورية — اختر زيارة الورشة (مع اختيار الفرع والسعر) أو ورشة متنقلة (سعر قابل للتعديل + تحديد موقع السيارة على الخريطة).",
       subOptions: [
         {
           id: "oil_change",
@@ -178,7 +178,8 @@ export const servicesCatalog = {
         {
           id: "accident_support",
           label: "دعم بعد حادث",
-          description: "توجيه، تنسيق السطحة، والخطوات التالية.",
+          description:
+            "اختر: سطحة، ورشة متنقلة، أو زيارة فرع — بدون إدخال سعر من العميل.",
           action: "full|emergency|mobile_workshop",
         },
       ],

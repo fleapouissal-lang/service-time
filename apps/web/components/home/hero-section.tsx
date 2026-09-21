@@ -5,6 +5,7 @@ import { HeroMobileImageSlider } from "@/components/home/hero-mobile-image-slide
 import type { HeroSlide } from "@/components/home/hero-types";
 import { LocaleForwardArrow } from "@/components/ui/locale-arrows";
 import type { Locale } from "@/lib/i18n/config";
+import type { PublicHeroBanner } from "@/lib/hero-banners-shared";
 import { cn } from "@/lib/utils";
 
 type HeroSectionProps = {
@@ -16,6 +17,7 @@ type HeroSectionProps = {
   slides: readonly HeroSlide[];
   slideAriaLabel: string;
   locale: Locale;
+  mobileBanners: PublicHeroBanner[];
   /** Render only the full-screen mobile hero (desktop uses a different hero). */
   mobileOnly?: boolean;
 };
@@ -56,6 +58,7 @@ export function HeroSection({
   slides,
   slideAriaLabel,
   locale,
+  mobileBanners,
   mobileOnly = false,
 }: HeroSectionProps) {
   const isRtl = locale === "ar";
@@ -69,7 +72,10 @@ export function HeroSection({
 
   const mobileHero = (
     <div className="md:hidden">
-      <HeroMobileImageSlider slideAriaLabel={slideAriaLabel} />
+      <HeroMobileImageSlider
+        banners={mobileBanners}
+        slideAriaLabel={slideAriaLabel}
+      />
     </div>
   );
 

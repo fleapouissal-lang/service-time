@@ -93,6 +93,22 @@ export function buildWhatsAppOrderTrackingToClientMessage(payload: {
   ].join("\n");
 }
 
+export function buildWhatsAppQuotePriceToClientMessage(payload: {
+  customerName: string;
+  priceLabel: string;
+  trackingToken: string;
+  trackUrl: string;
+}): string {
+  return [
+    `مرحباً ${payload.customerName}،`,
+    "حددت إدارة العمليات سعراً لطلبك في Service Time.",
+    `السعر: ${payload.priceLabel}`,
+    "يرجى الموافقة على السعر ثم إكمال الدفع من صفحة التتبع.",
+    `رمز التتبع: ${payload.trackingToken}`,
+    `الرابط: ${payload.trackUrl}`,
+  ].join("\n");
+}
+
 export function buildWhatsAppOrderCreatedToAdminMessage(payload: {
   customerName: string;
   customerPhone: string;

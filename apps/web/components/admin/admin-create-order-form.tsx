@@ -14,7 +14,7 @@ import {
   Search,
   User,
 } from "lucide-react";
-import type { Profile } from "@service-time/types";
+import type { ClientVehicle, Profile } from "@service-time/types";
 import { createAdminOrderAction } from "@/app/admin/actions";
 import { AdminClientVehicleField } from "@/components/admin/admin-client-vehicle-field";
 import { AdminOrderPricePaymentFields } from "@/components/admin/admin-order-price-payment-fields";
@@ -32,7 +32,19 @@ import {
   getProfileDisplayName,
   getProfileSearchText,
 } from "@/lib/profile-display-name";
+import {
+  findCatalogSubOption,
+  parseCatalogAction,
+} from "@/lib/services-catalog";
+import type { PublicCatalogCategory } from "@/lib/services-catalog-admin";
 import { cn } from "@/lib/utils";
+import {
+  getVehicleClassLabel,
+  parseVehicleClassId,
+  resolveCatalogPriceForClass,
+  type VehicleClassDef,
+  type VehicleClassId,
+} from "@/lib/vehicle-classes";
 
 type AdminCreateOrderFormProps = {
   clients: Profile[];
@@ -40,6 +52,8 @@ type AdminCreateOrderFormProps = {
   executionMethodOptions: IconSelectOption[];
   priorityOptions: IconSelectOption[];
   technicianOptions: IconSelectOption[];
+  catalogCategories: PublicCatalogCategory[];
+  vehicleClasses: VehicleClassDef[];
 };
 
 type ClientMode = "existing" | "new";
@@ -124,6 +138,8 @@ export function AdminCreateOrderForm({
   executionMethodOptions,
   priorityOptions,
   technicianOptions,
+  catalogCategories,
+  vehicleClasses,
 }: AdminCreateOrderFormProps) {
   const { messages: t, locale } = useLocale();
   const router = useRouter();
@@ -136,6 +152,11 @@ export function AdminCreateOrderForm({
   const [stepError, setStepError] = useState("");
   const [serviceType, setServiceType] = useState("periodic_maintenance");
   const [executionMethod, setExecutionMethod] = useState("mobile_workshop");
+  const [catalogCategoryId, setCatalogCategoryId] = useState("");
+  const [catalogSubId, setCatalogSubId] = useState("");
+  const [vehicleClass, setVehicleClass] = useState<VehicleClassId | null>(null);
+  const [vehicleClassOverride, setVehicleClassOverride] =
+    useState<VehicleClassId | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<
     "cash_on_delivery" | "online"
   >("cash_on_delivery");
@@ -161,6 +182,93 @@ export function AdminCreateOrderForm({
 
   const selectedClient = clients.find((client) => client.id === selectedClientId);
 
+  const catalogCategoryOptions = useMemo<IconSelectOption[]>(
+    () => [
+      { value: "", label: "—" },
+      ...catalogCategories.map((category) => ({
+        value: category.id,
+        label: category.title,
+      })),
+    ],
+    [catalogCategories],
+  );
+
+  const catalogSubOptions = useMemo<IconSelectOption[]>(() => {
+    const category = catalogCategories.find(
+      (item) => item.id === catalogCategoryId,
+    );
+    if (!category) return [{ value: "", label: "—" }];
+    return [
+      { value: "", label: "—" },
+      ...category.subOptions.map((sub) => ({
+        value: sub.id,
+        label: sub.label,
+      })),
+    ];
+  }, [catalogCategories, catalogCategoryId]);
+
+  const selectedSub = useMemo(
+    () =>
+      findCatalogSubOption(catalogCategories, catalogCategoryId, catalogSubId),
+    [catalogCategories, catalogCategoryId, catalogSubId],
+  );
+
+  const effectiveVehicleClass = vehicleClassOverride ?? vehicleClass;
+
+  const catalogPrice = useMemo(() => {
+    if (!selectedSub) return null;
+    const resolved = resolveCatalogPriceForClass(
+      selectedSub.price ?? 0,
+      selectedSub.pricesByClass,
+      effectiveVehicleClass,
+    );
+    return resolved > 0 ? resolved : null;
+  }, [selectedSub, effectiveVehicleClass]);
+
+  const vehicleClassOptions = useMemo<IconSelectOption[]>(
+    () =>
+      vehicleClasses
+        .filter((row) => row.is_active)
+        .slice()
+        .sort((a, b) => a.sort_order - b.sort_order || a.id.localeCompare(b.id))
+        .map((row) => ({
+          value: row.id,
+          label: getVehicleClassLabel(row.id, locale, vehicleClasses),
+          icon: "car",
+        })),
+    [locale, vehicleClasses],
+  );
+
+  const needsVehicleClass =
+    Boolean(selectedSub) && !effectiveVehicleClass;
+
+  useEffect(() => {
+    if (!catalogCategoryId) {
+      setCatalogSubId("");
+      return;
+    }
+    const category = catalogCategories.find(
+      (item) => item.id === catalogCategoryId,
+    );
+    if (!category?.subOptions.some((item) => item.id === catalogSubId)) {
+      setCatalogSubId("");
+    }
+  }, [catalogCategoryId, catalogCategories, catalogSubId]);
+
+  useEffect(() => {
+    if (!selectedSub) return;
+    const parsed = parseCatalogAction(selectedSub.action);
+    if (parsed.kind === "full" && parsed.serviceType !== "spare_parts") {
+      setServiceType(parsed.serviceType);
+      setExecutionMethod(parsed.executionMethod);
+    }
+  }, [selectedSub]);
+
+  function handleVehicleChange(vehicle: ClientVehicle | null) {
+    setVehicleClass(parseVehicleClassId(vehicle?.vehicle_class));
+    setVehicleClassOverride(null);
+  }
+
   function resetWizard() {
     setStep(1);
     setClientMode("existing");
@@ -169,6 +277,10 @@ export function AdminCreateOrderForm({
     setStepError("");
     setServiceType("periodic_maintenance");
     setExecutionMethod("mobile_workshop");
+    setCatalogCategoryId("");
+    setCatalogSubId("");
+    setVehicleClass(null);
+    setVehicleClassOverride(null);
     setPaymentMethod("cash_on_delivery");
   }
 
@@ -226,6 +338,11 @@ export function AdminCreateOrderForm({
     if (car && car.required && !car.value.trim()) {
       setStepError(t.request.form.car);
       car.focus();
+      return false;
+    }
+
+    if (selectedSub && !effectiveVehicleClass) {
+      setStepError(t.request.form.vehicleClass);
       return false;
     }
 
@@ -458,6 +575,29 @@ export function AdminCreateOrderForm({
 
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
+                  <Label htmlFor="catalog_category">{p.catalogOptional}</Label>
+                  <IconSelect
+                    id="catalog_category"
+                    name="catalog_category"
+                    options={catalogCategoryOptions}
+                    value={catalogCategoryId}
+                    onValueChange={(value) => {
+                      setCatalogCategoryId(value);
+                      setCatalogSubId("");
+                    }}
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="catalog_sub">{p.catalogSubOptional}</Label>
+                  <IconSelect
+                    id="catalog_sub"
+                    name="catalog_sub"
+                    options={catalogSubOptions}
+                    value={catalogSubId}
+                    onValueChange={setCatalogSubId}
+                  />
+                </div>
+                <div>
                   <Label htmlFor="service_type">{t.request.form.serviceType}</Label>
                   <IconSelect
                     id="service_type"
@@ -503,12 +643,48 @@ export function AdminCreateOrderForm({
                 <div className="md:col-span-2">
                   <AdminClientVehicleField
                     clientId={clientMode === "existing" ? selectedClientId : null}
+                    onVehicleChange={handleVehicleChange}
                   />
                 </div>
+                {(needsVehicleClass ||
+                  clientMode === "new" ||
+                  !vehicleClass) &&
+                selectedSub ? (
+                  <div className="md:col-span-2">
+                    <Label htmlFor="vehicle_class">
+                      {t.request.form.vehicleClass}
+                    </Label>
+                    <IconSelect
+                      id="vehicle_class"
+                      name="vehicle_class"
+                      options={vehicleClassOptions}
+                      value={effectiveVehicleClass ?? undefined}
+                      onValueChange={(value) => {
+                        setVehicleClassOverride(parseVehicleClassId(value));
+                      }}
+                      required={Boolean(selectedSub)}
+                      fallbackIcon="car"
+                    />
+                    <p className="mt-1 text-xs text-muted">
+                      {t.request.form.vehicleClassHint}
+                    </p>
+                  </div>
+                ) : effectiveVehicleClass && selectedSub ? (
+                  <input
+                    type="hidden"
+                    name="vehicle_class"
+                    value={effectiveVehicleClass}
+                  />
+                ) : null}
                 <div className="md:col-span-2">
                   <Label htmlFor="location_text">{t.request.form.location}</Label>
                   <LocationField variant="dashboard" />
                 </div>
+                {selectedSub ? (
+                  <p className="text-xs text-muted md:col-span-2">
+                    {p.catalogPriceHint}
+                  </p>
+                ) : null}
               </div>
 
               {stepError ? (
@@ -552,6 +728,7 @@ export function AdminCreateOrderForm({
                   <AdminOrderPricePaymentFields
                     serviceType={serviceType}
                     executionMethod={executionMethod}
+                    catalogPrice={catalogPrice}
                     paymentMethod={paymentMethod}
                     onPaymentMethodChange={setPaymentMethod}
                   />

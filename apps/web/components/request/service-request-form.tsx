@@ -5,7 +5,13 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import { CheckCircle2, FileText, LogIn, Phone, User, UserPlus } from "lucide-react";
 import { submitServiceRequest } from "@/app/request/actions";
+import { AccidentSupportModePicker } from "@/components/request/accident-support-mode-picker";
 import { LocationField } from "@/components/request/location-field";
+import {
+  PricingModeBanner,
+} from "@/components/request/pricing-mode-banner";
+import { WorkshopBranchPicker } from "@/components/request/workshop-branch-picker";
+import { TowDestinationField } from "@/components/request/tow-destination-field";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
 import { ServicePriceProposalField } from "@/components/request/service-price-proposal-field";
 import { FormSecurityFields } from "@/components/forms/form-security-fields";
@@ -19,6 +25,7 @@ import { PhotoUploadField } from "@/components/ui/photo-upload-field";
 import { Label } from "@/components/ui/label";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { buildExecutionMethodSelectOptions } from "@/lib/i18n/labels";
+import type { WorkshopBranch } from "@/lib/localized-content";
 import {
   requestAccentTextClass,
   requestBtnFilledClass,
@@ -28,6 +35,15 @@ import {
   requestStepLabelClass,
 } from "@/lib/request-styles";
 import { iconAccentClass } from "@/lib/card-surface";
+import {
+  resolveCatalogSubPricingMode,
+  resolveServicePricingMode,
+} from "@/lib/service-pricing-mode";
+import {
+  isAccidentSupportSub,
+  isFlatbedCatalogCategory,
+  type AccidentSupportMode,
+} from "@/lib/tow-destinations";
 import { cn } from "@/lib/utils";
 import type { ClientVehicle, ExecutionMethod, ServiceType } from "@service-time/types";
 import {
@@ -41,6 +57,13 @@ import {
   resolveCatalogPrefillDescription,
   type CatalogCategoryLike,
 } from "@/lib/services-catalog";
+import {
+  DEFAULT_VEHICLE_CLASSES,
+  parseVehicleClassId,
+  resolveCatalogPriceForClass,
+  type VehicleClassDef,
+  type VehicleClassId,
+} from "@/lib/vehicle-classes";
 
 export function ServiceRequestForm({
   embedded = false,
@@ -61,6 +84,9 @@ export function ServiceRequestForm({
   loginRequired = false,
   loginNextPath = "/request",
   catalogCategories: catalogCategoriesProp,
+  vehicleClasses: vehicleClassesProp,
+  towWorkshops = [],
+  industrialZones = [],
   onSuccess,
 }: {
   embedded?: boolean;
@@ -89,15 +115,22 @@ export function ServiceRequestForm({
   loginRequired?: boolean;
   loginNextPath?: string;
   catalogCategories?: CatalogCategoryLike[];
+  vehicleClasses?: VehicleClassDef[];
+  towWorkshops?: WorkshopBranch[];
+  industrialZones?: WorkshopBranch[];
   onSuccess?: () => void;
 }) {
-  const { messages: t } = useLocale();
+  const { messages: t, locale } = useLocale();
   const f = t.request.form;
   const catalogCopy = t.services.catalog;
   const catalogCategories =
     catalogCategoriesProp && catalogCategoriesProp.length > 0
       ? catalogCategoriesProp
       : catalogCopy.categories;
+  const vehicleClasses =
+    vehicleClassesProp && vehicleClassesProp.length > 0
+      ? vehicleClassesProp
+      : DEFAULT_VEHICLE_CLASSES.filter((row) => row.is_active);
   const router = useRouter();
   const searchParams = useSearchParams();
   const rawType = searchParams.get("type");
@@ -119,10 +152,28 @@ export function ServiceRequestForm({
   const subId = catalogDefaults?.subId ?? searchParams.get("sub") ?? "";
   const [catalogCategoryId, setCatalogCategoryId] = useState(categoryId);
   const [catalogSubId, setCatalogSubId] = useState(subId);
+  const [accidentMode, setAccidentMode] = useState<AccidentSupportMode | "">(
+    "",
+  );
+  const [vehicleClass, setVehicleClass] = useState<VehicleClassId | null>(
+    () => parseVehicleClassId(savedVehicles[0]?.vehicle_class),
+  );
+  const [vehicleClassOverride, setVehicleClassOverride] =
+    useState<VehicleClassId | null>(null);
   const selectedSub = useMemo(
     () => findCatalogSubOption(catalogCategories, catalogCategoryId, catalogSubId),
     [catalogCategories, catalogCategoryId, catalogSubId],
   );
+  const effectiveVehicleClass = vehicleClassOverride ?? vehicleClass;
+  const catalogPriceForVehicle = useMemo(() => {
+    if (!selectedSub) return null;
+    const resolved = resolveCatalogPriceForClass(
+      selectedSub.price ?? 0,
+      selectedSub.pricesByClass,
+      effectiveVehicleClass,
+    );
+    return resolved > 0 ? resolved : null;
+  }, [selectedSub, effectiveVehicleClass]);
   const parsedSubAction = selectedSub
     ? parseCatalogAction(selectedSub.action)
     : null;
@@ -198,15 +249,36 @@ export function ServiceRequestForm({
       ),
     [catalogCategories, f.selectServiceCategory],
   );
-  const subOptions = useMemo(
-    () =>
-      buildCatalogSubSelectOptions(
-        catalogCategories,
-        catalogCategoryId,
-        catalogCopy.selectPlaceholder,
-      ),
-    [catalogCategories, catalogCategoryId, catalogCopy.selectPlaceholder],
-  );
+  const subOptions = useMemo(() => {
+    const base = buildCatalogSubSelectOptions(
+      catalogCategories,
+      catalogCategoryId,
+      catalogCopy.selectPlaceholder,
+    );
+    const category = catalogCategories.find(
+      (item) => item.id === catalogCategoryId,
+    );
+    const pm = t.request.pricingMode;
+    return base.map((option) => {
+      if (!option.value) return option;
+      const mode = resolveCatalogSubPricingMode({
+        categoryId: catalogCategoryId,
+        categoryTitle: category?.title,
+        subId: option.value,
+        subLabel: option.label,
+      });
+      if (mode !== "ops_quote") return option;
+      return {
+        ...option,
+        label: `${option.label} · ${pm.badgeOps}`,
+      };
+    });
+  }, [
+    catalogCategories,
+    catalogCategoryId,
+    catalogCopy.selectPlaceholder,
+    t.request.pricingMode,
+  ]);
   const executionMethodOptions = useMemo(
     () => buildExecutionMethodSelectOptions(t),
     [t],
@@ -233,6 +305,55 @@ export function ServiceRequestForm({
     }
   }, [state.error, t.errors.request.namePhoneRequired]);
 
+  useEffect(() => {
+    if (!isAccidentSupportSub(catalogSubId)) {
+      setAccidentMode("");
+    }
+  }, [catalogSubId]);
+
+  useEffect(() => {
+    if (!accidentMode) return;
+    setServiceType("emergency");
+    if (accidentMode === "workshop") {
+      setExecutionMethod("workshop_visit");
+    } else {
+      setExecutionMethod("mobile_workshop");
+    }
+  }, [accidentMode]);
+
+  const showFormFields = !state.success || !state.trackingToken;
+  const isAccidentSupport = isAccidentSupportSub(catalogSubId);
+  const showRequestFields =
+    !loginRequired && isFullSub && (!isAccidentSupport || Boolean(accidentMode));
+  const lockedOrSelectedCategory = catalogCategories.find(
+    (item) => item.id === catalogCategoryId,
+  );
+  const isCatalogFlatbed = isFlatbedCatalogCategory(catalogCategoryId, {
+    categoryTitle: lockedOrSelectedCategory?.title,
+    subId: catalogSubId,
+    subLabel: selectedSub?.label,
+  });
+  const isTowFlow = isCatalogFlatbed || accidentMode === "tow";
+  const isWorkshopVisit =
+    !isTowFlow &&
+    (accidentMode === "workshop" ||
+      (!isAccidentSupport && executionMethod === "workshop_visit"));
+  const isMobileWorkshop =
+    !isTowFlow &&
+    (accidentMode === "mobile" ||
+      (!isAccidentSupport && executionMethod === "mobile_workshop"));
+  const hideClientPrice = isTowFlow || isAccidentSupport;
+  const awaitOpsQuote = isTowFlow || accidentMode === "mobile";
+  const pricingMode = resolveServicePricingMode({
+    isTowFlow,
+    accidentMode,
+    isAccidentSupport,
+    isMobileWorkshop,
+    isWorkshopVisit,
+  });
+  const needsVehicleClassPick =
+    !hideClientPrice && Boolean(selectedSub) && !effectiveVehicleClass;
+
   function goToStep2() {
     const form = formRef.current;
     if (!form) return;
@@ -255,8 +376,42 @@ export function ServiceRequestForm({
     }
 
     if (locationEl && locationEl.required && !locationEl.value.trim()) {
-      setStepError(f.location);
+      setStepError(
+        isTowFlow
+          ? accidentMode === "tow"
+            ? t.request.accidentSupport.accidentLocation
+            : f.pickupLocation
+          : isWorkshopVisit
+            ? f.workshopBranchTitle
+            : f.location,
+      );
       locationEl.focus();
+      return;
+    }
+
+    if (isWorkshopVisit) {
+      const branchEl = form.querySelector<HTMLInputElement>(
+        '[name="workshop_branch_id"]',
+      );
+      if (branchEl && !branchEl.value.trim()) {
+        setStepError(f.workshopBranchRequired);
+        return;
+      }
+    }
+
+    if (isTowFlow) {
+      const destEl = form.querySelector<HTMLInputElement>(
+        '[name="destination_text"]',
+      );
+      if (destEl && !destEl.value.trim()) {
+        setStepError(f.destination);
+        destEl.focus();
+        return;
+      }
+    }
+
+    if (isAccidentSupport && !accidentMode) {
+      setStepError(t.request.accidentSupport.modeRequired);
       return;
     }
 
@@ -281,8 +436,6 @@ export function ServiceRequestForm({
     setStep(2);
   }
 
-  const showFormFields = !state.success || !state.trackingToken;
-  const showRequestFields = !loginRequired && isFullSub;
   const effectiveLoginNextPath = useMemo(() => {
     if (catalogCategoryId && catalogSubId && selectedSub) {
       return buildServiceRequestHref(
@@ -342,6 +495,14 @@ export function ServiceRequestForm({
             <input type="hidden" name="refresh_dashboard" value="1" />
           ) : null}
           <input type="hidden" name="service_type" value={serviceType} />
+          <input type="hidden" name="catalog_category" value={catalogCategoryId} />
+          <input type="hidden" name="catalog_sub" value={catalogSubId} />
+          {awaitOpsQuote ? (
+            <input type="hidden" name="await_ops_quote" value="1" />
+          ) : null}
+          {hideClientPrice ? (
+            <input type="hidden" name="skip_client_price" value="1" />
+          ) : null}
 
           {state.success && state.trackingToken ? (
             <div
@@ -432,7 +593,19 @@ export function ServiceRequestForm({
                   />
                 </div>
 
-                {!isLinkSub && showExecutionMethod ? (
+                {isAccidentSupport && isFullSub && !loginRequired ? (
+                  <div className={cn(wide && "lg:col-span-2")}>
+                    <AccidentSupportModePicker
+                      value={accidentMode}
+                      onChange={setAccidentMode}
+                    />
+                    <input
+                      type="hidden"
+                      name="execution_method"
+                      value={executionMethod}
+                    />
+                  </div>
+                ) : !isLinkSub && showExecutionMethod ? (
                   <div className={cn(wide && "lg:col-span-2")}>
                     <Label htmlFor="execution_method">{f.executionMethod}</Label>
                     <IconSelect
@@ -449,6 +622,12 @@ export function ServiceRequestForm({
                   </div>
                 ) : !isLinkSub ? (
                   <input type="hidden" name="execution_method" value={executionMethod} />
+                ) : null}
+
+                {showRequestFields ? (
+                  <div className={cn(wide && "lg:col-span-2")}>
+                    <PricingModeBanner mode={pricingMode} />
+                  </div>
                 ) : null}
 
                 {isLinkSub && selectedSub && parsedSubAction?.kind === "link" ? (
@@ -599,13 +778,122 @@ export function ServiceRequestForm({
                 </div>
 
                 <div>
-                  <ClientVehicleField vehicles={savedVehicles} />
+                  <ClientVehicleField
+                    vehicles={savedVehicles}
+                    onVehicleChange={(vehicle) => {
+                      setVehicleClass(
+                        parseVehicleClassId(vehicle?.vehicle_class),
+                      );
+                      if (vehicle?.vehicle_class) {
+                        setVehicleClassOverride(null);
+                      }
+                    }}
+                  />
                 </div>
 
-                <div>
-                  <Label htmlFor="location_text">{f.location}</Label>
-                  <LocationField compact={isCompact} />
-                </div>
+                {needsVehicleClassPick ? (
+                  <div>
+                    <Label htmlFor="vehicle_class_override">
+                      {f.vehicleClass}
+                    </Label>
+                    <div className="mt-1.5">
+                      <IconSelect
+                        id="vehicle_class_override"
+                        name="vehicle_class"
+                        value={vehicleClassOverride ?? undefined}
+                        onValueChange={(value) =>
+                          setVehicleClassOverride(
+                            parseVehicleClassId(value),
+                          )
+                        }
+                        options={vehicleClasses.map((row) => ({
+                          value: row.id,
+                          label:
+                            locale === "en" ? row.nameEn : row.nameAr,
+                          icon: "car",
+                        }))}
+                        fallbackIcon="car"
+                      />
+                    </div>
+                    <p className="mt-1 text-xs text-muted">
+                      {f.vehicleClassHint}
+                    </p>
+                  </div>
+                ) : (
+                  <input
+                    type="hidden"
+                    name="vehicle_class"
+                    value={effectiveVehicleClass ?? ""}
+                  />
+                )}
+
+                {isWorkshopVisit ? (
+                  <div className={cn(wide && "lg:col-span-2")}>
+                    <Label>{f.workshopBranchLabel}</Label>
+                    <div className="mt-2">
+                      <WorkshopBranchPicker
+                        workshops={towWorkshops}
+                        compact={isCompact}
+                        required
+                      />
+                    </div>
+                  </div>
+                ) : (
+                  <div>
+                    <Label htmlFor="location_text">
+                      {isTowFlow
+                        ? accidentMode === "tow"
+                          ? t.request.accidentSupport.accidentLocation
+                          : f.pickupLocation
+                        : f.carLocation}
+                    </Label>
+                    <LocationField
+                      compact={isCompact}
+                      showMap={isMobileWorkshop || isTowFlow}
+                      required={isTowFlow || isMobileWorkshop}
+                    />
+                  </div>
+                )}
+
+                {isTowFlow ? (
+                  <div className={cn(wide && "lg:col-span-2")}>
+                    <Label htmlFor="destination_text">{f.destination}</Label>
+                    <TowDestinationField
+                      workshops={towWorkshops}
+                      industrialZones={industrialZones}
+                      compact={isCompact}
+                      required
+                    />
+                  </div>
+                ) : null}
+
+                {awaitOpsQuote ? (
+                  <div
+                    className={cn(
+                      "rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/10 px-4 py-3 text-sm leading-7 text-foreground",
+                      wide && "lg:col-span-2",
+                    )}
+                    role="note"
+                  >
+                    {accidentMode === "mobile"
+                      ? t.request.accidentSupport.mobilePriceHint
+                      : accidentMode === "tow"
+                        ? t.request.accidentSupport.towPriceHint
+                        : f.flatbedPriceHint}
+                  </div>
+                ) : null}
+
+                {accidentMode === "workshop" ? (
+                  <div
+                    className={cn(
+                      "rounded-xl border border-[#94D4B9]/25 bg-[#94D4B9]/10 px-4 py-3 text-sm leading-7 text-foreground",
+                      wide && "lg:col-span-2",
+                    )}
+                    role="note"
+                  >
+                    {t.request.accidentSupport.workshopPriceHint}
+                  </div>
+                ) : null}
               </div>
 
               <div className={cn(wizardStepClass(2), wide && "lg:contents lg:space-y-0")}>
@@ -623,23 +911,32 @@ export function ServiceRequestForm({
                   </div>
                 ) : null}
 
-                <div className={cn(wide && "lg:col-span-2")}>
-                  <ServicePriceProposalField
-                    serviceType={serviceType}
-                    executionMethod={executionMethod}
-                    catalogPrice={selectedSub?.price ?? null}
-                    compact={isCompact}
-                    hideNegotiationHint={hidePriceNegotiationHint}
-                  />
-                </div>
+                {hideClientPrice ? null : (
+                  <div className={cn(wide && "lg:col-span-2")}>
+                    <ServicePriceProposalField
+                      serviceType={serviceType}
+                      executionMethod={executionMethod}
+                      catalogPrice={catalogPriceForVehicle}
+                      compact={isCompact}
+                      hideNegotiationHint={hidePriceNegotiationHint}
+                      editable={isMobileWorkshop}
+                    />
+                  </div>
+                )}
 
                 <div className={cn(wide && "lg:col-span-2")}>
-                  <Label htmlFor="description">{f.problemDescription}</Label>
+                  <Label htmlFor="description">
+                    {accidentMode === "mobile"
+                      ? t.request.accidentSupport.problemDescription
+                      : f.problemDescription}
+                    {accidentMode === "mobile" ? " *" : ""}
+                  </Label>
                   <IconTextarea
-                    key={`${catalogCategoryId}-${catalogSubId}`}
+                    key={`${catalogCategoryId}-${catalogSubId}-${accidentMode}`}
                     id="description"
                     name="description"
                     icon={FileText}
+                    required={accidentMode === "mobile"}
                     defaultValue={prefillDescription}
                     placeholder={t.common.placeholderNotes}
                   />

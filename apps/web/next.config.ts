@@ -52,6 +52,9 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: "6mb",
     },
+    // Next 16.2+ Turbopack: unbounded RAM growth with server fast refresh on Windows
+    // causes FATAL panics (os error 1450) and browser "TypeError: network error".
+    turbopackServerFastRefresh: false,
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -114,7 +117,21 @@ const nextConfig: NextConfig = {
           },
           {
             source: "/logos/:path*",
-            headers: publicAssetCache,
+            headers: [
+              ...publicAssetCache,
+              {
+                key: "Cross-Origin-Resource-Policy",
+                value: "cross-origin",
+              },
+              {
+                key: "Access-Control-Allow-Origin",
+                value: "*",
+              },
+              {
+                key: "X-Content-Type-Options",
+                value: "nosniff",
+              },
+            ],
           },
           {
             source: "/hero-bg.png",
@@ -195,7 +212,8 @@ const nextConfig: NextConfig = {
         ],
       },
       {
-        source: "/(.*)",
+        // Exclude public logos so Gmail/image proxies are not blocked by CSP/XFO.
+        source: "/((?!logos/).*)",
         headers: [
           { key: "X-Frame-Options", value: "DENY" },
           { key: "X-Content-Type-Options", value: "nosniff" },

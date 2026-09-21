@@ -20,6 +20,7 @@ import {
   clampField,
   resolveFormGuardError,
 } from "@/lib/form-security";
+import { isFlatbedCatalogCategory } from "@/lib/tow-destinations";
 
 export interface RequestFormState {
   error?: string;
@@ -65,6 +66,22 @@ export async function submitServiceRequest(
   const location_lng_raw = String(formData.get("location_lng") ?? "").trim();
   const location_lat = location_lat_raw ? Number(location_lat_raw) : null;
   const location_lng = location_lng_raw ? Number(location_lng_raw) : null;
+  const destination_text = clampField(
+    String(formData.get("destination_text") ?? ""),
+    FIELD_LIMITS.location,
+  );
+  const destination_lat_raw = String(
+    formData.get("destination_lat") ?? "",
+  ).trim();
+  const destination_lng_raw = String(
+    formData.get("destination_lng") ?? "",
+  ).trim();
+  const destination_lat = destination_lat_raw
+    ? Number(destination_lat_raw)
+    : null;
+  const destination_lng = destination_lng_raw
+    ? Number(destination_lng_raw)
+    : null;
   const description = clampField(
     String(formData.get("description") ?? ""),
     FIELD_LIMITS.description,
@@ -75,6 +92,18 @@ export async function submitServiceRequest(
   const execution_method = String(
     formData.get("execution_method") ?? "",
   ) as ExecutionMethod;
+  const catalog_category = String(formData.get("catalog_category") ?? "")
+    .trim()
+    .toLowerCase();
+  const catalog_sub = String(formData.get("catalog_sub") ?? "").trim();
+  const awaitOpsQuote =
+    String(formData.get("await_ops_quote") ?? "").trim() === "1" ||
+    isFlatbedCatalogCategory(catalog_category, { subId: catalog_sub });
+  const skipClientPrice =
+    String(formData.get("skip_client_price") ?? "").trim() === "1" ||
+    awaitOpsQuote ||
+    (catalog_sub === "accident_support" &&
+      String(formData.get("accident_mode") ?? "").trim() === "workshop");
   const priceRaw = String(formData.get("client_proposed_price") ?? "").trim();
   const client_proposed_price = priceRaw ? Number(priceRaw) : null;
   const photo = getPhotoFromFormData(formData);
@@ -94,7 +123,26 @@ export async function submitServiceRequest(
     return { error: t.errors.request.invalidExecutionMethod };
   }
 
-  if (
+  if (awaitOpsQuote) {
+    if (!location_text) {
+      return { error: t.errors.request.pickupRequired };
+    }
+    const accidentMode = String(formData.get("accident_mode") ?? "").trim();
+    if (
+      (isFlatbedCatalogCategory(catalog_category, { subId: catalog_sub }) ||
+        accidentMode === "tow") &&
+      !destination_text
+    ) {
+      return { error: t.errors.request.destinationRequired };
+    }
+    if (accidentMode === "mobile" && !description) {
+      return { error: t.errors.request.descriptionRequired };
+    }
+  } else if (skipClientPrice) {
+    if (execution_method === "workshop_visit" && !location_text) {
+      return { error: t.errors.request.workshopBranchRequired };
+    }
+  } else if (
     client_proposed_price == null ||
     !Number.isFinite(client_proposed_price) ||
     client_proposed_price <= 0
@@ -129,7 +177,20 @@ export async function submitServiceRequest(
       location_lng !== null && Number.isFinite(location_lng)
         ? location_lng
         : null,
-    p_client_proposed_price: client_proposed_price,
+    p_client_proposed_price:
+      awaitOpsQuote || skipClientPrice ? null : client_proposed_price,
+    p_destination_text: destination_text || null,
+    p_destination_lat:
+      destination_lat !== null && Number.isFinite(destination_lat)
+        ? destination_lat
+        : null,
+    p_destination_lng:
+      destination_lng !== null && Number.isFinite(destination_lng)
+        ? destination_lng
+        : null,
+    p_await_ops_quote: awaitOpsQuote,
+    p_catalog_category: catalog_category || null,
+    p_catalog_sub: catalog_sub || null,
   });
 
   if (error) {

@@ -446,5 +446,5 @@ INSERT INTO public.notifications_log (
 --
 -- Technicien mobile : tech@servicetime.sa      / Tech123!
 -- Technicien atelier: workshop@servicetime.sa / Tech123!
--- Admin             : admin@servicetime.sa      / Admin123!
+-- Admin             : support@servicetime.com.sa / Admin123!  (Super Admin)
 -- ---------------------------------------------------------------------------

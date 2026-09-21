@@ -1,5 +1,10 @@
 import { getProfileSearchText } from "@/lib/profile-display-name";
 import { sparePartMatchesVehicleFilter } from "@/lib/spare-part-vehicle";
+import {
+  filterOrdersBySection,
+  parseAdminOrderSection,
+  serviceRequestNeedsAction,
+} from "@/lib/admin-order-sections";
 import type { Profile, ServiceRequest, SparePart } from "@service-time/types";
 
 export type ListFilterParams = {
@@ -20,6 +25,10 @@ export type ListFilterParams = {
   period?: string;
   admin_read?: string;
   source_type?: string;
+  /** Admin orders queue section (catalog family). */
+  section?: string;
+  /** When `1` / `true`, only orders needing admin action. */
+  needs_action?: string;
 };
 
 export function parseListFilters(
@@ -42,6 +51,8 @@ export function parseListFilters(
     period: searchParams.period?.trim() || undefined,
     admin_read: searchParams.admin_read?.trim() || undefined,
     source_type: searchParams.source_type?.trim() || undefined,
+    section: searchParams.section?.trim() || undefined,
+    needs_action: searchParams.needs_action?.trim() || undefined,
   };
 }
 
@@ -93,8 +104,18 @@ export function filterServiceRequests(
   items: ServiceRequest[],
   params: ListFilterParams,
 ): ServiceRequest[] {
-  return items.filter((item) => {
+  const section = parseAdminOrderSection(params.section);
+  const scoped =
+    section === "all" || section === "spare_parts"
+      ? items
+      : filterOrdersBySection(items, section);
+
+  return scoped.filter((item) => {
     if (!filterByPeriod(item.created_at, params.period)) return false;
+
+    if (params.needs_action === "1" || params.needs_action === "true") {
+      if (!serviceRequestNeedsAction(item)) return false;
+    }
 
     if (params.q) {
       const q = params.q.toLowerCase();
@@ -104,7 +125,9 @@ export function filterServiceRequests(
         matchesQuery(item.car_type, q) ||
         matchesQuery(item.location_text, q) ||
         matchesQuery(item.tracking_token, q) ||
-        matchesQuery(item.description, q);
+        matchesQuery(item.description, q) ||
+        matchesQuery(item.catalog_category, q) ||
+        matchesQuery(item.catalog_sub, q);
       if (!hit) return false;
     }
 

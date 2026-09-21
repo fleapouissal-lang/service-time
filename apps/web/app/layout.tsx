@@ -12,6 +12,8 @@ import { getServerI18n } from "@/lib/i18n/server";
 import { LocaleProvider } from "@/lib/i18n/locale-context";
 import { getTheme } from "@/lib/theme/get-theme";
 import { ThemeProvider } from "@/lib/theme/theme-context";
+import { getPublicFooterContent } from "@/lib/footer-content-admin";
+import { getPublicWhatsAppFloatSettings } from "@/lib/whatsapp-float-admin";
 import { buildSiteMetadata } from "@/lib/seo";
 import "./globals.css";
 
@@ -51,6 +53,8 @@ export default async function RootLayout({
   const { locale } = await getServerI18n();
   const dir = getDir(locale);
   const theme = await getTheme();
+  const footerContent = await getPublicFooterContent(locale);
+  const whatsappFloat = await getPublicWhatsAppFloatSettings(locale);
   const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
 
   return (
@@ -74,7 +78,11 @@ export default async function RootLayout({
             <ThemeProvider initialTheme={theme}>
               <AuthSessionGuard />
               <SparePartsCartRoot>
-                <PublicShell header={<SiteHeader />} footer={<SiteFooter />}>
+                <PublicShell
+                  header={<SiteHeader />}
+                  footer={<SiteFooter content={footerContent} />}
+                  whatsappFloat={whatsappFloat}
+                >
                   {children}
                 </PublicShell>
                 <MobileBottomNav />

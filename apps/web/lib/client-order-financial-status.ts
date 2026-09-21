@@ -31,21 +31,20 @@ type OrderSlice = Pick<
 export function getClientOrderFinancialStatus(
   order: OrderSlice,
 ): ClientOrderFinancialStatus {
-  if (order.client_proposed_price == null) {
-    return { kind: "none", amount: null };
-  }
-
   if (!requiresServicePayment(order)) {
     if (order.quote_status === "admin_countered") {
       const amount = getEffectiveQuotePrice(order);
       return { kind: "counter_offer", amount };
     }
 
-    if (
-      order.quote_status === "pending_admin" ||
-      order.quote_status === null ||
-      order.quote_status === "declined"
-    ) {
+    if (order.quote_status === "pending_admin") {
+      return {
+        kind: "awaiting_admin",
+        amount: getEffectiveQuotePrice(order),
+      };
+    }
+
+    if (order.quote_status === "declined") {
       return {
         kind: "awaiting_admin",
         amount: order.client_proposed_price,

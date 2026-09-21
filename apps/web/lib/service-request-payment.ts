@@ -12,7 +12,8 @@ type PaymentSlice = Pick<
 /** Demande avec prix négocié et accord obtenu. */
 export function requiresServicePayment(order: PaymentSlice): boolean {
   return (
-    order.client_proposed_price != null && order.quote_status === "accepted"
+    order.quote_status === "accepted" &&
+    (order.agreed_price != null || order.client_proposed_price != null)
   );
 }
 

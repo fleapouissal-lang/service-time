@@ -80,6 +80,12 @@ export default async function ClientOrderDetailPage({
               <p className="text-sm text-muted">{t.request.form.location}</p>
               <p className="font-medium">{order.location_text ?? t.common.dash}</p>
             </div>
+            {order.destination_text ? (
+              <div>
+                <p className="text-sm text-muted">{t.request.form.destination}</p>
+                <p className="font-medium">{order.destination_text}</p>
+              </div>
+            ) : null}
             <div>
               <p className="text-sm text-muted">{t.request.form.car}</p>
               <p className="font-medium">{order.car_type ?? t.common.dash}</p>

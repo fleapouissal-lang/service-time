@@ -181,14 +181,14 @@ export function MobileAccountButton({
         <button
           type="button"
           aria-label={messages.common.close}
-          className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-[2px] lg:hidden"
+          className="fixed inset-0 z-[60] bg-black/55 backdrop-blur-[2px] xl:hidden"
           onClick={() => setOpen(false)}
         />
       ) : null}
 
       {open ? (
         <div
-          className="fixed inset-x-0 top-0 z-[70] lg:hidden"
+          className="fixed inset-x-0 top-0 z-[70] xl:hidden"
           role="dialog"
           aria-modal="true"
           aria-label={messages.mobileNav.profileMenu}

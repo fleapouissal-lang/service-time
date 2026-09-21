@@ -18,6 +18,9 @@ type AdminOrderUpdateFormProps = {
   locationText?: string | null;
   locationLat?: number | null;
   locationLng?: number | null;
+  destinationText?: string | null;
+  destinationLat?: number | null;
+  destinationLng?: number | null;
   statusOptions: IconSelectOption[];
   priorityOptions: IconSelectOption[];
   technicianOptions: IconSelectOption[];
@@ -33,6 +36,9 @@ export function AdminOrderUpdateForm({
   locationText = "",
   locationLat = null,
   locationLng = null,
+  destinationText = "",
+  destinationLat = null,
+  destinationLng = null,
   statusOptions,
   priorityOptions,
   technicianOptions,
@@ -137,11 +143,25 @@ export function AdminOrderUpdateForm({
           <Label htmlFor="location_text">{p.detail.location}</Label>
           <div className="mt-2">
             <LocationField
-              key={`${orderId}-${locationText ?? ""}-${locationLat ?? ""}-${locationLng ?? ""}`}
+              key={`${orderId}-loc-${locationText ?? ""}-${locationLat ?? ""}-${locationLng ?? ""}`}
               variant="dashboard"
               defaultText={locationText ?? ""}
               defaultLat={locationLat}
               defaultLng={locationLng}
+            />
+          </div>
+        </div>
+
+        <div>
+          <Label htmlFor="destination_text">{p.detail.destination}</Label>
+          <div className="mt-2">
+            <LocationField
+              key={`${orderId}-dest-${destinationText ?? ""}-${destinationLat ?? ""}-${destinationLng ?? ""}`}
+              variant="dashboard"
+              namePrefix="destination"
+              defaultText={destinationText ?? ""}
+              defaultLat={destinationLat}
+              defaultLng={destinationLng}
             />
           </div>
         </div>

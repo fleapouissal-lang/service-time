@@ -2,88 +2,30 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import { useLocale } from "@/lib/i18n/locale-context";
+import type { PublicHeroBanner } from "@/lib/hero-banners-shared";
 import { cn } from "@/lib/utils";
 
 const SLIDE_INTERVAL_MS = 6000;
 
-type HeroBanner = {
-  src: string;
-  href: string;
-  alt: string;
-};
-
-const AR_BANNERS: HeroBanner[] = [
-  {
-    src: "/hero/hero-maintenance-dark.png",
-    href: "/request?category=periodic_maintenance",
-    alt: "صيانة اليوم… راحة لبكرة",
-  },
-  {
-    src: "/hero/hero-towing-light.png",
-    href: "/request?category=emergency",
-    alt: "سطحتك بطلب واحد",
-  },
-  {
-    src: "/hero/hero-roadside-dark.png",
-    href: "/request?category=emergency",
-    alt: "معك في كل مشوار",
-  },
-  {
-    src: "/hero/hero-spareparts-dark.png",
-    href: "/spare-parts",
-    alt: "دورناها عنك",
-  },
-  {
-    src: "/hero/hero-bodywork-light.png",
-    href: "/request",
-    alt: "لا تشيل هم الصدمة",
-  },
-];
-
-const EN_BANNERS: HeroBanner[] = [
-  {
-    src: "/hero/hero-maintenance-dark-en.png",
-    href: "/request?category=periodic_maintenance",
-    alt: "Service today, comfort tomorrow",
-  },
-  {
-    src: "/hero/hero-towing-light-en.png",
-    href: "/request?category=emergency",
-    alt: "One call away",
-  },
-  {
-    src: "/hero/hero-roadside-dark-en.png",
-    href: "/request?category=emergency",
-    alt: "With you on every trip",
-  },
-  {
-    src: "/hero/hero-spareparts-dark-en.png",
-    href: "/spare-parts",
-    alt: "We've got it covered",
-  },
-  {
-    src: "/hero/hero-bodywork-light-en.png",
-    href: "/request",
-    alt: "Don't stress the crash",
-  },
-];
-
 type HeroImageSliderProps = {
+  banners: PublicHeroBanner[];
   slideAriaLabel: string;
 };
 
-export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
-  const { locale } = useLocale();
-  const banners = locale === "en" ? EN_BANNERS : AR_BANNERS;
+export function HeroImageSlider({
+  banners,
+  slideAriaLabel,
+}: HeroImageSliderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [locale]);
+  }, [banners]);
 
   const goToNext = useCallback(() => {
-    setActiveIndex((current) => (current + 1) % banners.length);
+    setActiveIndex((current) =>
+      banners.length > 0 ? (current + 1) % banners.length : 0,
+    );
   }, [banners.length]);
 
   useEffect(() => {
@@ -97,20 +39,21 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
     return () => window.clearInterval(timer);
   }, [goToNext, banners.length]);
 
+  if (banners.length === 0) return null;
+
   return (
     <section
       className="hero-image-slider relative -mt-14 bg-site-main sm:-mt-20"
       aria-roledescription="carousel"
       aria-label={slideAriaLabel}
     >
-      <div className="hero-image-slider__top-scrim" aria-hidden />
       <div className="hero-image-slider__viewport">
         {banners.map((banner, index) => {
           const isActive = index === activeIndex;
 
           return (
             <Link
-              key={banner.src}
+              key={banner.id}
               href={banner.href}
               className={cn(
                 "hero-image-slider__slide",
@@ -121,10 +64,15 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
               aria-hidden={!isActive}
               tabIndex={isActive ? 0 : -1}
             >
-              <span
-                className="hero-image-slider__backdrop"
-                style={{ backgroundImage: `url(${banner.src})` }}
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={banner.src}
+                alt=""
                 aria-hidden
+                className="hero-image-slider__backdrop"
+                decoding="async"
+                loading={index === 0 ? "eager" : "lazy"}
+                draggable={false}
               />
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -148,7 +96,7 @@ export function HeroImageSlider({ slideAriaLabel }: HeroImageSliderProps) {
           >
             {banners.map((banner, index) => (
               <button
-                key={banner.src}
+                key={banner.id}
                 type="button"
                 role="tab"
                 aria-selected={index === activeIndex}

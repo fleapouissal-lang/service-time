@@ -1,6 +1,14 @@
 import type { Messages } from "@/messages/types";
 import { parseCatalogAction } from "@/lib/services-catalog";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
+import {
+  normalizePricesByClass,
+  parseVehicleClassId,
+  isValidVehicleClassIdFormat,
+  resolveCatalogPriceForClass,
+  type PricesByClass,
+  type VehicleClassId,
+} from "@/lib/vehicle-classes";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const SERVICES_CATALOG_SITE_CONTENT_KEY = "services.catalog";
@@ -12,7 +20,12 @@ export type AdminCatalogSubOption = {
   description_ar: string;
   description_en: string;
   action: string;
+  /** Default / fallback price when no class-specific price is set. */
   price: number;
+  /** Optional price per vehicle class (sedan, suv, …). */
+  pricesByClass: PricesByClass;
+  /** Classes assigned to this sub-service (may have no custom price → use default). */
+  classIds: string[];
   sort_order: number;
   is_active: boolean;
 };
@@ -38,6 +51,8 @@ export type PublicCatalogCategory = {
     description: string;
     action: string;
     price: number;
+    pricesByClass: PricesByClass;
+    classIds: string[];
   }[];
 };
 
@@ -49,6 +64,27 @@ function slugifyId(raw: string): string {
     .replace(/^_+|_+$/g, "")
     .slice(0, 48);
   return base || `service_${crypto.randomUUID().slice(0, 8)}`;
+}
+
+function normalizeSubClassIds(
+  raw: unknown,
+  pricesByClass: PricesByClass,
+): string[] {
+  const fromPrices = Object.keys(pricesByClass);
+  const fromRaw = Array.isArray(raw)
+    ? raw
+        .map((item) => String(item ?? "").trim().toLowerCase())
+        .filter(isValidVehicleClassIdFormat)
+    : [];
+  const merged = [...fromRaw, ...fromPrices];
+  const seen = new Set<string>();
+  const result: string[] = [];
+  for (const id of merged) {
+    if (seen.has(id)) continue;
+    seen.add(id);
+    result.push(id);
+  }
+  return result;
 }
 
 function defaultPriceFromAction(action: string): number {
@@ -94,6 +130,8 @@ export function buildDefaultAdminCatalog(
           description_en: enSub?.description ?? arSub.description,
           action: arSub.action,
           price: defaultPriceFromAction(arSub.action),
+          pricesByClass: {},
+          classIds: [],
           sort_order: subIndex,
           is_active: true,
         };
@@ -120,9 +158,11 @@ function normalizeCatalog(raw: unknown): AdminCatalogCategory[] | null {
       const sub = subItem as Record<string, unknown>;
       const subId = String(sub.id ?? "").trim();
       if (!subId) continue;
-      const action = String(sub.action ?? "").trim() ||
+      const action =
+        String(sub.action ?? "").trim() ||
         "full|periodic_maintenance|mobile_workshop";
       const priceRaw = Number(sub.price);
+      const pricesByClass = normalizePricesByClass(sub.pricesByClass);
       subOptions.push({
         id: subId,
         label_ar: String(sub.label_ar ?? "").trim(),
@@ -130,7 +170,11 @@ function normalizeCatalog(raw: unknown): AdminCatalogCategory[] | null {
         description_ar: String(sub.description_ar ?? "").trim(),
         description_en: String(sub.description_en ?? "").trim(),
         action,
-        price: Number.isFinite(priceRaw) ? Math.max(0, priceRaw) : defaultPriceFromAction(action),
+        price: Number.isFinite(priceRaw)
+          ? Math.max(0, priceRaw)
+          : defaultPriceFromAction(action),
+        pricesByClass,
+        classIds: normalizeSubClassIds(sub.classIds, pricesByClass),
         sort_order: Number.isFinite(Number(sub.sort_order))
           ? Number(sub.sort_order)
           : subIndex,
@@ -196,6 +240,17 @@ export async function persistAdminServicesCatalog(
       if (!Number.isFinite(sub.price) || sub.price < 0) {
         throw new Error("services_catalog_price_invalid");
       }
+      for (const [classId, classPrice] of Object.entries(sub.pricesByClass)) {
+        if (!isValidVehicleClassIdFormat(classId)) {
+          throw new Error("services_catalog_price_invalid");
+        }
+        if (
+          classPrice != null &&
+          (!Number.isFinite(classPrice) || classPrice < 0)
+        ) {
+          throw new Error("services_catalog_price_invalid");
+        }
+      }
     }
   }
 
@@ -215,7 +270,10 @@ export function toPublicCatalog(
     .filter((category) => category.is_active)
     .map((category) => ({
       id: category.id,
-      title: locale === "en" ? category.title_en || category.title_ar : category.title_ar,
+      title:
+        locale === "en"
+          ? category.title_en || category.title_ar
+          : category.title_ar,
       description:
         locale === "en"
           ? category.description_en || category.description_ar
@@ -231,6 +289,8 @@ export function toPublicCatalog(
               : sub.description_ar,
           action: sub.action,
           price: sub.price,
+          pricesByClass: sub.pricesByClass ?? {},
+          classIds: sub.classIds ?? Object.keys(sub.pricesByClass ?? {}),
         })),
     }));
 }
@@ -239,13 +299,18 @@ export function findCatalogSuggestedPrice(
   categories: AdminCatalogCategory[],
   categoryId: string | null | undefined,
   subId: string | null | undefined,
+  vehicleClass?: VehicleClassId | string | null,
 ): number | null {
   if (!categoryId || !subId) return null;
   const category = categories.find((item) => item.id === categoryId);
   const sub = category?.subOptions.find((item) => item.id === subId);
   if (!sub || !sub.is_active) return null;
-  if (!Number.isFinite(sub.price) || sub.price <= 0) return null;
-  return sub.price;
+  const resolved = resolveCatalogPriceForClass(
+    sub.price,
+    sub.pricesByClass,
+    parseVehicleClassId(vehicleClass),
+  );
+  return resolved > 0 ? resolved : null;
 }
 
 export function parseCategoryFromForm(
@@ -258,7 +323,10 @@ export function parseCategoryFromForm(
   const description_en = String(formData.get("description_en") ?? "").trim();
   const idRaw = String(formData.get("id") ?? "").trim();
   const id = idRaw || existing?.id || createCategoryId(title_ar || title_en);
-  const sort_order = Number.parseInt(String(formData.get("sort_order") ?? ""), 10);
+  const sort_order = Number.parseInt(
+    String(formData.get("sort_order") ?? ""),
+    10,
+  );
   const is_active = formData.get("is_active") === "on";
 
   const subIds = formData.getAll("sub_id").map(String);
@@ -278,11 +346,27 @@ export function parseCategoryFromForm(
       0,
       Number.parseFloat(String(formData.get(`sub_price_${subId}`) ?? "0")) || 0,
     );
+    const pricesByClass: PricesByClass = {};
+    const pricePrefix = `sub_price_${subId}_`;
+    for (const key of formData.keys()) {
+      if (!key.startsWith(pricePrefix)) continue;
+      const classId = key.slice(pricePrefix.length);
+      if (!isValidVehicleClassIdFormat(classId)) continue;
+      const raw = String(formData.get(key) ?? "").trim();
+      if (!raw) continue;
+      const value = Number.parseFloat(raw);
+      if (Number.isFinite(value) && value > 0) {
+        pricesByClass[classId] = Math.round(value);
+      }
+    }
+    const classIds = String(formData.get(`sub_class_ids_${subId}`) ?? "")
+      .split(",")
+      .map((item) => item.trim().toLowerCase())
+      .filter(isValidVehicleClassIdFormat);
     const existingSub = existing?.subOptions.find((s) => s.id === subId);
-    const finalId =
-      subId.startsWith("new_")
-        ? createSubOptionId(label_ar || label_en)
-        : subId;
+    const finalId = subId.startsWith("new_")
+      ? createSubOptionId(label_ar || label_en)
+      : subId;
 
     return {
       id: finalId,
@@ -292,6 +376,8 @@ export function parseCategoryFromForm(
       description_en: description_en_sub,
       action,
       price,
+      pricesByClass,
+      classIds: normalizeSubClassIds(classIds, pricesByClass),
       sort_order: existingSub?.sort_order ?? index,
       is_active: formData.get(`sub_active_${subId}`) === "on",
     };

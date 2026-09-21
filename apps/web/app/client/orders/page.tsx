@@ -23,6 +23,8 @@ import {
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { filterServiceRequests, parseListFilters } from "@/lib/list-filters";
+import { getWorkshops } from "@/lib/queries";
+import { getIndustrialZones } from "@/lib/industrial-zones-admin";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -34,7 +36,11 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
   const profile = await requireProfile(["client"]);
   const params = parseListFilters(await searchParams);
   const allOrders = await getClientRequests();
-  const savedVehicles = profile ? await getClientVehicles(profile.id) : [];
+  const [savedVehicles, towWorkshops, industrialZones] = await Promise.all([
+    profile ? getClientVehicles(profile.id) : Promise.resolve([]),
+    getWorkshops(),
+    getIndustrialZones(),
+  ]);
   const orders = filterServiceRequests(allOrders, params);
   const photosByRequestId = await getRequestPhotosByRequestIds(
     orders.map((order) => order.id),
@@ -73,6 +79,8 @@ export default async function ClientOrdersPage({ searchParams }: PageProps) {
           }
           defaultPhone={profile?.phone ?? ""}
           savedVehicles={savedVehicles}
+          towWorkshops={towWorkshops}
+          industrialZones={industrialZones}
         />
       </Suspense>
 

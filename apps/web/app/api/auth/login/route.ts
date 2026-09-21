@@ -1,15 +1,16 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
 import type { CookieOptions } from "@supabase/ssr";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { purgeSupabaseAuthCookieChunks } from "@/lib/auth-cookies";
 import { findAuthUserByEmail, getLoginProfile } from "@/lib/auth-users";
 import { isEmailNotConfirmedError } from "@/lib/auth-errors";
 import { ensureServerEnv } from "@/lib/env-server";
-import { resolveLoginEmail } from "@/lib/resolve-login-email";
 import { checkLoginRateLimit } from "@/lib/form-security";
+import { issueAdminLoginOtp } from "@/lib/issue-login-otp";
+import { resolveLoginEmail } from "@/lib/resolve-login-email";
 import { createSupabaseServerClient } from "@/lib/supabase-server";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import type { SupabaseClient } from "@supabase/supabase-js";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -144,6 +145,39 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "account inactive" }, { status: 403 });
     }
 
+    // Admin OTP (disabled by default until Super Admin mailbox is available).
+    // Set ADMIN_LOGIN_OTP_ENABLED=true to require email OTP after password.
+    const adminOtpEnabled =
+      process.env.ADMIN_LOGIN_OTP_ENABLED?.trim().toLowerCase() === "true" ||
+      process.env.ADMIN_LOGIN_OTP_ENABLED?.trim() === "1";
+
+    if (profile.role === "admin" && adminOtpEnabled) {
+      const userId = data.user.id;
+      const otpEmail = normalizeLoginEmail(data.user.email ?? email);
+      await safeSignOut(supabase);
+      purgeSupabaseAuthCookieChunks(cookieStore.getAll(), setAuthCookie);
+
+      const otp = await issueAdminLoginOtp(admin, userId, otpEmail);
+      if (!otp.ok) {
+        return NextResponse.json({ error: otp.error }, { status: otp.status });
+      }
+
+      return NextResponse.json(
+        {
+          needsLoginOtp: true,
+          email: otp.email,
+          expiresInSeconds: otp.expiresInSeconds,
+          devMode: otp.devMode === true,
+        },
+        {
+          status: 200,
+          headers: {
+            "Cache-Control": "private, no-store, must-revalidate",
+          },
+        },
+      );
+    }
+
     return NextResponse.json(
       { role: profile.role },
       {
@@ -159,4 +193,8 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+function normalizeLoginEmail(email: string): string {
+  return email.trim().toLowerCase();
 }

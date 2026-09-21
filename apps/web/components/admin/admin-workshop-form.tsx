@@ -3,7 +3,9 @@
 import { FormEvent, useState, useTransition } from "react";
 import { Link2, Loader2, MapPin, Trash2 } from "lucide-react";
 import {
+  deleteIndustrialZoneAction,
   deleteWorkshopLocationAction,
+  saveIndustrialZoneAction,
   saveWorkshopLocationAction,
 } from "@/app/admin/actions";
 import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
@@ -27,6 +29,8 @@ type AdminWorkshopFormProps = {
   className?: string;
   embedded?: boolean;
   onSaved?: () => void;
+  /** workshop = ورش Service Time ; industrial = مناطق صناعية */
+  variant?: "workshop" | "industrial";
 };
 
 export function AdminWorkshopForm({
@@ -35,9 +39,12 @@ export function AdminWorkshopForm({
   className,
   embedded = false,
   onSaved,
+  variant = "workshop",
 }: AdminWorkshopFormProps) {
   const { messages: t, locale } = useLocale();
-  const p = t.dashboard.admin.locationsPage;
+  const page = t.dashboard.admin.locationsPage;
+  const p = variant === "industrial" ? page.industrial : page;
+  const isIndustrial = variant === "industrial";
   const isEdit = Boolean(branch);
   const [nameAr, setNameAr] = useState(branch?.name_ar ?? "");
   const [nameEn, setNameEn] = useState(branch?.name_en ?? "");
@@ -172,7 +179,9 @@ export function AdminWorkshopForm({
     }
 
     startTransition(async () => {
-      const result = await saveWorkshopLocationAction(buildFormData());
+      const result = isIndustrial
+        ? await saveIndustrialZoneAction(buildFormData())
+        : await saveWorkshopLocationAction(buildFormData());
       if (result.error) {
         setError(result.error);
         return;
@@ -196,7 +205,9 @@ export function AdminWorkshopForm({
     startDeleteTransition(async () => {
       const formData = new FormData();
       formData.set("id", branch.id);
-      const result = await deleteWorkshopLocationAction(formData);
+      const result = isIndustrial
+        ? await deleteIndustrialZoneAction(formData)
+        : await deleteWorkshopLocationAction(formData);
       if (result.error) {
         setError(result.error);
         setDeleteOpen(false);
@@ -209,7 +220,9 @@ export function AdminWorkshopForm({
 
   const displayName = branch
     ? getWorkshopName(branch, locale)
-    : p.newWorkshop;
+    : isIndustrial
+      ? page.industrial.newZone
+      : page.newWorkshop;
 
   return (
     <>
@@ -224,7 +237,13 @@ export function AdminWorkshopForm({
           <div>
             {!embedded || isEdit ? (
               <p className="text-sm font-semibold text-primary">
-                {isEdit ? p.editWorkshop : p.addWorkshop}
+                {isEdit
+                  ? isIndustrial
+                    ? page.industrial.editZone
+                    : page.editWorkshop
+                  : isIndustrial
+                    ? page.industrial.addZone
+                    : page.addWorkshop}
               </p>
             ) : null}
             {isEdit ? (
@@ -251,8 +270,8 @@ export function AdminWorkshopForm({
               )}
             </Button>
           ) : null}
-          {isEdit && !canDelete ? (
-            <p className="text-xs text-muted">{p.minOneHint}</p>
+          {isEdit && !canDelete && !isIndustrial ? (
+            <p className="text-xs text-muted">{page.minOneHint}</p>
           ) : null}
         </div>
 
@@ -361,7 +380,13 @@ export function AdminWorkshopForm({
             {geocoding ? p.geocoding : p.geocode}
           </Button>
           <Button type="submit" disabled={pending || geocoding}>
-            {pending ? t.common.saving : isEdit ? p.saveChanges : p.addWorkshop}
+            {pending
+              ? t.common.saving
+              : isEdit
+                ? p.saveChanges
+                : isIndustrial
+                  ? page.industrial.addZone
+                  : page.addWorkshop}
           </Button>
         </div>
 
@@ -378,8 +403,15 @@ export function AdminWorkshopForm({
 
       <AdminConfirmDialog
         open={deleteOpen}
-        title={p.deleteConfirmTitle}
-        message={p.deleteConfirmMessage.replace("{name}", displayName)}
+        title={
+          isIndustrial
+            ? page.industrial.deleteConfirmTitle
+            : page.deleteConfirmTitle
+        }
+        message={(isIndustrial
+          ? page.industrial.deleteConfirmMessage
+          : page.deleteConfirmMessage
+        ).replace("{name}", displayName)}
         cancelLabel={t.common.cancel}
         confirmLabel={t.common.delete}
         loadingLabel={t.common.loading}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Car } from "lucide-react";
 import type { ClientVehicle } from "@service-time/types";
 import { ClientVehicleField } from "@/components/request/client-vehicle-field";
@@ -10,16 +10,21 @@ import { useLocale } from "@/lib/i18n/locale-context";
 
 export function AdminClientVehicleField({
   clientId,
+  onVehicleChange,
 }: {
   clientId: string | null;
+  onVehicleChange?: (vehicle: ClientVehicle | null) => void;
 }) {
   const { messages: t } = useLocale();
   const [vehicles, setVehicles] = useState<ClientVehicle[]>([]);
   const [loading, setLoading] = useState(false);
+  const onVehicleChangeRef = useRef(onVehicleChange);
+  onVehicleChangeRef.current = onVehicleChange;
 
   useEffect(() => {
     if (!clientId) {
       setVehicles([]);
+      onVehicleChangeRef.current?.(null);
       return;
     }
 
@@ -67,6 +72,7 @@ export function AdminClientVehicleField({
       vehicles={vehicles}
       variant="dashboard"
       clientId={clientId}
+      onVehicleChange={onVehicleChange}
     />
   );
 }

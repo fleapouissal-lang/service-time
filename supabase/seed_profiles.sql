@@ -3,7 +3,7 @@
 --   ou : npm run db:seed-profiles
 --
 -- Comptes :
---   admin@servicetime.sa      / Admin123!
+--   support@servicetime.com.sa / Admin123!  (Super Admin)
 --   tech@servicetime.sa       / Tech123!    (فني متنقل)
 --   workshop@servicetime.sa   / Tech123!    (ورشة)
 --   client@servicetime.sa     / Client123!  (عميل)
@@ -42,11 +42,11 @@ BEGIN
       '00000000-0000-0000-0000-000000000000',
       'authenticated',
       'authenticated',
-      'admin@servicetime.sa',
+      'support@servicetime.com.sa',
       crypt('Admin123!', gen_salt('bf')),
       now(),
       '{"provider":"email","providers":["email"]}'::jsonb,
-      '{"full_name":"مدير النظام","full_name_ar":"مدير النظام","full_name_en":"System Admin"}'::jsonb,
+      '{"full_name":"مدير النظام","full_name_ar":"مدير النظام","full_name_en":"Super Admin"}'::jsonb,
       now(),
       now(),
       '',
@@ -143,7 +143,7 @@ BEGIN
     (
       admin_id,
       admin_id,
-      jsonb_build_object('sub', admin_id::text, 'email', 'admin@servicetime.sa'),
+      jsonb_build_object('sub', admin_id::text, 'email', 'support@servicetime.com.sa'),
       'email',
       admin_id::text,
       now(),
@@ -195,14 +195,14 @@ BEGIN
     updated_at = now();
 
   INSERT INTO public.profiles (
-    id, full_name, full_name_ar, full_name_en, phone, role, technician_type, is_active
+    id, full_name, full_name_ar, full_name_en, phone, role, technician_type, is_active, is_super_admin
   )
   VALUES
-    (admin_id, 'مدير النظام', 'مدير النظام', 'System Admin', '+966500000001', 'admin', NULL, true),
-    (tech_mobile_id, 'فهد المتنقل', 'فهد المتنقل', 'Fahd Mobile', '+966500000002', 'technician', 'mobile', true),
-    (tech_workshop_id, 'ورشة الجنوب', 'ورشة الجنوب', 'South Workshop', '+966500000003', 'technician', 'workshop', true),
-    (client_ahmed_id, 'أحمد العتيبي', 'أحمد العتيبي', 'Ahmed Al-Otaibi', '+966501234567', 'client', NULL, true),
-    (client_sara_id, 'سارة القحطاني', 'سارة القحطاني', 'Sara Al-Qahtani', '+966509876543', 'client', NULL, true)
+    (admin_id, 'مدير النظام', 'مدير النظام', 'Super Admin', '+966500000001', 'admin', NULL, true, true),
+    (tech_mobile_id, 'فهد المتنقل', 'فهد المتنقل', 'Fahd Mobile', '+966500000002', 'technician', 'mobile', true, false),
+    (tech_workshop_id, 'ورشة الجنوب', 'ورشة الجنوب', 'South Workshop', '+966500000003', 'technician', 'workshop', true, false),
+    (client_ahmed_id, 'أحمد العتيبي', 'أحمد العتيبي', 'Ahmed Al-Otaibi', '+966501234567', 'client', NULL, true, false),
+    (client_sara_id, 'سارة القحطاني', 'سارة القحطاني', 'Sara Al-Qahtani', '+966509876543', 'client', NULL, true, false)
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
     full_name_ar = EXCLUDED.full_name_ar,
@@ -211,6 +211,7 @@ BEGIN
     role = EXCLUDED.role,
     technician_type = EXCLUDED.technician_type,
     is_active = EXCLUDED.is_active,
+    is_super_admin = EXCLUDED.is_super_admin,
     updated_at = now();
 
   UPDATE public.service_requests

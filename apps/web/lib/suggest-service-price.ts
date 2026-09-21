@@ -40,11 +40,11 @@ export function suggestServicePrice(
 }
 
 export function isQuotePending(order: {
-  client_proposed_price: number | null;
   quote_status: string | null;
 }): boolean {
   return (
-    order.client_proposed_price != null && order.quote_status !== "accepted"
+    order.quote_status === "pending_admin" ||
+    order.quote_status === "admin_countered"
   );
 }
 

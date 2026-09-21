@@ -5,7 +5,10 @@ import { getClientVehicles } from "@/lib/client-vehicles";
 import { requireProfile } from "@/lib/auth";
 import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
+import { getWorkshops } from "@/lib/queries";
+import { getIndustrialZones } from "@/lib/industrial-zones-admin";
 import { resolvePublicServicesCatalog } from "@/lib/services-catalog-session";
+import { getPublicVehicleClasses } from "@/lib/vehicle-classes-admin";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { t } = await getServerI18n();
@@ -15,9 +18,18 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function ClientRequestPage() {
   const { t, locale } = await getServerI18n();
   const profile = await requireProfile(["client"]);
-  const [savedVehicles, catalogCategories] = await Promise.all([
+  const [
+    savedVehicles,
+    catalogCategories,
+    towWorkshops,
+    industrialZones,
+    vehicleClasses,
+  ] = await Promise.all([
     profile ? getClientVehicles(profile.id) : Promise.resolve([]),
     resolvePublicServicesCatalog(locale),
+    getWorkshops(),
+    getIndustrialZones(),
+    getPublicVehicleClasses(),
   ]);
 
   return (
@@ -38,6 +50,9 @@ export default async function ClientRequestPage() {
           defaultPhone={profile?.phone ?? ""}
           savedVehicles={savedVehicles}
           catalogCategories={catalogCategories}
+          vehicleClasses={vehicleClasses}
+          towWorkshops={towWorkshops}
+          industrialZones={industrialZones}
         />
       </Suspense>
     </div>

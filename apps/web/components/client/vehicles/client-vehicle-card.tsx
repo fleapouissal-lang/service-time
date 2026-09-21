@@ -13,6 +13,7 @@ import {
   getLocalizedColorName,
   VEHICLE_COLOR_OPTIONS,
 } from "@/lib/vehicle-catalog";
+import { getVehicleClassLabel, parseVehicleClassId } from "@/lib/vehicle-classes";
 import { useLocale } from "@/lib/i18n/locale-context";
 import { cn } from "@/lib/utils";
 
@@ -73,6 +74,10 @@ export function ClientVehicleCard({
   const colorLabel = colorOption
     ? getLocalizedColorName(colorOption, locale)
     : null;
+  const classId = parseVehicleClassId(vehicle.vehicle_class);
+  const classLabel = classId
+    ? getVehicleClassLabel(classId, locale)
+    : null;
   const title = model ? brand : displayName;
   const subtitle = model || null;
 
@@ -89,6 +94,12 @@ export function ClientVehicleCard({
         ) : null}
 
         <div className="saved-vehicle-card__meta">
+          {classLabel ? (
+            <span className="saved-vehicle-card__meta-item">
+              <span className="truncate">{classLabel}</span>
+            </span>
+          ) : null}
+
           {colorLabel ? (
             <span className="saved-vehicle-card__meta-item">
               <span
@@ -115,7 +126,7 @@ export function ClientVehicleCard({
             </span>
           ) : null}
 
-          {!colorLabel && !plate ? (
+          {!classLabel && !colorLabel && !plate ? (
             <span className="saved-vehicle-card__meta-item saved-vehicle-card__meta-item--muted">
               <Palette className="size-3 shrink-0 opacity-70" aria-hidden />
               {t.clientVehicles.noExtraDetails}

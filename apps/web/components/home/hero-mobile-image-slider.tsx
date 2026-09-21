@@ -2,33 +2,30 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
-import {
-  AR_MOBILE_BANNERS,
-  EN_MOBILE_BANNERS,
-  HERO_MOBILE_IMAGE_VERSION,
-} from "@/lib/hero-mobile-banners";
-import { useLocale } from "@/lib/i18n/locale-context";
+import type { PublicHeroBanner } from "@/lib/hero-banners-shared";
 import { cn } from "@/lib/utils";
 
 const SLIDE_INTERVAL_MS = 6000;
 
 type HeroMobileImageSliderProps = {
+  banners: PublicHeroBanner[];
   slideAriaLabel: string;
 };
 
 export function HeroMobileImageSlider({
+  banners,
   slideAriaLabel,
 }: HeroMobileImageSliderProps) {
-  const { locale } = useLocale();
-  const banners = locale === "en" ? EN_MOBILE_BANNERS : AR_MOBILE_BANNERS;
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [locale]);
+  }, [banners]);
 
   const goToNext = useCallback(() => {
-    setActiveIndex((current) => (current + 1) % banners.length);
+    setActiveIndex((current) =>
+      banners.length > 0 ? (current + 1) % banners.length : 0,
+    );
   }, [banners.length]);
 
   useEffect(() => {
@@ -42,6 +39,8 @@ export function HeroMobileImageSlider({
     return () => window.clearInterval(timer);
   }, [goToNext, banners.length]);
 
+  if (banners.length === 0) return null;
+
   return (
     <section
       className="hero-mobile-image-slider"
@@ -51,11 +50,10 @@ export function HeroMobileImageSlider({
       <div className="hero-mobile-image-slider__viewport">
         {banners.map((banner, index) => {
           const isActive = index === activeIndex;
-          const imageSrc = `${banner.src}?v=${HERO_MOBILE_IMAGE_VERSION}`;
 
           return (
             <Link
-              key={banner.src}
+              key={banner.id}
               href={banner.href}
               className={cn(
                 "hero-mobile-image-slider__slide",
@@ -68,7 +66,7 @@ export function HeroMobileImageSlider({
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={imageSrc}
+                src={banner.src}
                 alt={isActive ? banner.alt : ""}
                 className="hero-mobile-image-slider__img"
                 decoding="async"
@@ -88,7 +86,7 @@ export function HeroMobileImageSlider({
           >
             {banners.map((banner, index) => (
               <button
-                key={banner.src}
+                key={banner.id}
                 type="button"
                 role="tab"
                 aria-selected={index === activeIndex}

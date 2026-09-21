@@ -4,6 +4,7 @@ import type { ClientVehicle } from "@service-time/types";
 import { Suspense } from "react";
 import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { WorkshopBranch } from "@/lib/localized-content";
 import {
   parseCatalogAction,
   type CatalogCategoryLike,
@@ -17,6 +18,8 @@ type ServiceCatalogRequestPanelProps = {
   defaultPhone: string;
   savedVehicles: ClientVehicle[];
   categories?: CatalogCategoryLike[];
+  towWorkshops?: WorkshopBranch[];
+  industrialZones?: WorkshopBranch[];
   onSuccess?: () => void;
 };
 
@@ -28,6 +31,8 @@ export function ServiceCatalogRequestPanel({
   defaultPhone,
   savedVehicles,
   categories,
+  towWorkshops = [],
+  industrialZones = [],
   onSuccess,
 }: ServiceCatalogRequestPanelProps) {
   const { messages: t } = useLocale();
@@ -75,6 +80,8 @@ export function ServiceCatalogRequestPanel({
                 executionMethod: "mobile_workshop",
               }
         }
+        towWorkshops={towWorkshops}
+        industrialZones={industrialZones}
         onSuccess={onSuccess}
       />
     </Suspense>

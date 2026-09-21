@@ -3,6 +3,7 @@
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { WhatsAppFloatButton } from "@/components/layout/whatsapp-float-button";
+import type { PublicWhatsAppFloatSettings } from "@/lib/whatsapp-float-shared";
 import {
   MOBILE_BOTTOM_BAR_PADDING,
   shouldShowMobileBottomNav,
@@ -14,9 +15,15 @@ type PublicShellProps = {
   children: React.ReactNode;
   header: React.ReactNode;
   footer: React.ReactNode;
+  whatsappFloat: PublicWhatsAppFloatSettings;
 };
 
-export function PublicShell({ children, header, footer }: PublicShellProps) {
+export function PublicShell({
+  children,
+  header,
+  footer,
+  whatsappFloat,
+}: PublicShellProps) {
   const pathname = usePathname();
   const isDashboard = DASHBOARD_PREFIXES.some((p) => pathname.startsWith(p));
   const showMobileNav = shouldShowMobileBottomNav(pathname);
@@ -52,7 +59,7 @@ export function PublicShell({ children, header, footer }: PublicShellProps) {
       >
         {footer}
       </div>
-      <WhatsAppFloatButton />
+      <WhatsAppFloatButton settings={whatsappFloat} />
     </>
   );
 }

@@ -92,6 +92,7 @@ export type ClientVehicleInput = {
   modelId: string;
   brandName: string;
   modelName: string;
+  vehicleClass?: string | null;
   cylinders?: number | null;
   fuelType?: ClientVehicle["fuel_type"];
   chassisNumber?: string | null;
@@ -108,6 +109,7 @@ export function buildClientVehiclePayload(input: ClientVehicleInput) {
     brand: input.brandName,
     model: input.modelId,
     brand_slug: input.brandSlug,
+    vehicle_class: input.vehicleClass?.trim() || null,
     cylinders: input.cylinders ?? null,
     fuel_type: input.fuelType ?? null,
     chassis_number: input.chassisNumber?.trim() || null,

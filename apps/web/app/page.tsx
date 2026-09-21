@@ -8,6 +8,7 @@ import { HomeLocationsSection } from "@/components/home/home-locations-section";
 import { HomeSparePartsSection } from "@/components/home/home-spare-parts-section";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
 import { resolveHeroContent } from "@/lib/hero-content";
+import { getPublicHeroBanners } from "@/lib/hero-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getLatestSpareParts, getSiteContent, getWorkshops } from "@/lib/queries";
@@ -27,11 +28,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function HomePage() {
   const { t, locale } = await getServerI18n();
-  const [hero, latestParts, workshops, catalogSession] = await Promise.all([
+  const [
+    hero,
+    latestParts,
+    workshops,
+    catalogSession,
+    desktopBanners,
+    mobileBanners,
+  ] = await Promise.all([
     getSiteContent("home.hero"),
     getLatestSpareParts(6),
     getWorkshops(),
     getServiceCatalogSession(),
+    getPublicHeroBanners(locale, "desktop"),
+    getPublicHeroBanners(locale, "mobile"),
   ]);
 
   const { titleBefore, titleHighlight, subtitle, cta } = resolveHeroContent(
@@ -44,7 +54,6 @@ export default async function HomePage() {
     <>
       <SiteJsonLd locale={locale} description={t.meta.descriptions.home} />
 
-      {/* Mobile: previous full-screen hero. Desktop: new banner slider. */}
       <HeroSection
         mobileOnly
         titleBefore={titleBefore}
@@ -55,6 +64,7 @@ export default async function HomePage() {
         slides={t.home.hero.slides}
         slideAriaLabel={t.home.hero.slideAriaLabel}
         locale={locale}
+        mobileBanners={mobileBanners}
       />
 
       <div className="md:hidden">
@@ -62,7 +72,10 @@ export default async function HomePage() {
       </div>
 
       <div className="hidden md:block">
-        <HeroImageSlider slideAriaLabel={t.home.hero.slideAriaLabel} />
+        <HeroImageSlider
+          banners={desktopBanners}
+          slideAriaLabel={t.home.hero.slideAriaLabel}
+        />
         <HeroBrandsBar inline />
         <ServicesCatalogSection variant="home" {...catalogSession} />
         <HomeSparePartsSection parts={latestParts} />

@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getActiveLegalSitemapPaths } from "@/lib/legal-pages-admin";
 import { absoluteUrl, PUBLIC_SITEMAP_PATHS } from "@/lib/seo";
 
 const PRIORITY: Record<(typeof PUBLIC_SITEMAP_PATHS)[number], number> = {
@@ -9,9 +10,6 @@ const PRIORITY: Record<(typeof PUBLIC_SITEMAP_PATHS)[number], number> = {
   "/about": 0.7,
   "/contact": 0.7,
   "/locations": 0.75,
-  "/legal/privacy": 0.4,
-  "/legal/terms": 0.4,
-  "/legal/notice": 0.4,
 };
 
 const CHANGE_FREQ: Record<
@@ -25,18 +23,25 @@ const CHANGE_FREQ: Record<
   "/about": "monthly",
   "/contact": "monthly",
   "/locations": "monthly",
-  "/legal/privacy": "yearly",
-  "/legal/terms": "yearly",
-  "/legal/notice": "yearly",
 };
 
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
+  const legalPaths = await getActiveLegalSitemapPaths();
 
-  return PUBLIC_SITEMAP_PATHS.map((path) => ({
+  const base = PUBLIC_SITEMAP_PATHS.map((path) => ({
     url: absoluteUrl(path),
     lastModified,
     changeFrequency: CHANGE_FREQ[path],
     priority: PRIORITY[path],
   }));
+
+  const legal = legalPaths.map((path) => ({
+    url: absoluteUrl(path),
+    lastModified,
+    changeFrequency: "yearly" as const,
+    priority: 0.4,
+  }));
+
+  return [...base, ...legal];
 }

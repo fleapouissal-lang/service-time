@@ -1,11 +1,7 @@
 "use client";
 
-import { useMemo } from "react";
+import type { PublicWhatsAppFloatSettings } from "@/lib/whatsapp-float-shared";
 import { useLocale } from "@/lib/i18n/locale-context";
-import {
-  buildWhatsAppSiteContactUrl,
-  getPublicWhatsAppDigits,
-} from "@/lib/whatsapp-utils";
 import { cn } from "@/lib/utils";
 
 function WhatsAppIcon({ className }: { className?: string }) {
@@ -21,23 +17,24 @@ function WhatsAppIcon({ className }: { className?: string }) {
   );
 }
 
-export function WhatsAppFloatButton() {
-  const { locale, messages: t } = useLocale();
+type WhatsAppFloatButtonProps = {
+  settings: PublicWhatsAppFloatSettings;
+};
 
-  const href = useMemo(
-    () => buildWhatsAppSiteContactUrl(getPublicWhatsAppDigits(), locale),
-    [locale],
-  );
+export function WhatsAppFloatButton({ settings }: WhatsAppFloatButtonProps) {
+  const { messages: t } = useLocale();
+
+  if (!settings.isActive || !settings.href) return null;
 
   return (
     <a
-      href={href}
+      href={settings.href}
       target="_blank"
       rel="noopener noreferrer"
       className={cn(
-        "fixed z-50 hidden size-14 items-center justify-center rounded-full bg-[#25D366] text-white shadow-[0_8px_32px_rgba(37,211,102,0.45)] transition-transform hover:scale-105 active:scale-95 lg:flex",
-        locale === "ar" ? "left-6" : "right-6",
-        "bottom-6",
+        "fixed z-50 flex size-14 items-center justify-center rounded-full bg-[#25D366] text-white",
+        "shadow-[0_8px_32px_rgba(37,211,102,0.45)] transition-transform hover:scale-105 active:scale-95",
+        "right-5 bottom-[calc(var(--mobile-bottom-nav-height,4.625rem)+1rem+env(safe-area-inset-bottom,0px))] lg:right-6 lg:bottom-6",
       )}
       aria-label={t.request.modes.openWhatsApp}
       title={t.request.modes.openWhatsApp}

@@ -21,7 +21,7 @@ export const servicesCatalog = {
       id: "general_maintenance",
       title: "General maintenance",
       description:
-        "Periodic maintenance at our workshop — oil, brakes, AC, diagnostics, and more.",
+        "Periodic maintenance — choose workshop visit (pick a Service Time branch + price) or mobile workshop (editable price + map for vehicle location).",
       subOptions: [
         {
           id: "oil_change",
@@ -177,8 +177,9 @@ export const servicesCatalog = {
         },
         {
           id: "accident_support",
-          label: "Accident support",
-          description: "Guidance, towing coordination, and next-step assistance.",
+          label: "Post-accident support",
+          description:
+            "Choose: flatbed, mobile workshop, or branch visit — no client price entry.",
           action: "full|emergency|mobile_workshop",
         },
       ],

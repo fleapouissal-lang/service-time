@@ -49,14 +49,14 @@ export function ThemeProvider({ initialTheme, children }: ThemeProviderProps) {
 
   const setTheme = useCallback((next: Theme) => {
     if (!isTheme(next)) return;
-    setThemeState(next);
-    applyThemeClass(next);
     persistThemeCookie(next);
     void setThemeAction(next);
+    window.location.reload();
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
+    const next = theme === "dark" ? "light" : "dark";
+    setTheme(next);
   }, [setTheme, theme]);
 
   const value = useMemo(

@@ -8,7 +8,10 @@ import { getProfileDisplayName } from "@/lib/profile-display-name";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getProfileHomePath } from "@/lib/profile-home";
+import { getWorkshops } from "@/lib/queries";
+import { getIndustrialZones } from "@/lib/industrial-zones-admin";
 import { resolvePublicServicesCatalog } from "@/lib/services-catalog-session";
+import { getPublicVehicleClasses } from "@/lib/vehicle-classes-admin";
 
 export async function generateMetadata(): Promise<Metadata> {
   const { locale, t } = await getServerI18n();
@@ -40,9 +43,18 @@ export default async function RequestPage({ searchParams }: PageProps) {
   }
 
   const isClient = Boolean(profile?.is_active && profile.role === "client");
-  const [savedVehicles, catalogCategories] = await Promise.all([
+  const [
+    savedVehicles,
+    catalogCategories,
+    towWorkshops,
+    industrialZones,
+    vehicleClasses,
+  ] = await Promise.all([
     isClient && profile ? getClientVehicles(profile.id) : Promise.resolve([]),
     resolvePublicServicesCatalog(locale),
+    getWorkshops(),
+    getIndustrialZones(),
+    getPublicVehicleClasses(),
   ]);
 
   return (
@@ -56,6 +68,9 @@ export default async function RequestPage({ searchParams }: PageProps) {
         loginNextPath="/request"
         savedVehicles={savedVehicles}
         catalogCategories={catalogCategories}
+        vehicleClasses={vehicleClasses}
+        towWorkshops={towWorkshops}
+        industrialZones={industrialZones}
       />
     </Suspense>
   );

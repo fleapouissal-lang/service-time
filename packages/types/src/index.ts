@@ -47,6 +47,8 @@ export interface Profile {
   technician_type: TechnicianType | null;
   avatar_url: string | null;
   is_active: boolean;
+  /** Primary Super Admin — protected from demotion/deletion */
+  is_super_admin?: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -168,6 +170,8 @@ export interface ClientVehicle {
   brand: string;
   model: string;
   brand_slug: string | null;
+  /** Vehicle class for catalog pricing: sedan | suv | pickup | luxury | van */
+  vehicle_class: string | null;
   cylinders: number | null;
   fuel_type: VehicleFuelType | null;
   chassis_number: string | null;
@@ -188,7 +192,13 @@ export interface ServiceRequest {
   location_text: string | null;
   location_lat: number | null;
   location_lng: number | null;
+  destination_text: string | null;
+  destination_lat: number | null;
+  destination_lng: number | null;
   description: string | null;
+  /** Public catalog category id when known (e.g. flatbed, general_maintenance). */
+  catalog_category?: string | null;
+  catalog_sub?: string | null;
   service_type: ServiceType;
   execution_method: ExecutionMethod;
   status: ServiceRequestStatus;

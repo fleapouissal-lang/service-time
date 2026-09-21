@@ -8,6 +8,7 @@ import { RequestSparePartsFab } from "@/components/request/request-spare-parts-f
 import { PageHeader } from "@/components/layout/page-header";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { CatalogCategoryLike } from "@/lib/services-catalog";
+import type { WorkshopBranch } from "@/lib/localized-content";
 import {
   requestBtnFilledClass,
   requestBtnOutlineClass,
@@ -24,6 +25,9 @@ type RequestPageContentProps = {
   loginNextPath: string;
   savedVehicles?: ClientVehicle[];
   catalogCategories?: CatalogCategoryLike[];
+  vehicleClasses?: import("@/lib/vehicle-classes").VehicleClassDef[];
+  towWorkshops?: WorkshopBranch[];
+  industrialZones?: WorkshopBranch[];
 };
 
 function FullRequestPanel({
@@ -33,6 +37,9 @@ function FullRequestPanel({
   loginNextPath,
   savedVehicles = [],
   catalogCategories,
+  vehicleClasses,
+  towWorkshops = [],
+  industrialZones = [],
 }: RequestPageContentProps) {
   const { messages: t } = useLocale();
   const loginHref = `/login?next=${encodeURIComponent(loginNextPath)}`;
@@ -83,6 +90,9 @@ function FullRequestPanel({
       defaultPhone={defaultPhone}
       savedVehicles={savedVehicles}
       catalogCategories={catalogCategories}
+      vehicleClasses={vehicleClasses}
+      towWorkshops={towWorkshops}
+      industrialZones={industrialZones}
     />
   );
 }

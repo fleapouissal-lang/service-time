@@ -23,6 +23,7 @@ type ClientVehicleFieldProps = {
   clientId?: string;
   allowDelete?: boolean;
   className?: string;
+  onVehicleChange?: (vehicle: ClientVehicle | null) => void;
 };
 
 export function ClientVehicleField({
@@ -31,6 +32,7 @@ export function ClientVehicleField({
   clientId,
   allowDelete = true,
   className,
+  onVehicleChange,
 }: ClientVehicleFieldProps) {
   const { messages: t, locale } = useLocale();
   const f = t.request.form;
@@ -85,9 +87,13 @@ export function ClientVehicleField({
   }, [open]);
 
   const selectedVehicle = useMemo(
-    () => vehicles.find((vehicle) => vehicle.label === selection),
+    () => vehicles.find((vehicle) => vehicle.label === selection) ?? null,
     [vehicles, selection],
   );
+
+  useEffect(() => {
+    onVehicleChange?.(selectedVehicle);
+  }, [onVehicleChange, selectedVehicle]);
 
   function handleVehicleAdded(vehicle: ClientVehicle) {
     setVehicles((current) => {

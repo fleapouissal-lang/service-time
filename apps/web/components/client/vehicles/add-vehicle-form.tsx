@@ -21,12 +21,18 @@ import {
   getLocalizedModelName,
   VEHICLE_COLOR_OPTIONS,
 } from "@/lib/vehicle-catalog";
+import {
+  DEFAULT_VEHICLE_CLASSES,
+  type VehicleClassDef,
+  type VehicleClassId,
+} from "@/lib/vehicle-classes";
 
 type AddVehicleFormProps = {
   nextPath?: string;
   variant?: "standalone" | "embedded" | "modal";
   stayOnPage?: boolean;
   onSuccess?: (vehicle: ClientVehicle) => void;
+  vehicleClasses?: VehicleClassDef[];
 };
 
 const initialState: AddClientVehicleState = {};
@@ -36,6 +42,7 @@ export function AddVehicleForm({
   variant = "standalone",
   stayOnPage = false,
   onSuccess,
+  vehicleClasses: vehicleClassesProp,
 }: AddVehicleFormProps) {
   const embedded = variant === "embedded" || variant === "modal";
   const modal = variant === "modal";
@@ -43,6 +50,9 @@ export function AddVehicleForm({
   const v = t.clientVehicles;
   const scrollPrevLabel = v.scrollPrev;
   const scrollNextLabel = v.scrollNext;
+  const [vehicleClasses, setVehicleClasses] = useState<VehicleClassDef[]>(
+    () => vehicleClassesProp ?? DEFAULT_VEHICLE_CLASSES.filter((row) => row.is_active),
+  );
   const [state, formAction, pending] = useActionState(
     addClientVehicleAction,
     initialState,
@@ -51,6 +61,7 @@ export function AddVehicleForm({
   const [brandSearch, setBrandSearch] = useState("");
   const [brandSlug, setBrandSlug] = useState<string | null>(null);
   const [modelId, setModelId] = useState<string | null>(null);
+  const [vehicleClass, setVehicleClass] = useState<VehicleClassId | null>(null);
   const [chassisNumber, setChassisNumber] = useState("");
   const [plateLetters, setPlateLetters] = useState("");
   const [plateNumber, setPlateNumber] = useState("");
@@ -66,16 +77,43 @@ export function AddVehicleForm({
   const errorMessage =
     state.error === "duplicate"
       ? v.errors.duplicate
-      : state.error === "required_fields"
-        ? v.errors.required
-        : state.error
-          ? v.errors.generic
-          : null;
+      : state.error === "vehicle_class_required"
+        ? v.errors.vehicleClassRequired
+        : state.error === "required_fields"
+          ? v.errors.required
+          : state.error
+            ? v.errors.generic
+            : null;
 
   function selectBrand(slug: string) {
     setBrandSlug(slug);
     setModelId(null);
   }
+
+  useEffect(() => {
+    if (vehicleClassesProp) {
+      setVehicleClasses(vehicleClassesProp.filter((row) => row.is_active));
+      return;
+    }
+
+    let cancelled = false;
+    void fetch("/api/vehicle-classes")
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return (await response.json()) as { classes?: VehicleClassDef[] };
+      })
+      .then((data) => {
+        if (cancelled || !data?.classes?.length) return;
+        setVehicleClasses(data.classes.filter((row) => row.is_active));
+      })
+      .catch(() => {
+        /* keep defaults */
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [vehicleClassesProp]);
 
   useEffect(() => {
     if (state.vehicle && onSuccess) {
@@ -173,6 +211,25 @@ export function AddVehicleForm({
           ) : (
             <p className="add-vehicle-hint">{v.selectBrandHint}</p>
           )}
+
+          <VehicleChipSelect
+            label={v.vehicleClass}
+            value={vehicleClass}
+            onChange={(value) =>
+              setVehicleClass((value as VehicleClassId | null) ?? null)
+            }
+            hideScrollbar
+            scrollPrevLabel={scrollPrevLabel}
+            scrollNextLabel={scrollNextLabel}
+            options={vehicleClasses.map((row) => ({
+              value: row.id,
+              label: locale === "en" ? row.nameEn : row.nameAr,
+            }))}
+          />
+          {vehicleClass ? (
+            <input type="hidden" name="vehicle_class" value={vehicleClass} />
+          ) : null}
+          <p className="add-vehicle-hint">{v.vehicleClassHint}</p>
         </section>
 
         <section className="add-vehicle-section">
@@ -234,7 +291,7 @@ export function AddVehicleForm({
       <div className="add-vehicle-form__footer">
         <button
           type="submit"
-          disabled={pending || !brandSlug || !modelId}
+          disabled={pending || !brandSlug || !modelId || !vehicleClass}
           className="add-vehicle-form__submit"
         >
           {pending ? t.common.loading : v.submit}

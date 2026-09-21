@@ -7,17 +7,22 @@ import { ServiceRequestForm } from "@/components/request/service-request-form";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useLocale } from "@/lib/i18n/locale-context";
+import type { WorkshopBranch } from "@/lib/localized-content";
 
 type ClientNewOrderSectionProps = {
   defaultName: string;
   defaultPhone: string;
   savedVehicles?: ClientVehicle[];
+  towWorkshops?: WorkshopBranch[];
+  industrialZones?: WorkshopBranch[];
 };
 
 export function ClientNewOrderSection({
   defaultName,
   defaultPhone,
   savedVehicles = [],
+  towWorkshops = [],
+  industrialZones = [],
 }: ClientNewOrderSectionProps) {
   const { messages: t } = useLocale();
   const p = t.dashboard.client.ordersPage;
@@ -68,6 +73,8 @@ export function ClientNewOrderSection({
             defaultName={defaultName}
             defaultPhone={defaultPhone}
             savedVehicles={savedVehicles}
+            towWorkshops={towWorkshops}
+            industrialZones={industrialZones}
             onSuccess={handleOrderCreated}
           />
           </div>

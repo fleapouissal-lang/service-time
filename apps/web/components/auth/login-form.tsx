@@ -7,6 +7,7 @@ import { FormEvent, Suspense, useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import { ForgotPasswordFlow } from "@/components/auth/forgot-password-flow";
 import { ClientActivationFlow } from "@/components/auth/client-activation-flow";
+import { LoginOtpFlow } from "@/components/auth/login-otp-flow";
 import { LanguageSwitcher } from "@/components/layout/language-switcher";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,7 +68,9 @@ function LoginFormContent() {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotFlow, setShowForgotFlow] = useState(false);
   const [showActivationFlow, setShowActivationFlow] = useState(false);
+  const [showLoginOtpFlow, setShowLoginOtpFlow] = useState(false);
   const [activationEmail, setActivationEmail] = useState("");
+  const [loginOtpEmail, setLoginOtpEmail] = useState("");
   const [error, setError] = useState("");
   const [infoMessage, setInfoMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -92,7 +95,9 @@ function LoginFormContent() {
         error?: string;
         role?: ProfileRole;
         needsVerification?: boolean;
+        needsLoginOtp?: boolean;
         email?: string;
+        devMode?: boolean;
       } = {};
 
       if (raw) {
@@ -108,6 +113,19 @@ function LoginFormContent() {
       if (data.needsVerification && data.email) {
         setActivationEmail(data.email);
         setShowActivationFlow(true);
+        setError("");
+        setLoading(false);
+        return;
+      }
+
+      if (data.needsLoginOtp && data.email) {
+        setLoginOtpEmail(data.email);
+        setShowLoginOtpFlow(true);
+        setInfoMessage(
+          data.devMode
+            ? t.login.otp.devModeHint
+            : t.login.otp.codeSent,
+        );
         setError("");
         setLoading(false);
         return;
@@ -196,6 +214,20 @@ function LoginFormContent() {
                 onBack={() => {
                   setShowActivationFlow(false);
                   setActivationEmail("");
+                  setError("");
+                  setInfoMessage("");
+                }}
+              />
+            ) : showLoginOtpFlow ? (
+              <LoginOtpFlow
+                identifier={identifier}
+                password={password}
+                email={loginOtpEmail}
+                next={next}
+                initialInfo={infoMessage}
+                onBack={() => {
+                  setShowLoginOtpFlow(false);
+                  setLoginOtpEmail("");
                   setError("");
                   setInfoMessage("");
                 }}

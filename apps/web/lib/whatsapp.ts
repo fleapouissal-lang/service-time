@@ -10,6 +10,7 @@ export {
   normalizePhone,
   phoneToWhatsAppDigits,
   buildWhatsAppOrderTrackingToClientMessage,
+  buildWhatsAppQuotePriceToClientMessage,
   buildWhatsAppOrderCreatedToAdminMessage,
   buildWhatsAppQuickContactUrl,
 } from "@/lib/whatsapp-utils";

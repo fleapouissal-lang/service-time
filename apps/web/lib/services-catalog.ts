@@ -79,6 +79,8 @@ export type CatalogCategoryLike = {
     description: string;
     action: string;
     price?: number;
+    pricesByClass?: Partial<Record<string, number>>;
+    classIds?: string[];
   }[];
 };
 

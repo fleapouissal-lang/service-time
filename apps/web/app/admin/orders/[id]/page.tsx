@@ -133,6 +133,19 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             </div>
           ) : null}
 
+          {order.destination_text ? (
+            <div className="rounded-xl border border-border p-4">
+              <p className="text-xs font-medium text-muted">{p.detail.destination}</p>
+              <p className="mt-1 text-sm">{order.destination_text}</p>
+              {order.destination_lat != null && order.destination_lng != null ? (
+                <p className="mt-1 font-mono text-xs text-muted" dir="ltr">
+                  {order.destination_lat.toFixed(5)},{" "}
+                  {order.destination_lng.toFixed(5)}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+
           {order.description ? (
             <div className="rounded-xl border border-border p-4">
               <p className="text-xs font-medium text-muted">{t.common.description}</p>
@@ -156,6 +169,9 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
               locationText={order.location_text}
               locationLat={order.location_lat}
               locationLng={order.location_lng}
+              destinationText={order.destination_text}
+              destinationLat={order.destination_lat}
+              destinationLng={order.destination_lng}
               statusOptions={statusOptions}
               priorityOptions={priorityOptions}
               technicianOptions={technicianOptions}

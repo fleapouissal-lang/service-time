@@ -14,3 +14,7 @@ public/swe-worker*
 apps/web/public/imgly-background-removal/*
 !apps/web/public/imgly-background-removal/.gitkeep
 apps/web/public/imgly-bg-removal.mjs
+.deploy-askpass.cmd
+.deploy-askpass.js
+.deploy.bundle
+maquette-captures/

@@ -16,6 +16,8 @@ type ServicePriceProposalFieldProps = {
   catalogPrice?: number | null;
   compact?: boolean;
   hideNegotiationHint?: boolean;
+  /** When false, price is shown but not editable (workshop visit). */
+  editable?: boolean;
 };
 
 export function ServicePriceProposalField({
@@ -24,6 +26,7 @@ export function ServicePriceProposalField({
   catalogPrice = null,
   compact = false,
   hideNegotiationHint = false,
+  editable = true,
 }: ServicePriceProposalFieldProps) {
   const { messages: t, locale } = useLocale();
   const f = t.request.form;
@@ -46,7 +49,9 @@ export function ServicePriceProposalField({
         compact ? "p-3" : "p-4",
       )}
     >
-      <Label htmlFor="client_proposed_price">{f.proposedPrice}</Label>
+      <Label htmlFor="client_proposed_price">
+        {editable ? f.proposedPrice : f.servicePrice}
+      </Label>
       <IconInput
         id="client_proposed_price"
         name="client_proposed_price"
@@ -57,18 +62,33 @@ export function ServicePriceProposalField({
         dir="ltr"
         icon={Banknote}
         value={price}
-        onChange={(event) => setPrice(event.target.value)}
+        readOnly={!editable}
+        onChange={(event) => {
+          if (!editable) return;
+          setPrice(event.target.value);
+        }}
         placeholder={String(suggested)}
+        className={cn(!editable && "cursor-default opacity-95")}
       />
       <p className="text-xs text-muted">
-        {f.suggestedPrice.replace(
-          "{price}",
-          formatSparePartPrice(suggested, locale),
-        )}
-        {compact && !hideNegotiationHint ? ` · ${f.priceNegotiationHint}` : null}
+        {editable
+          ? f.suggestedPrice.replace(
+              "{price}",
+              formatSparePartPrice(suggested, locale),
+            )
+          : f.workshopPriceNote.replace(
+              "{price}",
+              formatSparePartPrice(suggested, locale),
+            )}
+        {compact && !hideNegotiationHint && editable
+          ? ` · ${f.priceNegotiationHint}`
+          : null}
       </p>
-      {!compact && !hideNegotiationHint ? (
+      {!compact && !hideNegotiationHint && editable ? (
         <p className="text-xs text-muted">{f.priceNegotiationHint}</p>
+      ) : null}
+      {!editable ? (
+        <p className="text-xs text-muted">{f.workshopPriceFixedHint}</p>
       ) : null}
     </div>
   );

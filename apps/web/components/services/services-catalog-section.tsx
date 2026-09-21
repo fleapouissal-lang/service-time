@@ -23,6 +23,8 @@ export function ServicesCatalogSection({
   defaultPhone,
   savedVehicles,
   categories,
+  towWorkshops,
+  industrialZones,
 }: ServicesCatalogSectionProps) {
   const { messages: t } = useLocale();
   const copy = t.services.catalog;
@@ -88,6 +90,8 @@ export function ServicesCatalogSection({
             defaultPhone={defaultPhone}
             savedVehicles={savedVehicles}
             categories={catalogCategories}
+            towWorkshops={towWorkshops}
+            industrialZones={industrialZones}
           />
         ))}
       </div>
