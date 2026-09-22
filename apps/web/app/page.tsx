@@ -8,6 +8,7 @@ import { HomeLocationsSection } from "@/components/home/home-locations-section";
 import { HomeSparePartsSection } from "@/components/home/home-spare-parts-section";
 import { SiteJsonLd } from "@/components/seo/site-json-ld";
 import { resolveHeroContent } from "@/lib/hero-content";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { getPublicHeroBanners } from "@/lib/hero-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
@@ -35,6 +36,7 @@ export default async function HomePage() {
     catalogSession,
     desktopBanners,
     mobileBanners,
+    ctaBanners,
   ] = await Promise.all([
     getSiteContent("home.hero"),
     getLatestSpareParts(6),
@@ -42,6 +44,7 @@ export default async function HomePage() {
     getServiceCatalogSession(),
     getPublicHeroBanners(locale, "desktop"),
     getPublicHeroBanners(locale, "mobile"),
+    getPublicCtaBanners(locale),
   ]);
 
   const { titleBefore, titleHighlight, subtitle, cta } = resolveHeroContent(
@@ -79,7 +82,7 @@ export default async function HomePage() {
         <HeroBrandsBar inline />
         <ServicesCatalogSection variant="home" {...catalogSession} />
         <HomeSparePartsSection parts={latestParts} />
-        <HomeCtaSection />
+        <HomeCtaSection slides={ctaBanners} />
         <HomeLocationsSection workshops={workshops} />
       </div>
     </>

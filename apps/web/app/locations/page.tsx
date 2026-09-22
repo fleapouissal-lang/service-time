@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { StaticPinMap } from "@/components/maps/static-pin-map";
 import { Card, CardContent } from "@/components/ui/card";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
@@ -22,7 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function LocationsPage() {
   const { t, locale } = await getServerI18n();
-  const workshops = await getWorkshops();
+  const [workshops, ctaBanners] = await Promise.all([
+    getWorkshops(),
+    getPublicCtaBanners(locale),
+  ]);
   const defaultLat = 24.7136;
   const defaultLng = 46.6753;
   const mapLat = workshops[0]?.lat ?? defaultLat;
@@ -106,7 +110,7 @@ export default async function LocationsPage() {
         </div>
       </section>
 
-      <SiteCtaSection />
+      <SiteCtaSection slides={ctaBanners} />
     </>
   );
 }

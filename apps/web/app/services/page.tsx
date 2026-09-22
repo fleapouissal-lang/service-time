@@ -3,6 +3,7 @@ import { ServicesCtaSection } from "@/components/home/home-cta-section";
 import { ServicesCatalogSection } from "@/components/services/services-catalog-section";
 import { ServicesHeroSection } from "@/components/services/services-hero-section";
 import { ServicesWhatsAppCard } from "@/components/services/services-whatsapp-card";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getServiceCatalogSession } from "@/lib/services-catalog-session";
@@ -18,7 +19,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function ServicesPage() {
-  const catalogSession = await getServiceCatalogSession();
+  const { locale } = await getServerI18n();
+  const [catalogSession, ctaBanners] = await Promise.all([
+    getServiceCatalogSession(),
+    getPublicCtaBanners(locale),
+  ]);
 
   return (
     <>
@@ -31,7 +36,7 @@ export default async function ServicesPage() {
       <ServicesWhatsAppCard />
 
       <div className="hidden md:block">
-        <ServicesCtaSection />
+        <ServicesCtaSection slides={ctaBanners} />
       </div>
     </>
   );

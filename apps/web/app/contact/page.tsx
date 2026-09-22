@@ -4,6 +4,7 @@ import { ContactForm } from "@/components/contact/contact-form";
 import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { ContactInfoCard } from "@/components/contact/contact-info-card";
 import { ContactInfoMobileStrip } from "@/components/contact/contact-info-mobile-strip";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
 import { getWorkshopAddress, getWorkshopName } from "@/lib/localized-content";
@@ -30,10 +31,11 @@ function phoneTelHref(phone: string) {
 
 export default async function ContactPage() {
   const { t, locale } = await getServerI18n();
-  const [phone, email, workshops] = await Promise.all([
+  const [phone, email, workshops, ctaBanners] = await Promise.all([
     getSiteContent("contact.phone"),
     getSiteContent("contact.email"),
     getWorkshops(),
+    getPublicCtaBanners(locale),
   ]);
 
   const phoneValue = (phone?.value as string) ?? "+966 58 381 4214";
@@ -132,7 +134,7 @@ export default async function ContactPage() {
         </div>
       </div>
 
-      <SiteCtaSection inset />
+      <SiteCtaSection inset slides={ctaBanners} />
     </section>
   );
 }

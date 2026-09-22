@@ -61,6 +61,14 @@ import {
 } from "@/lib/hero-banners";
 import { resolveHeroBannerImagesFromForm } from "@/lib/hero-banner-image";
 import {
+  getAdminCtaBanners,
+  parseCtaBannerFromForm,
+  persistCtaBanners,
+  validateCtaBanner,
+  type AdminCtaBanner,
+} from "@/lib/cta-banners";
+import { resolveCtaBannerImagesFromForm } from "@/lib/cta-banner-image";
+import {
   getAdminFooterContent,
   getFooterLinkGroup,
   parseFooterContentFromForm,
@@ -1818,6 +1826,182 @@ export async function moveHeroBannerAction(
   } catch (err) {
     const t = getDictionary(await getLocale());
     const p = t.dashboard.admin.bannersPage;
+    return {
+      error: err instanceof Error ? err.message : p.saveError,
+    };
+  }
+}
+
+function revalidateCtaBannerPaths() {
+  revalidatePath("/");
+  revalidatePath("/about");
+  revalidatePath("/services");
+  revalidatePath("/contact");
+  revalidatePath("/locations");
+  revalidatePath("/spare-parts");
+  revalidatePath("/admin/banners");
+}
+
+function ctaBannerErrorMessage(
+  code: string,
+  p: {
+    hrefInvalid: string;
+    titleArRequired: string;
+    imageRequired: string;
+    saveError: string;
+  },
+): string {
+  if (code === "href_invalid") return p.hrefInvalid;
+  if (code === "title_ar_required") return p.titleArRequired;
+  if (code === "image_required") return p.imageRequired;
+  return code || p.saveError;
+}
+
+export async function saveCtaBannerAction(
+  _prev: MutationFormState,
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+
+    const banners = await getAdminCtaBanners();
+    const existingId = String(formData.get("id") ?? "").trim();
+    const existing = existingId
+      ? banners.find((item) => item.id === existingId) ?? null
+      : null;
+
+    const images = await resolveCtaBannerImagesFromForm(formData, existing);
+    const banner = {
+      ...parseCtaBannerFromForm(formData, existing),
+      ...images,
+    };
+
+    const issue = validateCtaBanner(banner);
+    if (issue) return { error: ctaBannerErrorMessage(issue, p) };
+
+    let next: AdminCtaBanner[];
+    if (existing) {
+      next = banners.map((item) => (item.id === existing.id ? banner : item));
+    } else {
+      next = [
+        ...banners,
+        {
+          ...banner,
+          sort_order:
+            Number.isFinite(banner.sort_order) && banner.sort_order > 0
+              ? banner.sort_order
+              : banners.length,
+        },
+      ];
+    }
+
+    await persistCtaBanners(supabase, next);
+    revalidateCtaBannerPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    return {
+      error: err instanceof Error ? err.message : p.saveError,
+    };
+  }
+}
+
+export async function deleteCtaBannerAction(
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: p.notFound };
+
+    const banners = await getAdminCtaBanners();
+    const next = banners.filter((item) => item.id !== id);
+    if (next.length === banners.length) return { error: p.notFound };
+    if (next.length < 1) return { error: p.minOneRequired };
+
+    await persistCtaBanners(supabase, next);
+    revalidateCtaBannerPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    return {
+      error: err instanceof Error ? err.message : p.deleteFailed,
+    };
+  }
+}
+
+export async function toggleCtaBannerAction(
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    const id = String(formData.get("id") ?? "").trim();
+    if (!id) return { error: p.notFound };
+
+    const banners = await getAdminCtaBanners();
+    const target = banners.find((item) => item.id === id);
+    if (!target) return { error: p.notFound };
+
+    const next = banners.map((item) =>
+      item.id === id ? { ...item, is_active: !item.is_active } : item,
+    );
+
+    await persistCtaBanners(supabase, next);
+    revalidateCtaBannerPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    return {
+      error: err instanceof Error ? err.message : p.saveError,
+    };
+  }
+}
+
+export async function moveCtaBannerAction(
+  formData: FormData,
+): Promise<MutationFormState> {
+  try {
+    await requireProfileOrThrow(["admin"]);
+    const supabase = await adminClient();
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
+    const id = String(formData.get("id") ?? "").trim();
+    const direction = String(formData.get("direction") ?? "").trim();
+    if (!id || (direction !== "up" && direction !== "down")) {
+      return { error: p.notFound };
+    }
+
+    const banners = [...(await getAdminCtaBanners())].sort(
+      (a, b) => a.sort_order - b.sort_order,
+    );
+    const index = banners.findIndex((item) => item.id === id);
+    if (index < 0) return { error: p.notFound };
+
+    const swapWith = direction === "up" ? index - 1 : index + 1;
+    if (swapWith < 0 || swapWith >= banners.length) {
+      return { success: true };
+    }
+
+    const next = [...banners];
+    [next[index], next[swapWith]] = [next[swapWith], next[index]];
+    await persistCtaBanners(supabase, next);
+    revalidateCtaBannerPaths();
+    return { success: true };
+  } catch (err) {
+    const t = getDictionary(await getLocale());
+    const p = t.dashboard.admin.ctaBannersPage;
     return {
       error: err instanceof Error ? err.message : p.saveError,
     };

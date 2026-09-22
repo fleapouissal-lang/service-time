@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { AboutImageTextSection } from "@/components/about/about-image-text-section";
 import { AboutValuesCarousel } from "@/components/about/about-values-carousel";
 import { AboutCtaSection } from "@/components/home/home-cta-section";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { pickLocalized } from "@/lib/localized-content";
 import { getServerI18n } from "@/lib/i18n/server";
 import { buildPageMetadata } from "@/lib/seo";
@@ -19,7 +20,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AboutPage() {
   const { t, locale } = await getServerI18n();
-  const about = await getSiteContent("about.summary");
+  const [about, ctaBanners] = await Promise.all([
+    getSiteContent("about.summary"),
+    getPublicCtaBanners(locale),
+  ]);
 
   const title =
     pickLocalized(
@@ -78,7 +82,7 @@ export default async function AboutPage() {
       </div>
 
       <div className="hidden md:block">
-        <AboutCtaSection />
+        <AboutCtaSection slides={ctaBanners} />
       </div>
     </>
   );

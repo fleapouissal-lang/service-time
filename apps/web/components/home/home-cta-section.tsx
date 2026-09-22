@@ -1,7 +1,9 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { getCtaSlideImage, type CtaSlideId } from "@/lib/cta-slides";
+import type { PublicCtaBanner } from "@/lib/cta-banners-shared";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { useOptionalLocale } from "@/lib/i18n/locale-context";
 import type { Locale } from "@/lib/i18n/config";
@@ -14,18 +16,43 @@ function resolveFallbackLocale(): Locale {
   return document.documentElement.lang === "en" ? "en" : "ar";
 }
 
+function buildFallbackSlides(locale: Locale): PublicCtaBanner[] {
+  const slides = getDictionary(locale).siteCta.slides;
+  return slides.map((slide) => ({
+    id: slide.id,
+    titleBefore: slide.titleBefore,
+    titleHighlight: slide.titleHighlight,
+    description: slide.description,
+    ctaLabel: slide.ctaLabel,
+    href: slide.ctaHref,
+    imageSrc: getCtaSlideImage(slide.id as CtaSlideId),
+  }));
+}
+
 type SiteCtaSectionProps = {
   /** Use when CTA sits inside a page section that already has site container width. */
   inset?: boolean;
+  /** CMS slides from getPublicCtaBanners; falls back to i18n defaults. */
+  slides?: PublicCtaBanner[];
 };
 
-export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
+export function SiteCtaSection({
+  inset = false,
+  slides: slidesProp,
+}: SiteCtaSectionProps) {
   const localeContext = useOptionalLocale();
   const t = useMemo(
     () => localeContext?.messages ?? getDictionary(resolveFallbackLocale()),
     [localeContext?.messages],
   );
-  const slides = t.siteCta.slides;
+  const locale = localeContext?.locale ?? resolveFallbackLocale();
+  const slides = useMemo(
+    () =>
+      slidesProp && slidesProp.length > 0
+        ? slidesProp
+        : buildFallbackSlides(locale),
+    [slidesProp, locale],
+  );
   const [activeIndex, setActiveIndex] = useState(0);
 
   const goToSlide = useCallback((index: number) => {
@@ -35,6 +62,10 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
   const goToNextSlide = useCallback(() => {
     setActiveIndex((current) => (current + 1) % slides.length);
   }, [slides.length]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+  }, [slides]);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia(
@@ -60,7 +91,6 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
       <div className="cta-slider relative w-full overflow-hidden rounded-[20px]">
         {slides.map((slide, index) => {
           const isActive = index === activeIndex;
-          const imageSrc = getCtaSlideImage(slide.id as CtaSlideId);
 
           return (
             <div
@@ -75,7 +105,7 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
-                src={imageSrc}
+                src={slide.imageSrc}
                 alt=""
                 aria-hidden
                 className="cta-slider__image"
@@ -96,6 +126,14 @@ export function SiteCtaSection({ inset = false }: SiteCtaSectionProps) {
                 </p>
                 <p className="cta-slider__desc">{slide.description}</p>
               </div>
+              {slide.href ? (
+                <Link
+                  href={slide.href}
+                  className="absolute inset-0 z-[3]"
+                  aria-label={slide.ctaLabel || slide.titleBefore}
+                  tabIndex={isActive ? 0 : -1}
+                />
+              ) : null}
             </div>
           );
         })}

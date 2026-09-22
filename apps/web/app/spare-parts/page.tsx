@@ -5,6 +5,7 @@ import { SiteCtaSection } from "@/components/home/home-cta-section";
 import { SparePartsPageClient } from "@/components/spare-parts/spare-parts-page-client";
 import { getCurrentProfile } from "@/lib/auth";
 import { getClientVehicles } from "@/lib/client-vehicles";
+import { getPublicCtaBanners } from "@/lib/cta-banners";
 import { getServerI18n } from "@/lib/i18n/server";
 import { parseListFilters } from "@/lib/list-filters";
 import { buildPageMetadata } from "@/lib/seo";
@@ -26,7 +27,7 @@ export default async function SparePartsPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const { t } = await getServerI18n();
+  const { t, locale } = await getServerI18n();
   const rawParams = await searchParams;
   const { page: pageParam, size: sizeParam, ...filterParams } = rawParams;
   let filters = parseListFilters(filterParams);
@@ -35,8 +36,10 @@ export default async function SparePartsPage({
 
   const profile = await getCurrentProfile();
   const isClient = Boolean(profile?.is_active && profile.role === "client");
-  const clientVehicles =
-    isClient && profile ? await getClientVehicles(profile.id) : [];
+  const [clientVehicles, ctaBanners] = await Promise.all([
+    isClient && profile ? getClientVehicles(profile.id) : Promise.resolve([]),
+    getPublicCtaBanners(locale),
+  ]);
 
   const filterableVehicles = clientVehicles.filter(
     (vehicle): vehicle is typeof vehicle & { brand_slug: string } =>
@@ -96,7 +99,7 @@ export default async function SparePartsPage({
       </Suspense>
 
       <div className="hidden md:block">
-        <SiteCtaSection inset />
+        <SiteCtaSection inset slides={ctaBanners} />
       </div>
     </section>
   );
