@@ -76,6 +76,7 @@ replacements = {
     "DATABASE_URL": "postgresql://postgres.zrykldbnxpvcksbadync:mohammeD%402001123%2F@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres",
     "NEXT_PUBLIC_APP_URL": "http://167.86.106.140:3000",
     "AUTH_COOKIE_SECURE": "false",
+    "ADMIN_LOGIN_OTP_ENABLED": "true",
 }
 # Keep minimal defaults if brand new env
 if not text.strip():
@@ -86,6 +87,7 @@ SMTP_USER=
 SMTP_PASS=
 EMAIL_FROM=Service Time <noreply@servicetime.sa>
 CONTACT_NOTIFY_EMAIL=
+ADMIN_LOGIN_OTP_ENABLED=true
 PASSWORD_RESET_SECRET=e011b6f2ae5f4c96d0b252c3ddb095933992d55eb7557a06fa7ef4c9b4cd4be4
 WHATSAPP_NUMBER=
 WHATSAPP_ACCESS_TOKEN=

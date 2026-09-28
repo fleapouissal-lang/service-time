@@ -145,11 +145,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "account inactive" }, { status: 403 });
     }
 
-    // Admin OTP (disabled by default until Super Admin mailbox is available).
-    // Set ADMIN_LOGIN_OTP_ENABLED=true to require email OTP after password.
+    // Admin OTP is on unless ADMIN_LOGIN_OTP_ENABLED is false, 0, or off.
+    const adminOtpFlag = process.env.ADMIN_LOGIN_OTP_ENABLED?.trim().toLowerCase();
     const adminOtpEnabled =
-      process.env.ADMIN_LOGIN_OTP_ENABLED?.trim().toLowerCase() === "true" ||
-      process.env.ADMIN_LOGIN_OTP_ENABLED?.trim() === "1";
+      adminOtpFlag !== "false" && adminOtpFlag !== "0" && adminOtpFlag !== "off";
 
     if (profile.role === "admin" && adminOtpEnabled) {
       const userId = data.user.id;
