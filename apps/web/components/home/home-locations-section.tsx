@@ -72,8 +72,8 @@ export function HomeLocationsSection({ workshops }: HomeLocationsSectionProps) {
       </div>
 
       {workshops.length > 0 ? (
-        <div className="mt-8 grid gap-5 md:grid-cols-2">
-          {workshops.slice(0, 4).map((branch) => (
+        <div className="mt-8 grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+          {workshops.slice(0, 6).map((branch) => (
             <div
               key={branch.id}
               className={cn(
