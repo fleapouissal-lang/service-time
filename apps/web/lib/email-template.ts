@@ -7,8 +7,23 @@ export const OFFICIAL_EMAIL_FROM = `${SITE_NAME} <${SITE_EMAIL}>`;
 /** CID for rare SMTP inline mode — Gmail web often shows CID as a paperclip. */
 export const EMAIL_LOGO_CID = "logo@servicetime.com.sa";
 
-/** Production logo that is actually deployable (logo-ar / email-logo may 404). */
-export const EMAIL_LOGO_PUBLIC_PATH = "/logos/logo-en.png";
+/** Lightweight logo served from /public, shown inline at the top of emails. */
+export const EMAIL_LOGO_PUBLIC_PATH = "/logos/email-logo.png";
+
+const PUBLIC_SITE_FALLBACK = "https://servicetime.com.sa";
+
+/** Email clients cannot reach localhost, raw IPs or dev ports. */
+function isUsablePublicBase(url: string): boolean {
+  try {
+    const { hostname, port, protocol } = new URL(url);
+    if (hostname === "localhost" || hostname === "127.0.0.1") return false;
+    if (/^\d{1,3}(\.\d{1,3}){3}$/.test(hostname)) return false;
+    if (port && port !== "80" && port !== "443") return false;
+    return protocol === "https:" || protocol === "http:";
+  } catch {
+    return false;
+  }
+}
 
 export type EmailDetailRow = {
   label: string;
@@ -81,15 +96,11 @@ export function getEmailLogoPublicUrl(): string {
   if (custom) return custom;
 
   const fromEnv = process.env.NEXT_PUBLIC_APP_URL?.trim().replace(/\/$/, "");
-  if (
-    fromEnv &&
-    !fromEnv.includes("localhost") &&
-    !fromEnv.includes("127.0.0.1")
-  ) {
+  if (fromEnv && isUsablePublicBase(fromEnv)) {
     return `${fromEnv}${EMAIL_LOGO_PUBLIC_PATH}`;
   }
 
-  return `https://servicetime.com.sa${EMAIL_LOGO_PUBLIC_PATH}`;
+  return `${PUBLIC_SITE_FALLBACK}${EMAIL_LOGO_PUBLIC_PATH}`;
 }
 
 export function getEmailLogoSrc(options?: {
@@ -140,12 +151,11 @@ export function renderServiceTimeEmail(
   options: ServiceTimeEmailOptions,
 ): string {
   ensureServerEnv();
-  const logoSrc = options.logoSrc ?? getEmailLogoSrc({ preferCid: true });
+  const logoSrc = options.logoSrc ?? getEmailLogoSrc({ preferCid: false });
   const siteUrl = absoluteUrl("/");
-  const publicSite =
-    siteUrl.includes("localhost") || siteUrl.includes("127.0.0.1")
-      ? "https://servicetime.com.sa"
-      : siteUrl;
+  const publicSite = isUsablePublicBase(siteUrl)
+    ? siteUrl
+    : PUBLIC_SITE_FALLBACK;
   const year = new Date().getFullYear();
   const title = escapeHtml(options.title);
   const rtlText =
@@ -258,9 +268,6 @@ export function renderServiceTimeEmail(
                 <a href="tel:${escapeHtml(SITE_PHONE.replace(/\s/g, ""))}" style="color:#0f5132;text-decoration:none;" dir="ltr">${escapeHtml(SITE_PHONE)}</a>
                 &nbsp;·&nbsp;
                 <a href="mailto:${escapeHtml(SITE_EMAIL)}" style="color:#0f5132;text-decoration:none;" dir="ltr">${escapeHtml(SITE_EMAIL)}</a>
-              </p>
-              <p align="right" dir="rtl" style="margin:0 0 10px;font-size:12px;line-height:1.7;color:#5b6b63;text-align:right;direction:rtl;">
-                <a href="${escapeHtml(publicSite)}" style="color:#0f5132;text-decoration:none;" dir="ltr">${escapeHtml(publicSite.replace(/^https?:\/\//, ""))}</a>
               </p>
               <p align="right" dir="rtl" style="margin:0;font-size:11px;line-height:1.6;color:#8a9690;text-align:right;direction:rtl;">
                 ${footerNote}<br />

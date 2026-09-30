@@ -56,7 +56,9 @@ async function sendViaSmtp(
 
   // Prefer CID inline for SMTP so Gmail does not need to fetch the site (CSP blocks proxy).
   // Set EMAIL_LOGO_INLINE=false to force hosted HTTPS instead.
-  const useCid = process.env.EMAIL_LOGO_INLINE !== "false";
+  const useCid =
+    process.env.EMAIL_LOGO_INLINE !== "false" &&
+    html.includes(`cid:${EMAIL_LOGO_CID}`);
   const logo = useCid ? getEmailLogoAttachment() : null;
   const publicLogo = getEmailLogoPublicUrl();
   const htmlToSend =
