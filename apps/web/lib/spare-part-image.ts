@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, unlink, writeFile } from "fs/promises";
 import path from "path";
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "spare-parts");
@@ -76,4 +76,18 @@ function normalizeJsonImageList(raw: unknown): string[] {
   return raw.filter(
     (item): item is string => typeof item === "string" && item.trim() !== "",
   );
+}
+
+/** Deletes uploaded part images from public/spare-parts (ignores external URLs and missing files). */
+export async function removeSparePartImageFiles(urls: string[]): Promise<void> {
+  for (const url of urls) {
+    if (typeof url !== "string" || !url.startsWith("/spare-parts/")) continue;
+    const filename = path.basename(url);
+    if (!filename || filename !== url.slice("/spare-parts/".length)) continue;
+    try {
+      await unlink(path.join(UPLOAD_DIR, filename));
+    } catch {
+      // already gone
+    }
+  }
 }

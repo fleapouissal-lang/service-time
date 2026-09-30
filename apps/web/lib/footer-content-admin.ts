@@ -152,10 +152,10 @@ function normalizeFooter(raw: unknown): AdminFooterContent | null {
       const links = normalizeLinks(row.quick_links);
       return links.length > 0 ? links : defaults.quick_links;
     })(),
-    legal_links: (() => {
-      const links = normalizeLinks(row.legal_links);
-      return links.length > 0 ? links : defaults.legal_links;
-    })(),
+    // An explicitly emptied list stays empty; defaults only when never saved.
+    legal_links: Array.isArray(row.legal_links)
+      ? normalizeLinks(row.legal_links)
+      : defaults.legal_links,
   };
 }
 
@@ -198,10 +198,11 @@ export async function persistFooterContent(
   if (error) throw new Error(error.message);
 
   // Keep Contact page phone/email in sync.
-  await supabase.from("site_content").upsert([
+  const { error: contactError } = await supabase.from("site_content").upsert([
     { key: "contact.phone", value: { value: next.phone } },
     { key: "contact.email", value: { value: next.email } },
   ]);
+  if (contactError) throw new Error(contactError.message);
 }
 
 export function toPublicFooterContent(

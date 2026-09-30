@@ -68,7 +68,7 @@ export default async function LocationsPage() {
             />
           </div>
 
-          <div className="mt-8 grid min-h-0 gap-5 md:grid-cols-2 max-md:mt-2 max-md:flex-1 max-md:grid-cols-1 max-md:gap-2 max-md:overflow-y-auto">
+          <div className="mt-8 grid min-h-0 gap-5 md:grid-cols-2 lg:grid-cols-3 max-md:mt-2 max-md:flex-1 max-md:grid-cols-1 max-md:gap-2 max-md:overflow-y-auto">
             {workshops.map((branch) => (
               <Card
                 key={branch.id}

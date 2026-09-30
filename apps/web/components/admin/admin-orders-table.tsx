@@ -8,17 +8,24 @@ import { AdminConfirmDialog } from "@/components/admin/admin-confirm-dialog";
 import { AdminTable, AdminTableCell, AdminTableCustomerInfo, AdminTableHead, AdminTableHeadCell } from "@/components/admin/admin-table";
 import { AdminTableActions } from "@/components/admin/admin-table-actions";
 import { DashboardDetailDialog } from "@/components/dashboard/dashboard-detail-dialog";
-import { DashboardTablePagination } from "@/components/dashboard/dashboard-table-pagination";
+import { UrlTablePagination } from "@/components/dashboard/url-table-pagination";
 import { ServiceRequestPhotosGallery } from "@/components/service-requests/service-request-photos-panel";
 import { Badge } from "@/components/ui/badge";
-import { useDashboardTablePagination } from "@/hooks/use-dashboard-table-pagination";
 import { formatDateTime } from "@/lib/format-datetime";
 import { useLocale } from "@/lib/i18n/locale-context";
 import type { RequestPhotoRow } from "@/lib/request-photos-queries";
 import type { ServiceRequestStatus, RequestPriority, ServiceType } from "@service-time/types";
 
 type AdminOrdersTableProps = {
+  /** Rows of the current page only (sliced on the server). */
   orders: ServiceRequest[];
+  pagination: {
+    page: number;
+    totalPages: number;
+    totalItems: number;
+    from: number;
+    to: number;
+  };
   photoCounts: Record<string, number>;
   photosByRequestId: Record<string, RequestPhotoRow[]>;
   statusLabels: Record<ServiceRequestStatus, string>;
@@ -28,6 +35,7 @@ type AdminOrdersTableProps = {
 
 export function AdminOrdersTable({
   orders,
+  pagination,
   photoCounts,
   photosByRequestId,
   statusLabels,
@@ -41,15 +49,6 @@ export function AdminOrdersTable({
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [viewTarget, setViewTarget] = useState<ServiceRequest | null>(null);
   const [pending, startTransition] = useTransition();
-  const {
-    pageItems,
-    setPage,
-    page,
-    totalPages,
-    totalItems,
-    from,
-    to,
-  } = useDashboardTablePagination(orders);
 
   const handleDelete = () => {
     if (!deleteTarget) return;
@@ -96,7 +95,7 @@ export function AdminOrdersTable({
           </AdminTableHeadCell>
         </AdminTableHead>
         <tbody>
-          {pageItems.map((order) => {
+          {orders.map((order) => {
             const detailHref = `/admin/orders/${order.id}`;
 
             return (
@@ -156,14 +155,7 @@ export function AdminOrdersTable({
         </tbody>
       </AdminTable>
 
-      <DashboardTablePagination
-        page={page}
-        totalPages={totalPages}
-        totalItems={totalItems}
-        from={from}
-        to={to}
-        onPageChange={setPage}
-      />
+      <UrlTablePagination {...pagination} />
 
       <DashboardDetailDialog
         open={Boolean(viewTarget)}

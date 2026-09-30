@@ -1,4 +1,5 @@
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
+import { fetchInChunks } from "@/lib/supabase-batch";
 
 export type RequestPhotoRow = {
   id: string;
@@ -33,20 +34,23 @@ export async function getRequestPhotosByRequestIds(
   const admin = getAdminSupabaseClient();
   if (!admin || requestIds.length === 0) return {};
 
-  const { data, error } = await admin
-    .from("request_photos")
-    .select("id, request_id, storage_path, created_at")
-    .in("request_id", requestIds)
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("[request-photos] batch:", error.message);
+  let rows: RequestPhotoRow[];
+  try {
+    rows = await fetchInChunks<RequestPhotoRow>(requestIds, (chunk) =>
+      admin
+        .from("request_photos")
+        .select("id, request_id, storage_path, created_at")
+        .in("request_id", chunk)
+        .order("created_at", { ascending: true }),
+    );
+  } catch (error) {
+    console.error("[request-photos] batch:", (error as Error).message);
     return {};
   }
 
   const map: Record<string, RequestPhotoRow[]> = {};
-  for (const row of data ?? []) {
-    const requestId = row.request_id as string;
+  for (const row of rows) {
+    const requestId = row.request_id;
     if (!map[requestId]) map[requestId] = [];
     map[requestId].push(row as RequestPhotoRow);
   }

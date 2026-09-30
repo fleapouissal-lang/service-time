@@ -1,6 +1,7 @@
 import type { Profile, ProfileRole, ServiceRequest } from "@service-time/types";
 import { requireProfile } from "@/lib/auth";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
+import { fetchAllRows } from "@/lib/supabase-batch";
 
 export type UserRoleStats = {
   clients: number;
@@ -30,27 +31,33 @@ async function requireAdminDb() {
 
 export async function getAdminServiceRequests(): Promise<ServiceRequest[]> {
   const admin = await requireAdminDb();
-  const { data, error } = await admin
-    .from("service_requests")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return (data ?? []) as ServiceRequest[];
+  return fetchAllRows<ServiceRequest>((from, to) =>
+    admin
+      .from("service_requests")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
 }
 
 export async function getUserRoleStats(): Promise<UserRoleStats> {
   const admin = await requireAdminDb();
-  const { data, error } = await admin.from("profiles").select("role, is_active");
+  const rows = await fetchAllRows<Pick<Profile, "role" | "is_active">>(
+    (from, to) =>
+      admin
+        .from("profiles")
+        .select("role, is_active")
+        .order("id")
+        .range(from, to),
+  );
+  return buildUserRoleStats(rows);
+}
 
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  const rows = data ?? [];
+/** Derives role counts from rows already loaded (avoids a second query). */
+export function buildUserRoleStats(
+  rows: Pick<Profile, "role" | "is_active">[],
+): UserRoleStats {
   const stats: UserRoleStats = {
     clients: 0,
     technicians: 0,
@@ -84,19 +91,17 @@ export async function getPlatformUsers(
   role?: ProfileRole | "all",
 ): Promise<Profile[]> {
   const admin = await requireAdminDb();
-  let query = admin.from("profiles").select("*").order("full_name");
-
-  if (role && role !== "all") {
-    query = query.eq("role", role);
-  }
-
-  const { data, error } = await query;
-
-  if (error) {
-    throw new Error(error.message);
-  }
-
-  return (data ?? []) as Profile[];
+  return fetchAllRows<Profile>((from, to) => {
+    let query = admin
+      .from("profiles")
+      .select("*")
+      .order("full_name")
+      .order("id");
+    if (role && role !== "all") {
+      query = query.eq("role", role);
+    }
+    return query.range(from, to);
+  });
 }
 
 export async function getPlatformUserById(id: string): Promise<Profile | null> {
@@ -114,10 +119,9 @@ export async function getPlatformUserById(id: string): Promise<Profile | null> {
   return (data as Profile | null) ?? null;
 }
 
-export async function buildUserRoleChartData(): Promise<
-  { key: string; name: string; value: number }[]
-> {
-  const stats = await getUserRoleStats();
+export function buildUserRoleChartData(
+  stats: UserRoleStats,
+): { key: string; name: string; value: number }[] {
   return [
     { key: "client", name: "عملاء", value: stats.clients },
     { key: "technician", name: "فنيون", value: stats.technicians },

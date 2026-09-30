@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { cookies } from "next/headers";
 import type { Profile } from "@service-time/types";
 import { ensureServerEnv } from "@/lib/env-server";
@@ -32,7 +33,8 @@ export async function getSession() {
   return session;
 }
 
-export async function getCurrentProfile(): Promise<Profile | null> {
+/** Deduplicated per request: layout + page share one getUser/profiles round trip. */
+export const getCurrentProfile = cache(async (): Promise<Profile | null> => {
   const supabase = await createAuthServerClient();
   const {
     data: { user },
@@ -47,7 +49,7 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .maybeSingle();
 
   return (data as Profile | null) ?? null;
-}
+});
 
 export async function requireProfile(roles?: Profile["role"][]) {
   const profile = await getCurrentProfile();

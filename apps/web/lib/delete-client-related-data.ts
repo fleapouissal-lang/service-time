@@ -5,27 +5,43 @@ import { normalizePhone } from "@/lib/whatsapp-utils";
 
 const REQUEST_PHOTOS_BUCKET = "request-photos";
 
-async function deleteServiceRequestPhotos(
+/** Storage paths of the photos attached to these requests (read before deleting the rows). */
+export async function getServiceRequestPhotoPaths(
   admin: SupabaseClient,
   requestIds: string[],
-): Promise<void> {
-  if (requestIds.length === 0) return;
+): Promise<string[]> {
+  if (requestIds.length === 0) return [];
 
   const { data: photos } = await admin
     .from("request_photos")
     .select("storage_path")
     .in("request_id", requestIds);
 
-  const paths = (photos ?? [])
+  return (photos ?? [])
     .map((row) => row.storage_path)
     .filter((path): path is string => Boolean(path));
+}
 
+export async function removeServiceRequestPhotoFiles(
+  admin: SupabaseClient,
+  paths: string[],
+): Promise<void> {
   if (paths.length > 0) {
     const { error } = await admin.storage.from(REQUEST_PHOTOS_BUCKET).remove(paths);
     if (error) {
       console.error("[delete-client] request photos storage:", error.message);
     }
   }
+}
+
+async function deleteServiceRequestPhotos(
+  admin: SupabaseClient,
+  requestIds: string[],
+): Promise<void> {
+  await removeServiceRequestPhotoFiles(
+    admin,
+    await getServiceRequestPhotoPaths(admin, requestIds),
+  );
 }
 
 async function deleteQuickRequestsForClient(

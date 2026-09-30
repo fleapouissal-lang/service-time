@@ -279,6 +279,8 @@ html.light {
   --foreground: #000000;
   --primary: #94d4b9;
   --primary-foreground: #050b10;
+  /* Readable brand green for text/links on light surfaces (contrast >= 4.9:1). */
+  --brand-ink: #157a57;
   --accent: #94d4b9;
   --accent-foreground: #050b10;
   --muted: #5c6570;
@@ -317,12 +319,12 @@ html.light {
   --site-chrome-accent: #050b10;
   --site-chrome-border: rgba(5, 11, 16, 0.12);
   --section-eyebrow: #000000;
-  --section-title: #94d4b9;
+  --section-title: var(--brand-ink);
   --tag-fg: #000000;
   --tag-bg: #94d4b9;
   --service-tag-bg: #94d4b9;
   --service-tag-fg: #050b10;
-  --service-card-title: #94d4b9;
+  --service-card-title: var(--brand-ink);
   --service-card-desc: #000000;
   --service-card-hover-shadow: 0 6px 20px rgba(148, 212, 185, 0.22);
   --service-card-hover-lift: -3px;
@@ -365,13 +367,13 @@ html.light {
   --not-found-link-fg: rgba(5, 11, 16, 0.68);
   --not-found-link-hover-fg: #050b10;
   --not-found-link-border: rgba(148, 212, 185, 0.24);
-  --spare-part-card-title: #94d4b9;
-  --spare-part-card-price: #94d4b9;
+  --spare-part-card-title: var(--brand-ink);
+  --spare-part-card-price: var(--brand-ink);
   --spare-part-btn-filled-bg: #94d4b9;
   --spare-part-btn-filled-fg: #050b10;
   --spare-part-btn-outline-border: #94d4b9;
-  --spare-part-btn-outline-text: #94d4b9;
-  --request-card-title: #94d4b9;
+  --spare-part-btn-outline-text: var(--brand-ink);
+  --request-card-title: var(--brand-ink);
   --request-card-desc: #000000;
   --request-card-badge-bg: #94d4b9;
   --request-card-badge-border: transparent;
@@ -379,7 +381,7 @@ html.light {
   --request-btn-filled-bg: #94d4b9;
   --request-btn-filled-fg: #050b10;
   --request-btn-outline-border: #94d4b9;
-  --request-btn-outline-text: #94d4b9;
+  --request-btn-outline-text: var(--brand-ink);
   --request-tab-active-bg: #94d4b9;
   --request-tab-active-fg: #050b10;
   --request-tab-bg: #ffffff;
@@ -398,7 +400,7 @@ html.light {
   --request-divider-border: rgba(148, 212, 185, 0.16);
   --request-success-bg: rgba(148, 212, 185, 0.08);
   --request-success-border: rgba(148, 212, 185, 0.2);
-  --request-success-text: #94d4b9;
+  --request-success-text: var(--brand-ink);
   --request-panel-border: rgba(148, 212, 185, 0.16);
   --request-panel-bg: rgba(148, 212, 185, 0.05);
   --request-panel-highlight-border: rgba(148, 212, 185, 0.2);
@@ -443,7 +445,7 @@ html.light {
   --login-card-bg: #ffffff;
   --login-card-border: #94d4b9;
   --login-card-shadow: 0 4px 18px rgba(148, 212, 185, 0.32);
-  --login-eyebrow: #94d4b9;
+  --login-eyebrow: var(--brand-ink);
   --login-title: #000000;
   --login-desc: rgba(0, 0, 0, 0.65);
   --login-label: #000000;
@@ -487,7 +489,7 @@ html.light {
   --hero-brands-bar-border: rgba(0, 0, 0, 0.08);
   --hero-brands-logo-filter: brightness(0);
   --hero-brands-logo-opacity: 0.52;
-  --icon-accent: #94d4b9;
+  --icon-accent: var(--brand-ink);
   --icon-accent-muted: rgba(148, 212, 185, 0.7);
   --icon-accent-bg: rgba(148, 212, 185, 0.1);
   --scrollbar-track: #eef2f7;
@@ -1024,7 +1026,8 @@ body {
   }
 
   html.light .login-register-link {
-    color: #94d4b9;
+    color: var(--brand-ink);
+    font-weight: 600;
   }
 
   .login-back-btn {
@@ -1246,6 +1249,20 @@ body {
     --header-chrome-switch-active-text: #050b10;
     --header-chrome-switch-inactive-text: rgba(0, 0, 0, 0.55);
     --header-chrome-link-active-border: #000000;
+  }
+
+  /* Desktop home: the menu floats over the dark hero photo, keep it light. */
+  @media (min-width: 768px) {
+    html.light .site-header[data-home-overlay="true"] {
+      --header-chrome-fg: #ffffff;
+      --header-chrome-fg-muted: rgba(255, 255, 255, 0.78);
+      --header-chrome-border: rgba(255, 255, 255, 0.3);
+      --header-chrome-surface-bg: rgba(5, 11, 16, 0.32);
+      --header-chrome-btn-outline-border: rgba(255, 255, 255, 0.85);
+      --header-chrome-btn-outline-text: #ffffff;
+      --header-chrome-switch-inactive-text: rgba(255, 255, 255, 0.7);
+      --header-chrome-link-active-border: #94d4b9;
+    }
   }
 
   .header-chrome-icon-btn {
@@ -3639,4 +3656,10 @@ html.light .parts-preview-panel {
 /* About section — mint overlay on images in light mode */
 .about-section-image__overlay--light {
   background-color: rgba(148, 212, 185, 0.16);
+}
+
+/* Light mode: mint stays a fill colour; text/links use the deep brand green. */
+html.light .text-primary,
+html.light .hover\:text-primary:hover {
+  color: var(--brand-ink);
 }

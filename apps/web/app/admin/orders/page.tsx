@@ -54,6 +54,7 @@ import {
   toPublicCatalog,
 } from "@/lib/services-catalog-admin";
 import { getAdminVehicleClasses } from "@/lib/vehicle-classes-admin";
+import { paginateDashboardItems } from "@/lib/dashboard-table-pagination";
 
 type PageProps = {
   searchParams: Promise<Record<string, string | undefined>>;
@@ -62,7 +63,9 @@ type PageProps = {
 export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const { t, locale } = await getServerI18n();
   const p = t.dashboard.admin.ordersPage;
-  const params = parseListFilters(await searchParams);
+  const rawSearchParams = await searchParams;
+  const params = parseListFilters(rawSearchParams);
+  const requestedPage = Number.parseInt(rawSearchParams.page ?? "1", 10) || 1;
   const section = parseAdminOrderSection(params.section);
   const isSpareSection = section === "spare_parts";
   const needsActionOnly =
@@ -70,17 +73,20 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
   const arMessages = getDictionary("ar");
   const enMessages = getDictionary("en");
 
+  // Only load what the active section renders.
   const [allOrders, clients, technicians, allSpareOrders, adminCatalog, vehicleClasses] =
     await Promise.all([
-      getAllServiceRequests(),
-      getPlatformUsers("client"),
-      getTechnicians(),
-      getAdminSparePartOrders(),
-      getAdminServicesCatalog(
-        arMessages.services.catalog,
-        enMessages.services.catalog,
-      ),
-      getAdminVehicleClasses(),
+      isSpareSection ? [] : getAllServiceRequests(),
+      isSpareSection ? [] : getPlatformUsers("client"),
+      isSpareSection ? [] : getTechnicians(),
+      isSpareSection ? getAdminSparePartOrders() : [],
+      isSpareSection
+        ? []
+        : getAdminServicesCatalog(
+            arMessages.services.catalog,
+            enMessages.services.catalog,
+          ),
+      isSpareSection ? [] : getAdminVehicleClasses(),
     ]);
   const catalogCategories = toPublicCatalog(adminCatalog, locale);
 
@@ -93,7 +99,12 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
     ? spareFiltered.filter(sparePartOrderNeedsAction)
     : spareFiltered;
 
-  const orders = isSpareSection ? [] : filterServiceRequests(allOrders, params);
+  const filteredOrders = isSpareSection
+    ? []
+    : filterServiceRequests(allOrders, params);
+  // Only the current page is sent to the browser and needs photos.
+  const orderPage = paginateDashboardItems(filteredOrders, requestedPage);
+  const orders = orderPage.pageItems;
 
   const photosByRequestId = isSpareSection
     ? {}
@@ -141,7 +152,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
           needsActionOptionLabel={p.needsActionFilter}
           showMoreLabel={p.showMoreFilters}
           showLessLabel={p.showLessFilters}
-          resultCount={isSpareSection ? spareRows.length : orders.length}
+          resultCount={isSpareSection ? spareRows.length : filteredOrders.length}
           totalCount={
             isSpareSection ? allSpareOrders.length : allOrders.length
           }
@@ -190,7 +201,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
 
           <Card>
             <CardContent className="p-0">
-              {orders.length === 0 ? (
+              {filteredOrders.length === 0 ? (
                 <p className="p-6 text-center text-sm text-muted">
                   {allOrders.length === 0
                     ? t.common.noData
@@ -199,6 +210,7 @@ export default async function AdminOrdersPage({ searchParams }: PageProps) {
               ) : (
                 <AdminOrdersTable
                   orders={orders}
+                  pagination={orderPage}
                   photoCounts={photoCounts}
                   photosByRequestId={photosByRequestId}
                   statusLabels={statusLabels}

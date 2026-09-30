@@ -9,14 +9,22 @@ import type {
   ServiceType,
   TechnicianType,
 } from "@service-time/types";
-import { createAuthServerClient, requireProfile, requireProfileOrThrow } from "@/lib/auth";
+import {
+  createAuthServerClient,
+  getCurrentProfile,
+  requireProfile,
+  requireProfileOrThrow,
+} from "@/lib/auth";
 import { findAuthUserByEmail } from "@/lib/auth-users";
 import { getDictionary } from "@/lib/i18n/get-dictionary";
 import { getLocale } from "@/lib/i18n/get-locale";
 import { isQuotePending } from "@/lib/suggest-service-price";
 import { isPaymentBlockingAssignment } from "@/lib/service-request-payment";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
-import { resolveSparePartImagesFromForm } from "@/lib/spare-part-image";
+import {
+  removeSparePartImageFiles,
+  resolveSparePartImagesFromForm,
+} from "@/lib/spare-part-image";
 import { parseSparePartCondition } from "@/lib/spare-part-condition";
 import { parseSparePartOriginalPrice } from "@/lib/spare-part-promotion";
 import { parseSparePartVehicleFields } from "@/lib/spare-part-vehicle";
@@ -27,7 +35,11 @@ import {
 } from "@/lib/upload-profile-avatar";
 import { getPlatformUserById } from "@/lib/admin-dashboard-data";
 import { resolveQuickRequestClient } from "@/lib/quick-request-client";
-import { deleteClientRelatedData } from "@/lib/delete-client-related-data";
+import {
+  deleteClientRelatedData,
+  getServiceRequestPhotoPaths,
+  removeServiceRequestPhotoFiles,
+} from "@/lib/delete-client-related-data";
 import { notifyOrderCreated, notifyOrderStatusUpdated } from "@/lib/order-notifications";
 import { revalidateServiceRequestDashboards } from "@/lib/revalidate-service-request-paths";
 import { saveClientVehicleAsAdmin } from "@/lib/client-vehicles";
@@ -187,6 +199,12 @@ export async function updateOrderAction(
       .eq("id", id)
       .maybeSingle();
 
+    if (!existing) {
+      return {
+        error: locale === "ar" ? "الطلب غير موجود." : "Order not found.",
+      };
+    }
+
     if (existing && isQuotePending(existing)) {
       if (assignedTechnicianId) {
         return { error: t.errors.quote.notAccepted };
@@ -216,7 +234,7 @@ export async function updateOrderAction(
       assignedTechnicianId,
     );
 
-    const { error } = await supabase
+    const { data: updatedRows, error } = await supabase
       .from("service_requests")
       .update({
         status: finalStatus,
@@ -224,9 +242,18 @@ export async function updateOrderAction(
         assigned_technician_id: assignedTechnicianId,
         ...location,
       })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id");
 
     if (error) return { error: error.message };
+    if (!updatedRows?.length) {
+      return {
+        error:
+          locale === "ar"
+            ? "لم يتم تحديث الطلب. تحقق من الصلاحيات."
+            : "The order was not updated. Check your permissions.",
+      };
+    }
 
     if (existing && existing.status !== finalStatus) {
       const statusLabel =
@@ -272,17 +299,20 @@ export async function deleteAdminOrderAction(
   try {
     await requireProfileOrThrow(["admin"]);
     const admin = getAdminSupabaseClient();
-    if (!admin) return { error: "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©." };
+    if (!admin) return { error: "إعدادات الخادم غير مكتملة." };
 
     const id = String(formData.get("id"));
+    // Photo rows cascade with the order, so read their storage paths first.
+    const photoPaths = await getServiceRequestPhotoPaths(admin, [id]);
     const { error } = await admin.from("service_requests").delete().eq("id", id);
     if (error) return { error: error.message };
+    await removeServiceRequestPhotoFiles(admin, photoPaths);
 
     revalidatePath("/admin/orders");
     revalidatePath("/admin");
     return { success: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "ØªØ¹Ø°Ù‘Ø± Ø­Ø°Ù Ø§Ù„Ø·Ù„Ø¨." };
+    return { error: err instanceof Error ? err.message : "تعذّر حذف الطلب." };
   }
 }
 
@@ -292,10 +322,10 @@ export async function deleteSparePartOrderAction(
   try {
     await requireProfileOrThrow(["admin"]);
     const admin = getAdminSupabaseClient();
-    if (!admin) return { error: "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©." };
+    if (!admin) return { error: "إعدادات الخادم غير مكتملة." };
 
     const id = String(formData.get("id") ?? "").trim();
-    if (!id) return { error: "Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ø·Ù„Ø¨ Ù…Ø·Ù„ÙˆØ¨." };
+    if (!id) return { error: "معرّف الطلب مطلوب." };
 
     const { data: order, error: fetchError } = await admin
       .from("spare_part_orders")
@@ -304,7 +334,7 @@ export async function deleteSparePartOrderAction(
       .maybeSingle();
 
     if (fetchError) return { error: fetchError.message };
-    if (!order) return { error: "Ø§Ù„Ø·Ù„Ø¨ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯." };
+    if (!order) return { error: "الطلب غير موجود." };
 
     if (order.status !== "cancelled") {
       const { error: cancelError } = await admin
@@ -326,7 +356,7 @@ export async function deleteSparePartOrderAction(
     revalidatePath("/spare-parts");
     return { success: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "ØªØ¹Ø°Ù‘Ø± Ø­Ø°Ù Ø§Ù„Ø·Ù„Ø¨." };
+    return { error: err instanceof Error ? err.message : "تعذّر حذف الطلب." };
   }
 }
 
@@ -420,12 +450,14 @@ export async function saveSparePartEditAction(
       return { error: "Select vehicle brand and model for this part" };
     }
 
-    const { error } = await supabase
+    const { data: updatedRows, error } = await supabase
       .from("spare_parts")
       .update(payload)
-      .eq("id", id);
+      .eq("id", id)
+      .select("id");
 
     if (error) return { error: error.message };
+    if (!updatedRows?.length) return { error: "Spare part not found" };
 
     revalidatePath("/admin/spare-parts");
     revalidatePath(`/admin/spare-parts/${id}`);
@@ -452,6 +484,12 @@ export async function deleteSparePartAction(
     const id = String(formData.get("id") ?? "").trim();
     if (!id) return { error: "Missing part id" };
 
+    const { data: partRow } = await supabase
+      .from("spare_parts")
+      .select("images")
+      .eq("id", id)
+      .maybeSingle();
+
     const { error } = await supabase.from("spare_parts").delete().eq("id", id);
     if (error) {
       if (error.code === "23503" || /foreign key|restrict/i.test(error.message)) {
@@ -460,6 +498,13 @@ export async function deleteSparePartAction(
       }
       return { error: error.message };
     }
+
+    const imageUrls = Array.isArray(partRow?.images)
+      ? (partRow.images as unknown[]).filter(
+          (url): url is string => typeof url === "string",
+        )
+      : [];
+    await removeSparePartImageFiles(imageUrls);
 
     revalidatePath("/admin/spare-parts");
     revalidatePath("/spare-parts");
@@ -482,23 +527,29 @@ export async function saveContentAction(
 ): Promise<MutationFormState> {
   try {
     const supabase = await adminClient();
-    const key = String(formData.get("key"));
-    const valueRaw = String(formData.get("value_json"));
+    const key = String(formData.get("key") ?? "").trim();
+    const valueRaw = String(formData.get("value_json") ?? "");
+    if (!key) return { error: "المفتاح مطلوب." };
 
     let value: Record<string, unknown>;
     try {
-      value = JSON.parse(valueRaw) as Record<string, unknown>;
+      const parsed: unknown = JSON.parse(valueRaw);
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        return { error: "JSON غير صالح" };
+      }
+      value = parsed as Record<string, unknown>;
     } catch {
-      return { error: "JSON ØºÙŠØ± ØµØ§Ù„Ø­" };
+      return { error: "JSON غير صالح" };
     }
 
     const { error } = await supabase.from("site_content").upsert({ key, value });
     if (error) return { error: error.message };
 
     revalidatePath("/admin/content");
+    revalidatePath("/", "layout");
     return { success: true };
   } catch (err) {
-    return { error: err instanceof Error ? err.message : "ØªØ¹Ø°Ù‘Ø± Ø§Ù„Ø­ÙØ¸." };
+    return { error: err instanceof Error ? err.message : "تعذّر الحفظ." };
   }
 }
 
@@ -675,19 +726,26 @@ export async function togglePlatformUserAction(
     const id = String(formData.get("id"));
     const is_active = formData.get("is_active") === "true";
 
-    const { error } = await supabase
+    const me = await getCurrentProfile();
+    if (me?.id === id && is_active) {
+      return { error: "لا يمكنك تعطيل حسابك الخاص." };
+    }
+
+    const { data: updatedRows, error } = await supabase
       .from("profiles")
       .update({ is_active: !is_active })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id");
 
     if (error) return { error: error.message };
+    if (!updatedRows?.length) return { error: "المستخدم غير موجود." };
     revalidatePath("/admin/users");
     revalidatePath("/admin/technicians");
     revalidatePath(`/admin/users/${id}`);
     return { success: true };
   } catch (err) {
     return {
-      error: err instanceof Error ? err.message : "ØªØ¹Ø°Ù‘Ø± ØªØ­Ø¯ÙŠØ« Ø§Ù„Ø­Ø§Ù„Ø©.",
+      error: err instanceof Error ? err.message : "تعذّر تحديث الحالة.",
     };
   }
 }
@@ -708,16 +766,16 @@ export async function deletePlatformUserAction(
 
     const admin = getAdminSupabaseClient();
     if (!admin) {
-      return { error: "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©." };
+      return { error: "إعدادات الخادم غير مكتملة." };
     }
 
     const id = String(formData.get("id") ?? "").trim();
     if (!id) {
-      return { error: "Ù…Ø¹Ø±Ù‘Ù Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± ØµØ§Ù„Ø­." };
+      return { error: "معرّف المستخدم غير صالح." };
     }
 
     if (id === currentAdmin.id) {
-      return { error: "Ù„Ø§ ÙŠÙ…ÙƒÙ†Ùƒ Ø­Ø°Ù Ø­Ø³Ø§Ø¨Ùƒ Ø§Ù„Ø­Ø§Ù„ÙŠ." };
+      return { error: "لا يمكنك حذف حسابك الحالي." };
     }
 
     const { data: target, error: fetchError } = await admin
@@ -768,7 +826,7 @@ export async function deletePlatformUserAction(
           .remove(files.map((file) => `${id}/${file.name}`));
       }
     } catch {
-      // Nettoyage avatar best-effort â€” la suppression auth reste prioritaire.
+      // Nettoyage avatar best-effort — la suppression auth reste prioritaire.
     }
 
     const { error: deleteError } = await admin.auth.admin.deleteUser(id);
@@ -785,7 +843,7 @@ export async function deletePlatformUserAction(
     return { success: true };
   } catch (err) {
     return {
-      error: err instanceof Error ? err.message : "ØªØ¹Ø°Ù‘Ø± Ø­Ø°Ù Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù….",
+      error: err instanceof Error ? err.message : "تعذّر حذف المستخدم.",
     };
   }
 }
@@ -795,7 +853,7 @@ export async function createPlatformUserAction(formData: FormData) {
 
   const admin = getAdminSupabaseClient();
   if (!admin) {
-    throw new Error("Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©.");
+    throw new Error("إعدادات الخادم غير مكتملة.");
   }
 
   const fullNameAr = String(formData.get("full_name_ar") ?? "").trim();
@@ -808,11 +866,11 @@ export async function createPlatformUserAction(formData: FormData) {
   const avatarFile = getAvatarFromFormData(formData);
 
   if (fullNameAr.length < 2) {
-    throw new Error("Ø£Ø¯Ø®Ù„ Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø¹Ø±Ø¨ÙŠØ©.");
+    throw new Error("أدخل الاسم بالعربية.");
   }
 
   if (fullNameEn.length < 2) {
-    throw new Error("Ø£Ø¯Ø®Ù„ Ø§Ù„Ø§Ø³Ù… Ø¨Ø§Ù„Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠØ©.");
+    throw new Error("أدخل الاسم بالإنجليزية.");
   }
 
   const contact = validateRequiredContact(emailRaw, phoneRaw);
@@ -828,13 +886,13 @@ export async function createPlatformUserAction(formData: FormData) {
   }
 
   if (!["client", "technician", "admin"].includes(role)) {
-    throw new Error("Ù†ÙˆØ¹ Ø§Ù„Ø­Ø³Ø§Ø¨ ØºÙŠØ± ØµØ§Ù„Ø­.");
+    throw new Error("نوع الحساب غير صالح.");
   }
 
   let technicianType: TechnicianType | null = null;
   if (role === "technician") {
     if (technicianTypeRaw !== "mobile" && technicianTypeRaw !== "workshop") {
-      throw new Error("Ø§Ø®ØªØ± Ù†ÙˆØ¹ Ø§Ù„ÙÙ†ÙŠ.");
+      throw new Error("اختر نوع الفني.");
     }
     technicianType = technicianTypeRaw;
   }
@@ -856,7 +914,7 @@ export async function createPlatformUserAction(formData: FormData) {
     });
 
   if (createError || !created.user) {
-    throw new Error(createError?.message ?? "ØªØ¹Ø°Ù‘Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø­Ø³Ø§Ø¨.");
+    throw new Error(createError?.message ?? "تعذّر إنشاء الحساب.");
   }
 
   const userId = created.user.id;
@@ -927,7 +985,7 @@ export async function getPlatformUserEditDataAction(
 
   const admin = getAdminSupabaseClient();
   if (!admin) {
-    throw new Error("Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©.");
+    throw new Error("إعدادات الخادم غير مكتملة.");
   }
 
   const { data: profile, error } = await admin
@@ -950,7 +1008,7 @@ export async function getPlatformUserEditDataAction(
     await admin.auth.admin.getUserById(userId);
 
   if (authError || !authData.user) {
-    throw new Error(authError?.message ?? "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯.");
+    throw new Error(authError?.message ?? "المستخدم غير موجود.");
   }
 
   return {
@@ -1064,13 +1122,13 @@ async function confirmPlatformUserContactVerification(
   }
 
   if (!row) {
-    throw new Error("Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø§Ù„ØªØ­Ù‚Ù‚. Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.");
+    throw new Error("انتهت صلاحية التحقق. أعد المحاولة.");
   }
 
   const record = row as ContactVerificationRow;
 
   if (record.admin_id !== currentAdminId) {
-    throw new Error("ØºÙŠØ± Ù…ØµØ±Ø­.");
+    throw new Error("غير مصرح.");
   }
 
   if (new Date(record.expires_at).getTime() < Date.now()) {
@@ -1078,7 +1136,7 @@ async function confirmPlatformUserContactVerification(
       .from("platform_user_contact_verifications")
       .delete()
       .eq("id", verificationId);
-    throw new Error("Ø§Ù†ØªÙ‡Øª ØµÙ„Ø§Ø­ÙŠØ© Ø±Ù…Ø² Ø§Ù„ØªØ­Ù‚Ù‚. Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.");
+    throw new Error("انتهت صلاحية رمز التحقق. أعد المحاولة.");
   }
 
   const emailChanged = Boolean(record.email_code_hash);
@@ -1086,7 +1144,7 @@ async function confirmPlatformUserContactVerification(
 
   if (emailChanged) {
     if (!isValidContactVerifyCode(emailCode)) {
-      throw new Error("Ø£Ø¯Ø®Ù„ Ø±Ù…Ø² Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ (6 Ø£Ø±Ù‚Ø§Ù…).");
+      throw new Error("أدخل رمز البريد الإلكتروني (6 أرقام).");
     }
 
     const expectedEmail = record.new_email ?? input.email;
@@ -1106,20 +1164,20 @@ async function confirmPlatformUserContactVerification(
           .from("platform_user_contact_verifications")
           .delete()
           .eq("id", verificationId);
-        throw new Error("ØªØ¬Ø§ÙˆØ²Øª Ø¹Ø¯Ø¯ Ù…Ø­Ø§ÙˆÙ„Ø§Øª Ø±Ù…Ø² Ø§Ù„Ø¨Ø±ÙŠØ¯. Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.");
+        throw new Error("تجاوزت عدد محاولات رمز البريد. أعد المحاولة.");
       }
 
       await admin
         .from("platform_user_contact_verifications")
         .update({ email_attempts: nextAttempts })
         .eq("id", verificationId);
-      throw new Error("Ø±Ù…Ø² Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ ØºÙŠØ± ØµØ­ÙŠØ­.");
+      throw new Error("رمز البريد الإلكتروني غير صحيح.");
     }
   }
 
   if (phoneChanged) {
     if (!isValidContactVerifyCode(phoneCode)) {
-      throw new Error("Ø£Ø¯Ø®Ù„ Ø±Ù…Ø² ÙˆØ§ØªØ³Ø§Ø¨ (6 Ø£Ø±Ù‚Ø§Ù…).");
+      throw new Error("أدخل رمز واتساب (6 أرقام).");
     }
 
     const phoneTarget = record.new_phone ?? record.old_phone ?? "";
@@ -1139,14 +1197,14 @@ async function confirmPlatformUserContactVerification(
           .from("platform_user_contact_verifications")
           .delete()
           .eq("id", verificationId);
-        throw new Error("ØªØ¬Ø§ÙˆØ²Øª Ø¹Ø¯Ø¯ Ù…Ø­Ø§ÙˆÙ„Ø§Øª Ø±Ù…Ø² ÙˆØ§ØªØ³Ø§Ø¨. Ø£Ø¹Ø¯ Ø§Ù„Ù…Ø­Ø§ÙˆÙ„Ø©.");
+        throw new Error("تجاوزت عدد محاولات رمز واتساب. أعد المحاولة.");
       }
 
       await admin
         .from("platform_user_contact_verifications")
         .update({ phone_attempts: nextAttempts })
         .eq("id", verificationId);
-      throw new Error("Ø±Ù…Ø² ÙˆØ§ØªØ³Ø§Ø¨ ØºÙŠØ± ØµØ­ÙŠØ­.");
+      throw new Error("رمز واتساب غير صحيح.");
     }
   }
 
@@ -1154,7 +1212,7 @@ async function confirmPlatformUserContactVerification(
 
   const existing = await findAuthUserByEmail(input.email);
   if (existing && existing.id !== input.id) {
-    throw new Error("Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„.");
+    throw new Error("هذا البريد مستخدم بالفعل.");
   }
 
   await applyPlatformUserUpdate(admin, input);
@@ -1182,7 +1240,7 @@ async function initiatePlatformUserContactVerification(
   const phoneVerifyTarget = phoneChanged ? (input.phone ?? oldPhone) : null;
 
   if (phoneChanged && !phoneVerifyTarget) {
-    throw new Error("Ù„Ø§ ÙŠÙ…ÙƒÙ† Ø§Ù„ØªØ­Ù‚Ù‚ Ù…Ù† Ø±Ù‚Ù… Ø§Ù„Ø¬ÙˆØ§Ù„.");
+    throw new Error("لا يمكن التحقق من رقم الجوال.");
   }
 
   const payload: ContactVerificationPayload = {
@@ -1222,7 +1280,7 @@ async function initiatePlatformUserContactVerification(
     .single();
 
   if (insertError || !row) {
-    throw new Error(insertError?.message ?? "ØªØ¹Ø°Ù‘Ø± Ø¨Ø¯Ø¡ Ø§Ù„ØªØ­Ù‚Ù‚.");
+    throw new Error(insertError?.message ?? "تعذّر بدء التحقق.");
   }
 
   if (emailChanged && emailVerifyCode) {
@@ -1236,7 +1294,7 @@ async function initiatePlatformUserContactVerification(
         .from("platform_user_contact_verifications")
         .delete()
         .eq("id", row.id);
-      throw new Error(mail.error ?? "ØªØ¹Ø°Ù‘Ø± Ø¥Ø±Ø³Ø§Ù„ Ø±Ù…Ø² Ø§Ù„Ø¨Ø±ÙŠØ¯.");
+      throw new Error(mail.error ?? "تعذّر إرسال رمز البريد.");
     }
   }
 
@@ -1253,7 +1311,7 @@ async function initiatePlatformUserContactVerification(
         .from("platform_user_contact_verifications")
         .delete()
         .eq("id", row.id);
-      throw new Error(wa.error ?? "ØªØ¹Ø°Ù‘Ø± Ø¥Ø±Ø³Ø§Ù„ Ø±Ù…Ø² ÙˆØ§ØªØ³Ø§Ø¨.");
+      throw new Error(wa.error ?? "تعذّر إرسال رمز واتساب.");
     }
   }
 
@@ -1281,7 +1339,7 @@ export async function updatePlatformUserAction(
 
   const admin = getAdminSupabaseClient();
   if (!admin) {
-    throw new Error("Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©.");
+    throw new Error("إعدادات الخادم غير مكتملة.");
   }
 
   const input = parsePlatformUserUpdateInput(formData);
@@ -1306,7 +1364,7 @@ export async function updatePlatformUserAction(
     await admin.auth.admin.getUserById(input.id);
 
   if (authError || !authData.user) {
-    throw new Error(authError?.message ?? "Ø§Ù„Ù…Ø³ØªØ®Ø¯Ù… ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯.");
+    throw new Error(authError?.message ?? "المستخدم غير موجود.");
   }
 
   const { data: profile, error: profileError } = await admin
@@ -1332,7 +1390,7 @@ export async function updatePlatformUserAction(
 
   const existing = await findAuthUserByEmail(input.email);
   if (existing && existing.id !== input.id) {
-    throw new Error("Ù‡Ø°Ø§ Ø§Ù„Ø¨Ø±ÙŠØ¯ Ù…Ø³ØªØ®Ø¯Ù… Ø¨Ø§Ù„ÙØ¹Ù„.");
+    throw new Error("هذا البريد مستخدم بالفعل.");
   }
 
   if (!emailChanged && !phoneChanged) {
@@ -1373,15 +1431,15 @@ const ADMIN_ORDER_PRIORITIES: RequestPriority[] = ["low", "normal", "high"];
 function mapQuickClientError(code: string): string {
   switch (code) {
     case "email_used_non_client":
-      return "Ø§Ù„Ø¨Ø±ÙŠØ¯ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ Ù…Ø³ØªØ®Ø¯Ù… Ù„Ø­Ø³Ø§Ø¨ ØºÙŠØ± Ø¹Ù…ÙŠÙ„.";
+      return "البريد الإلكتروني مستخدم لحساب غير عميل.";
     case "create_user_failed":
-      return "ØªØ¹Ø°Ù‘Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø­Ø³Ø§Ø¨ Ø§Ù„Ø¹Ù…ÙŠÙ„.";
+      return "تعذّر إنشاء حساب العميل.";
     case "create_profile_failed":
-      return "ØªØ¹Ø°Ù‘Ø± Ø¥Ù†Ø´Ø§Ø¡ Ù…Ù„Ù Ø§Ù„Ø¹Ù…ÙŠÙ„.";
+      return "تعذّر إنشاء ملف العميل.";
     case "server_incomplete":
-      return "Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ø§Ù„Ø®Ø§Ø¯Ù… ØºÙŠØ± Ù…ÙƒØªÙ…Ù„Ø©.";
+      return "إعدادات الخادم غير مكتملة.";
     default:
-      return "ØªØ¹Ø°Ù‘Ø± Ø¥Ø¹Ø¯Ø§Ø¯ Ø§Ù„Ø¹Ù…ÙŠÙ„.";
+      return "تعذّر إعداد العميل.";
   }
 }
 
@@ -1406,10 +1464,10 @@ export async function createAdminOrderAction(
     const emailRaw = String(formData.get("customer_email") ?? "").trim();
 
     if (fullName.length < 2) {
-      return { error: "Ø£Ø¯Ø®Ù„ Ø§Ø³Ù… Ø§Ù„Ø¹Ù…ÙŠÙ„." };
+      return { error: "أدخل اسم العميل." };
     }
     if (!phoneRaw) {
-      return { error: "Ø±Ù‚Ù… Ù‡Ø§ØªÙ Ø§Ù„Ø¹Ù…ÙŠÙ„ Ù…Ø·Ù„ÙˆØ¨." };
+      return { error: "رقم هاتف العميل مطلوب." };
     }
 
     const resolved = await resolveQuickRequestClient({
@@ -1428,15 +1486,15 @@ export async function createAdminOrderAction(
   } else {
     clientId = String(formData.get("client_id") ?? "").trim();
     if (!clientId) {
-      return { error: "Ø§Ø®ØªØ± Ø¹Ù…ÙŠÙ„Ø§Ù‹ Ù…Ø³Ø¬Ù‘Ù„Ø§Ù‹." };
+      return { error: "اختر عميلاً مسجّلاً." };
     }
 
     const client = await getPlatformUserById(clientId);
     if (!client || client.role !== "client") {
-      return { error: "Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± Ù…ÙˆØ¬ÙˆØ¯." };
+      return { error: "العميل المحدد غير موجود." };
     }
     if (!client.phone?.trim()) {
-      return { error: "Ø§Ù„Ø¹Ù…ÙŠÙ„ Ø§Ù„Ù…Ø­Ø¯Ø¯ Ù„Ø§ ÙŠÙ…Ù„Ùƒ Ø±Ù‚Ù… Ù‡Ø§ØªÙ." };
+      return { error: "العميل المحدد لا يملك رقم هاتف." };
     }
 
     customerName = client.full_name;
@@ -1454,19 +1512,20 @@ export async function createAdminOrderAction(
   ) as RequestPriority;
 
   if (!ADMIN_ORDER_SERVICE_TYPES.includes(serviceType)) {
-    return { error: "Ù†ÙˆØ¹ Ø§Ù„Ø®Ø¯Ù…Ø© ØºÙŠØ± ØµØ§Ù„Ø­." };
+    return { error: "نوع الخدمة غير صالح." };
   }
   if (!ADMIN_ORDER_EXECUTION_METHODS.includes(executionMethod)) {
-    return { error: "Ø·Ø±ÙŠÙ‚Ø© Ø§Ù„ØªÙ†ÙÙŠØ° ØºÙŠØ± ØµØ§Ù„Ø­Ø©." };
+    return { error: "طريقة التنفيذ غير صالحة." };
   }
   if (!ADMIN_ORDER_PRIORITIES.includes(priority)) {
-    return { error: "Ø§Ù„Ø£ÙˆÙ„ÙˆÙŠØ© ØºÙŠØ± ØµØ§Ù„Ø­Ø©." };
+    return { error: "الأولوية غير صالحة." };
   }
 
   const carType = String(formData.get("car_type") ?? "").trim() || null;
   const vehicleClassRaw = String(formData.get("vehicle_class") ?? "").trim();
   const catalogCategory =
     String(formData.get("catalog_category") ?? "").trim() || null;
+  const catalogSub = String(formData.get("catalog_sub") ?? "").trim() || null;
   const location = parseOrderLocation(formData);
   const description =
     String(formData.get("description") ?? "").trim() || null;
@@ -1496,7 +1555,7 @@ export async function createAdminOrderAction(
   if (assignedTechnicianId) {
     const technician = await getPlatformUserById(assignedTechnicianId);
     if (!technician || technician.role !== "technician") {
-      return { error: "Ø§Ù„ÙÙ†ÙŠ Ø§Ù„Ù…Ø­Ø¯Ø¯ ØºÙŠØ± ØµØ§Ù„Ø­." };
+      return { error: "الفني المحدد غير صالح." };
     }
   }
 
@@ -1508,6 +1567,7 @@ export async function createAdminOrderAction(
       customer_phone: customerPhone,
       car_type: carType,
       catalog_category: catalogCategory,
+      catalog_sub: catalogSub,
       location_text: location.location_text,
       location_lat: location.location_lat,
       location_lng: location.location_lng,
@@ -1528,7 +1588,7 @@ export async function createAdminOrderAction(
     .single();
 
   if (error || !data?.id) {
-    return { error: error?.message ?? "ØªØ¹Ø°Ù‘Ø± Ø¥Ù†Ø´Ø§Ø¡ Ø§Ù„Ø·Ù„Ø¨." };
+    return { error: error?.message ?? "تعذّر إنشاء الطلب." };
   }
 
   if (carType) {
@@ -1630,8 +1690,25 @@ export async function saveAdminServiceCategoryAction(
     if (message === "services_catalog_sub_label_ar_required") {
       return { error: p.subLabelRequired };
     }
-    return { error: message || p.saveError };
+    return { error: await servicesCatalogErrorMessage(message, p.saveError) };
   }
+}
+
+/** Maps services-catalog error codes to text an admin can read. */
+async function servicesCatalogErrorMessage(
+  code: string,
+  fallback: string,
+): Promise<string> {
+  const isAr = (await getLocale()) === "ar";
+  if (code === "services_catalog_min_one_required") {
+    return isAr
+      ? "يجب أن تبقى فئة خدمة واحدة على الأقل."
+      : "At least one service category must remain.";
+  }
+  if (code === "services_catalog_price_invalid") {
+    return isAr ? "السعر غير صالح." : "The price is not valid.";
+  }
+  return code.startsWith("services_catalog_") || !code ? fallback : code;
 }
 
 export async function deleteAdminServiceCategoryAction(
@@ -1658,8 +1735,12 @@ export async function deleteAdminServiceCategoryAction(
     revalidateServicesCatalogPaths();
     return { success: true };
   } catch (err) {
+    const t = getDictionary(await getLocale());
     return {
-      error: err instanceof Error ? err.message : "Could not delete service",
+      error: await servicesCatalogErrorMessage(
+        err instanceof Error ? err.message : "",
+        t.dashboard.admin.servicesPage.saveError,
+      ),
     };
   }
 }
@@ -1820,6 +1901,10 @@ export async function moveHeroBannerAction(
 
     const next = [...banners];
     [next[index], next[swapWith]] = [next[swapWith], next[index]];
+    // Persist re-sorts by sort_order, so renumber after the swap.
+    next.forEach((item, position) => {
+      item.sort_order = position;
+    });
     await persistHeroBanners(supabase, next);
     revalidateHeroBannerPaths();
     return { success: true };
@@ -1996,6 +2081,10 @@ export async function moveCtaBannerAction(
 
     const next = [...banners];
     [next[index], next[swapWith]] = [next[swapWith], next[index]];
+    // Persist re-sorts by sort_order, so renumber after the swap.
+    next.forEach((item, position) => {
+      item.sort_order = position;
+    });
     await persistCtaBanners(supabase, next);
     revalidateCtaBannerPaths();
     return { success: true };
@@ -2212,6 +2301,10 @@ export async function moveFooterLinkAction(
 
     const next = [...links];
     [next[index], next[swapWith]] = [next[swapWith], next[index]];
+    // Persist re-sorts by sort_order, so renumber after the swap.
+    next.forEach((item, position) => {
+      item.sort_order = position;
+    });
 
     await persistFooterContent(
       supabase,
@@ -2261,10 +2354,19 @@ async function syncFooterLegalLink(
   supabase: Awaited<ReturnType<typeof adminClient>>,
   page: AdminLegalPage,
   mode: "upsert" | "remove",
+  previousSlug?: string,
 ) {
   const footer = await getAdminFooterContent();
   const href = `/legal/${page.slug}`;
   let legal_links = [...footer.legal_links];
+
+  // Slug renamed: repoint the old footer link instead of leaving it dead.
+  if (mode === "upsert" && previousSlug && previousSlug !== page.slug) {
+    const oldHref = `/legal/${previousSlug}`;
+    legal_links = legal_links.map((link) =>
+      link.href === oldHref ? { ...link, href } : link,
+    );
+  }
 
   if (mode === "remove") {
     legal_links = legal_links.filter((link) => link.href !== href);
@@ -2333,7 +2435,7 @@ export async function saveLegalPageAction(
         ];
 
     await persistLegalPages(supabase, next);
-    await syncFooterLegalLink(supabase, page, "upsert");
+    await syncFooterLegalLink(supabase, page, "upsert", existing?.slug);
     revalidateLegalPaths(page.slug);
     if (existing && existing.slug !== page.slug) {
       revalidateLegalPaths(existing.slug);

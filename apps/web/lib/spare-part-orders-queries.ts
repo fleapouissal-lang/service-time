@@ -5,6 +5,7 @@ import type {
 } from "@service-time/types";
 import { createAuthServerClient } from "@/lib/auth";
 import { getAdminSupabaseClient } from "@/lib/supabase-admin";
+import { fetchAllRows, fetchInChunks } from "@/lib/supabase-batch";
 
 export type SparePartOrderWithItems = SparePartOrder & {
   items: SparePartOrderItem[];
@@ -82,29 +83,40 @@ export async function getAdminSparePartOrders(): Promise<
 > {
   const supabase = getAdminSupabaseClient();
   if (!supabase) return [];
-  const { data: orders } = await supabase
-    .from("spare_part_orders")
-    .select("*")
-    .order("created_at", { ascending: false });
+  const orders = await fetchAllRows<SparePartOrder>((from, to) =>
+    supabase
+      .from("spare_part_orders")
+      .select("*")
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
 
-  if (!orders?.length) return [];
+  if (!orders.length) return [];
 
   const orderIds = orders.map((o) => o.id);
   const clientIds = [...new Set(orders.map((o) => o.client_id))];
 
-  const [{ data: items }, { data: profiles }] = await Promise.all([
-    supabase
-      .from("spare_part_order_items")
-      .select("*")
-      .in("order_id", orderIds),
-    supabase
-      .from("profiles")
-      .select("id, full_name, full_name_ar, full_name_en, phone")
-      .in("id", clientIds),
+  const [items, profiles] = await Promise.all([
+    fetchInChunks<SparePartOrderItem>(orderIds, (chunk) =>
+      supabase.from("spare_part_order_items").select("*").in("order_id", chunk),
+    ),
+    fetchInChunks<{
+      id: string;
+      full_name: string;
+      full_name_ar: string | null;
+      full_name_en: string | null;
+      phone: string | null;
+    }>(clientIds, (chunk) =>
+      supabase
+        .from("profiles")
+        .select("id, full_name, full_name_ar, full_name_en, phone")
+        .in("id", chunk),
+    ),
   ]);
 
   const profileMap = new Map(
-    (profiles ?? []).map((p) => [
+    profiles.map((p) => [
       p.id,
       {
         full_name: p.full_name,
@@ -116,13 +128,13 @@ export async function getAdminSparePartOrders(): Promise<
   );
 
   const itemsByOrder = new Map<string, SparePartOrderItem[]>();
-  for (const item of (items as SparePartOrderItem[]) ?? []) {
+  for (const item of items) {
     const list = itemsByOrder.get(item.order_id) ?? [];
     list.push(item);
     itemsByOrder.set(item.order_id, list);
   }
 
-  return (orders as SparePartOrder[]).map((order) => ({
+  return orders.map((order) => ({
     ...order,
     items: itemsByOrder.get(order.id) ?? [],
     client: profileMap.get(order.client_id) ?? null,

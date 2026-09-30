@@ -67,12 +67,12 @@ export function getPaymobConfigurationError(): string | null {
     return "PAYMOB_INTEGRATION_IDS غير مضبوط. أضف Integration ID من لوحة Paymob (مثال: 123456).";
   }
 
-  if (!secretKey.startsWith("sk_")) {
-    return "PAYMOB_SECRET_KEY غير صالح. يجب أن يبدأ بـ sk_test_ أو sk_live_.";
+  if (!/^(?:[a-z]{2,4}_)?sk_(?:test|live)_/.test(secretKey)) {
+    return "PAYMOB_SECRET_KEY غير صالح. يجب أن يبدأ بـ sk_test_ أو sk_live_ (أو sau_sk_test_ للسعودية).";
   }
 
-  if (!publicKey.startsWith("pk_")) {
-    return "NEXT_PUBLIC_PAYMOB_PUBLIC_KEY غير صالح. يجب أن يبدأ بـ pk_test_ أو pk_live_.";
+  if (!/^(?:[a-z]{2,4}_)?pk_(?:test|live)_/.test(publicKey)) {
+    return "NEXT_PUBLIC_PAYMOB_PUBLIC_KEY غير صالح. يجب أن يبدأ بـ pk_test_ أو pk_live_ (أو sau_pk_test_ للسعودية).";
   }
 
   return null;

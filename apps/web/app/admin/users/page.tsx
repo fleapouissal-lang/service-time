@@ -3,8 +3,8 @@ import { AdminUsersWorkspace } from "@/components/admin/admin-users-workspace";
 import { DashboardFilterBar } from "@/components/dashboard/dashboard-filter-bar";
 import { StatCard } from "@/components/dashboard/stat-card";
 import {
+  buildUserRoleStats,
   getPlatformUsers,
-  getUserRoleStats,
 } from "@/lib/admin-dashboard-data";
 import {
   getActiveFilterOptionsForDashboard,
@@ -25,10 +25,8 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
   const p = t.dashboard.admin.usersPage;
   const params = parseListFilters(await searchParams);
 
-  const [stats, allUsers] = await Promise.all([
-    getUserRoleStats(),
-    getPlatformUsers("all"),
-  ]);
+  const allUsers = await getPlatformUsers("all");
+  const stats = buildUserRoleStats(allUsers);
   const users = filterProfiles(allUsers, params);
   const roleLabels = getRoleLabels(t);
   const technicianTypeLabels = getTechnicianTypeLabels(t);

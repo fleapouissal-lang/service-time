@@ -53,11 +53,11 @@ export default async function AdminHomePage({ searchParams }: PageProps) {
   const rawParams = await searchParams;
   const params = parseOverviewFilters(rawParams);
 
-  const [allOrders, userStats, userChartData] = await Promise.all([
+  const [allOrders, userStats] = await Promise.all([
     getAdminServiceRequests(),
     getUserRoleStats(),
-    buildUserRoleChartData(),
   ]);
+  const userChartData = buildUserRoleChartData(userStats);
 
   const periodOrders = filterByOverviewPeriod(allOrders, params.period);
   const orders = periodOrders;
