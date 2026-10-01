@@ -5,7 +5,11 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-const password = process.env.DEPLOY_SSH_PASSWORD || "3zcyEyt^St23ylXx";
+const password = process.env.DEPLOY_SSH_PASSWORD;
+if (!password) {
+  console.error("Set DEPLOY_SSH_PASSWORD");
+  process.exit(1);
+}
 const host = process.env.DEPLOY_SSH_HOST || "167.86.106.140";
 
 const files = [

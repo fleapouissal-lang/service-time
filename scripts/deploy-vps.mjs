@@ -5,7 +5,7 @@
  */
 import { Client } from "ssh2";
 import { execSync } from "node:child_process";
-import { unlinkSync } from "node:fs";
+import { readFileSync, unlinkSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -14,6 +14,46 @@ const host = process.env.DEPLOY_SSH_HOST || "167.86.106.140";
 const password = process.env.DEPLOY_SSH_PASSWORD;
 if (!password) {
   console.error("Set DEPLOY_SSH_PASSWORD");
+  process.exit(1);
+}
+
+/** Parse KEY=value lines of a .env file. */
+function parseEnv(text) {
+  const out = {};
+  for (const line of text.split(/\r?\n/)) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#") || !trimmed.includes("=")) continue;
+    const i = trimmed.indexOf("=");
+    out[trimmed.slice(0, i).trim()] = trimmed
+      .slice(i + 1)
+      .trim()
+      .replace(/^["']|["']$/g, "");
+  }
+  return out;
+}
+
+// Secrets are read from the local (git-ignored) .env — never hardcode them here.
+const localEnv = parseEnv(readFileSync(join(root, ".env"), "utf8"));
+const SYNCED_KEYS = [
+  "NEXT_PUBLIC_SUPABASE_URL",
+  "NEXT_PUBLIC_SUPABASE_ANON_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+  "DATABASE_URL",
+  "PASSWORD_RESET_SECRET",
+];
+const missing = SYNCED_KEYS.filter((key) => !localEnv[key]);
+if (missing.length) {
+  console.error("Missing in .env: " + missing.join(", "));
+  process.exit(1);
+}
+const envReplacements = Object.fromEntries(SYNCED_KEYS.map((key) => [key, localEnv[key]]));
+envReplacements.NEXT_PUBLIC_APP_URL =
+  process.env.DEPLOY_APP_URL || localEnv.DEPLOY_APP_URL || "http://167.86.106.140:3000";
+envReplacements.AUTH_COOKIE_SECURE =
+  process.env.DEPLOY_COOKIE_SECURE || localEnv.DEPLOY_COOKIE_SECURE || "false";
+envReplacements.ADMIN_LOGIN_OTP_ENABLED = "true";
+if (JSON.stringify(envReplacements).includes("'''")) {
+  console.error("Unsupported characters in env values");
   process.exit(1);
 }
 
@@ -66,18 +106,11 @@ node -v
 npm -v
 
 python3 - <<'PY'
+import json
 from pathlib import Path
 p = Path("/root/service-time/.env")
 text = p.read_text(encoding="utf-8") if p.exists() else ""
-replacements = {
-    "NEXT_PUBLIC_SUPABASE_URL": "https://zrykldbnxpvcksbadync.supabase.co",
-    "NEXT_PUBLIC_SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyeWtsZGJueHB2Y2tzYmFkeW5jIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMxNTc1ODMsImV4cCI6MjA5ODczMzU4M30.ay6bzAQc3PvkWZyYEWOYujAIZtWcLyp2WgE75yWH9y4",
-    "SUPABASE_SERVICE_ROLE_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpyeWtsZGJueHB2Y2tzYmFkeW5jIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzE1NzU4MywiZXhwIjoyMDk4NzMzNTgzfQ.Z1uOytp9B0zYfNX6KpHxTeDpNXIRZmgwKj9Y68AsrSg",
-    "DATABASE_URL": "postgresql://postgres.zrykldbnxpvcksbadync:mohammeD%402001123%2F@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres",
-    "NEXT_PUBLIC_APP_URL": "http://167.86.106.140:3000",
-    "AUTH_COOKIE_SECURE": "false",
-    "ADMIN_LOGIN_OTP_ENABLED": "true",
-}
+replacements = json.loads(r'''${JSON.stringify(envReplacements)}''')
 # Keep minimal defaults if brand new env
 if not text.strip():
     text = """# Service Time production env
@@ -88,7 +121,7 @@ SMTP_PASS=
 EMAIL_FROM=Service Time <noreply@servicetime.sa>
 CONTACT_NOTIFY_EMAIL=
 ADMIN_LOGIN_OTP_ENABLED=true
-PASSWORD_RESET_SECRET=e011b6f2ae5f4c96d0b252c3ddb095933992d55eb7557a06fa7ef4c9b4cd4be4
+PASSWORD_RESET_SECRET=
 WHATSAPP_NUMBER=
 WHATSAPP_ACCESS_TOKEN=
 WHATSAPP_PHONE_NUMBER_ID=

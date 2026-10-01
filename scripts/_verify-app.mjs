@@ -12,9 +12,7 @@ function loadPassword() {
       // optional
     }
   }
-  const src = readFileSync("scripts/patch-email-vps.mjs", "utf8");
-  const match = src.match(/DEPLOY_SSH_PASSWORD \|\| "([^"]+)"/);
-  return match?.[1] ?? "";
+  return "";
 }
 
 const password = loadPassword();
